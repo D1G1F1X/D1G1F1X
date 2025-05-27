@@ -110,30 +110,22 @@ export default function AnimatedBackground() {
     const generateClouds = () => {
       clouds.length = 0
       if (canvas) {
-        const cloudCount = 15 + Math.floor(Math.random() * 5) // More clouds for better perspective effect
+        const cloudCount = 15 + Math.floor(Math.random() * 5)
         const vanishingPointX = canvas.width / 2
         const vanishingPointY = canvas.height * 0.4 // Vanishing point slightly above center
 
         for (let i = 0; i < cloudCount; i++) {
           // Assign z-coordinate for depth (0 = closest, 1 = farthest)
-          const z = Math.random()
+          // Start with most clouds being far away
+          const z = 0.5 + Math.random() * 0.5
 
           // Calculate position based on perspective
-          // Clouds farther away (higher z) are closer to the vanishing point
-          let x, y
+          // Distribute clouds around and near the vanishing point
+          const angle = Math.random() * Math.PI * 2
+          const distanceFromCenter = Math.random() * canvas.width * 0.3 // Smaller distance to keep clouds near vanishing point
 
-          if (Math.random() > 0.5) {
-            // Generate clouds at the edges
-            x = Math.random() > 0.5 ? -200 : canvas.width + 200
-            y = Math.random() * canvas.height * 0.6
-          } else {
-            // Generate clouds with perspective distribution
-            const angle = Math.random() * Math.PI * 2
-            const distanceFromCenter = (1 - z * 0.7) * canvas.width * 0.7 // Farther clouds are closer to vanishing point
-
-            x = vanishingPointX + Math.cos(angle) * distanceFromCenter
-            y = vanishingPointY + Math.sin(angle) * distanceFromCenter * 0.5 // Flatten vertically for perspective
-          }
+          const x = vanishingPointX + Math.cos(angle) * distanceFromCenter * z
+          const y = vanishingPointY + Math.sin(angle) * distanceFromCenter * z * 0.5 // Flatten vertically for perspective
 
           // Scale and opacity based on distance
           const baseScale = 0.3 + Math.random() * 0.4
@@ -180,6 +172,26 @@ export default function AnimatedBackground() {
             seed: Math.random() * 1000,
             puffs: puffs,
           })
+        }
+
+        // Distribute clouds at different distances for initial scene
+        for (let i = 0; i < cloudCount / 2; i++) {
+          const existingCloud = clouds[i % clouds.length]
+          if (existingCloud) {
+            // Create a copy with modified position to fill the scene
+            const angle = Math.random() * Math.PI * 2
+            const z = Math.random() * 0.5 // Closer to viewer
+            const distanceFromCenter = (0.3 + Math.random() * 0.7) * canvas.width * 0.5
+
+            const newCloud = { ...existingCloud }
+            newCloud.x = vanishingPointX + Math.cos(angle) * distanceFromCenter
+            newCloud.y = vanishingPointY + Math.sin(angle) * distanceFromCenter * 0.5
+            newCloud.z = z
+            newCloud.scale = (0.3 + Math.random() * 0.4) * (1 - z * 0.5)
+            newCloud.opacity = (0.2 + Math.random() * 0.3) * (1 - z * 0.3)
+
+            clouds.push(newCloud)
+          }
         }
 
         // Sort clouds by z-coordinate so farther clouds are drawn first
@@ -530,8 +542,8 @@ export default function AnimatedBackground() {
       const factor = (time - startColor.time) / (endColor.time - startColor.time)
 
       const r = Math.floor(startColor.color[0] + factor * (endColor.color[0] - startColor.color[0]))
-      const g = Math.floor(startColor.color[1] + factor * (endColor.color[1] - startColor.color[1]))
-      const b = Math.floor(startColor.color[2] + factor * (endColor.color[2] - startColor.color[2]))
+      const g = Math.floor(startColor.color[1] + factor * (endColor.color.color[1] - startColor.color[1]))
+      const b = Math.floor(startColor.color[2] + factor * (endColor.color.color[2] - startColor.color[2]))
 
       return `rgb(${r}, ${g}, ${b})`
     }
@@ -695,7 +707,7 @@ export default function AnimatedBackground() {
           puff.r * 1.2,
         )
         gradient.addColorStop(0, `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, ${opacity * 0.3})`)
-        gradient.addColorStop(0.5, `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, ${opacity * 0.2})`)
+        gradient.addColorStop(0.5, `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.g}, ${opacity * 0.2})`)
         gradient.addColorStop(1, `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, 0)`)
 
         ctx.beginPath()
@@ -772,47 +784,45 @@ export default function AnimatedBackground() {
       const vanishingPointY = canvas.height * 0.4
 
       clouds.forEach((cloud) => {
-        // Calculate direction vector towards vanishing point
-        const dirX = vanishingPointX - cloud.x
-        const dirY = vanishingPointY - cloud.y
+        // Calculate direction vector AWAY from vanishing point (reversed)
+        const dirX = cloud.x - vanishingPointX
+        const dirY = cloud.y - vanishingPointY
         const length = Math.sqrt(dirX * dirX + dirY * dirY)
 
         // Normalize and scale by speed and z-coordinate
-        const speedFactor = cloud.speed * deltaTime * (1 + cloud.z * 2) // Faster as they get closer to vanishing point
+        // Closer clouds (smaller z) move faster to enhance the effect of emerging from distance
+        const speedFactor = cloud.speed * deltaTime * (2 - cloud.z * 1.5)
 
         if (length > 0) {
           cloud.x += (dirX / length) * speedFactor
           cloud.y += (dirY / length) * speedFactor * 0.5 // Slower vertical movement for perspective
         }
 
-        // If cloud is very close to vanishing point or off-screen, reset it
-        const distanceToVanishing = Math.sqrt(
-          Math.pow(cloud.x - vanishingPointX, 2) + Math.pow(cloud.y - vanishingPointY, 2),
-        )
-
-        if (
-          distanceToVanishing < 20 ||
-          cloud.x < -200 ||
-          cloud.x > canvas.width + 200 ||
-          cloud.y < -200 ||
-          cloud.y > canvas.height + 200
-        ) {
-          // Reset cloud position to edge of screen with random angle
+        // If cloud is far from vanishing point or off-screen, reset it to the vanishing point
+        if (cloud.x < -200 || cloud.x > canvas.width + 200 || cloud.y < -200 || cloud.y > canvas.height + 200) {
+          // Reset cloud position to near the vanishing point with slight randomness
           const angle = Math.random() * Math.PI * 2
-          const distance = canvas.width * 0.7
+          const distance = 20 + Math.random() * 40 // Small distance from vanishing point
 
           cloud.x = vanishingPointX + Math.cos(angle) * distance
           cloud.y = vanishingPointY + Math.sin(angle) * distance * 0.5
 
-          // Randomize z-coordinate
-          cloud.z = Math.random()
+          // Start with high z-coordinate (far away)
+          cloud.z = 0.7 + Math.random() * 0.3
 
-          // Update scale and opacity based on new z
+          // Update scale and opacity based on new z (small and transparent when far)
           cloud.scale = (0.3 + Math.random() * 0.4) * (1 - cloud.z * 0.7)
           cloud.opacity = (0.2 + Math.random() * 0.3) * (1 - cloud.z * 0.5)
 
-          // Update speed
-          cloud.speed = 0.01 + Math.random() * 0.01 * (1 - cloud.z * 0.7)
+          // Update speed - clouds start slower when far away
+          cloud.speed = 0.01 + Math.random() * 0.01 * (1 - cloud.z * 0.5)
+        } else {
+          // As clouds move away from vanishing point, gradually decrease z (coming closer)
+          cloud.z = Math.max(0, cloud.z - 0.0001 * deltaTime)
+
+          // Update scale and opacity to grow as they approach
+          cloud.scale = (0.3 + Math.random() * 0.4) * (1 - cloud.z * 0.5)
+          cloud.opacity = (0.2 + Math.random() * 0.3) * (1 - cloud.z * 0.3)
         }
       })
 
