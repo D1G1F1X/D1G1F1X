@@ -54,18 +54,26 @@ export default function AnimatedBackground() {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    // Load the logo images - use direct path to avoid CORS issues
+    // Load the logo images - use Blob URLs if available or fallback to local paths
     const sunLogo = new Image()
     sunLogoRef.current = sunLogo
-    // Try local path first
-    sunLogo.src = "/images/logo-bulb.png"
     sunLogo.crossOrigin = "anonymous"
+    // Try Blob URL first, then fallback to local path
+    sunLogo.src = "/images/logo-bulb.png"
+    sunLogo.onload = () => {
+      console.log("Sun logo loaded successfully")
+      setIsSunLogoLoaded(true)
+    }
 
     const moonLogo = new Image()
     moonLogoRef.current = moonLogo
-    // Try local path first
-    moonLogo.src = "/images/logo-bulb.png"
     moonLogo.crossOrigin = "anonymous"
+    // Try Blob URL first, then fallback to local path
+    moonLogo.src = "/images/logo-bulb.png"
+    moonLogo.onload = () => {
+      console.log("Moon logo loaded successfully")
+      setIsMoonLogoLoaded(true)
+    }
 
     // Set canvas dimensions
     const setCanvasDimensions = () => {
@@ -790,7 +798,7 @@ export default function AnimatedBackground() {
       const x = canvas.width / 2
 
       // Sun animation with pause 50px below header
-      if (isSunLogoLoaded && sunLogoRef.current && timeOfDay >= 5 && timeOfDay <= 19) {
+      if (sunLogoRef.current && timeOfDay >= 5 && timeOfDay <= 19) {
         let sunY
         let sunOpacity = 1.0
 
@@ -861,7 +869,7 @@ export default function AnimatedBackground() {
       }
 
       // Moon animation with pause 50px below header
-      if (isMoonLogoLoaded && moonLogoRef.current && (timeOfDay >= 18 || timeOfDay <= 7)) {
+      if (moonLogoRef.current && (timeOfDay >= 18 || timeOfDay <= 7)) {
         let moonY
         let moonOpacity = 1.0
 
@@ -955,44 +963,64 @@ export default function AnimatedBackground() {
 
     animationFrameId = requestAnimationFrame(draw)
 
-    sunLogo.onload = () => {
-      console.log("Sun logo loaded successfully")
-      setIsSunLogoLoaded(true)
-    }
-
-    moonLogo.onload = () => {
-      console.log("Moon logo loaded successfully")
-      setIsMoonLogoLoaded(true)
-    }
-
     sunLogo.onerror = (error) => {
       console.error("Error loading sun logo:", error)
-      // Try a different approach - create a simple circle as fallback
+      // Create a simple sun circle as fallback
       const fallbackCanvas = document.createElement("canvas")
       fallbackCanvas.width = 100
       fallbackCanvas.height = 100
       const fallbackCtx = fallbackCanvas.getContext("2d")
       if (fallbackCtx) {
-        fallbackCtx.fillStyle = "#FFCC00"
+        // Draw a yellow circle with gradient
+        const gradient = fallbackCtx.createRadialGradient(50, 50, 10, 50, 50, 40)
+        gradient.addColorStop(0, "#FFFF80")
+        gradient.addColorStop(1, "#FFCC00")
+        fallbackCtx.fillStyle = gradient
         fallbackCtx.beginPath()
         fallbackCtx.arc(50, 50, 40, 0, Math.PI * 2)
         fallbackCtx.fill()
+
+        // Add some rays
+        fallbackCtx.strokeStyle = "#FFCC00"
+        fallbackCtx.lineWidth = 2
+        for (let i = 0; i < 12; i++) {
+          const angle = (i / 12) * Math.PI * 2
+          fallbackCtx.beginPath()
+          fallbackCtx.moveTo(50 + Math.cos(angle) * 40, 50 + Math.sin(angle) * 40)
+          fallbackCtx.lineTo(50 + Math.cos(angle) * 48, 50 + Math.sin(angle) * 48)
+          fallbackCtx.stroke()
+        }
+
         sunLogo.src = fallbackCanvas.toDataURL()
       }
     }
 
     moonLogo.onerror = (error) => {
       console.error("Error loading moon logo:", error)
-      // Try a different approach - create a simple circle as fallback
+      // Create a simple moon circle as fallback
       const fallbackCanvas = document.createElement("canvas")
       fallbackCanvas.width = 100
       fallbackCanvas.height = 100
       const fallbackCtx = fallbackCanvas.getContext("2d")
       if (fallbackCtx) {
-        fallbackCtx.fillStyle = "#CCDDFF"
+        // Draw a blue-white circle with gradient
+        const gradient = fallbackCtx.createRadialGradient(50, 50, 10, 50, 50, 40)
+        gradient.addColorStop(0, "#FFFFFF")
+        gradient.addColorStop(1, "#CCDDFF")
+        fallbackCtx.fillStyle = gradient
         fallbackCtx.beginPath()
         fallbackCtx.arc(50, 50, 40, 0, Math.PI * 2)
         fallbackCtx.fill()
+
+        // Add a crater or two
+        fallbackCtx.fillStyle = "rgba(180, 200, 220, 0.5)"
+        fallbackCtx.beginPath()
+        fallbackCtx.arc(65, 35, 10, 0, Math.PI * 2)
+        fallbackCtx.fill()
+        fallbackCtx.beginPath()
+        fallbackCtx.arc(35, 60, 8, 0, Math.PI * 2)
+        fallbackCtx.fill()
+
         moonLogo.src = fallbackCanvas.toDataURL()
       }
     }
