@@ -46,6 +46,8 @@ export default function AnimatedBackground() {
   const [isMoonLogoLoaded, setIsMoonLogoLoaded] = useState(false)
   const sunLogoRef = useRef<HTMLImageElement | null>(null)
   const moonLogoRef = useRef<HTMLImageElement | null>(null)
+  const logoOriginalWidth = useRef<number>(0)
+  const logoOriginalHeight = useRef<number>(0)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -62,6 +64,8 @@ export default function AnimatedBackground() {
     sunLogo.src = "/images/logo-bulb.png"
     sunLogo.onload = () => {
       console.log("Sun logo loaded successfully")
+      logoOriginalWidth.current = sunLogo.naturalWidth
+      logoOriginalHeight.current = sunLogo.naturalHeight
       setIsSunLogoLoaded(true)
     }
 
@@ -72,6 +76,8 @@ export default function AnimatedBackground() {
     moonLogo.src = "/images/logo-bulb.png"
     moonLogo.onload = () => {
       console.log("Moon logo loaded successfully")
+      logoOriginalWidth.current = moonLogo.naturalWidth
+      logoOriginalHeight.current = moonLogo.naturalHeight
       setIsMoonLogoLoaded(true)
     }
 
@@ -860,7 +866,23 @@ export default function AnimatedBackground() {
 
           try {
             ctx.globalAlpha = sunOpacity
-            ctx.drawImage(sunLogoRef.current, x - logoSize / 2, sunY - logoSize / 2, logoSize, logoSize)
+
+            // Calculate dimensions to maintain aspect ratio
+            let drawWidth = logoSize
+            let drawHeight = logoSize
+
+            if (logoOriginalWidth.current && logoOriginalHeight.current) {
+              const aspectRatio = logoOriginalWidth.current / logoOriginalHeight.current
+              if (aspectRatio > 1) {
+                // Wider than tall
+                drawHeight = logoSize / aspectRatio
+              } else {
+                // Taller than wide
+                drawWidth = logoSize * aspectRatio
+              }
+            }
+
+            ctx.drawImage(sunLogoRef.current, x - drawWidth / 2, sunY - drawHeight / 2, drawWidth, drawHeight)
             ctx.globalAlpha = 1.0
           } catch (error) {
             console.warn("Could not draw sun logo:", error)
@@ -927,11 +949,28 @@ export default function AnimatedBackground() {
           try {
             ctx.globalAlpha = moonOpacity
             ctx.globalCompositeOperation = "source-over"
-            ctx.drawImage(moonLogoRef.current, x - logoSize / 2, moonY - logoSize / 2, logoSize, logoSize)
 
+            // Calculate dimensions to maintain aspect ratio
+            let drawWidth = logoSize
+            let drawHeight = logoSize
+
+            if (logoOriginalWidth.current && logoOriginalHeight.current) {
+              const aspectRatio = logoOriginalWidth.current / logoOriginalHeight.current
+              if (aspectRatio > 1) {
+                // Wider than tall
+                drawHeight = logoSize / aspectRatio
+              } else {
+                // Taller than wide
+                drawWidth = logoSize * aspectRatio
+              }
+            }
+
+            ctx.drawImage(moonLogoRef.current, x - drawWidth / 2, moonY - drawHeight / 2, drawWidth, drawHeight)
+
+            // Apply the blue tint effect
             ctx.globalCompositeOperation = "color"
             ctx.fillStyle = "rgba(180, 200, 255, 0.3)"
-            ctx.fillRect(x - logoSize / 2, moonY - logoSize / 2, logoSize, logoSize)
+            ctx.fillRect(x - drawWidth / 2, moonY - drawHeight / 2, drawWidth, drawHeight)
 
             ctx.globalCompositeOperation = "source-over"
             ctx.globalAlpha = 1.0
