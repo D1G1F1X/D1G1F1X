@@ -2,7 +2,7 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ImageWithFallback } from "@/components/image-with-fallback"
+import ImageWithFallback from "@/components/image-with-fallback"
 
 export default function ProjectPage() {
   const project = {
