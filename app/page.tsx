@@ -246,7 +246,9 @@ export default function Home() {
               Integrated Digital Solutions
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Comprehensive services that work together seamlessly to drive innovation and growth for your business
+              Comprehensive services that work together seamlessly to drive innovation and growth for your business. Our
+              integrated approach ensures that each service complements and enhances the others, creating a cohesive
+              strategy for your business transformation.
             </p>
           </div>
 
@@ -371,8 +373,14 @@ export default function Home() {
               </Badge>
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">Clarity in Complexity</h2>
               <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-                We empower businesses by fusing cutting-edge AI strategy with expert project management, web
-                development, captivating graphic design, impactful marketing strategies, and dependable tech consulting.
+                At Lumen Helix, we don't just implement technology—we architect transformation. We empower businesses by
+                fusing cutting-edge AI strategy with expert project management, innovative web development, captivating
+                design, and data-driven marketing strategies.
+              </p>
+              <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+                Our approach combines strategic insight with practical implementation, ensuring that every solution we
+                deliver is both innovative and effective. We believe in creating clarity from complexity, turning
+                digital challenges into competitive advantages.
               </p>
               <div className="space-y-6 mb-8">
                 <div className="flex items-start">

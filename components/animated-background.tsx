@@ -2,11 +2,10 @@
 
 import { useEffect, useRef, useState } from "react"
 
-// Enhanced cloud interface with z-coordinate for depth
+// Enhanced cloud interface for realistic cumulus clouds
 interface Cloud {
   x: number
   y: number
-  z: number // z-coordinate for depth (0 = closest, 1 = farthest)
   scale: number
   speed: number
   opacity: number
@@ -105,34 +104,15 @@ export default function AnimatedBackground() {
       { time: 24, color: [10, 10, 35] }, // Night (loop back)
     ]
 
-    // Generate perspective clouds with z-coordinate for depth
+    // Generate realistic cumulus clouds with randomized puffs
     const clouds: Cloud[] = []
     const generateClouds = () => {
       clouds.length = 0
       if (canvas) {
-        const cloudCount = 15 + Math.floor(Math.random() * 5)
-        const vanishingPointX = canvas.width / 2
-        const vanishingPointY = canvas.height * 0.4 // Vanishing point slightly above center
+        const cloudCount = 4 + Math.floor(Math.random() * 3) // 4-6 clouds for a cleaner sky
 
         for (let i = 0; i < cloudCount; i++) {
-          // Assign z-coordinate for depth (0 = closest, 1 = farthest)
-          // Start with most clouds being far away
-          const z = 0.5 + Math.random() * 0.5
-
-          // Calculate position based on perspective
-          // Distribute clouds around and near the vanishing point
-          const angle = Math.random() * Math.PI * 2
-          const distanceFromCenter = Math.random() * canvas.width * 0.3 // Smaller distance to keep clouds near vanishing point
-
-          const x = vanishingPointX + Math.cos(angle) * distanceFromCenter * z
-          const y = vanishingPointY + Math.sin(angle) * distanceFromCenter * z * 0.5 // Flatten vertically for perspective
-
-          // Scale and opacity based on distance
-          const baseScale = 0.3 + Math.random() * 0.4
-          const scaleWithPerspective = baseScale * (1 - z * 0.7) // Smaller in the distance
-          const opacityWithPerspective = (0.2 + Math.random() * 0.3) * (1 - z * 0.5) // More transparent in the distance
-
-          const puffCount = 8 + Math.floor(Math.random() * 5)
+          const puffCount = 8 + Math.floor(Math.random() * 5) // 8-12 puffs per cloud
           const puffs = []
 
           // Generate randomized puff positions for natural cloud shapes
@@ -163,39 +143,15 @@ export default function AnimatedBackground() {
           }
 
           clouds.push({
-            x,
-            y,
-            z,
-            scale: scaleWithPerspective,
-            speed: 0.01 + Math.random() * 0.01 * (1 - z * 0.7), // Slower in the distance
-            opacity: opacityWithPerspective,
+            x: Math.random() * (canvas.width + 600) - 300,
+            y: 50 + Math.random() * (canvas.height * 0.3), // Keep clouds higher in the sky
+            scale: 0.5 + Math.random() * 0.8, // Slightly smaller clouds
+            speed: 0.006 + Math.random() * 0.015, // Slower for more realistic movement
+            opacity: 0.25 + Math.random() * 0.35, // Slightly more transparent
             seed: Math.random() * 1000,
             puffs: puffs,
           })
         }
-
-        // Distribute clouds at different distances for initial scene
-        for (let i = 0; i < cloudCount / 2; i++) {
-          const existingCloud = clouds[i % clouds.length]
-          if (existingCloud) {
-            // Create a copy with modified position to fill the scene
-            const angle = Math.random() * Math.PI * 2
-            const z = Math.random() * 0.5 // Closer to viewer
-            const distanceFromCenter = (0.3 + Math.random() * 0.7) * canvas.width * 0.5
-
-            const newCloud = { ...existingCloud }
-            newCloud.x = vanishingPointX + Math.cos(angle) * distanceFromCenter
-            newCloud.y = vanishingPointY + Math.sin(angle) * distanceFromCenter * 0.5
-            newCloud.z = z
-            newCloud.scale = (0.3 + Math.random() * 0.4) * (1 - z * 0.5)
-            newCloud.opacity = (0.2 + Math.random() * 0.3) * (1 - z * 0.3)
-
-            clouds.push(newCloud)
-          }
-        }
-
-        // Sort clouds by z-coordinate so farther clouds are drawn first
-        clouds.sort((a, b) => b.z - a.z)
       }
     }
 
@@ -315,10 +271,6 @@ export default function AnimatedBackground() {
     const drawDigitalHorizon = (ctx: CanvasRenderingContext2D, timeOfDay: number) => {
       if (!canvas) return
 
-      // Vanishing point for perspective
-      const vanishingPointX = canvas.width / 2
-      const vanishingPointY = canvas.height * 0.4
-
       // Horizon line position - about 70% down the canvas
       const horizonY = canvas.height * 0.7
 
@@ -367,51 +319,36 @@ export default function AnimatedBackground() {
       ctx.fillStyle = horizonGlow
       ctx.fillRect(0, horizonY - 20, canvas.width, 40)
 
-      // Draw perspective grid lines radiating from vanishing point
-      ctx.strokeStyle = `rgba(${horizonColor[0]}, ${horizonColor[1]}, ${horizonColor[2]}, 0.2)`
+      // Draw digital grid lines on the horizon
+      ctx.strokeStyle = `rgba(${horizonColor[0]}, ${horizonColor[1]}, ${horizonColor[2]}, 0.3)`
       ctx.lineWidth = 1
 
-      // Draw radiating lines from vanishing point
-      const lineCount = 12
-      for (let i = 0; i < lineCount; i++) {
-        const angle = (i / lineCount) * Math.PI * 2
-        const edgeX = vanishingPointX + Math.cos(angle) * canvas.width
-        const edgeY = vanishingPointY + Math.sin(angle) * canvas.height
+      // Vertical grid lines
+      const gridSpacing = 50
+      const gridCount = Math.ceil(canvas.width / gridSpacing)
+
+      for (let i = 0; i < gridCount; i++) {
+        const x = i * gridSpacing
+
+        // Vary the height based on a sine wave for a city skyline effect
+        const heightVariation = Math.sin(i * 0.5) * 20 + Math.sin(i * 0.2) * 15 + Math.random() * 10
+        const lineHeight = 20 + heightVariation
 
         ctx.beginPath()
-        ctx.moveTo(vanishingPointX, vanishingPointY)
-        ctx.lineTo(edgeX, edgeY)
+        ctx.moveTo(x, horizonY)
+        ctx.lineTo(x, horizonY - lineHeight)
         ctx.stroke()
-      }
 
-      // Draw horizontal perspective lines
-      const horizontalLineCount = 5
-      for (let i = 1; i <= horizontalLineCount; i++) {
-        const y = horizonY + (canvas.height - horizonY) * (i / horizontalLineCount)
+        // Add some horizontal connectors for a circuit-like appearance
+        if (i < gridCount - 1 && Math.random() > 0.7) {
+          const nextHeight = 20 + Math.sin((i + 1) * 0.5) * 20 + Math.sin((i + 1) * 0.2) * 15 + Math.random() * 10
+          const connectionY = horizonY - Math.min(lineHeight, nextHeight) * Math.random()
 
-        // Calculate curve points for perspective
-        const points = []
-        const pointCount = 20
-
-        for (let j = 0; j <= pointCount; j++) {
-          const x = (j / pointCount) * canvas.width
-
-          // Calculate y-offset based on distance from vanishing point
-          const distanceFromCenter = Math.abs(x - vanishingPointX) / (canvas.width / 2)
-          const yOffset = distanceFromCenter * 20 * (i / horizontalLineCount)
-
-          points.push({ x, y: y + yOffset })
+          ctx.beginPath()
+          ctx.moveTo(x, connectionY)
+          ctx.lineTo(x + gridSpacing, connectionY)
+          ctx.stroke()
         }
-
-        // Draw curved line
-        ctx.beginPath()
-        ctx.moveTo(points[0].x, points[0].y)
-
-        for (let j = 1; j <= pointCount; j++) {
-          ctx.lineTo(points[j].x, points[j].y)
-        }
-
-        ctx.stroke()
       }
 
       // Draw the main horizon line
@@ -548,7 +485,7 @@ export default function AnimatedBackground() {
       return `rgb(${r}, ${g}, ${b})`
     }
 
-    // Enhanced realistic cumulus cloud drawing with perspective
+    // Enhanced realistic cumulus cloud drawing
     const drawRealisticCumulusCloud = (cloud: Cloud, timeOfDay: number) => {
       if (!ctx || !canvas) return
 
@@ -690,7 +627,7 @@ export default function AnimatedBackground() {
         }
       }
 
-      // Adjust opacity based on time of day and distance (z-coordinate)
+      // Adjust opacity based on time of day
       const dayOpacity = cloud.opacity
       const nightOpacity = cloud.opacity * 0.5
       const opacity = timeOfDay < 6 || timeOfDay > 18 ? nightOpacity : dayOpacity
@@ -707,7 +644,7 @@ export default function AnimatedBackground() {
           puff.r * 1.2,
         )
         gradient.addColorStop(0, `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, ${opacity * 0.3})`)
-        gradient.addColorStop(0.5, `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.g}, ${opacity * 0.2})`)
+        gradient.addColorStop(0.5, `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, ${opacity * 0.2})`)
         gradient.addColorStop(1, `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, 0)`)
 
         ctx.beginPath()
@@ -777,57 +714,23 @@ export default function AnimatedBackground() {
     }
 
     const updateClouds = (deltaTime: number) => {
-      if (!canvas) return
-
-      // Define vanishing point
-      const vanishingPointX = canvas.width / 2
-      const vanishingPointY = canvas.height * 0.4
-
       clouds.forEach((cloud) => {
-        // Calculate direction vector AWAY from vanishing point (reversed)
-        const dirX = cloud.x - vanishingPointX
-        const dirY = cloud.y - vanishingPointY
-        const length = Math.sqrt(dirX * dirX + dirY * dirY)
+        // Base horizontal movement
+        cloud.x += cloud.speed * deltaTime
 
-        // Normalize and scale by speed and z-coordinate
-        // Closer clouds (smaller z) move faster to enhance the effect of emerging from distance
-        const speedFactor = cloud.speed * deltaTime * (2 - cloud.z * 1.5)
+        // Parallax effect - clouds at different heights move at slightly different speeds
+        const parallaxFactor = 0.7 + (cloud.y / (canvas!.height * 0.35)) * 0.3
+        cloud.x += cloud.speed * deltaTime * (parallaxFactor - 1)
 
-        if (length > 0) {
-          cloud.x += (dirX / length) * speedFactor
-          cloud.y += (dirY / length) * speedFactor * 0.5 // Slower vertical movement for perspective
-        }
+        // Slight vertical drift for more natural movement
+        cloud.y += Math.sin(cloud.x * 0.001 + cloud.seed) * 0.05
 
-        // If cloud is far from vanishing point or off-screen, reset it to the vanishing point
-        if (cloud.x < -200 || cloud.x > canvas.width + 200 || cloud.y < -200 || cloud.y > canvas.height + 200) {
-          // Reset cloud position to near the vanishing point with slight randomness
-          const angle = Math.random() * Math.PI * 2
-          const distance = 20 + Math.random() * 40 // Small distance from vanishing point
-
-          cloud.x = vanishingPointX + Math.cos(angle) * distance
-          cloud.y = vanishingPointY + Math.sin(angle) * distance * 0.5
-
-          // Start with high z-coordinate (far away)
-          cloud.z = 0.7 + Math.random() * 0.3
-
-          // Update scale and opacity based on new z (small and transparent when far)
-          cloud.scale = (0.3 + Math.random() * 0.4) * (1 - cloud.z * 0.7)
-          cloud.opacity = (0.2 + Math.random() * 0.3) * (1 - cloud.z * 0.5)
-
-          // Update speed - clouds start slower when far away
-          cloud.speed = 0.01 + Math.random() * 0.01 * (1 - cloud.z * 0.5)
-        } else {
-          // As clouds move away from vanishing point, gradually decrease z (coming closer)
-          cloud.z = Math.max(0, cloud.z - 0.0001 * deltaTime)
-
-          // Update scale and opacity to grow as they approach
-          cloud.scale = (0.3 + Math.random() * 0.4) * (1 - cloud.z * 0.5)
-          cloud.opacity = (0.2 + Math.random() * 0.3) * (1 - cloud.z * 0.3)
+        if (cloud.x > canvas!.width + 400) {
+          cloud.x = -400
+          cloud.y = 50 + Math.random() * (canvas!.height * 0.3)
+          cloud.seed = Math.random() * 1000
         }
       })
-
-      // Sort clouds by z-coordinate so farther clouds are drawn first
-      clouds.sort((a, b) => b.z - a.z)
     }
 
     // Animation variables
@@ -886,12 +789,12 @@ export default function AnimatedBackground() {
         drawShootingStars(ctx)
       }
 
-      // Draw digital horizon with perspective
-      drawDigitalHorizon(ctx, timeOfDay)
-
-      // Update and draw clouds with perspective
+      // Update and draw clouds
       updateClouds(deltaTime)
       clouds.forEach((cloud) => drawRealisticCumulusCloud(cloud, timeOfDay))
+
+      // Draw digital horizon
+      drawDigitalHorizon(ctx, timeOfDay)
 
       // Draw digital particles
       drawDigitalParticles(ctx, timeOfDay, deltaTime)

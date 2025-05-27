@@ -1,16 +1,16 @@
 import PageHero from "@/components/page-hero"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { LineChart, CheckCircle2, FileText, Search, Mail, BarChart3 } from "lucide-react"
+import { BrainCircuit, CheckCircle2, BarChart3, Network, Shield, RefreshCw } from "lucide-react"
 
-export default function MarketingStrategyPage() {
+export default function AIStrategyPage() {
   return (
     <main className="min-h-screen bg-gray-900 relative overflow-hidden">
       <PageHero
-        badge="Marketing Strategy"
+        badge="AI Strategy & Fusion"
         badgeVariant="primary"
-        title="Data-Driven Marketing Solutions"
-        subtitle="Strategic marketing approaches that leverage analytics and insights to maximize your ROI"
+        title="Harness the Power of Artificial Intelligence"
+        subtitle="Strategic AI integration and implementation to transform your business operations and customer experiences"
       />
 
       {/* Glowing orbs for visual effect */}
@@ -20,35 +20,61 @@ export default function MarketingStrategyPage() {
       <div className="container px-4 mx-auto py-16 relative z-10">
         <div className="max-w-4xl mx-auto mb-16">
           <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-            Effective marketing in the digital age requires more than creativity—it demands data-driven strategies that
-            connect with your audience and deliver measurable results. At Lumen Helix, we develop comprehensive
-            marketing approaches that drive growth and engagement.
+            Artificial Intelligence isn't just a technology—it's a fundamental shift in how businesses operate, compete,
+            and deliver value. At Lumen Helix, we help you navigate this shift with strategic AI implementation that
+            drives tangible business outcomes.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300">
             <div className="w-14 h-14 flex items-center justify-center bg-primary-500/20 rounded-full mb-6 border border-primary-500/30">
-              <LineChart className="h-7 w-7 text-primary-400" />
+              <BrainCircuit className="h-7 w-7 text-primary-400" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-4">Marketing Assessment & Planning</h3>
+            <h3 className="text-2xl font-bold text-white mb-4">Strategic AI Assessment</h3>
             <p className="text-gray-300 mb-4">
-              We evaluate your current marketing efforts, competitive landscape, and audience insights to develop
-              strategic marketing plans. Our planning process establishes clear objectives, tactics, and performance
-              metrics.
+              We evaluate your business processes, data infrastructure, and competitive landscape to identify
+              high-impact AI opportunities. Our assessment provides a clear roadmap for AI implementation, prioritizing
+              initiatives based on business value and feasibility.
             </p>
             <ul className="space-y-2">
               <li className="flex items-start">
                 <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Marketing audit and competitive analysis</span>
+                <span className="text-gray-300">Process analysis and optimization opportunities</span>
               </li>
               <li className="flex items-start">
                 <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Audience segmentation and targeting</span>
+                <span className="text-gray-300">Data readiness evaluation</span>
               </li>
               <li className="flex items-start">
                 <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Strategic marketing planning and roadmapping</span>
+                <span className="text-gray-300">Competitive landscape analysis</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300">
+            <div className="w-14 h-14 flex items-center justify-center bg-primary-500/20 rounded-full mb-6 border border-primary-500/30">
+              <Network className="h-7 w-7 text-primary-400" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-4">Custom AI Solution Development</h3>
+            <p className="text-gray-300 mb-4">
+              Our team develops tailored AI solutions that address your specific business challenges. From predictive
+              analytics and natural language processing to computer vision and recommendation systems, we leverage
+              cutting-edge AI technologies to create solutions that deliver measurable results.
+            </p>
+            <ul className="space-y-2">
+              <li className="flex items-start">
+                <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
+                <span className="text-gray-300">Predictive analytics and forecasting</span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
+                <span className="text-gray-300">Natural language processing applications</span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
+                <span className="text-gray-300">Computer vision and image recognition</span>
               </li>
             </ul>
           </div>
@@ -57,132 +83,112 @@ export default function MarketingStrategyPage() {
             <div className="w-14 h-14 flex items-center justify-center bg-primary-500/20 rounded-full mb-6 border border-primary-500/30">
               <BarChart3 className="h-7 w-7 text-primary-400" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-4">Digital Marketing Campaigns</h3>
+            <h3 className="text-2xl font-bold text-white mb-4">AI Integration & Implementation</h3>
             <p className="text-gray-300 mb-4">
-              We design and execute integrated digital marketing campaigns across multiple channels, including search,
-              social, email, and content. Our campaigns are optimized for engagement, conversion, and ROI.
+              We seamlessly integrate AI solutions into your existing systems and workflows, ensuring minimal disruption
+              and maximum adoption. Our implementation approach includes comprehensive testing, training, and change
+              management to ensure successful deployment.
             </p>
             <ul className="space-y-2">
               <li className="flex items-start">
                 <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Multi-channel campaign strategy and execution</span>
+                <span className="text-gray-300">System integration and API development</span>
               </li>
               <li className="flex items-start">
                 <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Creative development and messaging</span>
+                <span className="text-gray-300">User training and adoption programs</span>
               </li>
               <li className="flex items-start">
                 <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Campaign performance tracking and optimization</span>
+                <span className="text-gray-300">Change management and process optimization</span>
               </li>
             </ul>
           </div>
 
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300">
             <div className="w-14 h-14 flex items-center justify-center bg-primary-500/20 rounded-full mb-6 border border-primary-500/30">
-              <FileText className="h-7 w-7 text-primary-400" />
+              <Shield className="h-7 w-7 text-primary-400" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-4">Content Strategy & Development</h3>
+            <h3 className="text-2xl font-bold text-white mb-4">AI Ethics & Governance</h3>
             <p className="text-gray-300 mb-4">
-              We create content strategies that position your brand as a thought leader and drive audience engagement.
-              Our content development services include blog posts, whitepapers, case studies, videos, and interactive
-              content.
+              We help you establish ethical guidelines and governance frameworks for your AI initiatives, ensuring
+              responsible and transparent use of AI technologies. Our approach addresses bias mitigation, privacy
+              protection, and regulatory compliance.
             </p>
             <ul className="space-y-2">
               <li className="flex items-start">
                 <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Content strategy and editorial planning</span>
+                <span className="text-gray-300">Ethical AI framework development</span>
               </li>
               <li className="flex items-start">
                 <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Content creation and production</span>
+                <span className="text-gray-300">Bias detection and mitigation strategies</span>
               </li>
               <li className="flex items-start">
                 <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Content distribution and promotion</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300">
-            <div className="w-14 h-14 flex items-center justify-center bg-primary-500/20 rounded-full mb-6 border border-primary-500/30">
-              <Search className="h-7 w-7 text-primary-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-4">SEO & SEM Optimization</h3>
-            <p className="text-gray-300 mb-4">
-              We improve your digital visibility through comprehensive search engine optimization and strategic search
-              marketing. Our approach combines technical SEO, content optimization, and targeted advertising.
-            </p>
-            <ul className="space-y-2">
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Technical SEO and site optimization</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Keyword research and content optimization</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Paid search campaign management</span>
+                <span className="text-gray-300">Regulatory compliance and risk management</span>
               </li>
             </ul>
           </div>
 
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300 md:col-span-2">
             <div className="w-14 h-14 flex items-center justify-center bg-primary-500/20 rounded-full mb-6 border border-primary-500/30">
-              <Mail className="h-7 w-7 text-primary-400" />
+              <RefreshCw className="h-7 w-7 text-primary-400" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-4">Analytics & Performance Optimization</h3>
+            <h3 className="text-2xl font-bold text-white mb-4">Continuous Optimization</h3>
             <p className="text-gray-300 mb-4">
-              We implement robust analytics frameworks and continuously optimize your marketing performance. Our
-              data-driven approach ensures your marketing investments deliver maximum impact.
+              AI solutions are not static—they require ongoing monitoring, evaluation, and refinement. We provide
+              continuous optimization services to ensure your AI investments deliver sustained value and adapt to
+              changing business needs.
             </p>
             <ul className="space-y-2">
               <li className="flex items-start">
                 <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Analytics implementation and dashboard development</span>
+                <span className="text-gray-300">Performance monitoring and analytics</span>
               </li>
               <li className="flex items-start">
                 <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Performance analysis and insights generation</span>
+                <span className="text-gray-300">Model retraining and enhancement</span>
               </li>
               <li className="flex items-start">
                 <CheckCircle2 className="h-5 w-5 text-primary-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Continuous optimization and A/B testing</span>
+                <span className="text-gray-300">Continuous improvement recommendations</span>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="bg-gradient-to-r from-primary-900/70 to-secondary-900/70 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-16">
-          <h2 className="text-2xl font-bold text-white mb-6">Case Study: B2B Lead Generation Transformation</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">
+            Case Study: AI-Powered Customer Experience Transformation
+          </h2>
           <p className="text-gray-300 text-lg mb-6">
-            For a SaaS provider, we developed a comprehensive digital marketing strategy that increased qualified leads
-            by 125% and reduced cost per acquisition by 35%. The approach integrated content marketing, targeted
-            advertising, and marketing automation to create a seamless lead generation engine.
+            For a leading financial services provider, we implemented an AI-driven customer experience platform that
+            reduced service resolution time by 45% and increased customer satisfaction scores by 32%. The solution
+            integrated natural language processing, predictive analytics, and machine learning to deliver personalized,
+            proactive customer service across multiple channels.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-gray-900/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold text-primary-400 mb-2">125%</h3>
-              <p className="text-gray-300">Increase in qualified leads</p>
+              <h3 className="text-xl font-bold text-primary-400 mb-2">45%</h3>
+              <p className="text-gray-300">Reduction in service resolution time</p>
             </div>
             <div className="bg-gray-900/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold text-primary-400 mb-2">35%</h3>
-              <p className="text-gray-300">Reduction in cost per acquisition</p>
+              <h3 className="text-xl font-bold text-primary-400 mb-2">32%</h3>
+              <p className="text-gray-300">Increase in customer satisfaction</p>
             </div>
             <div className="bg-gray-900/50 p-4 rounded-lg">
               <h3 className="text-xl font-bold text-primary-400 mb-2">3 Months</h3>
-              <p className="text-gray-300">Time to positive ROI</p>
+              <p className="text-gray-300">Implementation timeline</p>
             </div>
           </div>
         </div>
 
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-6">Ready to Transform Your Marketing Results?</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">Ready to Harness the Power of AI?</h2>
           <p className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto">
-            Contact us today to discuss how our Marketing Strategy services can help you connect with your audience and
-            drive measurable business growth.
+            Contact us today to discuss how our AI Strategy & Fusion services can transform your business operations and
+            customer experiences.
           </p>
           <Button asChild size="lg" className="bg-primary-500 hover:bg-primary-600 text-white">
             <Link href="/contact">Get Started</Link>

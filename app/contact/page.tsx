@@ -18,6 +18,8 @@ export default function ContactPage() {
               <h2 className="text-3xl font-bold text-white mb-6 leading-tight">Let's Work Together</h2>
               <p className="text-xl text-gray-300 mb-8 leading-relaxed">
                 Ready to transform your business with our integrated solutions? Connect with our team of experts today.
+                Whether you have a specific project in mind or need guidance on your digital strategy, we're eager to
+                help your business thrive in the digital age.
               </p>
 
               <div className="space-y-8">
