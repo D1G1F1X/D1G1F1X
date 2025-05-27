@@ -542,7 +542,7 @@ export default function AnimatedBackground() {
       const factor = (time - startColor.time) / (endColor.time - startColor.time)
 
       const r = Math.floor(startColor.color[0] + factor * (endColor.color[0] - startColor.color[0]))
-      const g = Math.floor(startColor.color[1] + factor * (endColor.color.color[1] - startColor.color[1]))
+      const g = Math.floor(startColor.color[1] + factor * (endColor.color[1] - startColor.color[1]))
       const b = Math.floor(startColor.color[2] + factor * (endColor.color.color[2] - startColor.color[2]))
 
       return `rgb(${r}, ${g}, ${b})`
