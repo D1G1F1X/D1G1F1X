@@ -107,6 +107,74 @@ export default function AnimatedBackground() {
 
     // Generate perspective clouds with z-coordinate for depth
     const clouds: Cloud[] = []
+
+    const resetCloudToVanishingPoint = (cloud: Cloud, vanishingPointX: number, vanishingPointY: number) => {
+      // Reset cloud position to near the vanishing point with slight randomness
+      const angle = Math.random() * Math.PI * 2
+      const distance = 20 + Math.random() * 40 // Small distance from vanishing point
+
+      cloud.x = vanishingPointX + Math.cos(angle) * distance
+      cloud.y = vanishingPointY + Math.sin(angle) * distance * 0.5
+
+      // Start with high z-coordinate (far away)
+      cloud.z = 0.7 + Math.random() * 0.3
+
+      // Update scale and opacity based on new z (small and transparent when far)
+      cloud.scale = (0.3 + Math.random() * 0.4) * (1 - cloud.z * 0.7)
+      cloud.opacity = (0.2 + Math.random() * 0.3) * (1 - cloud.z * 0.5)
+
+      // Update speed - clouds start slower when far away
+      cloud.speed = 0.01 + Math.random() * 0.01 * (1 - cloud.z * 0.5)
+    }
+
+    const createCloudAtVanishingPoint = (vanishingPointX: number, vanishingPointY: number) => {
+      // Create a new cloud at the vanishing point
+      const angle = Math.random() * Math.PI * 2
+      const distance = 10 + Math.random() * 30
+      const z = 0.7 + Math.random() * 0.3 // Start far away
+
+      const puffCount = 8 + Math.floor(Math.random() * 5)
+      const puffs = []
+
+      // Generate randomized puff positions for natural cloud shapes
+      for (let j = 0; j < puffCount; j++) {
+        const puffAngle = (j / puffCount) * Math.PI * 2
+        const puffDistance = 20 + Math.random() * 40
+        const baseX = Math.cos(puffAngle) * puffDistance
+        const baseY = Math.sin(puffAngle) * puffDistance * 0.6 // Flatten vertically
+
+        puffs.push({
+          x: baseX + (Math.random() - 0.5) * 30,
+          y: baseY + (Math.random() - 0.5) * 20,
+          r: 15 + Math.random() * 25,
+          offsetX: (Math.random() - 0.5) * 10,
+          offsetY: (Math.random() - 0.5) * 10,
+        })
+      }
+
+      // Add some central puffs for volume
+      for (let j = 0; j < 2 + Math.floor(Math.random() * 2); j++) {
+        puffs.push({
+          x: (Math.random() - 0.5) * 40,
+          y: (Math.random() - 0.5) * 30,
+          r: 20 + Math.random() * 30,
+          offsetX: 0,
+          offsetY: 0,
+        })
+      }
+
+      return {
+        x: vanishingPointX + Math.cos(angle) * distance,
+        y: vanishingPointY + Math.sin(angle) * distance * 0.5,
+        z,
+        scale: (0.3 + Math.random() * 0.4) * (1 - z * 0.7),
+        speed: 0.01 + Math.random() * 0.01 * (1 - z * 0.7),
+        opacity: (0.2 + Math.random() * 0.3) * (1 - z * 0.5),
+        seed: Math.random() * 1000,
+        puffs,
+      }
+    }
+
     const generateClouds = () => {
       clouds.length = 0
       if (canvas) {
@@ -114,83 +182,63 @@ export default function AnimatedBackground() {
         const vanishingPointX = canvas.width / 2
         const vanishingPointY = canvas.height * 0.4 // Vanishing point slightly above center
 
+        // Create clouds at different distances from the vanishing point
         for (let i = 0; i < cloudCount; i++) {
-          // Assign z-coordinate for depth (0 = closest, 1 = farthest)
-          // Start with most clouds being far away
-          const z = 0.5 + Math.random() * 0.5
+          // Determine if this cloud starts near vanishing point or somewhere in the scene
+          const startNearVanishingPoint = i < cloudCount / 3 || Math.random() < 0.3
 
-          // Calculate position based on perspective
-          // Distribute clouds around and near the vanishing point
-          const angle = Math.random() * Math.PI * 2
-          const distanceFromCenter = Math.random() * canvas.width * 0.3 // Smaller distance to keep clouds near vanishing point
-
-          const x = vanishingPointX + Math.cos(angle) * distanceFromCenter * z
-          const y = vanishingPointY + Math.sin(angle) * distanceFromCenter * z * 0.5 // Flatten vertically for perspective
-
-          // Scale and opacity based on distance
-          const baseScale = 0.3 + Math.random() * 0.4
-          const scaleWithPerspective = baseScale * (1 - z * 0.7) // Smaller in the distance
-          const opacityWithPerspective = (0.2 + Math.random() * 0.3) * (1 - z * 0.5) // More transparent in the distance
-
-          const puffCount = 8 + Math.floor(Math.random() * 5)
-          const puffs = []
-
-          // Generate randomized puff positions for natural cloud shapes
-          for (let j = 0; j < puffCount; j++) {
-            const angle = (j / puffCount) * Math.PI * 2
-            const distance = 20 + Math.random() * 40
-            const baseX = Math.cos(angle) * distance
-            const baseY = Math.sin(angle) * distance * 0.6 // Flatten vertically
-
-            puffs.push({
-              x: baseX + (Math.random() - 0.5) * 30,
-              y: baseY + (Math.random() - 0.5) * 20,
-              r: 15 + Math.random() * 25,
-              offsetX: (Math.random() - 0.5) * 10,
-              offsetY: (Math.random() - 0.5) * 10,
-            })
-          }
-
-          // Add some central puffs for volume
-          for (let j = 0; j < 2 + Math.floor(Math.random() * 2); j++) {
-            puffs.push({
-              x: (Math.random() - 0.5) * 40,
-              y: (Math.random() - 0.5) * 30,
-              r: 20 + Math.random() * 30,
-              offsetX: 0,
-              offsetY: 0,
-            })
-          }
-
-          clouds.push({
-            x,
-            y,
-            z,
-            scale: scaleWithPerspective,
-            speed: 0.01 + Math.random() * 0.01 * (1 - z * 0.7), // Slower in the distance
-            opacity: opacityWithPerspective,
-            seed: Math.random() * 1000,
-            puffs: puffs,
-          })
-        }
-
-        // Distribute clouds at different distances for initial scene
-        for (let i = 0; i < cloudCount / 2; i++) {
-          const existingCloud = clouds[i % clouds.length]
-          if (existingCloud) {
-            // Create a copy with modified position to fill the scene
+          if (startNearVanishingPoint) {
+            // Create cloud near vanishing point
+            clouds.push(createCloudAtVanishingPoint(vanishingPointX, vanishingPointY))
+          } else {
+            // Create cloud somewhere in the scene
             const angle = Math.random() * Math.PI * 2
-            const z = Math.random() * 0.5 // Closer to viewer
+            const z = Math.random() * 0.7 // Random depth
             const distanceFromCenter = (0.3 + Math.random() * 0.7) * canvas.width * 0.5
 
-            const newCloud = { ...existingCloud }
-            newCloud.x = vanishingPointX + Math.cos(angle) * distanceFromCenter
-            newCloud.y = vanishingPointY + Math.sin(angle) * distanceFromCenter * 0.5
-            newCloud.z = z
-            newCloud.scale = (0.3 + Math.random() * 0.4) * (1 - z * 0.5)
-            newCloud.opacity = (0.2 + Math.random() * 0.3) * (1 - z * 0.3)
+            const x = vanishingPointX + Math.cos(angle) * distanceFromCenter
+            const y = vanishingPointY + Math.sin(angle) * distanceFromCenter * 0.5
 
-            clouds.push(newCloud)
+            const puffCount = 8 + Math.floor(Math.random() * 5)
+            const puffs = []
+
+            // Generate puffs similar to createCloudAtVanishingPoint
+            for (let j = 0; j < puffCount; j++) {
+              const puffAngle = (j / puffCount) * Math.PI * 2
+              const puffDistance = 20 + Math.random() * 40
+              const baseX = Math.cos(puffAngle) * puffDistance
+              const baseY = Math.sin(puffAngle) * puffDistance * 0.6
+
+              puffs.push({
+                x: baseX + (Math.random() - 0.5) * 30,
+                y: baseY + (Math.random() - 0.5) * 20,
+                r: 15 + Math.random() * 25,
+                offsetX: (Math.random() - 0.5) * 10,
+                offsetY: (Math.random() - 0.5) * 10,
+              })
+            }
+
+            // Add central puffs
+            for (let j = 0; j < 2 + Math.floor(Math.random() * 2); j++) {
+              puffs.push({
+                x: (Math.random() - 0.5) * 40,
+                y: (Math.random() - 0.5) * 30,
+                r: 20 + Math.random() * 30,
+                offsetX: 0,
+                offsetY: 0,
+              })
+            }
+
+            clouds.push({
+              x,
+              y,
+              z,
+              scale: (0.3 + Math.random() * 0.4) * (1 - z * 0.5),
+              speed: 0.01 + Math.random() * 0.01 * (1 - z * 0.7),
+              opacity: (0.2 + Math.random() * 0.3) * (1 - z * 0.3),
+              seed: Math.random() * 1000,
+              puffs,
+            })
           }
         }
 
@@ -543,7 +591,7 @@ export default function AnimatedBackground() {
 
       const r = Math.floor(startColor.color[0] + factor * (endColor.color[0] - startColor.color[0]))
       const g = Math.floor(startColor.color[1] + factor * (endColor.color[1] - startColor.color[1]))
-      const b = Math.floor(startColor.color[2] + factor * (endColor.color.color[2] - startColor.color[2]))
+      const b = Math.floor(startColor.color[2] + factor * (endColor.color[2] - startColor.color[2]))
 
       return `rgb(${r}, ${g}, ${b})`
     }
@@ -783,48 +831,47 @@ export default function AnimatedBackground() {
       const vanishingPointX = canvas.width / 2
       const vanishingPointY = canvas.height * 0.4
 
+      // Probability to spawn a new cloud at the vanishing point
+      const spawnProbability = 0.02
+
       clouds.forEach((cloud) => {
-        // Calculate direction vector AWAY from vanishing point (reversed)
+        // Calculate direction vector AWAY from vanishing point
         const dirX = cloud.x - vanishingPointX
         const dirY = cloud.y - vanishingPointY
         const length = Math.sqrt(dirX * dirX + dirY * dirY)
 
-        // Normalize and scale by speed and z-coordinate
-        // Closer clouds (smaller z) move faster to enhance the effect of emerging from distance
+        // As clouds move away from vanishing point, gradually decrease z (coming closer)
+        cloud.z = Math.max(0.05, cloud.z - 0.0005 * deltaTime)
+
+        // Update scale and opacity to grow as they approach
+        cloud.scale = (0.3 + Math.random() * 0.4) * (1 - cloud.z * 0.5)
+        cloud.opacity = (0.2 + Math.random() * 0.3) * (1 - cloud.z * 0.3)
+
+        // Closer clouds (smaller z) move faster
         const speedFactor = cloud.speed * deltaTime * (2 - cloud.z * 1.5)
 
         if (length > 0) {
+          // Move away from vanishing point
           cloud.x += (dirX / length) * speedFactor
-          cloud.y += (dirY / length) * speedFactor * 0.5 // Slower vertical movement for perspective
+          cloud.y += (dirY / length) * speedFactor * 0.5 // Slower vertical movement
+        } else {
+          // If exactly at vanishing point, give it a random direction
+          const randomAngle = Math.random() * Math.PI * 2
+          cloud.x += Math.cos(randomAngle) * speedFactor
+          cloud.y += Math.sin(randomAngle) * speedFactor * 0.5
         }
 
-        // If cloud is far from vanishing point or off-screen, reset it to the vanishing point
+        // If cloud is far from vanishing point or off-screen, reset it
         if (cloud.x < -200 || cloud.x > canvas.width + 200 || cloud.y < -200 || cloud.y > canvas.height + 200) {
-          // Reset cloud position to near the vanishing point with slight randomness
-          const angle = Math.random() * Math.PI * 2
-          const distance = 20 + Math.random() * 40 // Small distance from vanishing point
-
-          cloud.x = vanishingPointX + Math.cos(angle) * distance
-          cloud.y = vanishingPointY + Math.sin(angle) * distance * 0.5
-
-          // Start with high z-coordinate (far away)
-          cloud.z = 0.7 + Math.random() * 0.3
-
-          // Update scale and opacity based on new z (small and transparent when far)
-          cloud.scale = (0.3 + Math.random() * 0.4) * (1 - cloud.z * 0.7)
-          cloud.opacity = (0.2 + Math.random() * 0.3) * (1 - cloud.z * 0.5)
-
-          // Update speed - clouds start slower when far away
-          cloud.speed = 0.01 + Math.random() * 0.01 * (1 - cloud.z * 0.5)
-        } else {
-          // As clouds move away from vanishing point, gradually decrease z (coming closer)
-          cloud.z = Math.max(0, cloud.z - 0.0001 * deltaTime)
-
-          // Update scale and opacity to grow as they approach
-          cloud.scale = (0.3 + Math.random() * 0.4) * (1 - cloud.z * 0.5)
-          cloud.opacity = (0.2 + Math.random() * 0.3) * (1 - cloud.z * 0.3)
+          resetCloudToVanishingPoint(cloud, vanishingPointX, vanishingPointY)
         }
       })
+
+      // Randomly spawn new clouds at the vanishing point
+      if (Math.random() < spawnProbability && clouds.length < 30) {
+        const newCloud = createCloudAtVanishingPoint(vanishingPointX, vanishingPointY)
+        clouds.push(newCloud)
+      }
 
       // Sort clouds by z-coordinate so farther clouds are drawn first
       clouds.sort((a, b) => b.z - a.z)
