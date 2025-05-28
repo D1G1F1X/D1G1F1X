@@ -26,6 +26,7 @@ export default function ProjectCard({ project, stageColors, categoryColors }: Pr
     project.image || `/placeholder.svg?height=200&width=300&text=${encodeURIComponent(project.title)}`,
   )
 
+  // Remove the onError handler and use a simpler approach
   const handleImageError = () => {
     setImageSrc(`/placeholder.svg?height=200&width=300&text=${encodeURIComponent(project.title)}`)
   }
@@ -65,12 +66,8 @@ export default function ProjectCard({ project, stageColors, categoryColors }: Pr
       </div>
 
       <div className="h-48 bg-gray-900/80 relative overflow-hidden">
-        <img
-          src={imageSrc || "/placeholder.svg"}
-          alt={project.title}
-          className="w-full h-full object-cover"
-          onError={handleImageError}
-        />
+        {/* Use a simple img tag without onError */}
+        <img src={imageSrc || "/placeholder.svg"} alt={project.title} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-70"></div>
         <div className="absolute top-4 left-4 flex gap-2">
           <Badge className={cn("text-white", categoryColors[project.category])}>

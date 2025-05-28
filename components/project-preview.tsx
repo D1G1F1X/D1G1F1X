@@ -24,6 +24,7 @@ export default function ProjectPreview({ project }: ProjectPreviewProps) {
     project.image || `/placeholder.svg?height=300&width=400&text=${encodeURIComponent(project.title)}`,
   )
 
+  // Remove the onError handler and use a simpler approach
   const handleImageError = () => {
     setImageSrc(`/placeholder.svg?height=300&width=400&text=${encodeURIComponent(project.title)}`)
   }
@@ -79,11 +80,11 @@ export default function ProjectPreview({ project }: ProjectPreviewProps) {
       </div>
 
       <div className="h-52 bg-gray-800/90 relative overflow-hidden">
+        {/* Use a simple img tag without onError */}
         <img
           src={imageSrc || "/placeholder.svg"}
           alt={project.title}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-          onError={handleImageError}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-80"></div>
         <div className="absolute top-4 left-4 flex gap-2 z-10">
