@@ -37,6 +37,16 @@ export const projects = [
     tags: ["Graphic Design", "Branding", "Healthcare"],
   },
   {
+    id: "hodge-documentary-website",
+    title: "The Hodge Documentary Website",
+    description:
+      "A compelling documentary film website showcasing Cleveland artists and their impact on social change through artistic platforms.",
+    image: "/images/projects/hodge-documentary.png",
+    category: "client",
+    stage: "deployed",
+    tags: ["Web Development", "Documentary", "Social Impact", "Video Integration"],
+  },
+  {
     id: "data-visualization-dashboard",
     title: "Data Visualization Dashboard",
     description: "An interactive dashboard for visualizing complex business data and analytics.",
@@ -113,5 +123,5 @@ export const projects = [
 export const featuredProjects = [
   projects.find((p) => p.id === "enterprise-project-management-system")!,
   projects.find((p) => p.id === "ai-content-generator")!,
-  projects.find((p) => p.id === "virtual-event-platform")!,
+  projects.find((p) => p.id === "hodge-documentary-website")!,
 ]

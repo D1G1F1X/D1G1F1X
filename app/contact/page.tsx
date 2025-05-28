@@ -64,8 +64,8 @@ export default function ContactPage() {
                       Call Us
                     </h3>
                     <p className="text-gray-300 mb-1">Monday-Friday, 9am-5pm:</p>
-                    <a href="tel:+15551234567" className="text-primary-400 hover:text-primary-300 transition-colors">
-                      +1 (555) 123-4567
+                    <a href="tel:+14842020272" className="text-primary-400 hover:text-primary-300 transition-colors">
+                      (484) 202-0272
                     </a>
                   </div>
                 </div>
@@ -92,11 +92,7 @@ export default function ContactPage() {
                       Visit Us
                     </h3>
                     <p className="text-gray-300 mb-1">Our headquarters:</p>
-                    <address className="text-primary-400 not-italic">
-                      123 Innovation Drive
-                      <br />
-                      Tech City, TC 12345
-                    </address>
+                    <address className="text-primary-400 not-italic">Akron, Ohio 44312</address>
                   </div>
                 </div>
               </div>

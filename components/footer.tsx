@@ -191,17 +191,13 @@ export default function Footer() {
               </li>
               <li className="flex items-start">
                 <span className="text-primary-400 mr-2">Phone:</span>
-                <a href="tel:+15551234567" className="text-gray-400 hover:text-primary-400 transition-colors">
-                  +1 (555) 123-4567
+                <a href="tel:+14842020272" className="text-gray-400 hover:text-primary-400 transition-colors">
+                  (484) 202-0272
                 </a>
               </li>
               <li className="flex items-start">
                 <span className="text-primary-400 mr-2">Address:</span>
-                <span className="text-gray-400">
-                  123 Innovation Drive,
-                  <br />
-                  Tech City, TC 12345
-                </span>
+                <span className="text-gray-400">Akron, Ohio 44312</span>
               </li>
             </ul>
           </div>
