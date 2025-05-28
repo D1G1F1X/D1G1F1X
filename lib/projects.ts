@@ -40,11 +40,11 @@ export const projects = [
     id: "hodge-documentary-website",
     title: "The Hodge Documentary Website",
     description:
-      "A compelling documentary film website showcasing Cleveland artists and their impact on social change through artistic platforms.",
+      "A comprehensive project including website development and a complete graphic design package featuring a custom logo design.",
     image: "/images/projects/hodge-documentary.png",
     category: "client",
     stage: "deployed",
-    tags: ["Web Development", "Documentary", "Social Impact", "Video Integration"],
+    tags: ["Web Development", "Documentary", "Social Impact", "Graphic Design", "Logo Design"],
   },
   {
     id: "data-visualization-dashboard",

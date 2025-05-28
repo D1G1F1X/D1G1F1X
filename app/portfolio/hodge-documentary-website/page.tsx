@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowLeft, ExternalLink, Play, Users, Award, Globe } from "lucide-react"
+import { ArrowLeft, ExternalLink, Play, Users, Award, Globe, Palette } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import ImageWithFallback from "@/components/image-with-fallback"
@@ -45,9 +45,37 @@ export default function HodgeDocumentaryWebsitePage() {
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">The Hodge Documentary Website</h1>
           <p className="text-xl text-gray-300 max-w-3xl">
-            A compelling documentary film website showcasing Cleveland artists and their impact on social change through
-            artistic platforms, featuring video integration and immersive storytelling.
+            A comprehensive project including website development and a complete graphic design package featuring a
+            custom logo design for a documentary showcasing Cleveland artists and their impact on social change.
           </p>
+        </div>
+
+        {/* Logo showcase */}
+        <div className="mb-12 bg-gray-800/80 backdrop-blur-sm p-8 rounded-lg border border-gray-700/50">
+          <h2 className="text-2xl font-bold text-white mb-6">Custom Logo Design</h2>
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="md:w-1/2 flex justify-center">
+              <div className="bg-white/5 backdrop-blur-sm p-8 rounded-lg border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300 max-w-md">
+                <img
+                  src="/images/logos/hodge-documentary-logo.png"
+                  alt="The Hodge Documentary Logo"
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+            <div className="md:w-1/2">
+              <p className="text-gray-300 mb-4">
+                Our design team created a distinctive logo that captures the essence of the documentary's focus on
+                Cleveland's artistic community and social change. The hand-drawn, sketch-style design with a vibrant red
+                heart symbolizes the passion and human connection at the core of the project.
+              </p>
+              <p className="text-gray-300">
+                The logo's urban aesthetic and distinctive character reflect the documentary's themes of artistic
+                expression, community, and social justice, while maintaining high visibility and recognition across
+                digital and print media.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Project image */}
@@ -77,9 +105,11 @@ export default function HodgeDocumentaryWebsitePage() {
                 segregating Cleveland.
               </p>
               <p className="text-gray-300 mb-6">
-                Our team developed a visually striking website that captures the essence of the documentary while
-                providing an engaging user experience. The site features integrated video content, compelling
-                storytelling, and a design that reflects the artistic and social impact themes of the documentary.
+                Our team developed a comprehensive package including a visually striking website and complete graphic
+                design assets. The centerpiece of the design package was a custom logo that captures the documentary's
+                essence while providing an engaging user experience. The site features integrated video content,
+                compelling storytelling, and a design that reflects the artistic and social impact themes of the
+                documentary.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button asChild className="bg-primary-600 hover:bg-primary-700">
@@ -94,6 +124,15 @@ export default function HodgeDocumentaryWebsitePage() {
             <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-lg border border-gray-700/50">
               <h2 className="text-2xl font-bold text-white mb-6">Key Features</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-start space-x-3">
+                  <Palette className="h-6 w-6 text-accent-400 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="font-semibold text-white mb-2">Custom Logo Design</h3>
+                    <p className="text-gray-300 text-sm">
+                      Distinctive hand-drawn logo with a vibrant red heart symbolizing passion and community connection.
+                    </p>
+                  </div>
+                </div>
                 <div className="flex items-start space-x-3">
                   <Play className="h-6 w-6 text-primary-400 mt-1 flex-shrink-0" />
                   <div>
@@ -134,6 +173,36 @@ export default function HodgeDocumentaryWebsitePage() {
             </div>
 
             <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-lg border border-gray-700/50">
+              <h2 className="text-2xl font-bold text-white mb-4">Design Process</h2>
+              <p className="text-gray-300 mb-4">
+                Our design process for The Hodge Documentary involved close collaboration with the filmmakers to
+                understand their vision, audience, and the documentary's core themes:
+              </p>
+              <ol className="list-decimal list-inside text-gray-300 space-y-2 mb-4">
+                <li>
+                  <span className="font-semibold">Discovery & Research:</span> We immersed ourselves in Cleveland's art
+                  scene and the documentary's subject matter to inform our design approach.
+                </li>
+                <li>
+                  <span className="font-semibold">Concept Development:</span> Multiple logo concepts were created,
+                  exploring different visual metaphors that could represent the documentary's themes.
+                </li>
+                <li>
+                  <span className="font-semibold">Refinement:</span> The selected concept was refined through several
+                  iterations, perfecting the hand-drawn style and the integration of the heart symbol.
+                </li>
+                <li>
+                  <span className="font-semibold">Implementation:</span> The final logo was adapted for various
+                  applications including the website, social media, promotional materials, and film credits.
+                </li>
+              </ol>
+              <p className="text-gray-300">
+                The resulting logo has become a recognizable symbol for the documentary, effectively communicating its
+                message across all platforms and helping to build audience recognition and engagement.
+              </p>
+            </div>
+
+            <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-lg border border-gray-700/50">
               <h2 className="text-2xl font-bold text-white mb-4">Technical Implementation</h2>
               <p className="text-gray-300 mb-4">
                 The website was built with a focus on performance, accessibility, and user engagement. Key technical
@@ -145,6 +214,7 @@ export default function HodgeDocumentaryWebsitePage() {
                 <li>SEO optimization for documentary film promotion</li>
                 <li>Fast loading times and smooth user interactions</li>
                 <li>Cross-browser compatibility and accessibility standards</li>
+                <li>Integration of the custom logo across all site elements for brand consistency</li>
               </ul>
             </div>
           </div>
@@ -164,7 +234,7 @@ export default function HodgeDocumentaryWebsitePage() {
                 </div>
                 <div>
                   <span className="text-gray-400 text-sm">Project Type:</span>
-                  <p className="text-white">Website Development</p>
+                  <p className="text-white">Website Development & Graphic Design</p>
                 </div>
                 <div>
                   <span className="text-gray-400 text-sm">Status:</span>
@@ -176,32 +246,65 @@ export default function HodgeDocumentaryWebsitePage() {
             <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-lg border border-gray-700/50">
               <h3 className="text-lg font-semibold text-white mb-4">Technologies Used</h3>
               <div className="flex flex-wrap gap-2">
-                {["HTML5", "CSS3", "JavaScript", "Responsive Design", "Video Integration", "SEO Optimization"].map(
-                  (tech) => (
-                    <Badge key={tech} variant="outline" className="text-gray-300 border-gray-600">
-                      {tech}
-                    </Badge>
-                  ),
-                )}
+                {[
+                  "HTML5",
+                  "CSS3",
+                  "JavaScript",
+                  "Responsive Design",
+                  "Video Integration",
+                  "SEO Optimization",
+                  "Logo Design",
+                  "Brand Identity",
+                ].map((tech) => (
+                  <Badge key={tech} variant="outline" className="text-gray-300 border-gray-600">
+                    {tech}
+                  </Badge>
+                ))}
               </div>
             </div>
 
             <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-lg border border-gray-700/50">
-              <h3 className="text-lg font-semibold text-white mb-4">Project Impact</h3>
+              <h3 className="text-lg font-semibold text-white mb-4">Design Impact</h3>
               <div className="space-y-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary-400">100%</div>
-                  <div className="text-sm text-gray-400">Mobile Responsive</div>
+                  <div className="text-2xl font-bold text-accent-400">Brand</div>
+                  <div className="text-sm text-gray-400">Recognition</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary-400">Visual</div>
+                  <div className="text-sm text-gray-400">Storytelling</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-secondary-400">Social</div>
                   <div className="text-sm text-gray-400">Impact Focus</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-accent-400">Live</div>
-                  <div className="text-sm text-gray-400">Production Site</div>
-                </div>
               </div>
+            </div>
+
+            <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-lg border border-gray-700/50">
+              <h3 className="text-lg font-semibold text-white mb-4">Client Objectives</h3>
+              <ul className="space-y-2 text-gray-300">
+                <li className="flex items-start">
+                  <span className="text-accent-400 mr-2">•</span>
+                  Create a distinctive visual identity
+                </li>
+                <li className="flex items-start">
+                  <span className="text-accent-400 mr-2">•</span>
+                  Reflect the documentary's artistic themes
+                </li>
+                <li className="flex items-start">
+                  <span className="text-accent-400 mr-2">•</span>
+                  Build audience recognition and engagement
+                </li>
+                <li className="flex items-start">
+                  <span className="text-accent-400 mr-2">•</span>
+                  Establish a cohesive brand across platforms
+                </li>
+                <li className="flex items-start">
+                  <span className="text-accent-400 mr-2">•</span>
+                  Support the documentary's social message
+                </li>
+              </ul>
             </div>
           </div>
         </div>
@@ -210,7 +313,8 @@ export default function HodgeDocumentaryWebsitePage() {
         <div className="bg-gradient-to-r from-primary-600/20 to-secondary-600/20 p-8 rounded-lg border border-primary-500/30 text-center">
           <h2 className="text-2xl font-bold text-white mb-4">Ready to Create Your Digital Presence?</h2>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-            Let us help you build a compelling website that tells your story and engages your audience effectively.
+            Let us help you build a compelling website and brand identity that tells your story and engages your
+            audience effectively.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button asChild size="lg" className="bg-primary-600 hover:bg-primary-700">

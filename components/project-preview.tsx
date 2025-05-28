@@ -39,6 +39,9 @@ export default function ProjectPreview({ project }: ProjectPreviewProps) {
     client: "bg-accent-600",
   }
 
+  // Special case for The Hodge Documentary to show the logo
+  const isHodgeProject = project.id === "hodge-documentary-website"
+
   return (
     <div className="bg-gray-900/90 backdrop-blur-sm rounded-xl overflow-hidden hover:shadow-xl transition-all duration-500 border border-gray-800/50 hover:border-primary-500/50 group relative flex flex-col h-full transform hover:-translate-y-1">
       {/* Futuristic circuit pattern overlay */}
@@ -97,6 +100,17 @@ export default function ProjectPreview({ project }: ProjectPreviewProps) {
         <div className="absolute inset-0 overflow-hidden opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none">
           <div className="w-full h-1 bg-primary-400/50 animate-[scanline_3s_linear_infinite] blur-[1px]"></div>
         </div>
+
+        {/* Special case for Hodge Documentary - show logo overlay */}
+        {isHodgeProject && (
+          <div className="absolute bottom-4 right-4 z-10 bg-white/10 backdrop-blur-sm p-2 rounded-lg border border-white/20 max-w-[100px] transform translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+            <img
+              src="/images/logos/hodge-documentary-logo.png"
+              alt="The Hodge Documentary Logo"
+              className="w-full h-auto"
+            />
+          </div>
+        )}
       </div>
 
       <div className="p-6 relative flex-grow flex flex-col">

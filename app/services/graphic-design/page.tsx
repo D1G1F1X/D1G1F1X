@@ -37,7 +37,7 @@ export default function GraphicDesignPage() {
               Our brand development process includes logo design, color palette selection, typography, and visual
               language definition.
             </p>
-            <ul className="space-y-2">
+            <ul className="space-y-2 mb-6">
               <li className="flex items-start">
                 <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
                 <span className="text-gray-300">Logo design and brand mark creation</span>
@@ -51,6 +51,9 @@ export default function GraphicDesignPage() {
                 <span className="text-gray-300">Brand guidelines and asset development</span>
               </li>
             </ul>
+            <Button asChild variant="outline" className="border-accent-500/50 text-accent-400 hover:bg-accent-500/10">
+              <Link href="/services/graphic-design/logos">Explore Logo Design Services</Link>
+            </Button>
           </div>
 
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300">
@@ -158,24 +161,43 @@ export default function GraphicDesignPage() {
         </div>
 
         <div className="bg-gradient-to-r from-accent-900/70 to-primary-900/70 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-16">
-          <h2 className="text-2xl font-bold text-white mb-6">Case Study: Healthcare Brand Transformation</h2>
-          <p className="text-gray-300 text-lg mb-6">
-            For a healthcare technology startup, we developed a comprehensive brand identity and visual system that
-            positioned them as a modern, trustworthy innovator. The new brand increased investor interest by 65% and
-            improved user engagement metrics by 48% across digital platforms.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-gray-900/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold text-accent-400 mb-2">65%</h3>
-              <p className="text-gray-300">Increase in investor interest</p>
+          <h2 className="text-2xl font-bold text-white mb-6">Featured Project: The Hodge Documentary</h2>
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="md:w-1/3 flex justify-center">
+              <div className="bg-white/5 backdrop-blur-sm p-6 rounded-lg border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300">
+                <img
+                  src="/images/logos/hodge-documentary-logo.png"
+                  alt="The Hodge Documentary Logo"
+                  className="w-full h-auto"
+                />
+              </div>
             </div>
-            <div className="bg-gray-900/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold text-accent-400 mb-2">48%</h3>
-              <p className="text-gray-300">Improvement in user engagement</p>
-            </div>
-            <div className="bg-gray-900/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold text-accent-400 mb-2">6 Weeks</h3>
-              <p className="text-gray-300">Implementation timeline</p>
+            <div className="md:w-2/3">
+              <p className="text-gray-300 text-lg mb-6">
+                For The Hodge Documentary, we developed a comprehensive brand identity and visual system that positioned
+                them as a powerful voice for Cleveland's artistic community. The custom logo design with its distinctive
+                hand-drawn style and vibrant red heart has become a recognizable symbol for the documentary's message of
+                artistic expression and social change.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-gray-900/50 p-4 rounded-lg">
+                  <h3 className="text-xl font-bold text-accent-400 mb-2">Brand Identity</h3>
+                  <p className="text-gray-300">Complete visual identity system</p>
+                </div>
+                <div className="bg-gray-900/50 p-4 rounded-lg">
+                  <h3 className="text-xl font-bold text-accent-400 mb-2">Logo Design</h3>
+                  <p className="text-gray-300">Custom hand-drawn logo with symbolic elements</p>
+                </div>
+                <div className="bg-gray-900/50 p-4 rounded-lg">
+                  <h3 className="text-xl font-bold text-accent-400 mb-2">Web Integration</h3>
+                  <p className="text-gray-300">Seamless brand implementation across digital platforms</p>
+                </div>
+              </div>
+              <div className="mt-6">
+                <Button asChild className="bg-accent-600 hover:bg-accent-700">
+                  <Link href="/portfolio/hodge-documentary-website">View Case Study</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
