@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, ExternalLink } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
@@ -15,6 +15,7 @@ interface ProjectCardProps {
     category: "in-house" | "client"
     stage: "concept" | "building" | "beta" | "deployed"
     tags: string[]
+    demoUrl?: string
   }
   stageColors: Record<string, string>
   categoryColors: Record<string, string>
@@ -90,7 +91,7 @@ export default function ProjectCard({ project, stageColors, categoryColors }: Pr
         </h3>
         <p className="text-gray-300 mb-4">{project.description}</p>
         <div className="flex flex-wrap gap-2 mb-4">
-          {project.tags.map((tag, index) => (
+          {project.tags.slice(0, 3).map((tag, index) => (
             <Badge
               key={index}
               variant="outline"
@@ -99,14 +100,36 @@ export default function ProjectCard({ project, stageColors, categoryColors }: Pr
               {tag}
             </Badge>
           ))}
+          {project.tags.length > 3 && (
+            <Badge
+              variant="outline"
+              className="text-gray-300 border-gray-700 bg-gray-900/50 group-hover:border-primary-500/30 transition-colors"
+            >
+              +{project.tags.length - 3} more
+            </Badge>
+          )}
         </div>
-        <Link
-          href={`/portfolio/${project.id}`}
-          className="inline-flex items-center text-primary-400 font-semibold group-hover:text-primary-300 transition-colors"
-        >
-          View project
-          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link
+            href={`/portfolio/${project.id}`}
+            className="inline-flex items-center text-primary-400 font-semibold group-hover:text-primary-300 transition-colors"
+          >
+            View project
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+
+          {project.demoUrl && (
+            <a
+              href={project.demoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-accent-400 font-semibold hover:text-accent-300 transition-colors"
+            >
+              Preview Build
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Futuristic corner accent */}

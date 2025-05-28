@@ -1,218 +1,191 @@
-import PageHero from "@/components/page-hero"
-import { Button } from "@/components/ui/button"
+import type { Metadata } from "next"
 import Link from "next/link"
-import { Palette, CheckCircle2, Layout, FileImage, Play, BarChart3 } from "lucide-react"
 
-export default function GraphicDesignPage() {
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { CallToAction } from "@/components/call-to-action"
+
+export const metadata: Metadata = {
+  title: "Graphic Design Services | Creative Design Agency",
+  description:
+    "Elevate your brand with our expert graphic design services. We create stunning visuals that capture your brand essence and engage your audience.",
+}
+
+const GraphicDesignPage = () => {
   return (
-    <main className="min-h-screen bg-gray-900 relative overflow-hidden">
-      <PageHero
-        badge="Graphic Design"
-        badgeVariant="accent"
-        title="Visually Stunning Design Solutions"
-        subtitle="Creative and impactful visual communication that elevates your brand and engages your audience"
-      />
+    <div className="container py-12">
+      <section className="mb-16">
+        <h1 className="text-4xl font-bold text-white mb-4">Graphic Design Services</h1>
+        <p className="text-gray-300 leading-relaxed">
+          We offer comprehensive graphic design services to help businesses create a strong visual identity. From logo
+          design to marketing materials, our designs are tailored to meet your specific needs and goals.
+        </p>
+      </section>
 
-      {/* Glowing orbs for visual effect */}
-      <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-accent-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
-      <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-primary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
+      <section className="mb-16">
+        <h2 className="text-3xl font-bold text-white mb-8">Featured Project Showcase</h2>
 
-      <div className="container px-4 mx-auto py-16 relative z-10">
-        <div className="max-w-4xl mx-auto mb-16">
-          <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-            In a visually-driven digital landscape, exceptional design is not a luxury—it's a necessity. At Lumen Helix,
-            we create compelling visual experiences that communicate your brand's essence, engage your audience, and
-            drive business results.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-          <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300">
-            <div className="w-14 h-14 flex items-center justify-center bg-accent-500/20 rounded-full mb-6 border border-accent-500/30">
-              <Palette className="h-7 w-7 text-accent-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-4">Brand Identity Development</h3>
-            <p className="text-gray-300 mb-4">
-              We create comprehensive brand identities that capture your organization's values, personality, and vision.
-              Our brand development process includes logo design, color palette selection, typography, and visual
-              language definition.
-            </p>
-            <ul className="space-y-2 mb-6">
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Logo design and brand mark creation</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Color palette and typography selection</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Brand guidelines and asset development</span>
-              </li>
-            </ul>
-            <Button asChild variant="outline" className="border-accent-500/50 text-accent-400 hover:bg-accent-500/10">
-              <Link href="/services/graphic-design/logos">Explore Logo Design Services</Link>
-            </Button>
-          </div>
-
-          <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300">
-            <div className="w-14 h-14 flex items-center justify-center bg-accent-500/20 rounded-full mb-6 border border-accent-500/30">
-              <Layout className="h-7 w-7 text-accent-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-4">User Interface (UI) Design</h3>
-            <p className="text-gray-300 mb-4">
-              We design intuitive, engaging user interfaces for web applications, mobile apps, and digital products. Our
-              UI design approach emphasizes usability, accessibility, and visual appeal to create exceptional user
-              experiences.
-            </p>
-            <ul className="space-y-2">
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Wireframing and prototyping</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Visual design and UI component creation</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Responsive and adaptive design</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300">
-            <div className="w-14 h-14 flex items-center justify-center bg-accent-500/20 rounded-full mb-6 border border-accent-500/30">
-              <FileImage className="h-7 w-7 text-accent-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-4">Marketing Collateral</h3>
-            <p className="text-gray-300 mb-4">
-              We develop cohesive visual assets for your marketing campaigns, including social media graphics, email
-              templates, digital ads, and presentation materials. Our marketing designs are optimized for engagement and
-              conversion.
-            </p>
-            <ul className="space-y-2">
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Social media graphics and templates</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Email marketing templates</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Digital advertising assets</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300">
-            <div className="w-14 h-14 flex items-center justify-center bg-accent-500/20 rounded-full mb-6 border border-accent-500/30">
-              <BarChart3 className="h-7 w-7 text-accent-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-4">Information Design</h3>
-            <p className="text-gray-300 mb-4">
-              We transform complex information into clear, compelling visual communications. From infographics and data
-              visualizations to process diagrams and instructional materials, we make information accessible and
-              engaging.
-            </p>
-            <ul className="space-y-2">
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Infographics and data visualization</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Process diagrams and flowcharts</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Instructional design and visual guides</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300 md:col-span-2">
-            <div className="w-14 h-14 flex items-center justify-center bg-accent-500/20 rounded-full mb-6 border border-accent-500/30">
-              <Play className="h-7 w-7 text-accent-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-4">Motion Graphics & Animation</h3>
-            <p className="text-gray-300 mb-4">
-              We create dynamic visual content that captures attention and communicates complex ideas. Our motion
-              graphics and animations enhance your digital presence and improve information retention.
-            </p>
-            <ul className="space-y-2">
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Explainer videos and animated tutorials</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">UI animations and micro-interactions</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
-                <span className="text-gray-300">Social media animations and video content</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-accent-900/70 to-primary-900/70 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-16">
-          <h2 className="text-2xl font-bold text-white mb-6">Featured Project: The Hodge Documentary</h2>
+        {/* The Hodge Documentary Showcase */}
+        <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-lg border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300 mb-8">
           <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="md:w-1/3 flex justify-center">
-              <div className="bg-white/5 backdrop-blur-sm p-6 rounded-lg border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300">
+            <div className="md:w-1/2">
+              <Badge className="mb-4 bg-accent-500/20 text-accent-300 border-accent-500/30 px-4 py-1 text-sm">
+                Logo Design
+              </Badge>
+              <h3 className="text-2xl font-bold text-white mb-4">The Hodge Documentary</h3>
+              <p className="text-gray-300 mb-4">
+                A bold and impactful logo design for a documentary film. The design reflects the serious and
+                thought-provoking nature of the film.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                <Badge variant="secondary" className="bg-gray-700/50 text-gray-300">
+                  Film Branding
+                </Badge>
+                <Badge variant="secondary" className="bg-gray-700/50 text-gray-300">
+                  Documentary
+                </Badge>
+                <Badge variant="secondary" className="bg-gray-700/50 text-gray-300">
+                  Minimalist Design
+                </Badge>
+              </div>
+              <Button asChild variant="outline" className="border-accent-500/30 text-accent-400 hover:bg-accent-500/10">
+                <Link href="/portfolio/the-hodge-documentary">View Project</Link>
+              </Button>
+            </div>
+            <div className="md:w-1/2 flex justify-center">
+              <div className="bg-gray-950 p-8 rounded-lg border border-gray-700/50 w-full max-w-md flex items-center justify-center min-h-[200px]">
                 <img
-                  src="/images/logos/hodge-documentary-logo.png"
+                  src="/images/logos/the-hodge-logo.png"
                   alt="The Hodge Documentary Logo"
                   className="w-full h-auto"
+                  style={{ filter: "drop-shadow(0 0 20px rgba(163, 37, 37, 0.3))" }}
                 />
               </div>
             </div>
-            <div className="md:w-2/3">
-              <p className="text-gray-300 text-lg mb-6">
-                For The Hodge Documentary, we developed a comprehensive brand identity and visual system that positioned
-                them as a powerful voice for Cleveland's artistic community. The custom logo design with its distinctive
-                hand-drawn style and vibrant red heart has become a recognizable symbol for the documentary's message of
-                artistic expression and social change.
+          </div>
+        </div>
+
+        {/* LolitaWilson.com Logo Showcase */}
+        <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-lg border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="md:w-1/2">
+              <Badge className="mb-4 bg-accent-500/20 text-accent-300 border-accent-500/30 px-4 py-1 text-sm">
+                Logo Design
+              </Badge>
+              <h3 className="text-2xl font-bold text-white mb-4">LolitaWilson.com</h3>
+              <p className="text-gray-300 mb-4">
+                An elegant script logo design that perfectly captures the artistic spirit of this creative portfolio.
+                The flowing typography in warm golden-orange creates a personal, sophisticated brand identity.
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-gray-900/50 p-4 rounded-lg">
-                  <h3 className="text-xl font-bold text-accent-400 mb-2">Brand Identity</h3>
-                  <p className="text-gray-300">Complete visual identity system</p>
-                </div>
-                <div className="bg-gray-900/50 p-4 rounded-lg">
-                  <h3 className="text-xl font-bold text-accent-400 mb-2">Logo Design</h3>
-                  <p className="text-gray-300">Custom hand-drawn logo with symbolic elements</p>
-                </div>
-                <div className="bg-gray-900/50 p-4 rounded-lg">
-                  <h3 className="text-xl font-bold text-accent-400 mb-2">Web Integration</h3>
-                  <p className="text-gray-300">Seamless brand implementation across digital platforms</p>
-                </div>
+              <div className="flex flex-wrap gap-2 mb-6">
+                <Badge variant="secondary" className="bg-gray-700/50 text-gray-300">
+                  Script Typography
+                </Badge>
+                <Badge variant="secondary" className="bg-gray-700/50 text-gray-300">
+                  Artist Branding
+                </Badge>
+                <Badge variant="secondary" className="bg-gray-700/50 text-gray-300">
+                  Web Design
+                </Badge>
               </div>
-              <div className="mt-6">
-                <Button asChild className="bg-accent-600 hover:bg-accent-700">
-                  <Link href="/portfolio/hodge-documentary-website">View Case Study</Link>
-                </Button>
+              <Button asChild variant="outline" className="border-accent-500/30 text-accent-400 hover:bg-accent-500/10">
+                <Link href="/portfolio/lolita-wilson-website">View Project</Link>
+              </Button>
+            </div>
+            <div className="md:w-1/2 flex justify-center">
+              <div className="bg-gray-950 p-8 rounded-lg border border-gray-700/50 w-full max-w-md flex items-center justify-center min-h-[200px]">
+                <img
+                  src="/images/logos/lolita-wilson-logo.png"
+                  alt="LolitaWilson.com Logo"
+                  className="w-full h-auto"
+                  style={{ filter: "drop-shadow(0 0 20px rgba(251, 146, 60, 0.3))" }}
+                />
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-6">Ready to Elevate Your Visual Identity?</h2>
-          <p className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto">
-            Contact us today to discuss how our Graphic Design services can help you create compelling visual
-            experiences that communicate your brand's essence and engage your audience.
-          </p>
-          <Button asChild size="lg" className="bg-accent-500 hover:bg-accent-600 text-white">
-            <Link href="/contact">Get Started</Link>
-          </Button>
+      <section className="mb-16">
+        <h2 className="text-3xl font-bold text-white mb-8">Our Graphic Design Services Include</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <Card className="bg-gray-800/80 backdrop-blur-sm border border-gray-700/50">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-white">Logo Design</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-300">
+                Distinctive brand marks that capture your essence and stand out in the market. Featured work includes
+                The Hodge Documentary and LolitaWilson.com logos.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/80 backdrop-blur-sm border border-gray-700/50">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-white">Brand Identity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-300">
+                Comprehensive branding solutions to create a cohesive and recognizable brand presence across all
+                platforms.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/80 backdrop-blur-sm border border-gray-700/50">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-white">Marketing Materials</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-300">
+                Eye-catching brochures, flyers, and posters designed to promote your products and services effectively.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/80 backdrop-blur-sm border border-gray-700/50">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-white">Web Design</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-300">
+                Visually appealing and user-friendly website designs that enhance your online presence and drive
+                engagement.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/80 backdrop-blur-sm border border-gray-700/50">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-white">Social Media Graphics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-300">
+                Engaging and shareable social media visuals that increase brand awareness and drive traffic to your
+                website.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/80 backdrop-blur-sm border border-gray-700/50">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-white">Packaging Design</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-300">
+                Creative and functional packaging designs that protect your products and attract customers on the
+                shelves.
+              </p>
+            </CardContent>
+          </Card>
         </div>
-      </div>
-    </main>
+      </section>
+
+      <CallToAction />
+    </div>
   )
 }
+
+export default GraphicDesignPage

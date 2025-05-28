@@ -10,6 +10,28 @@ export const projects = [
     tags: ["Project Management", "Enterprise Software", "SaaS"],
   },
   {
+    id: "kraftwerked-website",
+    title: "Kraftwerked.com",
+    description:
+      "A comprehensive digital platform featuring custom branding, interactive web applications, and integrated services for numerology insights and analysis.",
+    image: "/images/projects/kraftwerked-website.png",
+    category: "in-house",
+    stage: "deployed",
+    demoUrl: "https://www.kraftwerked.com/",
+    tags: ["Web Development", "Logo Design", "Web Applications", "Branding", "Full-Stack"],
+  },
+  {
+    id: "numo-oracle-system",
+    title: "NUMO Oracle System",
+    description:
+      "An innovative divination platform integrating ancient numerology with modern AI technology, featuring a digital oracle deck, interactive readings, and spiritual guidance tools.",
+    image: "/images/projects/numo-oracle-system.png",
+    category: "in-house",
+    stage: "beta",
+    demoUrl: "https://numo2.vercel.app/",
+    tags: ["Web Development", "AI Integration", "Spiritual Tech", "Branding", "Interactive Design"],
+  },
+  {
     id: "ai-content-generator",
     title: "AI Content Generator",
     description: "An advanced tool that generates high-quality content for various marketing channels.",
@@ -17,6 +39,17 @@ export const projects = [
     category: "in-house",
     stage: "deployed",
     tags: ["AI", "Content Marketing", "SaaS"],
+  },
+  {
+    id: "lolita-wilson-website",
+    title: "LolitaWilson.com",
+    description:
+      "A comprehensive artist portfolio website featuring custom logo design, event management, and an integrated e-commerce platform.",
+    image: "/images/projects/lolita-wilson-website.png",
+    category: "client",
+    stage: "beta",
+    demoUrl: "https://lolitawilson.vercel.app/",
+    tags: ["Web Development", "Logo Design", "E-commerce", "Custom Web App", "Artist Portfolio"],
   },
   {
     id: "virtual-event-platform",
@@ -121,7 +154,7 @@ export const projects = [
 ]
 
 export const featuredProjects = [
-  projects.find((p) => p.id === "enterprise-project-management-system")!,
-  projects.find((p) => p.id === "ai-content-generator")!,
+  projects.find((p) => p.id === "kraftwerked-website")!,
+  projects.find((p) => p.id === "numo-oracle-system")!,
   projects.find((p) => p.id === "hodge-documentary-website")!,
 ]

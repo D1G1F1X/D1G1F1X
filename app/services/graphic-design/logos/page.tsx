@@ -86,9 +86,64 @@ export default function LogoDesignPage() {
           </div>
         </div>
 
-        {/* Featured logo case study */}
+        {/* Featured logo case studies */}
         <div className="max-w-5xl mx-auto mb-16">
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">Featured Logo Design</h2>
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">Featured Logo Designs</h2>
+
+          {/* LolitaWilson.com Logo */}
+          <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-lg border border-gray-700/50 mb-8">
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="md:w-1/2">
+                <Badge className="mb-4 bg-accent-500/20 text-accent-300 border-accent-500/30 px-4 py-1 text-sm">
+                  Case Study
+                </Badge>
+                <h3 className="text-2xl font-bold text-white mb-4">LolitaWilson.com Logo</h3>
+                <p className="text-gray-300 mb-4">
+                  For LolitaWilson.com, we created an elegant script logo that perfectly captures the artist's creative
+                  spirit and sophisticated brand identity. The flowing, handwritten typography in a warm golden-orange
+                  gradient creates a personal, artistic touch that resonates with the target audience.
+                </p>
+                <h4 className="text-lg font-semibold text-white mb-2">Client Objectives:</h4>
+                <ul className="space-y-2 text-gray-300 mb-4">
+                  <li className="flex items-start">
+                    <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
+                    <span>Create a personal, artistic brand identity for an artist portfolio</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
+                    <span>Develop a logo that works beautifully on dark backgrounds</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle2 className="h-5 w-5 text-accent-400 mr-2 mt-0.5" />
+                    <span>Balance artistic expression with professional presentation</span>
+                  </li>
+                </ul>
+                <h4 className="text-lg font-semibold text-white mb-2">Design Impact:</h4>
+                <p className="text-gray-300">
+                  The logo successfully establishes a strong visual identity that stands out in the creative industry.
+                  Its warm color palette and elegant typography create immediate brand recognition while conveying the
+                  artist's unique style and professionalism.
+                </p>
+                <div className="mt-6">
+                  <Button asChild className="bg-accent-600 hover:bg-accent-700">
+                    <Link href="/portfolio/lolita-wilson-website">View Full Case Study</Link>
+                  </Button>
+                </div>
+              </div>
+              <div className="md:w-1/2 flex justify-center">
+                <div className="bg-gray-950 p-8 rounded-lg border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300 w-full max-w-md flex items-center justify-center min-h-[200px]">
+                  <img
+                    src="/images/logos/lolita-wilson-logo.png"
+                    alt="LolitaWilson.com Logo"
+                    className="w-full h-auto max-w-sm"
+                    style={{ filter: "drop-shadow(0 0 20px rgba(251, 146, 60, 0.3))" }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* The Hodge Documentary Logo */}
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-lg border border-gray-700/50">
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="md:w-1/2">

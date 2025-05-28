@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, ExternalLink } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
@@ -15,6 +15,7 @@ interface ProjectPreviewProps {
     category: "in-house" | "client"
     stage: "concept" | "building" | "beta" | "deployed"
     tags: string[]
+    demoUrl?: string
   }
 }
 
@@ -41,6 +42,7 @@ export default function ProjectPreview({ project }: ProjectPreviewProps) {
 
   // Special case for The Hodge Documentary to show the logo
   const isHodgeProject = project.id === "hodge-documentary-website"
+  const isLolitaProject = project.id === "lolita-wilson-website"
 
   return (
     <div className="bg-gray-900/90 backdrop-blur-sm rounded-xl overflow-hidden hover:shadow-xl transition-all duration-500 border border-gray-800/50 hover:border-primary-500/50 group relative flex flex-col h-full transform hover:-translate-y-1">
@@ -111,6 +113,20 @@ export default function ProjectPreview({ project }: ProjectPreviewProps) {
             />
           </div>
         )}
+
+        {/* Special case for Lolita Wilson - show logo overlay */}
+        {isLolitaProject && (
+          <div className="absolute bottom-4 right-4 z-10 bg-black/70 backdrop-blur-sm p-2 rounded-lg border border-amber-500/30 max-w-[100px] transform translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+            <img src="/images/logos/lolita-wilson-logo.png" alt="Lolita Wilson Logo" className="w-full h-auto" />
+          </div>
+        )}
+
+        {/* Preview badge for projects with demo URLs */}
+        {project.demoUrl && (
+          <div className="absolute top-4 right-4 z-10">
+            <Badge className="bg-accent-500 text-white">Preview Available</Badge>
+          </div>
+        )}
       </div>
 
       <div className="p-6 relative flex-grow flex flex-col">
@@ -120,7 +136,7 @@ export default function ProjectPreview({ project }: ProjectPreviewProps) {
         <p className="text-gray-300 mb-5 flex-grow">{project.description}</p>
 
         <div className="flex flex-wrap gap-2 mb-5">
-          {project.tags.map((tag, index) => (
+          {project.tags.slice(0, 3).map((tag, index) => (
             <Badge
               key={index}
               variant="outline"
@@ -129,15 +145,37 @@ export default function ProjectPreview({ project }: ProjectPreviewProps) {
               {tag}
             </Badge>
           ))}
+          {project.tags.length > 3 && (
+            <Badge
+              variant="outline"
+              className="text-gray-300 border-gray-700 bg-gray-800/50 group-hover:border-primary-500/30 transition-colors"
+            >
+              +{project.tags.length - 3} more
+            </Badge>
+          )}
         </div>
 
-        <Link
-          href={`/portfolio/${project.id}`}
-          className="inline-flex items-center text-primary-400 font-semibold group-hover:text-primary-300 transition-colors mt-auto"
-        >
-          View project
-          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-        </Link>
+        <div className="flex items-center justify-between mt-auto">
+          <Link
+            href={`/portfolio/${project.id}`}
+            className="inline-flex items-center text-primary-400 font-semibold group-hover:text-primary-300 transition-colors"
+          >
+            View project
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+
+          {project.demoUrl && (
+            <a
+              href={project.demoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-accent-400 font-semibold hover:text-accent-300 transition-colors"
+            >
+              Preview
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Futuristic corner accent */}

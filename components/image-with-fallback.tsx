@@ -1,20 +1,36 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import Image, { type ImageProps } from "next/image"
 
-interface ImageWithFallbackProps {
-  src: string
-  alt: string
-  fallbackSrc: string
-  className?: string
+interface ImageWithFallbackProps extends Omit<ImageProps, "onError"> {
+  fallbackSrc?: string
 }
 
-export default function ImageWithFallback({ src, alt, fallbackSrc, className }: ImageWithFallbackProps) {
-  const [imgSrc, setImgSrc] = useState(src)
+export default function ImageWithFallback({
+  src,
+  alt,
+  fallbackSrc = "/placeholder.svg",
+  ...rest
+}: ImageWithFallbackProps) {
+  const [imgSrc, setImgSrc] = useState<string>(typeof src === "string" ? src : fallbackSrc)
+  const [error, setError] = useState<boolean>(false)
 
-  const handleError = () => {
-    setImgSrc(fallbackSrc)
-  }
+  useEffect(() => {
+    // Reset error state when src changes
+    setError(false)
+    setImgSrc(typeof src === "string" ? src : fallbackSrc)
+  }, [src, fallbackSrc])
 
-  return <img src={imgSrc || "/placeholder.svg"} alt={alt} className={className} onError={handleError} />
+  return (
+    <Image
+      {...rest}
+      src={error ? fallbackSrc : imgSrc}
+      alt={alt}
+      onError={() => {
+        setError(true)
+        setImgSrc(fallbackSrc)
+      }}
+    />
+  )
 }
