@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import ImageWithFallback from "@/components/image-with-fallback"
+import SocialShareButtons from "@/components/social-share-buttons" // Import the new component
 
 interface BlogPostPageProps {
   params: {
@@ -19,6 +20,8 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const placeholderImage = `/placeholder.svg?height=400&width=800&text=${encodeURIComponent(post.title)}`
+  const shareUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/blog/${post.id}`
+  const shareTags = post.tags?.map((tag) => tag.replace(/\s+/g, "")) // Format tags for Twitter
 
   return (
     <div className="min-h-screen bg-gray-900 pt-24 relative overflow-hidden">
@@ -99,15 +102,25 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             <div className="p-8">
               <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{post.title}</h1>
 
-              <div className="flex items-center text-gray-400 mb-8">
-                <div className="flex items-center mr-6">
-                  <Calendar className="h-5 w-5 mr-2 text-primary-400" />
-                  <span>{post.date}</span>
+              <div className="flex flex-wrap items-center justify-between text-gray-400 mb-4">
+                <div className="flex items-center mb-2 sm:mb-0">
+                  <div className="flex items-center mr-6">
+                    <Calendar className="h-5 w-5 mr-2 text-primary-400" />
+                    <span>{post.date}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <User className="h-5 w-5 mr-2 text-primary-400" />
+                    <span>{post.author}</span>
+                  </div>
                 </div>
-                <div className="flex items-center">
-                  <User className="h-5 w-5 mr-2 text-primary-400" />
-                  <span>{post.author}</span>
-                </div>
+                {/* Add SocialShareButtons here */}
+                <SocialShareButtons
+                  url={shareUrl}
+                  title={post.title}
+                  imageUrl={post.image ? `${process.env.NEXT_PUBLIC_BASE_URL}${post.image}` : undefined}
+                  tags={shareTags}
+                  className="mt-4 sm:mt-0"
+                />
               </div>
 
               <div className="prose prose-lg max-w-none prose-invert">
@@ -157,10 +170,10 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               </div>
 
               <div className="mt-8 pt-8 border-t border-gray-700">
-                <div className="flex items-center">
+                <div className="flex items-center mb-4">
                   <Tag className="h-5 w-5 text-primary-400 mr-3" />
                   <div className="flex flex-wrap gap-2">
-                    {post.tags.map((tag, index) => (
+                    {post.tags?.map((tag, index) => (
                       <Badge
                         key={index}
                         variant="outline"
@@ -171,6 +184,8 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                     ))}
                   </div>
                 </div>
+                {/* Optionally, add share buttons at the end of the article too */}
+                {/* <SocialShareButtons url={shareUrl} title={post.title} imageUrl={post.image ? `${process.env.NEXT_PUBLIC_BASE_URL}${post.image}` : undefined} tags={shareTags} className="mt-6" /> */}
               </div>
             </div>
           </div>
@@ -191,7 +206,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                         <ImageWithFallback
                           src={
                             relatedPost.image ||
-                            `/placeholder.svg?height=160&width=240&text=${encodeURIComponent(relatedPost.category)}`
+                            `/placeholder.svg?height=160&width=240&text=${encodeURIComponent(relatedPost.category) || "/placeholder.svg"}`
                           }
                           alt={relatedPost.title}
                           fallbackSrc={`/placeholder.svg?height=160&width=240&text=${encodeURIComponent(relatedPost.category)}`}

@@ -207,6 +207,7 @@ export default function ContactPage() {
                         disabled={isPending}
                         className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300 disabled:opacity-50"
                         placeholder="Your name"
+                        autoComplete="name"
                       />
                     </div>
                     <div className="space-y-2">
@@ -221,6 +222,7 @@ export default function ContactPage() {
                         disabled={isPending}
                         className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300 disabled:opacity-50"
                         placeholder="Your email"
+                        autoComplete="email"
                       />
                     </div>
                   </div>
@@ -236,6 +238,7 @@ export default function ContactPage() {
                       disabled={isPending}
                       className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300 disabled:opacity-50"
                       placeholder="Subject"
+                      autoComplete="off"
                     />
                   </div>
                   <div className="space-y-2">
@@ -250,6 +253,7 @@ export default function ContactPage() {
                       disabled={isPending}
                       className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300 disabled:opacity-50"
                       placeholder="Your message"
+                      autoComplete="off"
                     ></textarea>
                   </div>
                   <Button
