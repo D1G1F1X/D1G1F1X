@@ -14,7 +14,7 @@ interface BlogPostCardProps {
     author: string
     image: string
     category: string
-    tags: string[]
+    tags?: string[]
   }
 }
 
@@ -116,25 +116,27 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
 
         <p className="text-gray-300 mb-5 line-clamp-3 flex-grow">{post.excerpt}</p>
 
-        <div className="flex flex-wrap gap-2 mb-5">
-          {post.tags.slice(0, 3).map((tag, index) => (
-            <Badge
-              key={index}
-              variant="outline"
-              className="text-gray-300 border-gray-700 bg-gray-800/50 group-hover:border-primary-500/30 transition-colors"
-            >
-              {tag}
-            </Badge>
-          ))}
-          {post.tags.length > 3 && (
-            <Badge
-              variant="outline"
-              className="text-gray-300 border-gray-700 bg-gray-800/50 group-hover:border-primary-500/30 transition-colors"
-            >
-              +{post.tags.length - 3}
-            </Badge>
-          )}
-        </div>
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-5">
+            {post.tags.slice(0, 3).map((tag, index) => (
+              <Badge
+                key={index}
+                variant="outline"
+                className="text-gray-300 border-gray-700 bg-gray-800/50 group-hover:border-primary-500/30 transition-colors"
+              >
+                {tag}
+              </Badge>
+            ))}
+            {post.tags.length > 3 && (
+              <Badge
+                variant="outline"
+                className="text-gray-300 border-gray-700 bg-gray-800/50 group-hover:border-primary-500/30 transition-colors"
+              >
+                +{post.tags.length - 3}
+              </Badge>
+            )}
+          </div>
+        )}
 
         <Link
           href={`/blog/${post.id}`}

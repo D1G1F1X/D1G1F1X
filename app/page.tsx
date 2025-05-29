@@ -183,10 +183,10 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Hero Section - Keeping this unchanged as requested */}
+      {/* Hero Section with added mt-20 to lower the text */}
       <section className="relative pt-32 md:pt-40 pb-16 md:pb-24">
         <div className="container px-4 mx-auto relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-4xl mx-auto text-center mt-20">
             <Badge className="mb-4 bg-primary-500/20 text-primary-300 border-primary-500/30 px-4 py-1 text-sm">
               Welcome to Lumen Helix
             </Badge>
@@ -576,8 +576,24 @@ export default function Home() {
               <rect width="50" height="50" fill="none" stroke="url(#contactGradient)" strokeWidth="0.5" />
               <circle cx="25" cy="25" r="8" fill="none" stroke="url(#contactGradient)" strokeWidth="0.5" />
               <circle cx="25" cy="25" r="16" fill="none" stroke="url(#contactGradient)" strokeWidth="0.5" />
-              <line x1="0" y1="25" x2="50" y2="25" stroke="url(#contactGradient)" strokeWidth="0.5" />
-              <line x1="25" y1="0" x2="25" y2="50" stroke="url(#contactGradient)" strokeWidth="0.5" />
+              <line
+                x1="0"
+                y1="25"
+                x2="50"
+                y2="25"
+                stroke="url(#contactGradient)"
+                strokeWidth="0.5"
+                strokeDasharray="5,5"
+              />
+              <line
+                x1="25"
+                y1="0"
+                x2="25"
+                y2="50"
+                stroke="url(#contactGradient)"
+                strokeWidth="0.5"
+                strokeDasharray="5,5"
+              />
             </pattern>
             <rect width="100%" height="100%" fill="url(#contactGrid)" />
           </svg>
@@ -699,6 +715,7 @@ export default function Home() {
                       />
                       <path
                         d="M50,300 L350,300 M450,300 L750,300 M400,50 L400,250 M400,350 L400,550"
+                        fill="none"
                         stroke="url(#formGradient)"
                         strokeWidth="0.5"
                         strokeDasharray="5,5"
@@ -761,7 +778,7 @@ export default function Home() {
                       ></textarea>
                     </div>
                     <Button className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white shadow-lg hover:shadow-primary-500/20 transition-all duration-300">
-                      <Link href="/contact">Send Message</Link>
+                      Send Message
                     </Button>
                   </form>
                 </div>
