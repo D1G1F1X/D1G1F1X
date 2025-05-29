@@ -1,7 +1,30 @@
+"use client"
+
+import { useActionState, useEffect } from "react"
 import PageHero from "@/components/page-hero"
 import { Button } from "@/components/ui/button"
+import { submitContactForm } from "@/app/actions/contact"
+
+const initialState = {
+  success: false,
+  message: "",
+}
 
 export default function ContactPage() {
+  const [state, formAction, isPending] = useActionState(submitContactForm, initialState)
+
+  // Reset form on successful submission
+  useEffect(() => {
+    if (state?.success) {
+      const form = document.getElementById("contact-form") as HTMLFormElement
+      if (form) {
+        setTimeout(() => {
+          form.reset()
+        }, 100)
+      }
+    }
+  }, [state?.success])
+
   return (
     <div className="min-h-screen bg-gray-900 relative overflow-hidden">
       <PageHero
@@ -40,10 +63,17 @@ export default function ContactPage() {
                     </h3>
                     <p className="text-gray-300 mb-1">For general inquiries:</p>
                     <a
-                      href="mailto:info@lumenhelix.com"
+                      href="mailto:info@LumenHelix.com"
                       className="text-primary-400 hover:text-primary-300 transition-colors"
                     >
-                      info@lumenhelix.com
+                      info@LumenHelix.com
+                    </a>
+                    <br />
+                    <a
+                      href="mailto:LumenHelixSolutions@gmail.com"
+                      className="text-primary-400 hover:text-primary-300 transition-colors"
+                    >
+                      LumenHelixSolutions@gmail.com
                     </a>
                   </div>
                 </div>
@@ -92,7 +122,7 @@ export default function ContactPage() {
                       Visit Us
                     </h3>
                     <p className="text-gray-300 mb-1">Our headquarters:</p>
-                    <address className="text-primary-400 not-italic">Akron, Ohio 44312</address>
+                    <address className="text-primary-400 not-italic">Akron, Ohio</address>
                   </div>
                 </div>
               </div>
@@ -131,55 +161,129 @@ export default function ContactPage() {
                   <h3 className="text-2xl font-bold text-white">Send Us a Message</h3>
                 </div>
 
-                <form className="space-y-6">
+                {/* Status Message */}
+                {state && state.message && (
+                  <div
+                    className={`mb-6 p-4 rounded-lg border ${
+                      state.success
+                        ? "bg-green-900/20 border-green-500/30 text-green-400"
+                        : "bg-red-900/20 border-red-500/30 text-red-400"
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      {state.success ? (
+                        <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      )}
+                      {state.message}
+                    </div>
+                  </div>
+                )}
+
+                <form id="contact-form" action={formAction} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label htmlFor="name" className="block text-sm font-medium text-gray-300">
-                        Name
+                        Name *
                       </label>
                       <input
                         type="text"
                         id="name"
-                        className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300"
+                        name="name"
+                        required
+                        disabled={isPending}
+                        className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300 disabled:opacity-50"
                         placeholder="Your name"
                       />
                     </div>
                     <div className="space-y-2">
                       <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-                        Email
+                        Email *
                       </label>
                       <input
                         type="email"
                         id="email"
-                        className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300"
+                        name="email"
+                        required
+                        disabled={isPending}
+                        className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300 disabled:opacity-50"
                         placeholder="Your email"
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="subject" className="block text-sm font-medium text-gray-300">
-                      Subject
+                      Subject *
                     </label>
                     <input
                       type="text"
                       id="subject"
-                      className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300"
+                      name="subject"
+                      required
+                      disabled={isPending}
+                      className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300 disabled:opacity-50"
                       placeholder="Subject"
                     />
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="message" className="block text-sm font-medium text-gray-300">
-                      Message
+                      Message *
                     </label>
                     <textarea
                       id="message"
+                      name="message"
                       rows={5}
-                      className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300"
+                      required
+                      disabled={isPending}
+                      className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300 disabled:opacity-50"
                       placeholder="Your message"
                     ></textarea>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white shadow-lg hover:shadow-primary-500/20 transition-all duration-300">
-                    Send Message
+                  <Button
+                    type="submit"
+                    disabled={isPending}
+                    className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white shadow-lg hover:shadow-primary-500/20 transition-all duration-300 disabled:opacity-50"
+                  >
+                    {isPending ? (
+                      <div className="flex items-center justify-center">
+                        <svg
+                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Sending...
+                      </div>
+                    ) : (
+                      "Send Message"
+                    )}
                   </Button>
                 </form>
               </div>

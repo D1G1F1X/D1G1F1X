@@ -211,8 +211,6 @@ export default function Home() {
         </div>
 
         {/* Glowing orbs for visual consistency */}
-        <div className="absolute top-20 left-20 w-96 h-96 bg-primary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-secondary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
       </section>
 
       {/* Enhanced Services Section */}

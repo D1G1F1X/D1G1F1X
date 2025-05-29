@@ -192,9 +192,9 @@ export default function Navbar() {
                   )}
                   style={isScrolled ? {} : textColorStyle}
                 >
-                  <span className="uppercase">LUMEN</span>
-                  <span className="lowercase">helix</span>
-                  <span className="ml-1 text-sm md:text-base font-normal opacity-90">solutions</span>
+                  <span className="font-bold">Lumen</span>
+                  <span className="font-thin">Helix</span>
+                  <span className="ml-1 text-sm md:text-base font-normal opacity-90">Solutions</span>
                 </span>
               </div>
             </div>
@@ -253,9 +253,9 @@ export default function Navbar() {
             />
             <div className={lexend.className}>
               <span className="font-bold tracking-wide text-xl text-white">
-                <span className="uppercase">LUMEN</span>
-                <span className="lowercase">helix</span>
-                <span className="ml-1 text-sm font-normal opacity-90">solutions</span>
+                <span className="font-bold">Lumen</span>
+                <span className="font-thin">Helix</span>
+                <span className="ml-1 text-sm font-normal opacity-90">Solutions</span>
               </span>
             </div>
           </div>

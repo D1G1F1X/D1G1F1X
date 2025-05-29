@@ -67,9 +67,9 @@ export default function Footer() {
                 />
                 <div className={lexend.className}>
                   <span className="font-bold tracking-wide text-xl text-white">
-                    <span className="uppercase">LUMEN</span>
-                    <span className="lowercase">helix</span>
-                    <span className="ml-1 text-sm font-normal opacity-90">solutions</span>
+                    <span className="font-bold">Lumen</span>
+                    <span className="font-thin">Helix</span>
+                    <span className="ml-1 text-sm font-normal opacity-90">Solutions</span>
                   </span>
                 </div>
               </div>
@@ -185,8 +185,8 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <span className="text-primary-400 mr-2">Email:</span>
-                <a href="mailto:info@lumenhelix.com" className="text-gray-400 hover:text-primary-400 transition-colors">
-                  info@lumenhelix.com
+                <a href="mailto:info@LumenHelix.com" className="text-gray-400 hover:text-primary-400 transition-colors">
+                  info@LumenHelix.com
                 </a>
               </li>
               <li className="flex items-start">
@@ -197,7 +197,7 @@ export default function Footer() {
               </li>
               <li className="flex items-start">
                 <span className="text-primary-400 mr-2">Address:</span>
-                <span className="text-gray-400">Akron, Ohio 44312</span>
+                <span className="text-gray-400">Akron, Ohio</span>
               </li>
             </ul>
           </div>
@@ -205,7 +205,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            © {new Date().getFullYear()} Lumen Helix Solutions. All rights reserved.
+            © {new Date().getFullYear()} LumenHelix Solutions. All rights reserved.
           </p>
           <div className="flex space-x-6">
             <Link href="/privacy-policy" className="text-gray-400 hover:text-primary-400 transition-colors text-sm">
