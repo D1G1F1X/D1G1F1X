@@ -83,17 +83,25 @@ export default function BlogCard({ post }: BlogCardProps) {
             onError={handleImageError}
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-60"></div>
+        <img
+          src={`/abstract-geometric-shapes.png?height=192&width=300&query=${encodeURIComponent(post.title + " subtle overlay pattern")}`}
+          alt="" // Decorative, as it's an overlay
+          className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none"
+        />
         <div className="absolute top-4 left-4">
           <Badge className="bg-primary-500 text-white">{post.category}</Badge>
         </div>
 
         {/* Hover effect overlay */}
-        <div className="absolute inset-0 bg-primary-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <img
+          src={`/abstract-geometric-shapes.png?height=192&width=300&query=${encodeURIComponent(post.title + " abstract hover pattern")}`}
+          alt="Decorative hover pattern"
+          className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-30 transition-opacity duration-300 pointer-events-none"
+        />
       </div>
 
       <div className="p-6 relative">
-        <div className="flex items-center text-sm text-gray-400 mb-3">
+        <div className="flex items-center text-sm text-gray-200 mb-3">
           <div className="flex items-center mr-4">
             <Calendar className="h-4 w-4 mr-1 text-primary-400" />
             <span>{post.date}</span>
@@ -106,13 +114,13 @@ export default function BlogCard({ post }: BlogCardProps) {
         <h3 className="text-xl font-bold text-white mb-2 group-hover:text-primary-400 transition-colors">
           {post.title}
         </h3>
-        <p className="text-gray-300 mb-4">{post.excerpt}</p>
+        <p className="text-white mb-4">{post.excerpt}</p>
         <div className="flex flex-wrap gap-2 mb-4">
           {post.tags.map((tag, index) => (
             <Badge
               key={index}
               variant="outline"
-              className="text-gray-300 border-gray-700 bg-gray-900/50 group-hover:border-primary-500/30 transition-colors"
+              className="text-gray-200 border-gray-700 bg-gray-900/50 group-hover:border-primary-500/30 transition-colors"
             >
               {tag}
             </Badge>

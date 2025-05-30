@@ -12,6 +12,7 @@ import DevelopmentStack from "@/components/development-stack" // Import the new 
 import { services } from "@/lib/data"
 import { featuredProjects } from "@/lib/projects"
 import { featuredPosts } from "@/lib/blog"
+import TallyForm from "@/components/tally-form"
 
 export default function Home() {
   const [heroTextStyle, setHeroTextStyle] = useState({})
@@ -699,90 +700,13 @@ export default function Home() {
               </div>
 
               <div className="lg:w-1/2">
-                <div className="bg-gray-800/90 backdrop-blur-sm p-8 rounded-xl shadow-2xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-500 relative overflow-hidden group">
-                  {/* Enhanced digital circuit accent */}
-                  <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none overflow-hidden">
-                    <svg width="100%" height="100%" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
-                      <defs>
-                        <linearGradient id="formGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
-                          <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.2" />
-                        </linearGradient>
-                      </defs>
-                      <path
-                        d="M0,0 L800,0 L800,600 L0,600 Z M400,50 A350,350 0 1,0 400,550 A350,350 0 1,0 400,50 Z M400,150 A250,250 0 1,1 400,450 A250,250 0 1,1 400,150 Z"
-                        fill="none"
-                        stroke="url(#formGradient)"
-                        strokeWidth="0.5"
-                      />
-                      <path
-                        d="M50,300 L350,300 M450,300 L750,300 M400,50 L400,250 M400,350 L400,550"
-                        fill="none"
-                        stroke="url(#formGradient)"
-                        strokeWidth="0.5"
-                        strokeDasharray="5,5"
-                      />
-                    </svg>
-                  </div>
-
-                  <div className="flex items-center mb-8">
-                    <div className="w-12 h-12 flex items-center justify-center bg-primary-500/20 rounded-full mr-4 border border-primary-500/30">
-                      <div className="w-3 h-3 bg-primary-400 rounded-full animate-pulse"></div>
-                    </div>
-                    <h3 className="text-2xl font-bold text-white">Send Us a Message</h3>
-                  </div>
-
-                  <form className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-300">
-                          Name
-                        </label>
-                        <input
-                          type="text"
-                          id="name"
-                          className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300"
-                          placeholder="Your name"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-                          Email
-                        </label>
-                        <input
-                          type="email"
-                          id="email"
-                          className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300"
-                          placeholder="Your email"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-300">
-                        Subject
-                      </label>
-                      <input
-                        type="text"
-                        id="subject"
-                        className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300"
-                        placeholder="Subject"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-300">
-                        Message
-                      </label>
-                      <textarea
-                        id="message"
-                        rows={5}
-                        className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300"
-                        placeholder="Your message"
-                      ></textarea>
-                    </div>
-                    <Button className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white shadow-lg hover:shadow-primary-500/20 transition-all duration-300">
-                      Send Message
-                    </Button>
-                  </form>
+                {/* The TallyForm component will replace the previous form container */}
+                <div className="bg-gray-800/90 backdrop-blur-sm p-4 md:p-8 rounded-xl shadow-2xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-500 relative overflow-hidden group">
+                  <TallyForm
+                    embedSrc="https://tally.so/embed/n9ypaE?transparentBackground=1&dynamicHeight=1"
+                    title="Tell us about your idea..."
+                    height="600" // You can adjust this height if needed for the homepage context
+                  />
                 </div>
               </div>
             </div>

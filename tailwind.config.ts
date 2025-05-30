@@ -102,6 +102,20 @@ const config = {
           900: "#134e4a",
           950: "#042f2e",
         },
+        // Adding gray scale for prose text visibility
+        gray: {
+          50: "#F9FAFB",
+          100: "#F3F4F6",
+          200: "#E5E7EB",
+          300: "#D1D5DB",
+          400: "#9CA3AF",
+          500: "#6B7280",
+          600: "#4B5563",
+          700: "#374151",
+          800: "#1F2937",
+          900: "#111827",
+        },
+        white: "#FFFFFF", // Ensure white is explicitly defined
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -134,28 +148,97 @@ const config = {
       },
       typography: (theme: any) => ({
         DEFAULT: {
+          // For light mode, if used
           css: {
             color: theme("colors.gray.700"),
-            h2: {
-              color: theme("colors.gray.800"),
-              fontWeight: "700",
-              marginTop: "2em",
-              marginBottom: "0.5em",
+            a: {
+              color: theme("colors.primary.600"),
+              "&:hover": {
+                color: theme("colors.primary.700"),
+              },
             },
-            h3: {
-              color: theme("colors.gray.800"),
-              fontWeight: "600",
-              marginTop: "1.5em",
-              marginBottom: "0.5em",
+            h1: { color: theme("colors.gray.900") },
+            h2: { color: theme("colors.gray.800") },
+            h3: { color: theme("colors.gray.800") },
+            h4: { color: theme("colors.gray.800") },
+            strong: { color: theme("colors.gray.900") },
+            code: {
+              color: theme("colors.secondary.700"),
+              backgroundColor: theme("colors.gray.100"),
+              padding: "0.2em 0.4em",
+              borderRadius: "0.25rem",
+              fontWeight: "500",
             },
-            ul: {
-              marginTop: "1em",
-              marginBottom: "1em",
-              paddingLeft: "1.5em",
+            pre: {
+              backgroundColor: theme("colors.gray.800"),
+              color: theme("colors.gray.200"),
             },
-            li: {
-              marginTop: "0.5em",
-              marginBottom: "0.5em",
+            blockquote: {
+              color: theme("colors.gray.600"),
+              borderLeftColor: theme("colors.gray.300"),
+            },
+          },
+        },
+        invert: {
+          // For .prose-invert, used in dark mode blog posts
+          css: {
+            "--tw-prose-body": theme("colors.white"), // Main body text to white
+            "--tw-prose-headings": theme("colors.white"), // All headings to white
+            "--tw-prose-lead": theme("colors.gray.100"), // Lead text slightly off-white for subtle differentiation if desired, or white
+            "--tw-prose-links": theme("colors.primary.300"), // Keep links colored for affordance
+            "--tw-prose-bold": theme("colors.white"), // Bold text to white
+            "--tw-prose-counters": theme("colors.gray.200"), // Counters lighter
+            "--tw-prose-bullets": theme("colors.gray.200"), // Bullets lighter
+            "--tw-prose-hr": theme("colors.gray.700"),
+            "--tw-prose-quotes": theme("colors.gray.100"), // Quotes lighter
+            "--tw-prose-quote-borders": theme("colors.gray.600"),
+            "--tw-prose-captions": theme("colors.gray.200"), // Captions lighter
+            "--tw-prose-code": theme("colors.secondary.300"), // Inline code text
+            "--tw-prose-pre-code": theme("colors.gray.100"), // Text in code blocks
+            "--tw-prose-pre-bg": theme("colors.gray.800"),
+            "--tw-prose-th-borders": theme("colors.gray.500"),
+            "--tw-prose-td-borders": theme("colors.gray.700"),
+
+            // Direct overrides for maximum clarity
+            p: { color: theme("colors.white") },
+            h1: { color: theme("colors.white") },
+            h2: { color: theme("colors.white") },
+            h3: { color: theme("colors.white") },
+            h4: { color: theme("colors.white") },
+            h5: { color: theme("colors.white") },
+            h6: { color: theme("colors.white") },
+            strong: { color: theme("colors.white") },
+            figcaption: { color: theme("colors.gray.200") }, // Captions for figures
+            blockquote: {
+              color: theme("colors.gray.100"),
+              borderLeftColor: theme("colors.gray.600"),
+            },
+            "ul > li::before": {
+              backgroundColor: theme("colors.gray.200"),
+            },
+            "ol > li::before": {
+              color: theme("colors.gray.200"),
+            },
+            a: {
+              color: theme("colors.primary.300"),
+              textDecoration: "underline",
+              textDecorationColor: theme("colors.primary.300/60"),
+              transition: "color 0.2s ease-in-out, text-decoration-color 0.2s ease-in-out",
+              "&:hover": {
+                color: theme("colors.primary.200"),
+                textDecorationColor: theme("colors.primary.200/80"),
+              },
+            },
+            code: {
+              color: theme("colors.secondary.300"),
+              backgroundColor: theme("colors.gray.700"),
+              padding: "0.2em 0.4em",
+              borderRadius: "0.25rem",
+              fontWeight: "500",
+            },
+            "a code": {
+              color: "inherit",
+              backgroundColor: theme("colors.gray.700"),
             },
           },
         },
