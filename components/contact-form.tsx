@@ -2,7 +2,8 @@
 
 import { useActionState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { submitContactForm } from "../app/actions/contact"
+// Ensuring this path is correctly using the standard alias
+import { submitContactForm } from "@/app/actions/contact"
 
 const initialState = {
   success: false,
@@ -16,20 +17,15 @@ export default function ContactForm() {
     if (state?.success) {
       const form = document.getElementById("homepage-contact-form") as HTMLFormElement
       if (form) {
-        // Delay reset slightly to allow user to see success message
         setTimeout(() => {
           form.reset()
-          // Optionally, you might want to clear the success message from state here
-          // or handle it in a way that it disappears after a while.
-          // For now, it will persist until the next submission attempt or page reload.
-        }, 3000) // Reset after 3 seconds
+        }, 3000)
       }
     }
   }, [state?.success])
 
   return (
     <div className="bg-gray-800/90 backdrop-blur-sm p-8 rounded-xl shadow-2xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-500 relative overflow-hidden group">
-      {/* Enhanced digital circuit accent */}
       <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none overflow-hidden">
         <svg width="100%" height="100%" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -60,7 +56,6 @@ export default function ContactForm() {
         <h3 className="text-2xl font-bold text-white">Send Us a Message</h3>
       </div>
 
-      {/* Status Message */}
       {state && state.message && (
         <div
           className={`mb-6 p-4 rounded-lg border ${
