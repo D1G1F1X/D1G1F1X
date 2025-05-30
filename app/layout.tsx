@@ -7,6 +7,7 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import AnimatedBackground from "@/components/animated-background"
 import FloatingCta from "@/components/floating-cta" // Import the new CTA
+import SiteAssistantChatbot from "@/components/site-assistant-chatbot"
 
 // Load Inter font for body text
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -38,7 +39,8 @@ export default function RootLayout({
           <Navbar />
           <main>{children}</main>
           <Footer />
-          <FloatingCta /> {/* Add the FloatingCta here */}
+          <FloatingCta />
+          <SiteAssistantChatbot /> {/* Add the Chatbot here */}
         </ThemeProvider>
       </body>
     </html>
