@@ -7,7 +7,6 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import AnimatedBackground from "@/components/animated-background"
 import FloatingCta from "@/components/floating-cta" // Import the new CTA
-import SiteAssistantChatbot from "@/components/site-assistant-chatbot"
 
 // Load Inter font for body text
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -23,7 +22,7 @@ export const metadata: Metadata = {
   title: "Lumen Helix Solutions | Tech Consulting Firm",
   description:
     "Lumen Helix Solutions is a tech consulting firm that merges strategic insight with practical implementation, offering AI strategy & fusion, web development, graphic design, marketing strategy, and tech consulting services.",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -40,7 +39,6 @@ export default function RootLayout({
           <main>{children}</main>
           <Footer />
           <FloatingCta />
-          <SiteAssistantChatbot /> {/* Add the Chatbot here */}
         </ThemeProvider>
       </body>
     </html>

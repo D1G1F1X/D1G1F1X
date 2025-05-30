@@ -85,7 +85,7 @@ export default function ContactPage() {
             <div className="lg:w-3/5">
               <div className="bg-gray-800/90 backdrop-blur-sm p-4 md:p-8 rounded-xl shadow-2xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-500 relative overflow-hidden group">
                 <TallyForm
-                  embedSrc="https://tally.so/embed/n9ypaE?hideTitle=1&transparentBackground=1&dynamicHeight=1"
+                  embedSrc="https://tally.so/embed/n9ypaE?transparentBackground=1&dynamicHeight=1"
                   title="Tell us about your idea..."
                   height="600" // Adjusted height for potentially dynamic content, can be fine-tuned
                 />
