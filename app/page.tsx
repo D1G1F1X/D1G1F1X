@@ -11,6 +11,7 @@ import BlogPostCard from "@/components/blog-post-card"
 import { services } from "@/lib/data"
 import { featuredProjects } from "@/lib/projects"
 import { featuredPosts } from "@/lib/blog"
+import ContactForm from "@/components/contact-form"
 
 export default function Home() {
   const [heroTextStyle, setHeroTextStyle] = useState({})
@@ -713,57 +714,7 @@ export default function Home() {
                     <h3 className="text-2xl font-bold text-white">Send Us a Message</h3>
                   </div>
 
-                  <form className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-300">
-                          Name
-                        </label>
-                        <input
-                          type="text"
-                          id="name"
-                          className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300"
-                          placeholder="Your name"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-                          Email
-                        </label>
-                        <input
-                          type="email"
-                          id="email"
-                          className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300"
-                          placeholder="Your email"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-300">
-                        Subject
-                      </label>
-                      <input
-                        type="text"
-                        id="subject"
-                        className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300"
-                        placeholder="Subject"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-300">
-                        Message
-                      </label>
-                      <textarea
-                        id="message"
-                        rows={5}
-                        className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300"
-                        placeholder="Your message"
-                      ></textarea>
-                    </div>
-                    <Button className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white shadow-lg hover:shadow-primary-500/20 transition-all duration-300">
-                      <Link href="/contact">Send Message</Link>
-                    </Button>
-                  </form>
+                  <ContactForm />
                 </div>
               </div>
             </div>
