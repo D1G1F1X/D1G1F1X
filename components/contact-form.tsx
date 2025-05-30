@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { submitContactForm } from "@/app/actions/contact"
+import { submitContactForm } from "../app/actions/contact"
 
 const initialState = {
   success: false,
