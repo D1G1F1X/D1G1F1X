@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import ServiceCard from "@/components/service-card"
 import ProjectPreview from "@/components/project-preview"
 import BlogPostCard from "@/components/blog-post-card"
+import DevelopmentStack from "@/components/development-stack" // Import the new component
 import { services } from "@/lib/data"
 import { featuredProjects } from "@/lib/projects"
 import { featuredPosts } from "@/lib/blog"
@@ -559,6 +560,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Development Stack Section */}
+      <DevelopmentStack />
+
       {/* Enhanced Contact Section */}
       <section id="contact" className="py-24 bg-gray-900 relative overflow-hidden">
         {/* Improved tech grid background */}
@@ -782,111 +786,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Added Stats Section */}
-      <section className="py-16 bg-gray-800/50 backdrop-blur-sm relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="statsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
-                <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.2" />
-              </linearGradient>
-            </defs>
-            <pattern id="statsPattern" width="100" height="100" patternUnits="userSpaceOnUse">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="url(#statsGradient)" strokeWidth="0.5" />
-              <circle cx="50" cy="50" r="20" fill="none" stroke="url(#statsGradient)" strokeWidth="0.5" />
-              <line
-                x1="0"
-                y1="50"
-                x2="100"
-                y2="50"
-                stroke="url(#statsGradient)"
-                strokeWidth="0.5"
-                strokeDasharray="5,5"
-              />
-              <line
-                x1="50"
-                y1="0"
-                x2="50"
-                y2="100"
-                stroke="url(#statsGradient)"
-                strokeWidth="0.5"
-                strokeDasharray="5,5"
-              />
-            </pattern>
-            <rect width="100%" height="100%" fill="url(#statsPattern)" />
-          </svg>
-        </div>
-
-        <div className="container px-4 mx-auto relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-gray-900/70 backdrop-blur-sm p-6 rounded-xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300 text-center group">
-              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-primary-500/20 rounded-full border border-primary-500/30 group-hover:scale-110 transition-transform duration-300">
-                <div className="w-3 h-3 bg-primary-400 rounded-full animate-pulse"></div>
-              </div>
-              <div className="text-4xl font-bold text-white mb-2 group-hover:text-primary-400 transition-colors">
-                50+
-              </div>
-              <p className="text-gray-300">Completed Projects</p>
-            </div>
-
-            <div className="bg-gray-900/70 backdrop-blur-sm p-6 rounded-xl border border-gray-700/50 hover:border-secondary-500/30 transition-all duration-300 text-center group">
-              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-secondary-500/20 rounded-full border border-secondary-500/30 group-hover:scale-110 transition-transform duration-300">
-                <div className="w-3 h-3 bg-secondary-400 rounded-full animate-pulse"></div>
-              </div>
-              <div className="text-4xl font-bold text-white mb-2 group-hover:text-secondary-400 transition-colors">
-                98%
-              </div>
-              <p className="text-gray-300">Client Satisfaction</p>
-            </div>
-
-            <div className="bg-gray-900/70 backdrop-blur-sm p-6 rounded-xl border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300 text-center group">
-              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-accent-500/20 rounded-full border border-accent-500/30 group-hover:scale-110 transition-transform duration-300">
-                <div className="w-3 h-3 bg-accent-400 rounded-full animate-pulse"></div>
-              </div>
-              <div className="text-4xl font-bold text-white mb-2 group-hover:text-accent-400 transition-colors">
-                12+
-              </div>
-              <p className="text-gray-300">Years Experience</p>
-            </div>
-
-            <div className="bg-gray-900/70 backdrop-blur-sm p-6 rounded-xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300 text-center group">
-              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-primary-500/20 rounded-full border border-primary-500/30 group-hover:scale-110 transition-transform duration-300">
-                <div className="w-3 h-3 bg-primary-400 rounded-full animate-pulse"></div>
-              </div>
-              <div className="text-4xl font-bold text-white mb-2 group-hover:text-primary-400 transition-colors">
-                24/7
-              </div>
-              <p className="text-gray-300">Technical Support</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Added Clients Section */}
-      <section className="py-16 bg-gray-900 relative overflow-hidden">
-        <div className="container px-4 mx-auto relative z-10">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Trusted by Industry Leaders</h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-primary-500 to-secondary-500 mx-auto"></div>
-          </div>
-
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
-            {/* Client logos would go here - using placeholder shapes for now */}
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                className="w-32 h-16 bg-gray-800/50 rounded-lg flex items-center justify-center border border-gray-700/30 hover:border-primary-500/30 transition-all duration-300 group"
-              >
-                <div className="w-24 h-8 bg-gray-700/50 rounded flex items-center justify-center group-hover:bg-gray-700/70 transition-all duration-300">
-                  <div className="text-gray-400 group-hover:text-primary-400 transition-colors">Client {i}</div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>

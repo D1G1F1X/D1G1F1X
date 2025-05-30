@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumen Helix Solutions - Interactive 3D Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #1a1d24; /* Darker cool gray / near black */
+            --secondary-bg: #282c34; /* Slightly lighter cool gray */
+            --text-color: #e0e0e0; /* Light gray for text */
+            --primary-accent: #00ADB5; /* Teal */
+            --secondary-accent: #8A2BE2; /* Electric Violet - as an alternative or for small highlights */
+            --heading-color: #ffffff;
+            --font-family: 'Montserrat', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            line-height: 1.8;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        #threejs-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            opacity: 0.7; /* Initial subtle opacity */
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 0;
+            background-color: rgba(26, 29, 36, 0.85); /* Slightly transparent primary-bg */
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px); /* For Safari */
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-accent);
+            text-decoration: none;
+        }
+        .logo span {
+            color: var(--heading-color);
+            font-weight: 300;
+        }
+
+
+        nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 400;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--primary-accent);
+        }
+
+        .section {
+            padding: 120px 0 60px 0; /* Adjusted top padding for fixed header, bottom padding general */
+            position: relative;
+            z-index: 1; /* Ensure content is above threejs-bg */
+        }
+        .section:first-of-type { /* Hero section specific padding */
+             padding-top: 80px; /* Existing fixed header height */
+        }
+
+
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            /* padding-top is handled by .section:first-of-type */
+        }
+
+        .hero-section h2 {
+            font-size: 2.8em;
+            font-weight: 600;
+            color: var(--heading-color);
+            margin-bottom: 20px;
+            max-width: 800px;
+            line-height: 1.3;
+        }
+        
+        .hero-section .sub-tagline {
+            font-size: 1.2em;
+            color: var(--text-color);
+            margin-bottom: 30px;
+            max-width: 700px;
+            font-weight: 300;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: var(--primary-accent);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .cta-button:hover {
+            background-color: #007c80; /* Darker teal */
+            transform: translateY(-2px);
+        }
+
+        .section-title {
+            font-size: 2.5em;
+            font-weight: 600;
+            color: var(--heading-color);
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary-accent);
+            margin: 15px auto 0;
+        }
+
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .service-item {
+            background-color: var(--secondary-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid var(--primary-accent);
+        }
+
+        .service-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .service-item h3 {
+            font-size: 1.5em;
+            color: var(--primary-accent);
+            margin-bottom: 15px;
+        }
+
+        .service-item p {
+            font-size: 0.95em;
+            line-height: 1.7;
+        }
+        
+        #about p, #contact p {
+            font-size: 1.1em;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        #about .highlight {
+            color: var(--primary-accent);
+            font-weight: 600;
+        }
+
+        .contact-methods {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .contact-methods a {
+            font-size: 1.2em;
+            color: var(--primary-accent);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .contact-methods a:hover {
+            color: #007c80; /* Darker teal */
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            background-color: var(--secondary-bg);
+            margin-top: 60px; /* Ensures space before footer */
+            border-top: 1px solid #3f444f;
+            position: relative;
+            z-index: 1;
+        }
+
+        footer p {
+            font-size: 0.9em;
+            color: #aaa;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero-section h2 {
+                font-size: 2em;
+            }
+            .hero-section .sub-tagline {
+                font-size: 1em;
+            }
+            .section-title {
+                font-size: 2em;
+            }
+            header .container {
+                flex-direction: column;
+            }
+            .logo {
+                margin-bottom: 10px;
+            }
+            nav {
+                width: 100%;
+                display: flex;
+                justify-content: space-around; /* Better spacing for nav links */
+            }
+            nav a {
+                margin: 0 5px; /* Adjusted margin */
+            }
+            .services-grid {
+                grid-template-columns: 1fr; /* Stack services on smaller screens */
+            }
+            .section {
+                 padding: 100px 0 40px 0;
+            }
+             .section:first-of-type { /* Hero section specific padding */
+                padding-top: 120px; /* Increased padding for stacked header */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="threejs-bg"></div>
+
+    <header>
+        <div class="container">
+            <a href="#hero" class="logo">Lumen<span>Helix</span> Solutions</a>
+            <nav>
+                <a href="#hero" class="active">Home</a>
+                <a href="#services">Services</a>
+                <a href="#about">About Us</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="hero-section section">
+            <div class="container">
+                <h2>Enlightened Growth, Intelligent Evolution, Clarity in Complexity.</h2>
+                <p class="sub-tagline">We empower businesses by fusing cutting-edge AI prompt engineering with expert web development, captivating graphic design, impactful marketing strategies, and dependable tech consulting.</p>
+                <a href="#services" class="cta-button">Explore Our Services</a>
+            </div>
+        </section>
+
+        <section id="services" class="section">
+            <div class="container">
+                <h2 class="section-title">Our Integrated Services</h2>
+                <p style="text-align:center; max-width: 800px; margin: -40px auto 50px auto; font-size: 1.1em;">
+                    At Lumen Helix Solutions, we offer a comprehensive suite of digital services designed to integrate seamlessly,
+                    providing holistic solutions that drive innovation and growth for your business.
+                </p>
+                <div class="services-grid">
+                    <div class="service-item">
+                        <h3>AI Prompt Engineering</h3>
+                        <p>Crafting precise instructions for AI, optimizing generative outputs for various applications. We harness the power of AI to unlock new efficiencies and creative possibilities for your business.</p>
+                    </div>
+                    <div class="service-item">
+                        <h3>Web Development</h3>
+                        <p>Building robust, user-friendly, and scalable websites and web applications. Our development process focuses on performance, security, and delivering an exceptional user experience.</p>
+                    </div>
+                    <div class="service-item">
+                        <h3>Graphic Design</h3>
+                        <p>Creating impactful visual identities, compelling brand assets, and engaging user interfaces. We translate your brand's essence into visuals that captivate and communicate effectively.</p>
+                    </div>
+                    <div class="service-item">
+                        <h3>Marketing Strategy</h3>
+                        <p>Developing data-driven plans for digital growth, audience engagement, and conversions. We help you navigate the digital landscape to connect with your target audience and achieve measurable results.</p>
+                    </div>
+                    <div class="service-item">
+                        <h3>Tech Consulting & Hosting</h3>
+                        <p>Providing expert technological guidance, infrastructure recommendations, and reliable hosting services. We ensure your digital assets are performant, secure, and built on a solid foundation.</p>
+                    </div>
+                </div>
+                 <p style="text-align:center; max-width: 800px; margin: 50px auto 0 auto; font-size: 1.1em;">
+                    Our services are designed to work in concert, creating a symphony of solutions that amplify your brand's impact and drive sustainable growth.
+                </p>
+            </div>
+        </section>
+
+        <section id="about" class="section">
+            <div class="container">
+                <h2 class="section-title">Innovation, Precision, Comprehensive Solutions</h2>
+                <p>Lumen Helix Solutions <span class="highlight">merges strategic insight with practical implementation</span>. We stand for <span class="highlight">enlightened growth</span>, <span class="highlight">intelligent evolution</span>, and <span class="highlight">clarity in complexity</span>. Our commitment is to innovation, precision, and delivering comprehensive digital solutions tailored to your unique needs.</p>
+                <p>We operate as your <span class="highlight">trusted partner</span>, dedicated to navigating complex digital challenges and delivering tangible results that foster your growth and success. We believe in building strong relationships with our clients, understanding their vision, and empowering them with the tools and strategies to thrive in an ever-evolving digital world.</p>
+                 <p style="font-style: italic; font-size: 1em;">Our portfolio and case studies showcasing our expertise are coming soon.</p>
+            </div>
+        </section>
+
+        <section id="contact" class="section">
+            <div class="container">
+                <h2 class="section-title">Let's Build Your Future</h2>
+                <p>Ready to illuminate your path to digital excellence? We're eager to learn about your challenges and explore how Lumen Helix Solutions can help you achieve your business goals.</p>
+                <div class="contact-methods">
+                    <p>Reach out to us to start the conversation:</p>
+                    <a href="mailto:contact@lumenhelix.com">contact@lumenhelix.com</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Lumen Helix Solutions. All rights reserved.</p>
+            <p>Navigating Complexity, Delivering Clarity.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let scene, camera, renderer, particlesGroup;
+        let particlesHelix; // Renamed from particles to be more specific
+
+        function initThreeJS() {
+            const container = document.getElementById('threejs-bg');
+
+            // Scene
+            scene = new THREE.Scene();
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 20;
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            container.appendChild(renderer.domElement);
+            
+            particlesGroup = new THREE.Group();
+            scene.add(particlesGroup);
+
+            // Create Particles for the Helix
+            const particleCount = 3000;
+            const particlesGeometry = new THREE.BufferGeometry();
+            const posArray = new Float32Array(particleCount * 3);
+
+            const helixRadius = 10;
+            const helixHeight = 30;
+            const numCoils = 4;
+            
+            for (let i = 0; i < particleCount; i++) {
+                // Distribute points more evenly along the curve length
+                const progress = i / particleCount; // Overall progress along the helix
+                const currentCoilProgress = progress * numCoils;
+                const angle = currentCoilProgress * Math.PI * 2;
+                
+                const x = helixRadius * Math.cos(angle);
+                const y = helixRadius * Math.sin(angle);
+                const z = (progress - 0.5) * helixHeight; // Center the helix vertically
+
+                posArray[i * 3 + 0] = x;
+                posArray[i * 3 + 1] = y;
+                posArray[i * 3 + 2] = z;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            
+            const particleMaterial = new THREE.PointsMaterial({
+                size: 0.15,
+                map: createCircleTexture(), // Using a texture for softer particles
+                // color: 0x00ADB5, // Color is now white, tint with vertex colors or keep white for map
+                transparent: true,
+                opacity: 0.6, // Slightly less opaque with texture
+                blending: THREE.AdditiveBlending,
+                depthWrite: false 
+            });
+
+            particlesHelix = new THREE.Points(particlesGeometry, particleMaterial);
+            particlesGroup.add(particlesHelix);
+            
+            particlesGroup.position.z = -5;
+            particlesGroup.rotation.x = 0.2;
+
+
+            window.addEventListener('resize', onWindowResize, false);
+            animate();
+        }
+
+        function createCircleTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const context = canvas.getContext('2d');
+            const gradient = context.createRadialGradient(
+                canvas.width / 2, canvas.height / 2, 0,
+                canvas.width / 2, canvas.height / 2, canvas.width / 2
+            );
+            gradient.addColorStop(0, 'rgba(0,173,181,1)'); // Teal --primary-accent
+            gradient.addColorStop(0.3, 'rgba(0,173,181,0.7)');
+            gradient.addColorStop(1, 'rgba(0,173,181,0)');
+            
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            
+            return new THREE.CanvasTexture(canvas);
+        }
+
+
+        function onWindowResize() {
+            if (camera && renderer) { // Ensure they are initialized
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        }
+
+        let lastScrollY = window.scrollY;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (particlesGroup) {
+                particlesGroup.rotation.y += 0.001;
+                particlesGroup.rotation.z += 0.0005;
+
+                // Smoother scroll-based rotation
+                const currentScrollY = window.scrollY;
+                const deltaScroll = currentScrollY - lastScrollY;
+                particlesGroup.rotation.x += deltaScroll * 0.00005; // Reduced sensitivity
+                lastScrollY = currentScrollY;
+            }
+            
+            if (renderer && scene && camera) { // Ensure they are initialized
+                 renderer.render(scene, camera);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            initThreeJS(); // Initialize Three.js after DOM is loaded
+
+            // Active navigation link highlighting
+            const sections = document.querySelectorAll('.section');
+            const navLinks = document.querySelectorAll('nav a');
+            const headerHeight = document.querySelector('header').offsetHeight;
+
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                const scrollPosition = pageYOffset + headerHeight * 1.5; // Adjusted for better active link accuracy
+
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (scrollPosition >= sectionTop && scrollPosition < (sectionTop + sectionHeight)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                // Fallback for the last section if scrolled to the very bottom
+                if (window.innerHeight + window.pageYOffset >= document.body.offsetHeight - 50) { // 50px buffer
+                    current = sections[sections.length - 1].getAttribute('id');
+                }
+
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.classList.add('active');
+                    }
+                });
+
+                // Control Three.js opacity based on scroll
+                const heroSection = document.getElementById('hero');
+                const threeBg = document.getElementById('threejs-bg');
+                if (!heroSection || !threeBg) return; // Safety check
+
+                const heroBottom = heroSection.offsetTop + heroSection.offsetHeight;
+                let opacityTarget = 0.7; // Default full opacity in hero
+
+                if (window.scrollY > heroBottom - window.innerHeight * 0.8) {
+                    // Start fading when about 80% of hero is scrolled past
+                    const fadeStartPoint = heroBottom - window.innerHeight * 0.8;
+                    const fadeDistance = window.innerHeight * 0.5; // Fade over this scroll distance
+                    const scrolledPastFadeStart = window.scrollY - fadeStartPoint;
+                    opacityTarget = Math.max(0.15, 0.7 - (scrolledPastFadeStart / fadeDistance) * 0.55);
+                }
+                
+                if (window.scrollY >= heroBottom + 100) { // Give some buffer after hero
+                     opacityTarget = 0.15; // Minimal opacity after hero
+                }
+                
+                // Smooth opacity transition
+                let currentOpacity = parseFloat(threeBg.style.opacity) || 0.7;
+                currentOpacity += (opacityTarget - currentOpacity) * 0.1; // Lerp for smoothness
+                threeBg.style.opacity = currentOpacity.toFixed(2);
+            });
+        });
+
+    </script>
+</body>
+</html>

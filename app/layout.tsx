@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import AnimatedBackground from "@/components/animated-background"
+import FloatingCta from "@/components/floating-cta" // Import the new CTA
 
 // Load Inter font for body text
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -37,6 +38,7 @@ export default function RootLayout({
           <Navbar />
           <main>{children}</main>
           <Footer />
+          <FloatingCta /> {/* Add the FloatingCta here */}
         </ThemeProvider>
       </body>
     </html>
