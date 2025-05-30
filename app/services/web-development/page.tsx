@@ -1,7 +1,7 @@
 import PageHero from "@/components/page-hero"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Code, CheckCircle2, Smartphone, ShoppingCart, Zap, Database } from "lucide-react"
+import { Code, CheckCircle2, Smartphone, ShoppingCart, Zap, Database, CuboidIcon as Cube } from "lucide-react" // Added Cube import
 
 export default function WebDevelopmentPage() {
   return (
@@ -126,6 +126,40 @@ export default function WebDevelopmentPage() {
                 <span className="text-gray-300">Inventory and order management</span>
               </li>
             </ul>
+          </div>
+
+          {/* THIS IS THE NEW CARD WE ADDED */}
+          <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 hover:border-secondary-500/30 transition-all duration-300">
+            <div className="w-14 h-14 flex items-center justify-center bg-secondary-500/20 rounded-full mb-6 border border-secondary-500/30">
+              <Cube className="h-7 w-7 text-secondary-400" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-4">Single-Page 3D Web Experience - $499</h3>
+            <p className="text-gray-300 mb-4">
+              Get a stunning, responsive single-page website with reactive HTML and an immersive Three.js animated
+              background. Perfect for portfolios, product showcases, or unique landing pages.
+            </p>
+            <ul className="space-y-2">
+              <li className="flex items-start">
+                <CheckCircle2 className="h-5 w-5 text-secondary-400 mr-2 mt-0.5" />
+                <span className="text-gray-300">Responsive design for all devices</span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle2 className="h-5 w-5 text-secondary-400 mr-2 mt-0.5" />
+                <span className="text-gray-300">Interactive Three.js background</span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle2 className="h-5 w-5 text-secondary-400 mr-2 mt-0.5" />
+                <span className="text-gray-300">Fixed price: $499</span>
+              </li>
+            </ul>
+            <Link
+              href="/demos/threejs-single-page-demo.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-4 text-secondary-400 hover:text-secondary-300 transition-colors"
+            >
+              View Demo
+            </Link>
           </div>
 
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 hover:border-secondary-500/30 transition-all duration-300 md:col-span-2">
