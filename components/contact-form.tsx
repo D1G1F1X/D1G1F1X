@@ -2,12 +2,12 @@
 
 import { useActionState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-// Ensuring this path is correctly using the standard alias
-import { submitContactForm } from "@/app/actions/contact"
+import { submitContactForm } from "@/app/actions/contact" // Standard alias path
 
 const initialState = {
   success: false,
   message: "",
+  errors: null, // Add errors to initial state
 }
 
 export default function ContactForm() {
@@ -19,6 +19,7 @@ export default function ContactForm() {
       if (form) {
         setTimeout(() => {
           form.reset()
+          // Consider resetting state message here if desired after form reset
         }, 3000)
       }
     }
@@ -27,6 +28,7 @@ export default function ContactForm() {
   return (
     <div className="bg-gray-800/90 backdrop-blur-sm p-8 rounded-xl shadow-2xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-500 relative overflow-hidden group">
       <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none overflow-hidden">
+        {/* Decorative SVG - kept for brevity */}
         <svg width="100%" height="100%" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="formGradientContactComponent" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -64,6 +66,7 @@ export default function ContactForm() {
               : "bg-red-900/20 border-red-500/30 text-red-400"
           }`}
         >
+          {/* Icon logic - kept for brevity */}
           <div className="flex items-center">
             {state.success ? (
               <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -88,38 +91,41 @@ export default function ContactForm() {
       )}
 
       <form id="homepage-contact-form" action={formAction} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label htmlFor="name-homepage" className="block text-sm font-medium text-gray-300">
-              Name *
-            </label>
-            <input
-              type="text"
-              id="name-homepage"
-              name="name"
-              required
-              disabled={isPending}
-              className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300 disabled:opacity-50"
-              placeholder="Your name"
-              autoComplete="name"
-            />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="email-homepage" className="block text-sm font-medium text-gray-300">
-              Email *
-            </label>
-            <input
-              type="email"
-              id="email-homepage"
-              name="email"
-              required
-              disabled={isPending}
-              className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300 disabled:opacity-50"
-              placeholder="Your email"
-              autoComplete="email"
-            />
-          </div>
+        {/* Name Field */}
+        <div className="space-y-2">
+          <label htmlFor="name-homepage" className="block text-sm font-medium text-gray-300">
+            Name *
+          </label>
+          <input
+            type="text"
+            id="name-homepage"
+            name="name"
+            required
+            disabled={isPending}
+            className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300 disabled:opacity-50"
+            placeholder="Your name"
+            autoComplete="name"
+          />
+          {state?.errors?.name && <p className="text-xs text-red-400 mt-1">{state.errors.name[0]}</p>}
         </div>
+        {/* Email Field */}
+        <div className="space-y-2">
+          <label htmlFor="email-homepage" className="block text-sm font-medium text-gray-300">
+            Email *
+          </label>
+          <input
+            type="email"
+            id="email-homepage"
+            name="email"
+            required
+            disabled={isPending}
+            className="w-full px-4 py-3 bg-gray-900/80 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-white transition-all duration-300 disabled:opacity-50"
+            placeholder="Your email"
+            autoComplete="email"
+          />
+          {state?.errors?.email && <p className="text-xs text-red-400 mt-1">{state.errors.email[0]}</p>}
+        </div>
+        {/* Subject Field */}
         <div className="space-y-2">
           <label htmlFor="subject-homepage" className="block text-sm font-medium text-gray-300">
             Subject *
@@ -134,7 +140,9 @@ export default function ContactForm() {
             placeholder="Subject"
             autoComplete="off"
           />
+          {state?.errors?.subject && <p className="text-xs text-red-400 mt-1">{state.errors.subject[0]}</p>}
         </div>
+        {/* Message Field */}
         <div className="space-y-2">
           <label htmlFor="message-homepage" className="block text-sm font-medium text-gray-300">
             Message *
@@ -149,7 +157,9 @@ export default function ContactForm() {
             placeholder="Your message"
             autoComplete="off"
           ></textarea>
+          {state?.errors?.message && <p className="text-xs text-red-400 mt-1">{state.errors.message[0]}</p>}
         </div>
+
         <Button
           type="submit"
           disabled={isPending}
