@@ -100,17 +100,10 @@ export default function SocialShareButtons({ url, title, imageUrl, tags, classNa
   ]
 
   const handleCopyLink = () => {
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000) // Reset after 2 seconds
-      })
-      .catch((err) => {
-        console.error("Failed to copy link: ", err)
-        // Optionally, you could set an error state here to inform the user
-        // For now, we'll just log the error.
-      })
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000) // Reset after 2 seconds
+    })
   }
 
   return (

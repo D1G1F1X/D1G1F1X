@@ -158,32 +158,6 @@ export default function AIStrategyPage() {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-primary-900/70 to-secondary-900/70 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-16">
-          <h2 className="text-2xl font-bold text-white mb-6">
-            Case Study: AI-Powered Customer Experience Transformation
-          </h2>
-          <p className="text-gray-300 text-lg mb-6">
-            For a leading financial services provider, we implemented an AI-driven customer experience platform that
-            reduced service resolution time by 45% and increased customer satisfaction scores by 32%. The solution
-            integrated natural language processing, predictive analytics, and machine learning to deliver personalized,
-            proactive customer service across multiple channels.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-gray-900/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold text-primary-400 mb-2">45%</h3>
-              <p className="text-gray-300">Reduction in service resolution time</p>
-            </div>
-            <div className="bg-gray-900/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold text-primary-400 mb-2">32%</h3>
-              <p className="text-gray-300">Increase in customer satisfaction</p>
-            </div>
-            <div className="bg-gray-900/50 p-4 rounded-lg">
-              <h3 className="text-xl font-bold text-primary-400 mb-2">3 Months</h3>
-              <p className="text-gray-300">Implementation timeline</p>
-            </div>
-          </div>
-        </div>
-
         <div className="text-center">
           <h2 className="text-2xl font-bold text-white mb-6">Ready to Harness the Power of AI?</h2>
           <p className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto">

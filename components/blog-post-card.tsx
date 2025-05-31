@@ -99,7 +99,7 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
       </div>
 
       <div className="p-6 relative flex-grow flex flex-col">
-        <div className="flex items-center text-sm text-gray-200 mb-3">
+        <div className="flex items-center text-sm text-gray-400 mb-3">
           <div className="flex items-center mr-4">
             <Calendar className="h-4 w-4 mr-1 text-primary-400" />
             <span>{post.date}</span>
@@ -114,7 +114,7 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
           {post.title}
         </h3>
 
-        <p className="text-white mb-5 line-clamp-3 flex-grow">{post.excerpt}</p>
+        <p className="text-gray-300 mb-5 line-clamp-3 flex-grow">{post.excerpt}</p>
 
         {post.tags && post.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-5">
@@ -122,7 +122,7 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
               <Badge
                 key={index}
                 variant="outline"
-                className="text-gray-200 border-gray-700 bg-gray-800/50 group-hover:border-primary-500/30 transition-colors"
+                className="text-gray-300 border-gray-700 bg-gray-800/50 group-hover:border-primary-500/30 transition-colors"
               >
                 {tag}
               </Badge>
@@ -130,7 +130,7 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
             {post.tags.length > 3 && (
               <Badge
                 variant="outline"
-                className="text-gray-200 border-gray-700 bg-gray-800/50 group-hover:border-primary-500/30 transition-colors"
+                className="text-gray-300 border-gray-700 bg-gray-800/50 group-hover:border-primary-500/30 transition-colors"
               >
                 +{post.tags.length - 3}
               </Badge>

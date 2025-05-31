@@ -637,10 +637,10 @@ export default function Home() {
                       </h3>
                       <p className="text-gray-300 mb-1">For general inquiries:</p>
                       <a
-                        href="mailto:info@lumenhelix.com"
+                        href="mailto:lumenhelixsolutions@gmail.com"
                         className="text-primary-400 hover:text-primary-300 transition-colors"
                       >
-                        info@lumenhelix.com
+                        lumenhelixsolutions@gmail.com
                       </a>
                     </div>
                   </div>
@@ -661,8 +661,8 @@ export default function Home() {
                         Call Us
                       </h3>
                       <p className="text-gray-300 mb-1">Monday-Friday, 9am-5pm:</p>
-                      <a href="tel:+15551234567" className="text-primary-400 hover:text-primary-300 transition-colors">
-                        +1 (555) 123-4567
+                      <a href="tel:14842020272" className="text-primary-400 hover:text-primary-300 transition-colors">
+                        1 (484) 202-0272
                       </a>
                     </div>
                   </div>
@@ -689,25 +689,17 @@ export default function Home() {
                         Visit Us
                       </h3>
                       <p className="text-gray-300 mb-1">Our headquarters:</p>
-                      <address className="text-primary-400 not-italic">
-                        123 Innovation Drive
-                        <br />
-                        Tech City, TC 12345
-                      </address>
+                      <address className="text-primary-400 not-italic">Akron, Oh</address>
                     </div>
                   </div>
                 </div>
               </div>
-
-              <div className="lg:w-1/2">
-                {/* The TallyForm component will replace the previous form container */}
-                <div className="bg-gray-800/90 backdrop-blur-sm p-4 md:p-8 rounded-xl shadow-2xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-500 relative overflow-hidden group">
-                  <TallyForm
-                    embedSrc="https://tally.so/embed/n9ypaE?transparentBackground=1&dynamicHeight=1"
-                    title="Tell us about your idea..."
-                    height="600" // You can adjust this height if needed for the homepage context
-                  />
-                </div>
+              <div className="bg-gray-900/90 backdrop-blur-sm p-4 md:p-8 rounded-xl shadow-2xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-500 group">
+                <TallyForm
+                  embedSrc="https://tally.so/embed/n9ypaE?transparentBackground=1&dynamicHeight=1"
+                  title="Contact Form"
+                  height="600"
+                />
               </div>
             </div>
           </div>

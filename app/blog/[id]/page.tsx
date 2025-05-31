@@ -123,8 +123,8 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 />
               </div>
 
-              <div className="prose prose-lg max-w-none prose-invert prose-p:text-gray-200 prose-li:text-gray-200 prose-bullets:text-gray-400">
-                <p className="text-gray-200 mb-6 text-lg">{post.excerpt}</p>
+              <div className="prose prose-lg max-w-none prose-invert">
+                <p className="text-gray-300 mb-6 text-lg">{post.excerpt}</p>
 
                 <h2>The Evolution of AI in Business</h2>
                 <p>
