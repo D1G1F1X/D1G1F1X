@@ -1,236 +1,270 @@
 "use client"
 
-import type React from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+// Remove SalesInquiryForm import if it was defined inline, otherwise ensure it uses the action
+// import { SalesInquiryForm } from "@/components/sales-inquiry-form"; // This component should use the action
+import { useActionState } from "react" // For using actions with forms
+import { ShoppingBag, Info, AlertCircle, CheckCircle } from "lucide-react"
 
-import { useEffect, useRef, useState, useTransition } from "react"
-import { useFormState } from "react-dom"
+// Import actions from the separate actions file
+import { submitSalesInquiry, type SalesInquiryState } from "./actions"
 
-interface SalesInquiryFormProps {
-  productId: string
-}
+// Sample product data (replace with your actual data source)
+const products = [
+  {
+    id: "novice-oracle-deck",
+    name: "The Novice Oracle Deck",
+    description:
+      "Begin your journey with this essential 78-card deck, beautifully illustrated to introduce the core wisdom of the Numo Oracle.",
+    price: 25.0,
+    image: "/images/products/novice-deck-symbols.jpg",
+    features: ["78 Full-Color Cards", "Durable Card Stock", "Includes Quick Start Guide"],
+    status: "available", // Added status for clarity
+  },
+  {
+    id: "adepts-oracle-deck",
+    name: "The Adepts Oracle Deck",
+    description:
+      "Deepen your practice with the Adept's 100-card Oracle system, featuring advanced elemental and archetypal cards for profound insights.",
+    price: 22.0,
+    image: "/images/products/01cauldron-fire.jpg",
+    features: ["100 Premium Cards", "Enhanced Artwork", "Expanded Symbology"],
+    status: "available",
+  },
+  {
+    id: "elemental-dice-set",
+    name: "10-Sided Elemental Oracle Dice Set",
+    description:
+      "A unique set of 10-sided dice, each representing an elemental influence to complement your readings or for quick guidance.",
+    price: 11.0,
+    image: "/images/tools/elemental-dice.png",
+    features: ["Set of 5 Custom Dice", "Engraved Elemental Symbols", "Portable Divination Tool"],
+    status: "coming-soon",
+  },
+  {
+    id: "numo-spread-cloth",
+    name: "Numo Oracle Spread Cloth with Guide",
+    description:
+      "A beautifully designed spread cloth featuring sacred Numo symbols, complete with a guide to enhance your reading experience.",
+    price: 11.0,
+    image: "/images/products/speardcloth01.jpg.jpg", // Ensure this path is correct
+    features: ["High-Quality Fabric", "Symbolic Print", "Includes Layout Guide"],
+    status: "available",
+  },
+]
 
-interface SalesInquiryState {
-  message: string | null
-  success: boolean | null
-}
-
-const initialState: SalesInquiryState = {
-  message: null,
-  success: null,
-}
-
-async function submitSalesInquiry(prevState: SalesInquiryState, formData: FormData): Promise<SalesInquiryState> {
-  "use server"
-
-  const name = formData.get("name") as string
-  const email = formData.get("email") as string
-  const message = formData.get("message") as string
-  const productId = formData.get("productId") as string
-
-  if (!name || !email || !message) {
-    return {
-      message: "Please fill in all fields.",
-      success: false,
-    }
-  }
-
-  try {
-    // Simulate sending the inquiry
-    console.log("Sending sales inquiry:", { name, email, message, productId })
-    await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate network request
-
-    return {
-      message: "Inquiry sent successfully!",
-      success: true,
-    }
-  } catch (error: any) {
-    console.error("Error sending inquiry:", error)
-    return {
-      message: "Failed to send inquiry. Please try again.",
-      success: false,
-    }
-  }
-}
-
-const SalesInquiryForm: React.FC<SalesInquiryFormProps> = ({ productId }) => {
-  const [state, formAction] = useFormState(submitSalesInquiry, initialState)
+// SalesInquiryForm component - now uses the imported server action
+// This component was part of SalesInquiryForm.tsx, ensure it's adapted or used correctly
+function SalesInquiryFormComponent() {
+  const initialState: SalesInquiryState = { message: "", success: false, fieldErrors: {} }
+  const [state, formAction] = useActionState(submitSalesInquiry, initialState)
 
   return (
-    <form action={formAction} className="mt-4">
-      {state?.message && (
-        <div
-          className={`p-2 rounded-md mb-2 ${state.success ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
-        >
-          {state.message}
-        </div>
-      )}
+    <form action={formAction} className="space-y-4 text-left">
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-          Name
+        <label htmlFor="name" className="block text-sm font-medium text-gray-300">
+          Full Name
         </label>
         <input
           type="text"
-          id="name"
           name="name"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          id="name"
           required
+          className="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
         />
+        {state?.fieldErrors?.name && <p className="text-red-400 text-xs mt-1">{state.fieldErrors.name[0]}</p>}
       </div>
-      <div className="mt-2">
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          Email
+      <div>
+        <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+          Email Address
         </label>
         <input
           type="email"
-          id="email"
           name="email"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          id="email"
           required
+          className="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
         />
+        {state?.fieldErrors?.email && <p className="text-red-400 text-xs mt-1">{state.fieldErrors.email[0]}</p>}
       </div>
-      <div className="mt-2">
-        <label htmlFor="message" className="block text-sm font-medium text-gray-700">
-          Message
+      <div>
+        <label htmlFor="product_interest" className="block text-sm font-medium text-gray-300">
+          Product of Interest
+        </label>
+        <select
+          name="product_interest"
+          id="product_interest"
+          required
+          className="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+        >
+          <option value="">Select a product</option>
+          {products
+            .filter((p) => p.status === "available")
+            .map((p) => (
+              <option key={p.id} value={p.name}>
+                {p.name}
+              </option>
+            ))}
+          <option value="custom-request">Custom Request / Bulk Order</option>
+        </select>
+        {state?.fieldErrors?.product_interest && (
+          <p className="text-red-400 text-xs mt-1">{state.fieldErrors.product_interest[0]}</p>
+        )}
+      </div>
+      <div>
+        <label htmlFor="quantity" className="block text-sm font-medium text-gray-300">
+          Quantity
+        </label>
+        <input
+          type="number"
+          name="quantity"
+          id="quantity"
+          defaultValue="1"
+          min="1"
+          required
+          className="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+        />
+        {state?.fieldErrors?.quantity && <p className="text-red-400 text-xs mt-1">{state.fieldErrors.quantity[0]}</p>}
+      </div>
+      <div>
+        <label htmlFor="notes" className="block text-sm font-medium text-gray-300">
+          Notes / Specifications
         </label>
         <textarea
-          id="message"
-          name="message"
+          name="notes"
+          id="notes"
           rows={3}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          required
-        />
+          className="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+        ></textarea>
       </div>
-      <input type="hidden" name="productId" value={productId} />
-      <button
-        type="submit"
-        className="mt-4 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-      >
+
+      {state?.message && (
+        <div
+          className={`p-3 rounded-md text-sm flex items-center ${state.success ? "bg-green-800 border-green-600 text-green-200" : "bg-red-800 border-red-600 text-red-200"}`}
+        >
+          {state.success ? <CheckCircle className="h-5 w-5 mr-2" /> : <AlertCircle className="h-5 w-5 mr-2" />}
+          {state.message}
+        </div>
+      )}
+
+      <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
         Submit Inquiry
-      </button>
+      </Button>
     </form>
   )
 }
 
-interface BuyPageClientProps {
-  productId: string
-  initialQuantity: number
-  price: number
-}
-
-async function handleAddToCart(prevState: any, formData: FormData) {
-  "use server"
-
-  const productId = formData.get("productId")
-  const quantity = formData.get("quantity")
-
-  if (!productId || !quantity) {
-    return {
-      message: "Missing product ID or quantity",
-    }
-  }
-
-  try {
-    // Simulate adding to cart
-    console.log(`Adding ${quantity} of product ${productId} to cart`)
-    await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate network request
-
-    return {
-      message: `Added ${quantity} of product ${productId} to cart!`,
-    }
-  } catch (error: any) {
-    console.error("Error adding to cart:", error)
-    return {
-      message: "Failed to add to cart. Please try again.",
-    }
-  }
-}
-
-const BuyPageClient: React.FC<BuyPageClientProps> = ({ productId, initialQuantity, price }) => {
-  const [quantity, setQuantity] = useState(initialQuantity)
-  const [isPending, startTransition] = useTransition()
-  const [addToCartState, addToCartAction] = useFormState(handleAddToCart, null)
-  const quantityInputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    if (quantityInputRef.current) {
-      quantityInputRef.current.value = String(quantity)
-    }
-  }, [quantity])
-
-  const incrementQuantity = () => {
-    startTransition(() => {
-      setQuantity((prevQuantity) => prevQuantity + 1)
-    })
-  }
-
-  const decrementQuantity = () => {
-    startTransition(() => {
-      setQuantity((prevQuantity) => Math.max(1, prevQuantity - 1))
-    })
-  }
-
-  const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = Number.parseInt(event.target.value)
-    if (!isNaN(newValue) && newValue > 0) {
-      startTransition(() => {
-        setQuantity(newValue)
-      })
-    }
-  }
+export default function BuyPageClient() {
+  // Removed inline server action definitions
+  // submitSalesInquiry and handleAddToCart are now imported
 
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-2">Buy Now</h2>
-      <p>Price: ${price}</p>
-      <div className="flex items-center mb-4">
-        <label htmlFor="quantity" className="mr-2">
-          Quantity:
-        </label>
-        <div className="flex items-center">
-          <button
-            onClick={decrementQuantity}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-l"
-          >
-            -
-          </button>
-          <input
-            type="number"
-            id="quantity"
-            name="quantity"
-            min="1"
-            value={quantity}
-            onChange={handleQuantityChange}
-            className="shadow appearance-none border rounded w-16 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            ref={quantityInputRef}
-          />
-          <button
-            onClick={incrementQuantity}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-r"
-          >
-            +
-          </button>
-        </div>
-      </div>
+    <div className="bg-gray-900 text-white min-h-screen">
+      <header className="py-12 bg-gradient-to-r from-purple-700 via-indigo-700 to-blue-700 text-center">
+        <ShoppingBag className="mx-auto h-16 w-16 text-yellow-300 mb-4" />
+        <h1 className="text-4xl md:text-5xl font-bold">Numo Oracle Shop</h1>
+        <p className="text-xl text-purple-200 mt-2 max-w-2xl mx-auto">
+          Discover the tools to unlock your inner wisdom and navigate your path.
+        </p>
+      </header>
 
-      {addToCartState?.message && (
-        <div className="mb-4 p-2 rounded-md bg-green-100 text-green-800">{addToCartState.message}</div>
-      )}
+      <main className="container mx-auto px-4 py-12">
+        <section id="products" className="mb-16">
+          <h2 className="text-3xl font-semibold text-center mb-10 text-purple-400">Our Offerings</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {products.map((product) => (
+              <Card
+                key={product.id}
+                className={`bg-gray-800 border-gray-700 shadow-xl flex flex-col overflow-hidden transition-shadow duration-300 ${
+                  product.status === "coming-soon" ? "opacity-70" : "hover:shadow-purple-500/30"
+                }`}
+              >
+                <CardHeader className="p-0">
+                  <div className="aspect-[16/10] w-full overflow-hidden">
+                    <Image
+                      src={product.image || "/images/products/ai-fallback-oracle-product.png"}
+                      alt={product.name}
+                      width={400}
+                      height={250}
+                      className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
+                    />
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6 flex-grow flex flex-col">
+                  <CardTitle className="text-xl font-semibold text-purple-300 mb-2 flex items-center justify-between">
+                    {product.name}
+                    {product.status === "coming-soon" && (
+                      <span className="ml-2 text-xs bg-yellow-500 text-black font-bold py-0.5 px-2 rounded-full">
+                        SOON
+                      </span>
+                    )}
+                  </CardTitle>
+                  <CardDescription className="text-gray-400 text-sm mb-4 flex-grow">
+                    {product.description}
+                  </CardDescription>
+                  {product.features && product.features.length > 0 && (
+                    <ul className="text-xs text-gray-500 space-y-1 mb-4 list-disc list-inside">
+                      {product.features.map((feature, index) => (
+                        <li key={index}>{feature}</li>
+                      ))}
+                    </ul>
+                  )}
+                  <p className="text-2xl font-bold text-yellow-400 mb-auto">${product.price.toFixed(2)}</p>
+                </CardContent>
+                <CardFooter className="p-6 bg-gray-800/50 border-t border-gray-700/50">
+                  {product.status === "coming-soon" ? (
+                    <Button
+                      disabled
+                      className="w-full bg-gray-600 hover:bg-gray-600 text-gray-400 cursor-not-allowed flex items-center justify-center"
+                    >
+                      <Info className="mr-2 h-4 w-4" />
+                      Coming Soon - ${product.price.toFixed(2)}
+                    </Button>
+                  ) : (
+                    <Button asChild className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                      <Link
+                        href={`/manual-checkout?productId=${encodeURIComponent(product.id)}&productName=${encodeURIComponent(product.name)}&price=${product.price}&image=${encodeURIComponent(product.image)}`}
+                      >
+                        Buy Now / Manual Order
+                      </Link>
+                    </Button>
+                    // Example of using handleAddToCart if you had a direct "Add to Cart" button
+                    // <form action={handleAddToCart}>
+                    //   <input type="hidden" name="productId" value={product.id} />
+                    //   <input type="hidden" name="quantity" value="1" />
+                    //   <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white mt-2">
+                    //     Add to Cart (Simulated)
+                    //   </Button>
+                    // </form>
+                  )}
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </section>
 
-      <form action={addToCartAction}>
-        <input type="hidden" name="productId" value={productId} />
-        <input type="hidden" name="quantity" value={quantity} />
-        <button
-          type="submit"
-          disabled={isPending}
-          className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-        >
-          {isPending ? "Adding to Cart..." : "Add to Cart"}
-        </button>
-      </form>
+        <section id="custom-orders" className="py-16 bg-gray-800/50 rounded-lg shadow-xl border border-gray-700">
+          <div className="container mx-auto px-6 text-center">
+            <Info className="mx-auto h-12 w-12 text-purple-400 mb-4" />
+            <h2 className="text-3xl font-semibold mb-6 text-purple-300">Custom Orders & Bulk Inquiries</h2>
+            <p className="text-gray-400 mb-8 max-w-xl mx-auto">
+              Looking for something specific, a bulk order for your group, or wholesale options? Fill out the form
+              below, and we'll get back to you to discuss your needs.
+            </p>
+            <div className="max-w-lg mx-auto">
+              {/* Use the SalesInquiryFormComponent defined above or import your existing one */}
+              <SalesInquiryFormComponent />
+            </div>
+          </div>
+        </section>
+      </main>
 
-      <SalesInquiryForm productId={productId} />
+      <footer className="text-center py-8 mt-12 border-t border-gray-700">
+        <p className="text-gray-500">&copy; {new Date().getFullYear()} Numo Oracle. All rights reserved.</p>
+      </footer>
     </div>
   )
 }
-
-export default BuyPageClient

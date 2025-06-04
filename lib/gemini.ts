@@ -1,93 +1,129 @@
-import { GoogleGenerativeAI, type GenerativeModel, type Content } from "@google/generative-ai"
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai"
 
-let genAI: GoogleGenerativeAI | null = null
-let model: GenerativeModel | null = null
+// Import the new optimization utilities
+import { tryAsync } from "@/lib/error-handler"
+import { retryWithBackoff } from "@/lib/api-optimizer"
 
-export function initializeGemini(apiKey: string, modelName = "gemini-pro") {
+// Initialize the Google AI API with the API key from environment variables
+const API_KEY = process.env.GOOGLE_AI_API_KEY
+
+if (!API_KEY) {
+  console.warn("GOOGLE_AI_API_KEY is not set. Gemini API calls will likely fail.")
+}
+
+const genAI = new GoogleGenerativeAI(API_KEY || "") // Provide empty string if API_KEY is undefined to avoid constructor error, though calls will fail.
+
+// Safety settings to prevent harmful content
+const safetySettings = [
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+]
+
+/**
+ * Lists available Gemini models
+ */
+export async function listAvailableModels(): Promise<string[]> {
+  if (!API_KEY) {
+    console.error("Cannot list models: GOOGLE_AI_API_KEY is not set.")
+    return []
+  }
   try {
-    genAI = new GoogleGenerativeAI(apiKey)
-    model = genAI.getModel({ model: modelName })
-    return { success: true, error: null }
+    const models = await genAI.listGenerativeModels()
+    return models.map((model) => model.name)
   } catch (error) {
-    console.error("Error initializing Gemini in lib/gemini:", error)
-    return { success: false, error: `Failed to initialize Gemini: ${(error as Error).message}` }
+    console.error("Error listing Gemini models:", error)
+    throw error
   }
 }
 
-export async function listAvailableModels() {
+// Optimize the generateGeminiReading function
+export async function generateGeminiReading(prompt: string): Promise<string> {
+  if (!API_KEY) {
+    return "Error: GOOGLE_AI_API_KEY is not configured."
+  }
+  return await tryAsync(async () => {
+    // Get the Gemini model
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash-latest", // Using a common, updated model name
+      safetySettings,
+    })
+
+    // Use retry with backoff for reliability
+    const result = await retryWithBackoff(
+      async () => await model.generateContent(prompt),
+      3, // max retries
+      500, // base delay
+    )
+
+    const response = result.response
+    const text = response.text()
+
+    return text
+  }, "I apologize, but I'm unable to generate a reading at this time. Please try again later.")
+}
+
+/**
+ * Generate a follow-up response using Google's Gemini API
+ */
+export async function generateFollowUpResponse(prompt: string): Promise<string> {
+  if (!API_KEY) {
+    return "Error: GOOGLE_AI_API_KEY is not configured."
+  }
   try {
-    // Ensure genAI is initialized
-    if (!genAI) {
-      console.error("Gemini AI client not initialized in listAvailableModels.")
-      return { models: ["gemini-1.5-flash-latest"], error: "Gemini AI client not initialized." } // Fallback
-    }
-    // Check if the method exists before calling
-    if (typeof genAI.listGenerativeModels !== "function") {
-      console.error(
-        "genAI.listGenerativeModels is not a function. SDK might have changed or not initialized correctly.",
-      )
-      return { models: ["gemini-1.5-flash-latest"], error: "Gemini SDK error: listGenerativeModels not available." } // Fallback
-    }
-    const result = await genAI.listGenerativeModels() // API call
-    const models = result.models.map((model) => ({
-      name: model.name,
-      version: model.version,
-      description: model.description,
-      inputTokenLimit: model.inputTokenLimit,
-      outputTokenLimit: model.outputTokenLimit,
-      supportedGenerationMethods: model.supportedGenerationMethods,
-    }))
-    return { models: models, error: null }
+    // Get the Gemini model
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash-latest", // Using a common, updated model name
+      safetySettings,
+    })
+
+    // Generate content
+    const result = await model.generateContent(prompt)
+    const response = result.response
+    const text = response.text()
+
+    return text
   } catch (error) {
-    console.error("Error listing Gemini models (lib/gemini.ts):", error)
-    return { models: ["gemini-1.5-flash-latest"], error: `Failed to list models: ${(error as Error).message}` } // Fallback in case of other errors
+    console.error("Error generating follow-up response with Gemini:", error)
+    throw new Error(`Failed to generate follow-up response: ${error instanceof Error ? error.message : String(error)}`)
   }
 }
 
-export async function generateTextFromModel(prompt: string, history?: Content[]) {
-  try {
-    if (!model) {
-      console.warn("Gemini model not initialized. Cannot generate text.")
-      return { text: "", error: "Gemini model not initialized." }
-    }
-
-    const chat = model.startChat({ history })
-    const result = await chat.sendMessageStream(prompt) // API call
-
-    let text = ""
-    for await (const chunk of result.stream) {
-      const chunkText = chunk.text()
-      if (chunkText) {
-        text += chunkText
-      }
-    }
-    return { text, error: null }
-  } catch (error) {
-    console.error("Error generating text from Gemini in lib/gemini:", error)
-    return { text: "", error: `Failed to generate text: ${(error as Error).message}` }
+// Optimize the getGeminiResponse function
+export async function getGeminiResponse(prompt: string, modelName = "gemini-1.5-flash-latest"): Promise<string> {
+  if (!API_KEY) {
+    return "Error: GOOGLE_AI_API_KEY is not configured."
   }
-}
+  return await tryAsync(async () => {
+    // Get the Gemini model
+    const model = genAI.getGenerativeModel({
+      model: modelName,
+      safetySettings,
+    })
 
-export async function generateFollowUp(prompt: string, history: Content[]) {
-  try {
-    if (!model) {
-      console.warn("Gemini model not initialized. Cannot generate follow-up.")
-      return { text: "", error: "Gemini model not initialized." }
-    }
+    // Use retry with backoff for reliability
+    const result = await retryWithBackoff(
+      async () => await model.generateContent(prompt),
+      3, // max retries
+      500, // base delay
+    )
 
-    const chat = model.startChat({ history })
-    const result = await chat.sendMessageStream(prompt) // API call
+    const response = result.response
+    const text = response.text()
 
-    let text = ""
-    for await (const chunk of result.stream) {
-      const chunkText = chunk.text()
-      if (chunkText) {
-        text += chunkText
-      }
-    }
-    return { text, error: null }
-  } catch (error) {
-    console.error("Error generating follow-up from Gemini in lib/gemini:", error)
-    return { text: "", error: `Failed to generate follow-up: ${(error as Error).message}` }
-  }
+    return text
+  }, "I apologize, but I'm unable to generate a response at this time. Please try again later.")
 }

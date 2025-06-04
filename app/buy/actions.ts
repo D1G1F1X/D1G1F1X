@@ -1,90 +1,102 @@
 "use server"
 
 import { z } from "zod"
-import { createServerClient } from "@/lib/supabase-server" // Corrected import
-import type { SalesLead, SalesLeadActionState } from "@/types/sales-leads"
+import { getServerClient } from "@/lib/supabase-server"
 
-const salesInquirySchema = z.object({
-  customer_name: z.string().min(1, "Full name is required."),
-  customer_email: z.string().email("Invalid email address."),
-  customer_phone: z.string().optional(),
-  deck_type: z.string().min(1, "Deck type is required."),
+// Sales Inquiry Schema (if not already defined or imported from lib/validations)
+const SalesLeadSchema = z.object({
+  name: z.string().min(1, "Full name is required."),
+  email: z.string().email("Invalid email address."),
+  phone: z.string().optional(),
+  product_interest: z.string().min(1, "Product interest is required."),
   quantity: z.coerce.number().min(1, "Quantity must be at least 1."),
-  deck_specifications_notes: z.string().optional(),
-  shipping_address_street: z.string().min(1, "Street address is required."),
-  shipping_address_city: z.string().min(1, "City is required."),
-  shipping_address_state: z.string().min(1, "State/Province is required."),
-  shipping_address_zip: z.string().min(1, "ZIP/Postal code is required."),
-  shipping_address_country: z.string().min(1, "Country is required."),
+  notes: z.string().optional(),
+  // Add other fields from your SalesInquiryForm if necessary
 })
 
-export async function submitSalesInquiry(
-  prevState: SalesLeadActionState | null,
-  formData: FormData,
-): Promise<SalesLeadActionState> {
-  const supabase = await createServerClient() // Corrected function call
+export interface SalesInquiryState {
+  message: string
+  success: boolean
+  fieldErrors?: Record<string, string[] | undefined>
+}
 
+export async function submitSalesInquiry(prevState: SalesInquiryState, formData: FormData): Promise<SalesInquiryState> {
   const rawFormData = {
-    customer_name: formData.get("customer_name"),
-    customer_email: formData.get("customer_email"),
-    customer_phone: formData.get("customer_phone"),
-    deck_type: formData.get("deck_type"),
+    name: formData.get("name"),
+    email: formData.get("email"),
+    phone: formData.get("phone"),
+    product_interest: formData.get("product_interest"),
     quantity: formData.get("quantity"),
-    deck_specifications_notes: formData.get("deck_specifications_notes"),
-    shipping_address_street: formData.get("shipping_address_street"),
-    shipping_address_city: formData.get("shipping_address_city"),
-    shipping_address_state: formData.get("shipping_address_state"),
-    shipping_address_zip: formData.get("shipping_address_zip"),
-    shipping_address_country: formData.get("shipping_address_country"),
+    notes: formData.get("notes"),
   }
 
-  const validation = salesInquirySchema.safeParse(rawFormData)
+  const validation = SalesLeadSchema.safeParse(rawFormData)
 
   if (!validation.success) {
     return {
+      message: "Invalid form data. Please check your entries.",
       success: false,
-      message: "Validation failed. Please check the form for errors.",
-      errors: validation.error.flatten().fieldErrors,
+      fieldErrors: validation.error.flatten().fieldErrors,
     }
   }
 
-  const dataToInsert: Omit<SalesLead, "id" | "created_at" | "status" | "admin_notes"> = validation.data
+  const { name, email, phone, product_interest, quantity, notes } = validation.data
 
   try {
+    const supabase = getServerClient()
     const { data, error } = await supabase
-      .from("sales_leads")
+      .from("sales_inquiries") // Make sure this table exists
       .insert([
         {
-          ...dataToInsert,
-          quantity: Number(dataToInsert.quantity) || 1, // Ensure quantity is a number
+          customer_name: name,
+          customer_email: email,
+          customer_phone: phone,
+          product_interest: product_interest,
+          quantity: quantity,
+          notes: notes,
+          status: "new", // Default status
         },
       ])
       .select()
-      .single()
 
     if (error) {
-      console.error("Supabase insert error:", error)
-      return {
-        success: false,
-        message: `Failed to submit inquiry: ${error.message}`,
-      }
+      console.error("Supabase error inserting sales inquiry:", error)
+      return { message: `Database error: ${error.message}`, success: false }
     }
 
-    // Simulate sending email (replace with actual email service integration)
-    console.log("Simulating email to numooracle@gmail.com with data:", dataToInsert)
-    console.log("Sales lead submitted to Supabase with ID:", data?.id)
+    console.log("Sales inquiry submitted:", data)
+    // Optionally, send an email notification here
+
+    return { message: "Thank you for your inquiry! We will get back to you soon.", success: true }
+  } catch (e: any) {
+    console.error("Error submitting sales inquiry:", e)
+    return { message: `An unexpected error occurred: ${e.message}`, success: false }
+  }
+}
+
+// New/Moved Server Action
+export async function handleAddToCart(prevState: any, formData: FormData) {
+  const productId = formData.get("productId") as string
+  const quantity = Number.parseInt(formData.get("quantity") as string, 10)
+
+  if (!productId || isNaN(quantity) || quantity < 1) {
+    return { success: false, message: "Invalid product data." }
+  }
+
+  console.log(`Attempting to add to cart: Product ID ${productId}, Quantity ${quantity}`)
+
+  // Placeholder for actual cart logic (e.g., update database, session, or state management)
+  // For now, just simulate success
+  try {
+    // Example: await addToCartInDatabase(productId, quantity, userId);
+    await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate async operation
 
     return {
       success: true,
-      message: "Thank you! Your inquiry has been submitted successfully. We will contact you shortly.",
-      leadId: data?.id,
+      message: `Product ${productId} (Qty: ${quantity}) added to cart successfully! (Simulated)`,
     }
-  } catch (e) {
-    const error = e as Error
-    console.error("Unexpected error submitting sales inquiry:", error)
-    return {
-      success: false,
-      message: `An unexpected error occurred: ${error.message}`,
-    }
+  } catch (error) {
+    console.error("Error adding to cart:", error)
+    return { success: false, message: "Failed to add item to cart." }
   }
 }
