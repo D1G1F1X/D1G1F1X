@@ -10,8 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { submitManualOrder } from "./actions"
 import type { OrderItem } from "./actions"
-import { useFormStatus } from "react-dom"
-import { useActionState } from "react"
+import { useFormStatus, useFormState } from "react-dom"
 import {
   AlertCircle,
   CheckCircle,
@@ -63,7 +62,7 @@ function SubmitButton() {
 function ManualCheckoutFormContent() {
   const [items, setItems] = useState<ClientOrderItem[]>([])
   const [total, setTotal] = useState(0)
-  const [formState, formAction] = useActionState(submitManualOrder, initialFormState)
+  const [formState, formAction] = useFormState(submitManualOrder, initialFormState)
   const formId = useId()
 
   useEffect(() => {

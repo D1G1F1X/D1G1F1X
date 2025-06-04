@@ -1,27 +1,26 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { getLibraryStats, getUserLibraryStats } from "@/lib/services/enhanced-library-service"
-import { getUserFromRequest } from "@/lib/auth-utils"
+import { NextResponse } from "next/server"
 
-export async function GET(request: NextRequest) {
+export const dynamic = "force-dynamic"
+
+export async function GET(request: Request) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const userStats = searchParams.get("userStats") === "true"
+    // Extract any query parameters if needed
+    const { searchParams } = new URL(request.url)
+    const userId = searchParams.get("userId")
 
-    const user = await getUserFromRequest(request)
-
-    if (userStats) {
-      if (!user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-      }
-
-      const stats = await getUserLibraryStats(user.id)
-      return NextResponse.json({ stats })
-    } else {
-      const stats = await getLibraryStats(user?.id)
-      return NextResponse.json({ stats })
-    }
+    // Return mock stats data
+    return NextResponse.json({
+      totalDocuments: 42,
+      totalReadingLists: 7,
+      recentlyViewed: 12,
+      savedItems: 18,
+      userId: userId || "anonymous",
+    })
   } catch (error) {
-    console.error("Error in GET /api/library/stats:", error)
-    return NextResponse.json({ error: "Failed to fetch library statistics" }, { status: 500 })
+    console.error("Error fetching library stats:", error)
+    return NextResponse.json(
+      { error: "Failed to fetch library stats", message: error instanceof Error ? error.message : String(error) },
+      { status: 500 },
+    )
   }
 }

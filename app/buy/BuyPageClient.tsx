@@ -4,9 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-// Remove SalesInquiryForm import if it was defined inline, otherwise ensure it uses the action
-// import { SalesInquiryForm } from "@/components/sales-inquiry-form"; // This component should use the action
-import { useActionState } from "react" // For using actions with forms
+import { useFormState } from "react-dom"
 import { ShoppingBag, Info, AlertCircle, CheckCircle } from "lucide-react"
 
 // Import actions from the separate actions file
@@ -57,10 +55,9 @@ const products = [
 ]
 
 // SalesInquiryForm component - now uses the imported server action
-// This component was part of SalesInquiryForm.tsx, ensure it's adapted or used correctly
 function SalesInquiryFormComponent() {
   const initialState: SalesInquiryState = { message: "", success: false, fieldErrors: {} }
-  const [state, formAction] = useActionState(submitSalesInquiry, initialState)
+  const [formState, formAction] = useFormState(submitSalesInquiry, initialState)
 
   return (
     <form action={formAction} className="space-y-4 text-left">
@@ -75,7 +72,7 @@ function SalesInquiryFormComponent() {
           required
           className="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
         />
-        {state?.fieldErrors?.name && <p className="text-red-400 text-xs mt-1">{state.fieldErrors.name[0]}</p>}
+        {formState?.fieldErrors?.name && <p className="text-red-400 text-xs mt-1">{formState.fieldErrors.name[0]}</p>}
       </div>
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-300">
@@ -88,7 +85,7 @@ function SalesInquiryFormComponent() {
           required
           className="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
         />
-        {state?.fieldErrors?.email && <p className="text-red-400 text-xs mt-1">{state.fieldErrors.email[0]}</p>}
+        {formState?.fieldErrors?.email && <p className="text-red-400 text-xs mt-1">{formState.fieldErrors.email[0]}</p>}
       </div>
       <div>
         <label htmlFor="product_interest" className="block text-sm font-medium text-gray-300">
@@ -110,8 +107,8 @@ function SalesInquiryFormComponent() {
             ))}
           <option value="custom-request">Custom Request / Bulk Order</option>
         </select>
-        {state?.fieldErrors?.product_interest && (
-          <p className="text-red-400 text-xs mt-1">{state.fieldErrors.product_interest[0]}</p>
+        {formState?.fieldErrors?.product_interest && (
+          <p className="text-red-400 text-xs mt-1">{formState.fieldErrors.product_interest[0]}</p>
         )}
       </div>
       <div>
@@ -127,7 +124,9 @@ function SalesInquiryFormComponent() {
           required
           className="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
         />
-        {state?.fieldErrors?.quantity && <p className="text-red-400 text-xs mt-1">{state.fieldErrors.quantity[0]}</p>}
+        {formState?.fieldErrors?.quantity && (
+          <p className="text-red-400 text-xs mt-1">{formState.fieldErrors.quantity[0]}</p>
+        )}
       </div>
       <div>
         <label htmlFor="notes" className="block text-sm font-medium text-gray-300">
@@ -141,12 +140,12 @@ function SalesInquiryFormComponent() {
         ></textarea>
       </div>
 
-      {state?.message && (
+      {formState?.message && (
         <div
-          className={`p-3 rounded-md text-sm flex items-center ${state.success ? "bg-green-800 border-green-600 text-green-200" : "bg-red-800 border-red-600 text-red-200"}`}
+          className={`p-3 rounded-md text-sm flex items-center ${formState.success ? "bg-green-800 border-green-600 text-green-200" : "bg-red-800 border-red-600 text-red-200"}`}
         >
-          {state.success ? <CheckCircle className="h-5 w-5 mr-2" /> : <AlertCircle className="h-5 w-5 mr-2" />}
-          {state.message}
+          {formState.success ? <CheckCircle className="h-5 w-5 mr-2" /> : <AlertCircle className="h-5 w-5 mr-2" />}
+          {formState.message}
         </div>
       )}
 
@@ -158,9 +157,6 @@ function SalesInquiryFormComponent() {
 }
 
 export default function BuyPageClient() {
-  // Removed inline server action definitions
-  // submitSalesInquiry and handleAddToCart are now imported
-
   return (
     <div className="bg-gray-900 text-white min-h-screen">
       <header className="py-12 bg-gradient-to-r from-purple-700 via-indigo-700 to-blue-700 text-center">
@@ -231,14 +227,6 @@ export default function BuyPageClient() {
                         Buy Now / Manual Order
                       </Link>
                     </Button>
-                    // Example of using handleAddToCart if you had a direct "Add to Cart" button
-                    // <form action={handleAddToCart}>
-                    //   <input type="hidden" name="productId" value={product.id} />
-                    //   <input type="hidden" name="quantity" value="1" />
-                    //   <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white mt-2">
-                    //     Add to Cart (Simulated)
-                    //   </Button>
-                    // </form>
                   )}
                 </CardFooter>
               </Card>
@@ -255,7 +243,6 @@ export default function BuyPageClient() {
               below, and we'll get back to you to discuss your needs.
             </p>
             <div className="max-w-lg mx-auto">
-              {/* Use the SalesInquiryFormComponent defined above or import your existing one */}
               <SalesInquiryFormComponent />
             </div>
           </div>

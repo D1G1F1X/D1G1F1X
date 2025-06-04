@@ -1,40 +1,23 @@
-// Import the new optimization utilities
-import { tryCatch } from "@/lib/error-handler"
-import { cachedRequest, retryWithBackoff } from "@/lib/api-optimizer"
-import { type NextRequest, NextResponse } from "next/server"
-import { generateFollowUpPrompt } from "@/lib/ai-prompt-manager"
-import { getGeminiResponse } from "@/lib/gemini"
+import { NextResponse } from "next/server"
 
-export async function POST(request: NextRequest) {
-  return await tryCatch(
-    async () => {
-      const { originalReading, followUpQuestion } = await request.json()
+export async function POST(request: Request) {
+  try {
+    const body = await request.json()
+    const { question, context } = body
 
-      if (!originalReading || !followUpQuestion) {
-        return NextResponse.json({ error: "Original reading and follow-up question are required" }, { status: 400 })
-      }
-
-      // Create a cache key for the follow-up question
-      const cacheKey = `followup:${Buffer.from(originalReading.substring(0, 100)).toString("base64")}:${followUpQuestion}`
-
-      // Use the cachedRequest utility
-      const response = await cachedRequest(cacheKey, async () => {
-        // Generate the prompt for the follow-up question
-        const prompt = await generateFollowUpPrompt(originalReading, followUpQuestion)
-
-        // Use retry with backoff for reliability
-        return await retryWithBackoff(
-          async () => await getGeminiResponse(prompt),
-          3, // max retries
-          500, // base delay
-        )
-      })
-
-      return NextResponse.json({
-        response,
-        cached: false,
-      })
-    },
-    NextResponse.json({ error: "Failed to process follow-up question" }, { status: 500 }),
-  )
+    // Fallback response when Gemini API is not available
+    return NextResponse.json({
+      response: `This is a fallback response. The follow-up question API is currently disabled. Your question was: "${question}"`,
+      message: "Using fallback response - AI integration disabled",
+    })
+  } catch (error) {
+    console.error("Error processing follow-up question:", error)
+    return NextResponse.json(
+      {
+        error: "Failed to process follow-up question",
+        message: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    )
+  }
 }

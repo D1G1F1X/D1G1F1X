@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -7,7 +8,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ['localhost', 'vercel.app', 'numoracle.com', 'v0.blob.com'],
+    domains: ['localhost', 'vercel.app', 'vercel.com', 'numoracle.com', 'v0.blob.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -17,6 +18,11 @@ const nextConfig = {
     unoptimized: true,
   },
   trailingSlash: false,
+  experimental: {
+    // This allows dynamic routes to be statically generated
+    // even if they use dynamic features like searchParams
+    missingSuspenseWithCSRBailout: false,
+  },
   async redirects() {
     return [
       {
