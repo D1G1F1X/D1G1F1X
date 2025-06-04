@@ -29,7 +29,7 @@ export const availableProducts: Product[] = [
     id: "elemental-dice-set",
     name: "10-sided Elemental Oracle Dice Set",
     price: 11,
-    image: "/images/tools/generated/elemental-dice-feature.png", // Corrected path based on buy page
+    image: "/images/tools/generated/elemental-dice-feature.png",
     description: "A set of elemental dice for divination.",
     isSelectable: true,
   },
@@ -37,20 +37,10 @@ export const availableProducts: Product[] = [
     id: "numo-spread-cloth",
     name: "Numo Oracle Spread Cloth with Guide",
     price: 11,
-    image: "/images/products/reading-cloth.png",
+    image: "/images/products/speardcloth01.jpg.jpg",
     description: "A beautiful spread cloth with an accompanying guide.",
     isSelectable: true,
   },
-  {
-    id: "numo-digital-app", // ID on buy page is "digital-app-access"
-    name: "Numo Oracle Digital App",
-    price: 11,
-    image: "/images/products/digital-app.png",
-    description: "The digital companion to your Numo Oracle experience.",
-    category: "Coming Soon",
-    isSelectable: false,
-  },
-  // These items are not on the /buy page, so they won't be in the filtered list for the dropdown
   {
     id: "standard-deck",
     name: "Numo Oracle Standard Deck",
@@ -89,13 +79,7 @@ export const availableProducts: Product[] = [
 export const selectableProducts = availableProducts.filter((p) => p.isSelectable && p.category !== "Coming Soon")
 
 // Specific list of products for the dropdown, based on what's on the /buy page
-const buyPageProductIds = [
-  "novice-oracle-deck",
-  "adepts-oracle-deck",
-  "elemental-dice-set",
-  "numo-spread-cloth",
-  // "digital-app-access" is on buy page but is coming soon, so it's excluded by isSelectable or category check
-]
+const buyPageProductIds = ["novice-oracle-deck", "adepts-oracle-deck", "elemental-dice-set", "numo-spread-cloth"]
 
 export const buyPageDropdownProducts = availableProducts.filter(
   (p) => buyPageProductIds.includes(p.id) && p.isSelectable && p.category !== "Coming Soon",

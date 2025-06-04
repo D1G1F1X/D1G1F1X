@@ -4,15 +4,8 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { SalesInquiryForm } from "@/components/sales-inquiry-form" // Corrected: Named import
+import { SalesInquiryForm } from "@/components/sales-inquiry-form"
 import { ShoppingBag, Info } from "lucide-react"
-// import type { Metadata } from "next"; // Metadata needs to be handled differently for client components
-
-// export const metadata: Metadata = { // Cannot export metadata from a Client Component directly
-//   title: "The NUMO Oracle Card Deck | Shop & Inquire",
-//   description:
-//     "Purchase the NUMO Oracle Card Deck and accessories by Kraftwerk Numerology, or submit an inquiry for custom orders.",
-// };
 
 // Sample product data (replace with your actual data source)
 const products = [
@@ -30,7 +23,7 @@ const products = [
     name: "The Adepts Oracle Deck",
     description:
       "Deepen your practice with the Adept's 100-card Oracle system, featuring advanced elemental and archetypal cards for profound insights.",
-    price: 22.0, // Updated price
+    price: 22.0,
     image: "/images/products/01cauldron-fire.jpg",
     features: ["100 Premium Cards", "Enhanced Artwork", "Expanded Symbology"],
   },
@@ -40,7 +33,7 @@ const products = [
     description:
       "A unique set of 10-sided dice, each representing an elemental influence to complement your readings or for quick guidance.",
     price: 11.0,
-    image: "/images/tools/elemental-dice.png", // Using existing relevant image
+    image: "/images/tools/elemental-dice.png",
     features: ["Set of 5 Custom Dice", "Engraved Elemental Symbols", "Portable Divination Tool"],
   },
   {
@@ -49,18 +42,8 @@ const products = [
     description:
       "A beautifully designed spread cloth featuring sacred Numo symbols, complete with a guide to enhance your reading experience.",
     price: 11.0,
-    image: "/images/products/reading-cloth.png",
+    image: "/images/products/speardcloth01.jpg.jpg",
     features: ["High-Quality Fabric", "Symbolic Print", "Includes Layout Guide"],
-  },
-  {
-    id: "digital-app-access",
-    name: "Numo Oracle Digital App",
-    description:
-      "Access the full Numo Oracle system on the go. Features card meanings, digital spreads, reading logs, and more. Coming Soon!",
-    price: 11.0,
-    image: "/images/products/digital-app.png",
-    features: ["Full Card Database", "Interactive Spreads", "Personal Journal"],
-    status: "coming-soon", // Added status for special handling
   },
 ]
 
@@ -83,15 +66,13 @@ export default function BuyPageClient() {
               <Card
                 key={product.id}
                 className={`bg-gray-800 border-gray-700 shadow-xl flex flex-col overflow-hidden transition-shadow duration-300 ${
-                  product.status === "coming-soon"
-                    ? "opacity-70" // Example: reduce opacity
-                    : "hover:shadow-purple-500/30"
+                  product.status === "coming-soon" ? "opacity-70" : "hover:shadow-purple-500/30"
                 }`}
               >
                 <CardHeader className="p-0">
                   <div className="aspect-[16/10] w-full overflow-hidden">
                     <Image
-                      src={product.image || "/placeholder.svg?width=400&height=250&query=oracle+product"}
+                      src={product.image || "/images/products/ai-fallback-oracle-product.png"}
                       alt={product.name}
                       width={400}
                       height={250}
@@ -153,7 +134,7 @@ export default function BuyPageClient() {
               below, and we'll get back to you to discuss your needs.
             </p>
             <div className="max-w-lg mx-auto">
-              <SalesInquiryForm /> {/* This should now work */}
+              <SalesInquiryForm />
             </div>
           </div>
         </section>
