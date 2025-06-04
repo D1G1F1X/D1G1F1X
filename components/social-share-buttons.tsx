@@ -1,134 +1,142 @@
 "use client"
 
-import type React from "react"
-
-import { Twitter, Facebook, Linkedin, RssIcon as Reddit, Mail, Copy, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useState, useEffect } from "react"
+import { Facebook, Twitter, Linkedin, Mail, Link, MessageCircle, Share2 } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
 
-// Define the props for the component
 interface SocialShareButtonsProps {
   url: string
   title: string
-  imageUrl?: string // Optional image URL for Pinterest or other platforms
-  tags?: string[] // Optional tags for Twitter
+  description?: string
   className?: string
+  compact?: boolean
 }
 
-// Define the structure for each social platform
-interface SocialPlatform {
-  name: string
-  icon: React.ElementType
-  color: string // Tailwind hover background color
-  action: (url: string, title: string, imageUrl?: string, tags?: string[]) => void
-}
-
-export default function SocialShareButtons({ url, title, imageUrl, tags, className = "" }: SocialShareButtonsProps) {
-  const [isMounted, setIsMounted] = useState(false)
-  const [copied, setCopied] = useState(false)
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
-  if (!isMounted) {
-    // Prevent hydration mismatch by not rendering on the server
-    // Or render a placeholder/skeleton
-    return null
-  }
+export function SocialShareButtons({
+  url,
+  title,
+  description = "",
+  className = "",
+  compact = false,
+}: SocialShareButtonsProps) {
+  const { toast } = useToast()
 
   const encodedUrl = encodeURIComponent(url)
   const encodedTitle = encodeURIComponent(title)
-  const encodedImageUrl = imageUrl ? encodeURIComponent(imageUrl) : ""
+  const encodedDescription = encodeURIComponent(description)
 
-  const platforms: SocialPlatform[] = [
-    {
-      name: "X (Twitter)",
-      icon: Twitter,
-      color: "hover:bg-sky-500",
-      action: () => {
-        const tweetTags = tags ? `&hashtags=${tags.join(",")}` : ""
-        window.open(
-          `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}${tweetTags}`,
-          "_blank",
-          "noopener,noreferrer",
-        )
-      },
-    },
-    {
-      name: "Facebook",
-      icon: Facebook,
-      color: "hover:bg-blue-700",
-      action: () => {
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`, "_blank", "noopener,noreferrer")
-      },
-    },
-    {
-      name: "LinkedIn",
-      icon: Linkedin,
-      color: "hover:bg-sky-700",
-      action: () => {
-        window.open(
-          `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}`,
-          "_blank",
-          "noopener,noreferrer",
-        )
-      },
-    },
-    {
-      name: "Reddit",
-      icon: Reddit,
-      color: "hover:bg-orange-600",
-      action: () => {
-        window.open(
-          `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`,
-          "_blank",
-          "noopener,noreferrer",
-        )
-      },
-    },
-    {
-      name: "Email",
-      icon: Mail,
-      color: "hover:bg-gray-600",
-      action: () => {
-        window.location.href = `mailto:?subject=${encodedTitle}&body=${encodeURIComponent(
-          `Check out this link: ${url}`,
-        )}`
-      },
-    },
-  ]
+  const shareLinks = {
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+    twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+    email: `mailto:?subject=${encodedTitle}&body=${encodedDescription}%0A%0A${encodedUrl}`,
+  }
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000) // Reset after 2 seconds
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(url)
+    toast({
+      title: "Link Copied",
+      description: "The link has been copied to your clipboard.",
     })
   }
 
-  return (
-    <div className={`flex flex-wrap items-center gap-2 ${className}`}>
-      <p className="text-sm font-medium text-gray-300 mr-2">Share:</p>
-      {platforms.map((platform) => (
-        <Button
-          key={platform.name}
-          variant="outline"
-          size="icon"
-          className={`border-gray-700 bg-gray-800/50 text-gray-300 ${platform.color} hover:text-white transition-colors`}
-          onClick={() => platform.action(url, title, imageUrl, tags)}
-          aria-label={`Share on ${platform.name}`}
-        >
-          <platform.icon className="h-4 w-4" />
+  const nativeShare = () => {
+    if (typeof navigator.share === "function") {
+      navigator
+        .share({
+          title,
+          text: description,
+          url,
+        })
+        .catch((err) => {
+          console.error("Error sharing:", err)
+          // Fallback
+          copyToClipboard()
+        })
+    } else {
+      // Fallback for browsers that don't support the Web Share API
+      copyToClipboard()
+    }
+  }
+
+  if (compact) {
+    return (
+      <div className={`flex gap-2 ${className}`}>
+        <Button variant="outline" size="icon" onClick={nativeShare} title="Share">
+          <Share2 className="h-4 w-4" />
         </Button>
-      ))}
+        <Button variant="outline" size="icon" onClick={copyToClipboard} title="Copy Link">
+          <Link className="h-4 w-4" />
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`flex flex-wrap gap-2 ${className}`}>
       <Button
         variant="outline"
-        size="icon"
-        className="border-gray-700 bg-gray-800/50 text-gray-300 hover:bg-green-600 hover:text-white transition-colors"
-        onClick={handleCopyLink}
-        aria-label="Copy link"
+        size="sm"
+        className="bg-[#1877F2]/10 hover:bg-[#1877F2]/20 border-[#1877F2]/20"
+        onClick={() => window.open(shareLinks.facebook, "_blank")}
       >
-        {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
+        <Facebook className="h-4 w-4 mr-2 text-[#1877F2]" />
+        Facebook
+      </Button>
+
+      <Button
+        variant="outline"
+        size="sm"
+        className="bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 border-[#1DA1F2]/20"
+        onClick={() => window.open(shareLinks.twitter, "_blank")}
+      >
+        <Twitter className="h-4 w-4 mr-2 text-[#1DA1F2]" />
+        Twitter
+      </Button>
+
+      <Button
+        variant="outline"
+        size="sm"
+        className="bg-[#0A66C2]/10 hover:bg-[#0A66C2]/20 border-[#0A66C2]/20"
+        onClick={() => window.open(shareLinks.linkedin, "_blank")}
+      >
+        <Linkedin className="h-4 w-4 mr-2 text-[#0A66C2]" />
+        LinkedIn
+      </Button>
+
+      <Button
+        variant="outline"
+        size="sm"
+        className="bg-gray-500/10 hover:bg-gray-500/20 border-gray-500/20"
+        onClick={() => window.open(shareLinks.email, "_blank")}
+      >
+        <Mail className="h-4 w-4 mr-2 text-gray-500" />
+        Email
+      </Button>
+
+      <Button
+        variant="outline"
+        size="sm"
+        className="bg-green-500/10 hover:bg-green-500/20 border-green-500/20"
+        onClick={() => {
+          if (typeof navigator.share === "function") {
+            navigator.share({
+              title,
+              text: description,
+              url,
+            })
+          } else {
+            copyToClipboard()
+          }
+        }}
+      >
+        <MessageCircle className="h-4 w-4 mr-2 text-green-500" />
+        Message
+      </Button>
+
+      <Button variant="outline" size="sm" onClick={copyToClipboard}>
+        <Link className="h-4 w-4 mr-2" />
+        Copy Link
       </Button>
     </div>
   )

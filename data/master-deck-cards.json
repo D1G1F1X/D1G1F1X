@@ -1,0 +1,84 @@
+[
+  {
+    "id": "01cauldron-fire",
+    "name": "Cauldron of Fire",
+    "element": "fire",
+    "type": "Cauldron",
+    "firstEndImage": "/cards/01cauldron-fire.jpg",
+    "secondEndImage": "/cards/01cauldron-fire-reversed.jpg",
+    "firstEnd": {
+      "number": 1,
+      "meaning": "Transformation through passion and energy. The beginning of a creative journey.",
+      "shadowAspect": "Creative blocks, lack of passion, fear of change.",
+      "keywords": ["creation", "passion", "transformation", "beginning", "inspiration"],
+      "sacredGeometry": "Plus Sign / Synergy / Line",
+      "planet": "Sun (☉)",
+      "astrologicalSign": "Leo (♌)",
+      "elementalAffinity": "Fire",
+      "suitOrientation": "Upright",
+      "baseElement": "Fire",
+      "dominantElement": "Fire",
+      "icon": "🔥"
+    },
+    "secondEnd": {
+      "number": 1,
+      "meaning": "Misdirected energy, burnout, destructive impulses.",
+      "shadowAspect": "Aggression, impatience, lack of control.",
+      "keywords": ["burnout", "misdirected passion", "impatience", "destruction"],
+      "sacredGeometry": "Plus Sign / Synergy / Line (Inverted)",
+      "planet": "Sun (☉) (Shadow)",
+      "astrologicalSign": "Leo (♌) (Shadow)",
+      "elementalAffinity": "Fire (Shadow)",
+      "suitOrientation": "Reversed",
+      "baseElement": "Fire",
+      "dominantElement": "Fire",
+      "icon": "💨"
+    }
+  },
+  {
+    "id": "01cauldron-water",
+    "name": "Cauldron of Water",
+    "element": "water",
+    "type": "Cauldron",
+    "firstEndImage": "/cards/01cauldron-water.jpg",
+    "secondEndImage": "/cards/01cauldron-water-reversed.jpg",
+    "firstEnd": {
+      "number": 1,
+      "meaning": "Emotional renewal and intuitive insights. The start of emotional healing.",
+      "shadowAspect": "Emotional blockage, denial of feelings, intuitive disconnect.",
+      "keywords": ["emotions", "intuition", "healing", "renewal", "flow"],
+      "sacredGeometry": "Plus Sign / Synergy / Line",
+      "planet": "Moon (☽)",
+      "astrologicalSign": "Cancer (♋)",
+      "elementalAffinity": "Water",
+      "suitOrientation": "Upright",
+      "baseElement": "Water",
+      "dominantElement": "Water",
+      "icon": "💧"
+    },
+    "secondEnd": {
+      "number": 1,
+      "meaning": "Emotional overwhelm, stagnation, avoidance of feelings.",
+      "shadowAspect": "Emotional instability, moodiness, being stuck.",
+      "keywords": ["overwhelm", "stagnation", "avoidance", "instability"],
+      "sacredGeometry": "Plus Sign / Synergy / Line (Inverted)",
+      "planet": "Moon (☽) (Shadow)",
+      "astrologicalSign": "Cancer (♋) (Shadow)",
+      "elementalAffinity": "Water (Shadow)",
+      "suitOrientation": "Reversed",
+      "baseElement": "Water",
+      "dominantElement": "Water",
+      "icon": "🌊"
+    }
+  },
+  {
+    "id": "test001",
+    "name": "Test Card Alpha",
+    "description": "A minimal valid card object for testing JSON parsing."
+  },
+  {
+    "id": "test002",
+    "name": "Test Card Beta",
+    "description": "Another minimal valid card object."
+  }
+]

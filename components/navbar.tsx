@@ -1,287 +1,340 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X } from "lucide-react"
+import Image from "next/image"
+import { usePathname } from "next/navigation"
+import { useState, useEffect, useRef } from "react"
+import {
+  Menu,
+  X,
+  ChevronDown,
+  LogOut,
+  UserCircle,
+  Settings,
+  ShieldCheck,
+  ShoppingCart,
+  BookOpen,
+  Sparkles,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import { Lexend } from "next/font/google"
-import DayNightToggle from "@/components/day-night-toggle"
+import { useAuth } from "@/contexts/auth-context"
+import { LoginModal } from "@/components/login-modal"
+import SoundToggle from "./sound-toggle"
+import ManualCartIcon from "@/components/manual-cart-icon"
+// import SiteNewsBanner from "@/components/site-news-banner" // Added import - REMOVED
 
-// Initialize Lexend font
-const lexend = Lexend({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] })
+const navLinks = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  {
+    label: "Oracle Tools",
+    subLinks: [
+      { href: "/tools/card-simulator", label: "Card Simulator" },
+      { href: "/tools/numerology-calculator", label: "Numerology Calculator" },
+      { href: "/tools/card-directory", label: "Card Directory" },
+      { href: "/tools/elemental-dice", label: "Elemental Dice" },
+      { href: "/tools/simple-card-reading", label: "Simple Card Reading" },
+    ],
+  },
+  { href: "/guidebook", label: "Guidebook" },
+  { href: "/blog", label: "Blog" },
+  { href: "/buy", label: "Buy The Deck" },
+  { href: "/contact", label: "Contact" },
+  { href: "/faq", label: "FAQ" },
+]
+
+const adminLinks = [
+  { href: "/admin/dashboard", label: "Dashboard", icon: <Settings className="mr-2 h-4 w-4" /> },
+  { href: "/admin/users", label: "Users", icon: <UserCircle className="mr-2 h-4 w-4" /> },
+  { href: "/admin/products", label: "Products", icon: <ShoppingCart className="mr-2 h-4 w-4" /> },
+  { href: "/admin/orders", label: "Orders", icon: <BookOpen className="mr-2 h-4 w-4" /> },
+  { href: "/admin/posts", label: "Blog Posts", icon: <Sparkles className="mr-2 h-4 w-4" /> },
+  { href: "/admin/manage-oracle-cards", label: "Manage Cards", icon: <Sparkles className="mr-2 h-4 w-4" /> },
+  { href: "/admin/prompts", label: "AI Prompts", icon: <Sparkles className="mr-2 h-4 w-4" /> },
+  { href: "/admin/settings", label: "Site Settings", icon: <Settings className="mr-2 h-4 w-4" /> },
+]
 
 export default function Navbar() {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const [timeOfDay, setTimeOfDay] = useState(12)
-  const [textColorClass, setTextColorClass] = useState("")
-  const [textColorStyle, setTextColorStyle] = useState({})
-  const [buttonColorClass, setButtonColorClass] = useState("")
-  const [buttonColorStyle, setButtonColorStyle] = useState({})
-  const [logoSrc, setLogoSrc] = useState("/images/logo-bulb.png")
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const { user, isAdmin, logout } = useAuth()
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const navRef = useRef<HTMLElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true)
-      } else {
-        setIsScrolled(false)
-      }
+      setIsScrolled(window.scrollY > 20)
     }
-
     window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
-    // Update time of day based on animation cycle
-    const updateTimeOfDay = () => {
-      const cycleDuration = 240000 // 4 minutes for a full day cycle
-      const elapsed = Date.now() % cycleDuration
-      const currentTimeOfDay = (elapsed / cycleDuration) * 24
-      setTimeOfDay(currentTimeOfDay)
-      updateTextStyles(currentTimeOfDay)
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+        setOpenDropdown(null)
+      }
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) && openDropdown === "user") {
+        setOpenDropdown(null)
+      }
     }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [openDropdown])
 
-    const updateTextStyles = (time: number) => {
-      // If scrolled, use default styles
-      if (isScrolled) {
-        setTextColorClass("text-white")
-        setTextColorStyle({})
-        setButtonColorClass("bg-primary-500 hover:bg-primary-600")
-        setButtonColorStyle({})
-        return
-      }
-
-      // Calculate the color transition based on time of day
-      // Night (0-5 and 20-24): White text
-      // Day (7-17): Black text
-      // Dawn (5-7) and Dusk (17-20): Smooth transition between white and black
-
-      let textColor, textShadow, buttonBg, buttonShadow
-
-      // Night (0-5 and 20-24): White text
-      if (time < 5 || time >= 20) {
-        textColor = "rgba(255, 255, 255, 0.95)"
-        textShadow = "0 2px 4px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.3)"
-        buttonBg = "rgba(59, 130, 246, 0.9)"
-        buttonShadow = "0 4px 15px rgba(0, 0, 0, 0.3)"
-      }
-      // Dawn transition (5-7): White to Black
-      else if (time >= 5 && time < 7) {
-        const progress = (time - 5) / 2 // 0 to 1 over 2 hours
-        const smoothProgress = progress * progress * (3 - 2 * progress) // Smooth step function
-
-        // RGB values transition from white (255,255,255) to black (0,0,0)
-        const r = Math.round(255 - smoothProgress * 255)
-        const g = Math.round(255 - smoothProgress * 255)
-        const b = Math.round(255 - smoothProgress * 255)
-
-        textColor = `rgba(${r}, ${g}, ${b}, 0.95)`
-
-        // Shadow transitions from dark to light
-        const shadowOpacity = 0.8 - smoothProgress * 0.5
-        textShadow = `0 1px 3px rgba(${smoothProgress > 0.5 ? 255 : 0}, ${smoothProgress > 0.5 ? 255 : 0}, ${
-          smoothProgress > 0.5 ? 255 : 0
-        }, ${shadowOpacity})`
-
-        // Button color transitions
-        buttonBg = `rgba(${59 + smoothProgress * 20}, ${130 - smoothProgress * 40}, ${246 - smoothProgress * 40}, 0.9)`
-        buttonShadow = `0 4px 15px rgba(0, 0, 0, ${0.3 - smoothProgress * 0.1})`
-      }
-      // Day (7-17): Black text
-      else if (time >= 7 && time < 17) {
-        textColor = "rgba(0, 0, 0, 0.95)"
-        textShadow = "0 1px 3px rgba(255, 255, 255, 0.7)"
-        buttonBg = "rgba(79, 110, 206, 0.9)"
-        buttonShadow = "0 4px 15px rgba(0, 0, 0, 0.2)"
-      }
-      // Dusk transition (17-20): Black to White
-      else if (time >= 17 && time < 20) {
-        const progress = (time - 17) / 3 // 0 to 1 over 3 hours
-        const smoothProgress = progress * progress * (3 - 2 * progress) // Smooth step function
-
-        // RGB values transition from black (0,0,0) to white (255,255,255)
-        const r = Math.round(smoothProgress * 255)
-        const g = Math.round(smoothProgress * 255)
-        const b = Math.round(smoothProgress * 255)
-
-        textColor = `rgba(${r}, ${g}, ${b}, 0.95)`
-
-        // Shadow transitions from light to dark
-        const shadowOpacity = 0.3 + smoothProgress * 0.5
-        textShadow = `0 1px 3px rgba(${smoothProgress < 0.5 ? 255 : 0}, ${smoothProgress < 0.5 ? 255 : 0}, ${
-          smoothProgress < 0.5 ? 255 : 0
-        }, ${shadowOpacity})`
-
-        // Button color transitions
-        buttonBg = `rgba(${79 - smoothProgress * 20}, ${110 + smoothProgress * 20}, ${206 + smoothProgress * 40}, 0.9)`
-        buttonShadow = `0 4px 15px rgba(0, 0, 0, ${0.2 + smoothProgress * 0.1})`
-      }
-
-      setTextColorClass("")
-      setTextColorStyle({
-        color: textColor,
-        textShadow: textShadow,
-        transition: "all 0.5s ease",
-      })
-      setButtonColorClass("")
-      setButtonColorStyle({
-        backgroundColor: buttonBg,
-        boxShadow: buttonShadow,
-        transition: "all 0.5s ease",
-      })
-    }
-
-    const timeInterval = setInterval(updateTimeOfDay, 100) // More frequent updates for smoother transitions
-    updateTimeOfDay() // Initial call
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll)
-      clearInterval(timeInterval)
-    }
-  }, [isScrolled])
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen)
+  const toggleDropdown = (label: string) => {
+    setOpenDropdown(openDropdown === label ? null : label)
   }
 
-  const handleLogoError = () => {
-    console.warn("Logo image failed to load, using placeholder")
-    // Create a simple SVG placeholder
-    const svgLogo = `
-      <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="20" cy="20" r="15" fill="#3B82F6" />
-        <text x="20" y="25" fontFamily="Arial" fontSize="14" fill="white" textAnchor="middle">LH</text>
-      </svg>
-    `
-    const svgBlob = new Blob([svgLogo], { type: "image/svg+xml" })
-    setLogoSrc(URL.createObjectURL(svgBlob))
+  const closeAllModals = () => {
+    setIsOpen(false)
+    setOpenDropdown(null)
+    setIsLoginModalOpen(false)
   }
 
-  // Update the navLinks array to use direct page links instead of hash links
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Services", href: "/services" },
-    { name: "Portfolio", href: "/portfolio" },
-    { name: "Blog", href: "/blog" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
-  ]
+  const handleLogout = async () => {
+    await logout()
+    closeAllModals()
+  }
 
-  return (
-    <header
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled ? "bg-gray-900/90 backdrop-blur-md shadow-md py-3" : "bg-transparent py-5",
-      )}
-    >
-      <div className="container px-4 mx-auto">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <div className="flex items-center">
-              <img
-                src={logoSrc || "/placeholder.svg"}
-                alt="Lumen Helix Bulb Logo"
-                className="h-10 md:h-12 mr-3"
-                onError={handleLogoError}
-              />
-              <div className={lexend.className}>
-                <span
-                  className={cn(
-                    "font-bold tracking-wide text-xl md:text-2xl",
-                    isScrolled ? "text-white" : textColorClass,
-                  )}
-                  style={isScrolled ? {} : textColorStyle}
-                >
-                  <span className="font-bold">Lumen</span>
-                  <span className="font-thin">Helix</span>
-                  <span className="ml-1 text-sm md:text-base font-normal opacity-90">Solutions</span>
-                </span>
+  const renderNavLink = (link: any, isMobile = false) => {
+    const isActive = pathname === link.href
+
+    if (link.subLinks) {
+      return (
+        <div className="relative group" key={link.label}>
+          <button
+            onClick={() => isMobile && toggleDropdown(link.label)}
+            className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 ease-in-out ${
+              isMobile ? "w-full text-left" : ""
+            } ${
+              openDropdown === link.label ||
+              (
+                !isMobile &&
+                  pathname?.startsWith(link.subLinks[0].href.substring(0, link.subLinks[0].href.lastIndexOf("/")))
+              )
+                ? "text-purple-400 dark:text-purple-300"
+                : "text-slate-300 hover:text-white dark:text-slate-400 dark:hover:text-white"
+            }`}
+          >
+            {link.label}
+            <ChevronDown
+              className={`ml-1 h-4 w-4 transition-transform duration-200 ${
+                openDropdown === link.label ? "transform rotate-180" : ""
+              }`}
+            />
+          </button>
+          {(!isMobile || openDropdown === link.label) && (
+            <div
+              className={`${
+                isMobile
+                  ? "pl-4 mt-1 space-y-1"
+                  : "absolute z-20 left-0 mt-2 w-56 origin-top-left bg-slate-800 dark:bg-slate-900 border border-slate-700 dark:border-slate-700 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+              }`}
+            >
+              <div className={isMobile ? "" : "py-1"}>
+                {link.subLinks.map((subLink: any) => (
+                  <Link
+                    key={subLink.href}
+                    href={subLink.href}
+                    onClick={closeAllModals}
+                    className={`block px-4 py-2 text-sm transition-colors duration-150 ease-in-out ${
+                      pathname === subLink.href
+                        ? "text-purple-400 bg-slate-700 dark:text-purple-300 dark:bg-slate-800"
+                        : "text-slate-300 hover:text-white hover:bg-slate-700 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800"
+                    } ${isMobile ? "rounded-md" : ""}`}
+                  >
+                    {subLink.label}
+                  </Link>
+                ))}
               </div>
             </div>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className={cn(
-                  "hover:text-primary-300 transition-all font-medium",
-                  isScrolled ? "text-white" : textColorClass,
-                )}
-                style={isScrolled ? {} : textColorStyle}
-              >
-                {link.name}
-              </Link>
-            ))}
-            <DayNightToggle />
-            <Button
-              className={cn("text-white", isScrolled ? "bg-primary-500 hover:bg-primary-600" : buttonColorClass)}
-              style={isScrolled ? {} : buttonColorStyle}
-            >
-              Get Started
-            </Button>
-          </nav>
-
-          {/* Mobile Menu Button */}
-          <button
-            className={cn("md:hidden focus:outline-none", isScrolled ? "text-white" : textColorClass)}
-            onClick={toggleMenu}
-            aria-label="Toggle menu"
-            style={isScrolled ? {} : textColorStyle}
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          )}
         </div>
-      </div>
+      )
+    }
 
-      {/* Mobile Navigation */}
-      <div
-        className={cn(
-          "md:hidden fixed inset-0 bg-gray-900 z-40 transition-transform duration-300 ease-in-out",
-          isOpen ? "translate-x-0" : "translate-x-full",
-        )}
+    return (
+      <Link
+        key={link.href}
+        href={link.href}
+        onClick={closeAllModals}
+        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 ease-in-out ${
+          isActive
+            ? "text-purple-400 dark:text-purple-300"
+            : "text-slate-300 hover:text-white dark:text-slate-400 dark:hover:text-white"
+        } ${isMobile ? "block" : ""}`}
+        aria-current={isActive ? "page" : undefined}
       >
-        <div className="flex flex-col h-full pt-20 px-6">
-          <div className="flex items-center mb-8">
-            <img
-              src={logoSrc || "/placeholder.svg"}
-              alt="Lumen Helix Bulb Logo"
-              className="h-10 mr-3"
-              onError={handleLogoError}
-            />
-            <div className={lexend.className}>
-              <span className="font-bold tracking-wide text-xl text-white">
-                <span className="font-bold">Lumen</span>
-                <span className="font-thin">Helix</span>
-                <span className="ml-1 text-sm font-normal opacity-90">Solutions</span>
-              </span>
+        {link.label}
+      </Link>
+    )
+  }
+
+  return (
+    <>
+      <nav
+        ref={navRef}
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out ${
+          isScrolled || isOpen
+            ? "bg-black/80 backdrop-blur-md shadow-lg border-b border-slate-800"
+            : "bg-transparent border-b border-transparent"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            <div className="flex items-center">
+              <Link href="/" className="flex-shrink-0" onClick={closeAllModals}>
+                <Image
+                  src="/numo-logo-with-emblem.png"
+                  alt="NUMO Oracle Logo"
+                  width={150}
+                  height={40}
+                  priority
+                  className="h-10 w-auto"
+                />
+              </Link>
+            </div>
+            <div className="hidden md:flex items-center space-x-2">
+              {navLinks.map((link) => renderNavLink(link))}
+              <SoundToggle />
+              <ManualCartIcon /> {/* <--- ADDED HERE */}
+              {/* ModeToggle removed here */}
+            </div>
+            <div className="hidden md:flex items-center ml-4">
+              {user ? (
+                <div className="relative" ref={dropdownRef}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleDropdown("user")}
+                    className="flex items-center text-slate-300 hover:text-white dark:text-slate-400 dark:hover:text-white"
+                  >
+                    <UserCircle className="h-5 w-5 mr-1" />
+                    {user.email}
+                    <ChevronDown
+                      className={`ml-1 h-4 w-4 transition-transform duration-200 ${openDropdown === "user" ? "rotate-180" : ""}`}
+                    />
+                  </Button>
+                  {openDropdown === "user" && (
+                    <div className="absolute z-20 right-0 mt-2 w-48 origin-top-right bg-slate-800 dark:bg-slate-900 border border-slate-700 dark:border-slate-700 rounded-md shadow-lg py-1">
+                      <Link
+                        href="/user/dashboard"
+                        onClick={closeAllModals}
+                        className="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800"
+                      >
+                        <UserCircle className="mr-2 h-4 w-4 inline-block" /> My Dashboard
+                      </Link>
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          onClick={closeAllModals}
+                          className="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800"
+                        >
+                          <ShieldCheck className="mr-2 h-4 w-4 inline-block" /> Admin Panel
+                        </Link>
+                      )}
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800"
+                      >
+                        <LogOut className="mr-2 h-4 w-4 inline-block" /> Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setIsLoginModalOpen(true)
+                    setIsOpen(false)
+                  }}
+                  className="text-slate-300 hover:text-white dark:text-slate-400 dark:hover:text-white"
+                >
+                  Login
+                </Button>
+              )}
+            </div>
+            <div className="md:hidden flex items-center">
+              <SoundToggle />
+              <ManualCartIcon /> {/* <--- ADDED HERE */}
+              {/* ModeToggle removed here */}
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="ml-2 p-2 rounded-md text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500"
+                aria-expanded={isOpen}
+              >
+                <span className="sr-only">Open main menu</span>
+                {isOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
+              </button>
             </div>
           </div>
-          <nav className="flex flex-col space-y-6 py-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="text-white text-2xl font-medium"
-                onClick={() => setIsOpen(false)}
-              >
-                {link.name}
-              </Link>
-            ))}
-            <Button
-              className="bg-primary-500 hover:bg-primary-600 text-white w-full mt-4"
-              onClick={() => setIsOpen(false)}
-            >
-              Get Started
-            </Button>
-          </nav>
-          <div className="mt-auto pb-8">
-            <p className="text-gray-400 text-sm">© {new Date().getFullYear()} Lumen Helix Solutions</p>
-          </div>
         </div>
-      </div>
-    </header>
+
+        {/* Mobile menu */}
+        {isOpen && (
+          <div className="md:hidden bg-black/90 backdrop-blur-md border-t border-slate-800">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">{navLinks.map((link) => renderNavLink(link, true))}</div>
+            <div className="pt-4 pb-3 border-t border-slate-700">
+              {user ? (
+                <div className="px-5">
+                  <div className="flex items-center">
+                    <UserCircle className="h-8 w-8 text-slate-400" />
+                    <div className="ml-3">
+                      <div className="text-base font-medium text-white">{user.email}</div>
+                    </div>
+                  </div>
+                  <div className="mt-3 space-y-1">
+                    <Link
+                      href="/user/dashboard"
+                      onClick={closeAllModals}
+                      className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700"
+                    >
+                      My Dashboard
+                    </Link>
+                    {isAdmin && (
+                      <Link
+                        href="/admin"
+                        onClick={closeAllModals}
+                        className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700"
+                      >
+                        Admin Panel
+                      </Link>
+                    )}
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="px-5">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-slate-300 hover:text-white"
+                    onClick={() => {
+                      setIsLoginModalOpen(true)
+                      setIsOpen(false)
+                    }}
+                  >
+                    Login
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </nav>
+      {/* <SiteNewsBanner /> REMOVED */}
+      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+    </>
   )
 }

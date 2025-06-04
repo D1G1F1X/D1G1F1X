@@ -1,227 +1,163 @@
-"use client"
-
-import { useState } from "react"
 import Link from "next/link"
-import { Facebook, Twitter, Linkedin, Instagram, ArrowUp } from "lucide-react"
-import { Lexend } from "next/font/google"
-
-// Initialize Lexend font
-const lexend = Lexend({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] })
+import Image from "next/image"
+import { Facebook, Twitter, Instagram, Youtube } from "lucide-react"
 
 export default function Footer() {
-  const [logoSrc, setLogoSrc] = useState("/images/logo-bulb.png")
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }
-
-  const handleLogoError = () => {
-    console.warn("Logo image failed to load, using placeholder")
-    // Create a simple SVG placeholder
-    const svgLogo = `
-      <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="20" cy="20" r="15" fill="#3B82F6" />
-        <text x="20" y="25" fontFamily="Arial" fontSize="14" fill="white" textAnchor="middle">LH</text>
-      </svg>
-    `
-    const svgBlob = new Blob([svgLogo], { type: "image/svg+xml" })
-    setLogoSrc(URL.createObjectURL(svgBlob))
-  }
+  const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-gray-900 text-white relative overflow-hidden">
-      {/* Futuristic tech grid background */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="footerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.2" />
-            </linearGradient>
-          </defs>
-          <pattern id="footer-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-            <rect
-              width="40"
-              height="40"
-              fill="none"
-              stroke="url(#footerGradient)"
-              strokeWidth="0.5"
-              strokeDasharray="2,2"
-            />
-            <circle cx="20" cy="20" r="1" fill="url(#footerGradient)" />
-          </pattern>
-          <rect width="100%" height="100%" fill="url(#footer-grid)" />
-        </svg>
-      </div>
-
-      <div className="container px-4 mx-auto py-12 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div>
-            <Link href="/" className="inline-block mb-6">
-              <div className="flex items-center">
-                <img
-                  src={logoSrc || "/placeholder.svg"}
-                  alt="Lumen Helix Bulb Logo"
-                  className="h-10 mr-3"
-                  onError={handleLogoError}
-                />
-                <div className={lexend.className}>
-                  <span className="font-bold tracking-wide text-xl text-white">
-                    <span className="font-bold">Lumen</span>
-                    <span className="font-thin">Helix</span>
-                    <span className="ml-1 text-sm font-normal opacity-90">Solutions</span>
-                  </span>
-                </div>
-              </div>
+    <footer className="bg-black text-white border-t border-gray-800">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Logo and About */}
+          <div className="col-span-1 md:col-span-1">
+            <Link href="/" className="inline-block mb-4">
+              <Image src="/numoracle-full-logo.png" alt="NUMO ORACLE" width={180} height={36} />
             </Link>
-            <p className="text-gray-400 mb-6">Enlightened growth, intelligent evolution, and clarity in complexity.</p>
+            <p className="text-gray-400 text-sm mb-4">
+              Discover the ancient wisdom of numerology combined with elemental oracle cards for profound spiritual
+              guidance.
+            </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors">
-                <Facebook size={20} />
-                <span className="sr-only">Facebook</span>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                <Facebook className="h-5 w-5 text-gray-400 hover:text-purple-400 transition" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors">
-                <Twitter size={20} />
-                <span className="sr-only">Twitter</span>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                <Twitter className="h-5 w-5 text-gray-400 hover:text-purple-400 transition" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors">
-                <Linkedin size={20} />
-                <span className="sr-only">LinkedIn</span>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <Instagram className="h-5 w-5 text-gray-400 hover:text-purple-400 transition" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors">
-                <Instagram size={20} />
-                <span className="sr-only">Instagram</span>
+              <a
+                href="https://www.youtube.com/@numoracle1"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube"
+              >
+                <Youtube className="h-5 w-5 text-gray-400 hover:text-purple-400 transition" />
               </a>
             </div>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-primary-400">Services</h3>
-            <ul className="space-y-3">
+          {/* Quick Links */}
+          <div className="col-span-1">
+            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <ul className="space-y-2">
               <li>
-                <Link
-                  href="/services/ai-strategy-fusion"
-                  className="text-gray-400 hover:text-primary-400 transition-colors"
-                >
-                  AI Strategy & Fusion
+                <Link href="/about" className="text-gray-400 hover:text-purple-400 transition">
+                  About NUMO
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/services/project-management"
-                  className="text-gray-400 hover:text-primary-400 transition-colors"
-                >
-                  Project Management
+                <Link href="/tools" className="text-gray-400 hover:text-purple-400 transition">
+                  Tools
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/services/web-development"
-                  className="text-gray-400 hover:text-primary-400 transition-colors"
-                >
-                  Web Development
+                <Link href="/library" className="text-gray-400 hover:text-purple-400 transition">
+                  Library
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/services/graphic-design"
-                  className="text-gray-400 hover:text-primary-400 transition-colors"
-                >
-                  Graphic Design
+                <Link href="/buy" className="text-gray-400 hover:text-purple-400 transition">
+                  Shop
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/services/marketing-strategy"
-                  className="text-gray-400 hover:text-primary-400 transition-colors"
-                >
-                  Marketing Strategy
+                <Link href="/reviews" className="text-gray-400 hover:text-purple-400 transition">
+                  Reviews
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/services/tech-consulting"
-                  className="text-gray-400 hover:text-primary-400 transition-colors"
-                >
-                  Tech Consulting & Hosting
+                <Link href="/newsletter" className="text-gray-400 hover:text-purple-400 transition">
+                  Newsletter
                 </Link>
               </li>
             </ul>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-primary-400">Company</h3>
-            <ul className="space-y-3">
+          {/* Resources */}
+          <div className="col-span-1">
+            <h3 className="text-lg font-semibold mb-4">Resources</h3>
+            <ul className="space-y-2">
               <li>
-                <Link href="/about" className="text-gray-400 hover:text-primary-400 transition-colors">
-                  About Us
+                <Link href="/guidebook" className="text-gray-400 hover:text-purple-400 transition">
+                  Guidebook
                 </Link>
               </li>
               <li>
-                <Link href="/portfolio" className="text-gray-400 hover:text-primary-400 transition-colors">
-                  Portfolio
+                <Link href="/tools/numerology-calculator" className="text-gray-400 hover:text-purple-400 transition">
+                  Numerology Calculator
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-gray-400 hover:text-primary-400 transition-colors">
+                <Link href="/blog" className="text-gray-400 hover:text-purple-400 transition">
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="/careers" className="text-gray-400 hover:text-primary-400 transition-colors">
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-gray-400 hover:text-primary-400 transition-colors">
-                  Contact
+                <Link href="/tools/card-simulator" className="text-gray-400 hover:text-purple-400 transition">
+                  Free Demo
                 </Link>
               </li>
             </ul>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-primary-400">Contact</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start">
-                <span className="text-primary-400 mr-2">Email:</span>
-                <a href="mailto:info@LumenHelix.com" className="text-gray-400 hover:text-primary-400 transition-colors">
-                  info@LumenHelix.com
+          {/* Legal & Support */}
+          <div className="col-span-1">
+            <h3 className="text-lg font-semibold mb-4">Legal & Support</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/privacy-policy" className="text-gray-400 hover:text-purple-400 transition">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms-of-service" className="text-gray-400 hover:text-purple-400 transition">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <a href="mailto:support@numoracle.com" className="text-gray-400 hover:text-purple-400 transition">
+                  Contact Support
                 </a>
               </li>
-              <li className="flex items-start">
-                <span className="text-primary-400 mr-2">Phone:</span>
-                <a href="tel:+14842020272" className="text-gray-400 hover:text-primary-400 transition-colors">
-                  (484) 202-0272
-                </a>
+              <li>
+                <Link href="/faq" className="text-gray-400 hover:text-purple-400 transition">
+                  FAQ
+                </Link>
               </li>
-              <li className="flex items-start">
-                <span className="text-primary-400 mr-2">Address:</span>
-                <span className="text-gray-400">Akron, Ohio</span>
+              <li>
+                <Link href="/shipping" className="text-gray-400 hover:text-purple-400 transition">
+                  Shipping & Returns
+                </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            © {new Date().getFullYear()} LumenHelix Solutions. All rights reserved.
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500 text-sm">
+          <p>
+            &copy; {currentYear} NUMO Oracle by{" "}
+            <a
+              href="https://www.kraftwerked.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-purple-400 transition"
+            >
+              Kraftwerk Numerology
+            </a>
+            . All rights reserved.
           </p>
-          <div className="flex space-x-6">
-            <Link href="/privacy-policy" className="text-gray-400 hover:text-primary-400 transition-colors text-sm">
+          <div className="mt-2 flex justify-center space-x-4">
+            <Link href="/privacy-policy" className="hover:text-purple-400 transition">
               Privacy Policy
             </Link>
-            <Link href="/terms-of-service" className="text-gray-400 hover:text-primary-400 transition-colors text-sm">
+            <span>|</span>
+            <Link href="/terms-of-service" className="hover:text-purple-400 transition">
               Terms of Service
             </Link>
           </div>
-          <button
-            onClick={scrollToTop}
-            className="fixed bottom-6 right-6 bg-primary-500 hover:bg-primary-600 text-white p-3 rounded-full shadow-lg transition-colors"
-            aria-label="Scroll to top"
-          >
-            <ArrowUp size={20} />
-          </button>
         </div>
       </div>
     </footer>

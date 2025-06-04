@@ -1,0 +1,3 @@
+Let's identify and fix all components that have the `<div>` inside `<p>` issue:
+
+First, let's check the popular-readings.tsx component which might be causing this error:
