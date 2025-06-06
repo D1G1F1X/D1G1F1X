@@ -4,13 +4,11 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useActionState } from "react"
+import { useActionState } from "react" // This import is correct for React 18.3+ / Next.js 14.1+
 import { ShoppingBag, Info, AlertCircle, CheckCircle } from "lucide-react"
 
-// Import server actions from the separate actions.ts file
 import { submitSalesInquiry, type SalesInquiryState } from "./actions"
 
-// Sample product data (ensure paths are correct and images exist)
 const products = [
   {
     id: "novice-oracle-deck",
@@ -18,7 +16,7 @@ const products = [
     description:
       "Begin your journey with this essential 78-card deck, beautifully illustrated to introduce the core wisdom of the Numo Oracle.",
     price: 25.0,
-    image: "/images/products/novice-deck-symbols.jpg", // Verify this path
+    image: "/images/products/novice-deck-symbols.jpg",
     features: ["78 Full-Color Cards", "Durable Card Stock", "Includes Quick Start Guide"],
     status: "available",
   },
@@ -28,7 +26,7 @@ const products = [
     description:
       "Deepen your practice with the Adept's 100-card Oracle system, featuring advanced elemental and archetypal cards for profound insights.",
     price: 22.0,
-    image: "/images/products/01cauldron-fire.jpg", // Verify this path
+    image: "/images/products/01cauldron-fire.jpg",
     features: ["100 Premium Cards", "Enhanced Artwork", "Expanded Symbology"],
     status: "available",
   },
@@ -38,7 +36,7 @@ const products = [
     description:
       "A unique set of 10-sided dice, each representing an elemental influence to complement your readings or for quick guidance.",
     price: 11.0,
-    image: "/images/tools/elemental-dice.png", // Verify this path
+    image: "/images/tools/elemental-dice.png",
     features: ["Set of 5 Custom Dice", "Engraved Elemental Symbols", "Portable Divination Tool"],
     status: "coming-soon",
   },
@@ -48,18 +46,14 @@ const products = [
     description:
       "A beautifully designed spread cloth featuring sacred Numo symbols, complete with a guide to enhance your reading experience.",
     price: 11.0,
-    image: "/images/products/speardcloth01.jpg.jpg", // Verify this path, ".jpg.jpg" seems like a typo
+    image: "/images/products/speardcloth01.jpg.jpg", // Note: ".jpg.jpg" might be a typo in the path
     features: ["High-Quality Fabric", "Symbolic Print", "Includes Layout Guide"],
     status: "available",
   },
 ]
 
-// SalesInquiryFormComponent is a client component, defined within BuyPageClient.tsx.
-// It uses the imported server action `submitSalesInquiry` via `useActionState`.
-// It must NOT have "use server" inside its definition.
 function SalesInquiryFormComponent() {
   const initialState: SalesInquiryState = { message: "", success: false, fieldErrors: {} }
-  // `submitSalesInquiry` is correctly imported from actions.ts
   const [formState, formAction] = useActionState(submitSalesInquiry, initialState)
 
   return (
@@ -160,9 +154,6 @@ function SalesInquiryFormComponent() {
 }
 
 export default function BuyPageClient() {
-  // Ensure no other functions defined in this file (BuyPageClient.tsx)
-  // have an inline "use server" directive.
-
   return (
     <div className="bg-gray-900 text-white min-h-screen">
       <header className="py-12 bg-gradient-to-r from-purple-700 via-indigo-700 to-blue-700 text-center">
@@ -187,15 +178,15 @@ export default function BuyPageClient() {
                 <CardHeader className="p-0">
                   <div className="aspect-[16/10] w-full overflow-hidden">
                     <Image
-                      src={product.image || "/images/products/ai-fallback-oracle-product.png"} // Fallback image
+                      src={product.image || "/images/products/ai-fallback-oracle-product.png"}
                       alt={product.name}
                       width={400}
                       height={250}
                       className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
                       onError={(e) => {
-                        // Fallback for broken images
-                        e.currentTarget.srcset = "/images/products/ai-fallback-oracle-product.png"
-                        e.currentTarget.src = "/images/products/ai-fallback-oracle-product.png"
+                        const target = e.target as HTMLImageElement
+                        target.srcset = "/images/products/ai-fallback-oracle-product.png"
+                        target.src = "/images/products/ai-fallback-oracle-product.png"
                       }}
                     />
                   </div>
