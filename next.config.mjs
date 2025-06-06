@@ -1,42 +1,49 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    domains: ['localhost', 'vercel.app', 'vercel.com', 'numoracle.com', 'v0.blob.com'],
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-    ],
-    unoptimized: true,
-  },
-  trailingSlash: false,
-  experimental: {
-    // This allows dynamic routes to be statically generated
-    // even if they use dynamic features like searchParams
-    missingSuspenseWithCSRBailout: false,
-  },
-  async redirects() {
-    return [
-      {
-        source: '/tools/numerology-report',
-        destination: '/tools/numerology-calculator',
-        permanent: true,
-      },
-      {
-        source: '/tools/numerology-report/:path*', // Catch any subpaths
-        destination: '/tools/numerology-calculator',
-        permanent: true,
-      },
-    ]
-  },
+reactStrictMode: true,
+eslint: {
+  ignoreDuringBuilds: true,
+},
+typescript: {
+  ignoreBuildErrors: true,
+},
+images: {
+  unoptimized: true,
+  remotePatterns: [
+    {
+      protocol: 'https',
+      hostname: 'hebbkx1anhila5yf.public.blob.vercel-storage.com',
+      port: '',
+      pathname: '/**',
+    },
+    {
+      protocol: 'https',
+      hostname: 'img.youtube.com',
+      port: '',
+      pathname: '/**',
+    }
+  ],
+  dangerouslyAllowSVG: true,
+  contentDispositionType: 'attachment',
+  contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+},
+// experimental: {
+//   serverActions: true,
+// },
+webpack: (config, { isServer }) => {
+  // Fixes npm packages that depend on `fs` module
+  if (!isServer) {
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+    };
+  }
+  config.externals.push('sharp'); // Ensure sharp is treated as external
+
+  return config;
+},
 }
 
 export default nextConfig

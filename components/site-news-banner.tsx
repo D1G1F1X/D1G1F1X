@@ -19,26 +19,18 @@ interface Announcement {
 const announcements: Announcement[] = [
   {
     id: "database-debug-warning",
-    text: "Heads Up: Card DATABASE error handling being debugged. WARNING some card data and descriptions may be erroneous. Should be fixed in 24hrs. ~ the admin",
+    text: "Heads Up: Card DATABASE error handling being debugged. WARNING some card data and descriptions may be erroneous. Should be fixed soon. ~ the admin",
     icon: <AlertTriangle size={18} className="mr-2 flex-shrink-0 text-yellow-300" />, // Added text-yellow-300 for emphasis
   },
   {
     id: "cart-unavailable",
-    text: "Shopping cart is temporarily unavailable.",
+    text: "The Shop is back ONLIINE taking your order resquests now",
     icon: <ShoppingCart size={18} className="mr-2 flex-shrink-0" />,
   },
   {
     id: "under-construction",
     text: "Site is actively under construction - check back soon for updates!",
     icon: <AlertTriangle size={18} className="mr-2 flex-shrink-0" />,
-  },
-  {
-    id: "contact-to-order",
-    text: "You can still contact us directly to order cards!",
-    link: "/contact",
-    linkLabel: "Contact Us",
-    icon: <Phone size={18} className="mr-2 flex-shrink-0" />,
-    ctaColor: "text-sky-300 hover:text-sky-200",
   },
   {
     id: "elemental-dice",

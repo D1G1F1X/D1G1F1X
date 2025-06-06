@@ -86,8 +86,8 @@ export default function HomeContent() {
       description: "Discover your life path, destiny number, and personal numerology profile.",
       link: "/tools/numerology-calculator",
       action: "Try Now",
-      imageSrc: "/images/tools/generated/free-numerology-report-feature-v2.png", // Updated image
-      imageAlt: "Free Numerology Report tool feature image", // Updated alt text
+      imageSrc: "/images/tools/generated/free-numerology-report-feature-v2.png",
+      imageAlt: "Free Numerology Report tool feature image",
     },
     {
       id: "card-directory",
@@ -170,7 +170,6 @@ export default function HomeContent() {
     },
   ]
 
-  // Fetch page data
   useEffect(() => {
     async function fetchPageData() {
       try {
@@ -195,7 +194,7 @@ export default function HomeContent() {
             { id: "features", title: "Oracle Tools", isActive: true },
             { id: "blog", title: "Latest from Our Blog", isActive: true },
             { id: "testimonials", title: "What Our Users Say", isActive: true },
-            { id: "about-summary", title: "About NUMO Oracle", isActive: true }, // New summary section
+            { id: "about-summary", title: "About NUMO Oracle", isActive: true },
           ],
         }
         setPageData(mockPageData)
@@ -208,7 +207,6 @@ export default function HomeContent() {
     fetchPageData()
   }, [])
 
-  // Handle scroll events
   useEffect(() => {
     const handleScroll = () => {
       if (cardsContainerRef.current) {
@@ -424,10 +422,12 @@ export default function HomeContent() {
     let toolsIntervalId: NodeJS.Timeout | undefined
     let blogIntervalId: NodeJS.Timeout | undefined
 
-    if (!isToolCarouselPaused) {
+    if (!isToolCarouselPaused && totalPages > 0) {
+      // Added totalPages > 0 check
       toolsIntervalId = setInterval(() => setActiveToolIndex((prev) => (prev === totalPages - 1 ? 0 : prev + 1)), 7000)
     }
-    if (!isBlogCarouselPaused) {
+    if (!isBlogCarouselPaused && totalBlogPages > 0) {
+      // Added totalBlogPages > 0 check
       blogIntervalId = setInterval(
         () => setActiveBlogIndex((prev) => (prev === totalBlogPages - 1 ? 0 : prev + 1)),
         8000,
@@ -438,19 +438,21 @@ export default function HomeContent() {
       if (toolsIntervalId) clearInterval(toolsIntervalId)
       if (blogIntervalId) clearInterval(blogIntervalId)
     }
-  }, [isToolCarouselPaused, isBlogCarouselPaused])
+  }, [isToolCarouselPaused, isBlogCarouselPaused, totalPages, totalBlogPages])
 
   useEffect(() => {
-    if (carouselRef.current) {
+    if (carouselRef.current && totalPages > 0) {
+      // Added totalPages > 0 check
       carouselRef.current.scrollTo({ left: activeToolIndex * carouselRef.current.offsetWidth, behavior: "smooth" })
     }
-    if (blogCarouselRef.current) {
+    if (blogCarouselRef.current && totalBlogPages > 0) {
+      // Added totalBlogPages > 0 check
       blogCarouselRef.current.scrollTo({
         left: activeBlogIndex * blogCarouselRef.current.offsetWidth,
         behavior: "smooth",
       })
     }
-  }, [activeToolIndex, activeBlogIndex])
+  }, [activeToolIndex, activeBlogIndex, totalPages, totalBlogPages])
 
   if (isLoading) {
     return <div className="p-12 text-center">Loading content...</div>
@@ -464,7 +466,6 @@ export default function HomeContent() {
   return (
     <>
       <FloatingTutorialCTA />
-      {/* Hero Section */}
       <section className="pt-32 pb-24 relative overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-center">
@@ -477,13 +478,7 @@ export default function HomeContent() {
                   className="transition-opacity hover:opacity-80 focus:outline-none"
                   aria-label="Restart card animation"
                 >
-                  <Image
-                    src="/numoracle-full-logo.png" // Using local logo
-                    alt="NUMO ORACLE"
-                    width={300}
-                    height={60} // Adjusted height for full logo
-                    className="mb-2"
-                  />
+                  <Image src="/numoracle-full-logo.png" alt="NUMO ORACLE" width={300} height={60} className="mb-2" />
                 </button>
                 <p className="text-lg text-gray-300 mb-6">{pageData?.description}</p>
               </div>
@@ -624,7 +619,6 @@ export default function HomeContent() {
         </div>
       </section>
 
-      {/* Features Section */}
       {featuresSection && (
         <section className="py-16 bg-black/30">
           <div className="container mx-auto px-4">
@@ -635,21 +629,25 @@ export default function HomeContent() {
                 size="icon"
                 onClick={prevTool}
                 className="rounded-full border-purple-500/30 text-purple-400 hover:bg-purple-900/30"
+                aria-label="Previous tool"
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
               <div className="flex items-center space-x-3">
-                {Array.from({ length: totalPages }).map((_, index) => (
-                  <button
-                    key={index}
-                    className={cn(
-                      "w-2.5 h-2.5 rounded-full transition-all",
-                      activeToolIndex === index ? "bg-purple-500 scale-125" : "bg-purple-500/30 hover:bg-purple-500/50",
-                    )}
-                    onClick={() => setActiveToolIndex(index)}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                ))}
+                {totalPages > 0 &&
+                  Array.from({ length: totalPages }).map((_, index) => (
+                    <button
+                      key={index}
+                      className={cn(
+                        "w-2.5 h-2.5 rounded-full transition-all",
+                        activeToolIndex === index
+                          ? "bg-purple-500 scale-125"
+                          : "bg-purple-500/30 hover:bg-purple-500/50",
+                      )}
+                      onClick={() => setActiveToolIndex(index)}
+                      aria-label={`Go to tool slide ${index + 1}`}
+                    />
+                  ))}
                 <Button
                   variant="outline"
                   size="icon"
@@ -665,66 +663,69 @@ export default function HomeContent() {
                 size="icon"
                 onClick={nextTool}
                 className="rounded-full border-purple-500/30 text-purple-400 hover:bg-purple-900/30"
+                aria-label="Next tool"
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>
             </div>
             <div className="relative overflow-hidden hidden md:block">
-              <div
-                ref={carouselRef}
-                className="flex transition-transform duration-500 ease-in-out"
-                style={{
-                  width: `${totalPages * 100}%`,
-                  transform: `translateX(-${activeToolIndex * (100 / totalPages)}%)`,
-                }}
-              >
-                {Array.from({ length: totalPages }).map((_, pageIndex) => (
-                  <div
-                    key={pageIndex}
-                    className="w-full flex-shrink-0 px-4 flex gap-6"
-                    style={{ width: `${100 / totalPages}%` }}
-                  >
-                    {oracleTools
-                      .slice(pageIndex * toolsPerPage, pageIndex * toolsPerPage + toolsPerPage)
-                      .map((tool) => (
-                        <div key={tool.id} className="w-1/2">
-                          <Card className="bg-gradient-to-br from-purple-900/20 to-black border-purple-500/30 h-full overflow-hidden">
-                            <div className="relative h-48 overflow-hidden">
-                              <Image
-                                src={tool.imageSrc || "/placeholder.svg"}
-                                alt={tool.imageAlt}
-                                width={400}
-                                height={200}
-                                className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                              />
-                              {tool.isNew && (
-                                <span className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
-                                  NEW
-                                </span>
-                              )}
-                            </div>
-                            <CardContent className="p-6 flex flex-col">
-                              <div className="flex items-center mb-4">
-                                <div className="w-10 h-10 rounded-full bg-purple-900/50 flex items-center justify-center mr-3">
-                                  {tool.icon}
-                                </div>
-                                <h3 className="text-xl font-semibold">{tool.name}</h3>
+              {totalPages > 0 && (
+                <div
+                  ref={carouselRef}
+                  className="flex transition-transform duration-500 ease-in-out"
+                  style={{
+                    width: `${totalPages * 100}%`,
+                    transform: `translateX(-${activeToolIndex * (100 / totalPages)}%)`,
+                  }}
+                >
+                  {Array.from({ length: totalPages }).map((_, pageIndex) => (
+                    <div
+                      key={pageIndex}
+                      className="w-full flex-shrink-0 px-4 flex gap-6"
+                      style={{ width: `${100 / totalPages}%` }}
+                    >
+                      {oracleTools
+                        .slice(pageIndex * toolsPerPage, pageIndex * toolsPerPage + toolsPerPage)
+                        .map((tool) => (
+                          <div key={tool.id} className="w-1/2">
+                            <Card className="bg-gradient-to-br from-purple-900/20 to-black border-purple-500/30 h-full overflow-hidden">
+                              <div className="relative h-48 overflow-hidden">
+                                <Image
+                                  src={tool.imageSrc || "/placeholder.svg"}
+                                  alt={tool.imageAlt}
+                                  width={400}
+                                  height={200}
+                                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                                />
+                                {tool.isNew && (
+                                  <span className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                                    NEW
+                                  </span>
+                                )}
                               </div>
-                              <p className="text-gray-300 mb-6 flex-grow">{tool.description}</p>
-                              <Button
-                                variant="outline"
-                                className="border-purple-500/50 text-purple-400 hover:bg-purple-900/30 mt-auto"
-                                asChild
-                              >
-                                <Link href={tool.link}>{tool.action}</Link>
-                              </Button>
-                            </CardContent>
-                          </Card>
-                        </div>
-                      ))}
-                  </div>
-                ))}
-              </div>
+                              <CardContent className="p-6 flex flex-col">
+                                <div className="flex items-center mb-4">
+                                  <div className="w-10 h-10 rounded-full bg-purple-900/50 flex items-center justify-center mr-3">
+                                    {tool.icon}
+                                  </div>
+                                  <h3 className="text-xl font-semibold">{tool.name}</h3>
+                                </div>
+                                <p className="text-gray-300 mb-6 flex-grow">{tool.description}</p>
+                                <Button
+                                  variant="outline"
+                                  className="border-purple-500/50 text-purple-400 hover:bg-purple-900/30 mt-auto"
+                                  asChild
+                                >
+                                  <Link href={tool.link}>{tool.action}</Link>
+                                </Button>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        ))}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="md:hidden mt-8 space-y-6">
               {oracleTools.map((tool) => (
@@ -766,7 +767,6 @@ export default function HomeContent() {
         </section>
       )}
 
-      {/* About NUMO Summary Section (Refactored) */}
       {aboutSummarySection && (
         <section className="py-20 bg-gradient-to-b from-black/20 to-black/40 relative overflow-hidden">
           <div className="container mx-auto px-4">
@@ -782,11 +782,10 @@ export default function HomeContent() {
                 >
                   Kraftwerk Numerology
                 </a>
-                , is a unique divination system blending ancient numerology, mythic wisdom, and elemental energies. It's
-                designed to guide you on a transformative journey of self-discovery.
+                , is a unique divination system blending ancient numerology, mythic wisdom, and elemental energies.
+                It&apos;s designed to guide you on a transformative journey of self-discovery.
               </p>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
               <div className="space-y-6">
                 <div>
@@ -817,14 +816,13 @@ export default function HomeContent() {
               </div>
               <div className="aspect-video rounded-lg overflow-hidden shadow-2xl border border-purple-500/30">
                 <YouTubeVideo
-                  videoId="ljJ18kG7zqg" // Featured video
+                  videoId="ljJ18kG7zqg"
                   title="NUMO Pair Numerology Pattern - NEW Discovery!"
                   className="w-full h-full"
                 />
               </div>
             </div>
           </div>
-          {/* Background Elements */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
             <div
               className="absolute top-1/3 right-1/4 w-80 h-80 bg-purple-600/5 rounded-full filter blur-3xl animate-pulse"
@@ -838,7 +836,6 @@ export default function HomeContent() {
         </section>
       )}
 
-      {/* Blog Section */}
       {blogSection && (
         <section className="py-20 bg-gradient-to-b from-black/40 to-black/20">
           <div className="container mx-auto px-4">
@@ -856,21 +853,25 @@ export default function HomeContent() {
                 size="icon"
                 onClick={prevBlog}
                 className="rounded-full border-purple-500/30 text-purple-400 hover:bg-purple-900/30"
+                aria-label="Previous blog post"
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
               <div className="flex items-center space-x-3">
-                {Array.from({ length: totalBlogPages }).map((_, index) => (
-                  <button
-                    key={index}
-                    className={cn(
-                      "w-2.5 h-2.5 rounded-full transition-all",
-                      activeBlogIndex === index ? "bg-purple-500 scale-125" : "bg-purple-500/30 hover:bg-purple-500/50",
-                    )}
-                    onClick={() => setActiveBlogIndex(index)}
-                    aria-label={`Go to blog slide ${index + 1}`}
-                  />
-                ))}
+                {totalBlogPages > 0 &&
+                  Array.from({ length: totalBlogPages }).map((_, index) => (
+                    <button
+                      key={index}
+                      className={cn(
+                        "w-2.5 h-2.5 rounded-full transition-all",
+                        activeBlogIndex === index
+                          ? "bg-purple-500 scale-125"
+                          : "bg-purple-500/30 hover:bg-purple-500/50",
+                      )}
+                      onClick={() => setActiveBlogIndex(index)}
+                      aria-label={`Go to blog slide ${index + 1}`}
+                    />
+                  ))}
                 <Button
                   variant="outline"
                   size="icon"
@@ -886,122 +887,128 @@ export default function HomeContent() {
                 size="icon"
                 onClick={nextBlog}
                 className="rounded-full border-purple-500/30 text-purple-400 hover:bg-purple-900/30"
+                aria-label="Next blog post"
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>
             </div>
             <div className="relative overflow-hidden hidden md:block">
-              <div
-                ref={blogCarouselRef}
-                className="flex transition-transform duration-500 ease-in-out"
-                style={{
-                  width: `${totalBlogPages * 100}%`,
-                  transform: `translateX(-${activeBlogIndex * (100 / totalBlogPages)}%)`,
-                }}
-              >
-                {Array.from({ length: totalBlogPages }).map((_, pageIndex) => (
-                  <div
-                    key={pageIndex}
-                    className="w-full flex-shrink-0 px-4 grid grid-cols-3 gap-8"
-                    style={{ width: `${100 / totalBlogPages}%` }}
-                  >
-                    {blogPosts
-                      .slice(pageIndex * blogPostsPerPage, pageIndex * blogPostsPerPage + blogPostsPerPage)
-                      .map((post) => (
-                        <Card
-                          key={post.id}
-                          className="bg-gradient-to-br from-purple-900/10 to-black border-purple-500/20 overflow-hidden hover:border-purple-500/40 transition-all duration-300 group"
-                        >
-                          <div className="relative h-48 overflow-hidden">
-                            <Image
-                              src={post.imageSrc || "/placeholder.svg"}
-                              alt={post.title}
-                              width={400}
-                              height={200}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                            <div className="absolute top-2 left-2 bg-purple-800/80 text-white text-xs px-2 py-1 rounded">
-                              {post.category}
+              {totalBlogPages > 0 && (
+                <div
+                  ref={blogCarouselRef}
+                  className="flex transition-transform duration-500 ease-in-out"
+                  style={{
+                    width: `${totalBlogPages * 100}%`,
+                    transform: `translateX(-${activeBlogIndex * (100 / totalBlogPages)}%)`,
+                  }}
+                >
+                  {Array.from({ length: totalBlogPages }).map((_, pageIndex) => (
+                    <div
+                      key={pageIndex}
+                      className="w-full flex-shrink-0 px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+                      style={{ width: `${100 / totalBlogPages}%` }}
+                    >
+                      {blogPosts
+                        .slice(pageIndex * blogPostsPerPage, pageIndex * blogPostsPerPage + blogPostsPerPage)
+                        .map((post) => (
+                          <Card
+                            key={post.id}
+                            className="bg-gradient-to-br from-purple-900/10 to-black border-purple-500/20 overflow-hidden hover:border-purple-500/40 transition-all duration-300 group"
+                          >
+                            <div className="relative h-48 overflow-hidden">
+                              <Image
+                                src={post.imageSrc || "/placeholder.svg"}
+                                alt={post.title}
+                                width={400}
+                                height={200}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                              <div className="absolute top-2 left-2 bg-purple-800/80 text-white text-xs px-2 py-1 rounded">
+                                {post.category}
+                              </div>
                             </div>
-                          </div>
-                          <CardContent className="p-6">
-                            <div className="text-sm text-gray-400 mb-2">
-                              {post.date} • By {post.author}
-                            </div>
-                            <h3 className="text-xl font-semibold mb-3 group-hover:text-purple-300 transition-colors">
-                              {post.title}
-                            </h3>
-                            <p className="text-gray-300 mb-4 line-clamp-3">{post.excerpt}</p>
-                            <Button variant="link" className="text-purple-400 p-0 h-auto" asChild>
-                              <Link href={`/blog/${post.slug}`}>Read More</Link>
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      ))}
-                  </div>
-                ))}
-              </div>
+                            <CardContent className="p-6">
+                              <div className="text-sm text-gray-400 mb-2">
+                                {post.date} • By {post.author}
+                              </div>
+                              <h3 className="text-xl font-semibold mb-3 group-hover:text-purple-300 transition-colors">
+                                {post.title}
+                              </h3>
+                              <p className="text-gray-300 mb-4 line-clamp-3">{post.excerpt}</p>
+                              <Button variant="link" className="text-purple-400 p-0 h-auto" asChild>
+                                <Link href={`/blog/${post.slug}`}>Read More</Link>
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        ))}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="md:hidden mt-8 relative overflow-hidden">
-              <div
-                className="flex transition-transform duration-500 ease-in-out"
-                style={{
-                  width: `${blogPosts.length * 100}%`,
-                  transform: `translateX(-${activeBlogIndex * (100 / blogPosts.length)}%)`,
-                }}
-              >
-                {blogPosts.map((post) => (
-                  <div
-                    key={post.id}
-                    className="w-full flex-shrink-0 px-4"
-                    style={{ width: `${100 / blogPosts.length}%` }}
-                  >
-                    <Card className="bg-gradient-to-br from-purple-900/10 to-black border-purple-500/20 overflow-hidden">
-                      <div className="relative h-48 overflow-hidden">
-                        <Image
-                          src={post.imageSrc || "/placeholder.svg"}
-                          alt={post.title}
-                          width={400}
-                          height={200}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-2 left-2 bg-purple-800/80 text-white text-xs px-2 py-1 rounded">
-                          {post.category}
+              {blogPosts.length > 0 && (
+                <div
+                  className="flex transition-transform duration-500 ease-in-out"
+                  style={{
+                    width: `${blogPosts.length * 100}%`,
+                    transform: `translateX(-${activeBlogIndex * (100 / blogPosts.length)}%)`,
+                  }}
+                >
+                  {blogPosts.map((post) => (
+                    <div
+                      key={post.id}
+                      className="w-full flex-shrink-0 px-4"
+                      style={{ width: `${100 / blogPosts.length}%` }}
+                    >
+                      <Card className="bg-gradient-to-br from-purple-900/10 to-black border-purple-500/20 overflow-hidden">
+                        <div className="relative h-48 overflow-hidden">
+                          <Image
+                            src={post.imageSrc || "/placeholder.svg"}
+                            alt={post.title}
+                            width={400}
+                            height={200}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute top-2 left-2 bg-purple-800/80 text-white text-xs px-2 py-1 rounded">
+                            {post.category}
+                          </div>
                         </div>
-                      </div>
-                      <CardContent className="p-6">
-                        <div className="text-sm text-gray-400 mb-2">
-                          {post.date} • By {post.author}
-                        </div>
-                        <h3 className="text-xl font-semibold mb-3">{post.title}</h3>
-                        <p className="text-gray-300 mb-4 line-clamp-3">{post.excerpt}</p>
-                        <Button variant="link" className="text-purple-400 p-0 h-auto" asChild>
-                          <Link href={`/blog/${post.slug}`}>Read More</Link>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-center mt-6 space-x-2">
-                {blogPosts.map((_, index) => (
-                  <button
-                    key={index}
-                    className={cn(
-                      "w-2 h-2 rounded-full transition-all",
-                      activeBlogIndex === index ? "bg-purple-500" : "bg-purple-500/30",
-                    )}
-                    onClick={() => setActiveBlogIndex(index)}
-                    aria-label={`Go to blog post ${index + 1}`}
-                  />
-                ))}
-              </div>
+                        <CardContent className="p-6">
+                          <div className="text-sm text-gray-400 mb-2">
+                            {post.date} • By {post.author}
+                          </div>
+                          <h3 className="text-xl font-semibold mb-3">{post.title}</h3>
+                          <p className="text-gray-300 mb-4 line-clamp-3">{post.excerpt}</p>
+                          <Button variant="link" className="text-purple-400 p-0 h-auto" asChild>
+                            <Link href={`/blog/${post.slug}`}>Read More</Link>
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {blogPosts.length > 0 && (
+                <div className="flex justify-center mt-6 space-x-2">
+                  {blogPosts.map((_, index) => (
+                    <button
+                      key={index}
+                      className={cn(
+                        "w-2 h-2 rounded-full transition-all",
+                        activeBlogIndex === index ? "bg-purple-500" : "bg-purple-500/30",
+                      )}
+                      onClick={() => setActiveBlogIndex(index)}
+                      aria-label={`Go to blog post ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </section>
       )}
 
-      {/* Testimonials Section */}
       {testimonialsSection && (
         <section className="py-20">
           <div className="container mx-auto px-4">
@@ -1033,7 +1040,7 @@ export default function HomeContent() {
                 <Card key={index} className={`card card-${testimonial.element} bg-black/50 border-purple-500/30`}>
                   <CardContent className="p-6">
                     <div className="flex flex-col h-full">
-                      <div className="text-purple-300 text-4xl mb-4">"</div>
+                      <div className="text-purple-300 text-4xl mb-4">&quot;</div>
                       <p className="text-gray-300 flex-grow">{testimonial.quote}</p>
                       <div className="mt-6 flex items-center">
                         <Image
@@ -1054,7 +1061,6 @@ export default function HomeContent() {
         </section>
       )}
 
-      {/* CTA Section */}
       <section className="py-16 bg-gradient-to-br from-purple-900/30 to-black">
         <div className="container mx-auto px-4 text-center">
           <div className="flex justify-center mb-6">

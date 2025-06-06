@@ -56,14 +56,12 @@ export const chaldeanValues: { [key: string]: number } = {
   Z: 7,
   F: 8,
   P: 8,
-  // Note: 9 is not typically assigned to letters in Chaldean system
 }
 
 export const compoundNumberMeaningsBriefChaldean: { [key: number]: string } = {
   10: "Wheel of Fortune - success after challenges.",
   11: "A Lion Muzzled / The Hidden Peril - hidden dangers, treachery.",
   19: "The Prince of Heaven - happiness, success, esteem.",
-  // Add other compound number meanings as needed up to 52
 }
 
 export const generalElementMeanings: { [key: string]: string } = {
@@ -75,24 +73,24 @@ export const generalElementMeanings: { [key: string]: string } = {
 }
 
 export const suitElementColors: { [key: string]: string } = {
-  Fire: "hsl(15, 80%, 60%)", // Example: Orange-Red
-  Water: "hsl(210, 70%, 65%)", // Example: Blue
-  Air: "hsl(60, 75%, 70%)", // Example: Yellow
-  Earth: "hsl(120, 40%, 55%)", // Example: Green
-  Spirit: "hsl(270, 60%, 70%)", // Example: Purple
-  Default: "hsl(0, 0%, 88%)", // Fallback
+  Fire: "hsl(15, 80%, 60%)",
+  Water: "hsl(210, 70%, 65%)",
+  Air: "hsl(60, 75%, 70%)",
+  Earth: "hsl(120, 40%, 55%)",
+  Spirit: "hsl(270, 60%, 70%)",
+  Default: "hsl(0, 0%, 88%)",
 }
 
 export interface CardData {
   name: string
   keyMeaning: string
-  suit: string // e.g., "Cauldron", "Sword"
-  dominantElement: string // e.g., "Fire", "Water"
+  suit: string
+  dominantElement: string
   pairingRole?: string
 }
 
 export interface IndividualCardData {
-  [key: string]: CardData // Key is typically number "0" through "9"
+  [key: string]: CardData
 }
 
 export const individualCardData: IndividualCardData = {
@@ -180,14 +178,14 @@ export interface PairingData {
 }
 
 export interface Pairings {
-  [key: string]: PairingData // Key is lowercase suit name e.g., "cauldron"
+  [key: string]: PairingData
 }
 
 export const pairingsData: Pairings = {
   cauldron: {
     name: "The Cauldron",
     numbers: "0 & 1",
-    tarotSuit: "Fire Suit - Cups/Hearts (NUMO: Fire)", // Note: Tutorial page says Cauldron is Fire Suit
+    tarotSuit: "Fire Suit - Cups/Hearts (NUMO: Fire)",
     visual: "Point and Circle, Alpha-Omega",
     metaphysical: "Potential to Manifestation",
     dominantElement: "Fire",
@@ -197,7 +195,7 @@ export const pairingsData: Pairings = {
   sword: {
     name: "The Sword",
     numbers: "2 & 5",
-    tarotSuit: "Water Suit - Swords/Spades (NUMO: Water)", // Note: Tutorial page says Sword is Water Suit
+    tarotSuit: "Water Suit - Swords/Spades (NUMO: Water)",
     visual: "Line and Pentagram, Duality and Change",
     metaphysical: "Reflection and Action",
     dominantElement: "Water",
@@ -207,7 +205,7 @@ export const pairingsData: Pairings = {
   cord: {
     name: "The Cord",
     numbers: "3 & 8",
-    tarotSuit: "Spirit Suit - Wheels/Knots (NUMO: Spirit)", // Note: Tutorial page says Cord is Spirit Suit
+    tarotSuit: "Spirit Suit - Wheels/Knots (NUMO: Spirit)",
     visual: "Triangle and Octagon, Trinity and Infinity",
     metaphysical: "Connection and Empowerment",
     dominantElement: "Spirit",
@@ -217,7 +215,7 @@ export const pairingsData: Pairings = {
   spear: {
     name: "The Spear",
     numbers: "4 & 7",
-    tarotSuit: "Air Suit - Wands/Clubs (NUMO: Air)", // Note: Tutorial page says Spear is Air Suit
+    tarotSuit: "Air Suit - Wands/Clubs (NUMO: Air)",
     visual: "Square and Heptagon, Structure and Wisdom",
     metaphysical: "Foundation and Insight",
     dominantElement: "Air",
@@ -227,7 +225,7 @@ export const pairingsData: Pairings = {
   stone: {
     name: "The Stone",
     numbers: "6 & 9",
-    tarotSuit: "Earth Suit - Pentacles/Diamonds (NUMO: Earth)", // Note: Tutorial page says Stone is Earth Suit
+    tarotSuit: "Earth Suit - Pentacles/Diamonds (NUMO: Earth)",
     visual: "Hexagon and Enneagon, Harmony and Completion",
     metaphysical: "Nurturing and Culmination",
     dominantElement: "Earth",
@@ -236,7 +234,6 @@ export const pairingsData: Pairings = {
   },
 }
 
-// Define Post and Page interfaces
 export interface Post {
   id: string
   title: string
@@ -261,7 +258,6 @@ export interface Page {
   createdAt: string
   updatedAt: string
   featuredImage?: string
-  // Add any other page-specific fields if necessary
 }
 
 const newBlogPostContent = `
@@ -394,7 +390,6 @@ Don't wait to uncover the wisdom that's rightfully yours.
 We can't wait for you to experience the transformative power of your numbers!
 `
 
-// Changed from const to let to allow modification
 let posts: Post[] = [
   {
     id: "7",
@@ -466,7 +461,7 @@ The cauldron reminds us that within our depths lies immense power for creation, 
     author: "NUMO Oracle Team",
     isPublished: true,
     createdAt: "2025-05-30T10:00:00Z",
-    updatedAt: "2025-06-01T10:00:00Z", // Updated timestamp
+    updatedAt: "2025-06-01T10:00:00Z",
     featuredImage: "/images/blog/cauldron-symbolism.png",
     categories: ["Symbolism", "Mysticism", "Oracle Wisdom", "Elemental Wisdom"],
     tags: ["cauldron", "spiritual symbolism", "transformation", "water element", "divine feminine", "NUMO Oracle"],
@@ -520,7 +515,7 @@ By embracing the wisdom of the five elements within your numerological practice,
     author: "NUMO Oracle Team",
     isPublished: true,
     createdAt: "2025-05-30T11:00:00Z",
-    updatedAt: "2025-06-01T10:05:00Z", // Updated timestamp
+    updatedAt: "2025-06-01T10:05:00Z",
     featuredImage: "/images/blog/elements-numerology.png",
     categories: ["Numerology", "Elemental Wisdom", "Symbolism"],
     tags: [
@@ -589,7 +584,7 @@ Sacred Geometry reminds us that the NUMO Oracle, like the universe itself, is bu
     author: "NUMO Oracle Team",
     isPublished: true,
     createdAt: "2025-05-30T12:00:00Z",
-    updatedAt: "2025-06-01T10:10:00Z", // Updated timestamp
+    updatedAt: "2025-06-01T10:10:00Z",
     featuredImage: "/images/blog/sacred-geometry.png",
     categories: ["Numerology", "Sacred Geometry", "Oracle Cards", "Symbolism"],
     tags: [
@@ -621,18 +616,18 @@ The calculation is straightforward and involves reducing your birth month, day, 
 **Steps:**
 
 1.  **Reduce the Month:**
-    *   If your birth month is a single digit (1-9), use that number.
-    *   If it's a double-digit month (October=10, November=11, December=12), reduce it to a single digit (10 -> 1+0=1; 11 stays 11; 12 -> 1+2=3). *Note: November (11) is a Master Number and is often kept as 11.*
+*   If your birth month is a single digit (1-9), use that number.
+*   If it's a double-digit month (October=10, November=11, December=12), reduce it to a single digit (10 -> 1+0=1; 11 stays 11; 12 -> 1+2=3). *Note: November (11) is a Master Number and is often kept as 11.*
 
 2.  **Reduce the Day:**
-    *   Reduce your birth day to a single digit. For example, if born on the 23rd, 2+3=5. If born on the 11th or 22nd, these are Master Numbers and are kept as 11 or 22.
+*   Reduce your birth day to a single digit. For example, if born on the 23rd, 2+3=5. If born on the 11th or 22nd, these are Master Numbers and are kept as 11 or 22.
 
 3.  **Reduce the Year:**
-    *   Add all the digits of your birth year together and reduce them to a single digit. For example, for 1987: 1+9+8+7 = 25. Then, 2+5 = 7. If the sum is 11 or 22 before the final single-digit reduction, note it as it might indicate Master Number influence.
+*   Add all the digits of your birth year together and reduce them to a single digit. For example, for 1987: 1+9+8+7 = 25. Then, 2+5 = 7. If the sum is 11 or 22 before the final single-digit reduction, note it as it might indicate Master Number influence.
 
 4.  **Sum and Reduce the Totals:**
-    *   Add the reduced numbers for the month, day, and year.
-    *   Reduce this final sum to a single digit (1-9) **UNLESS** the sum is 11, 22, or 33. These are Master Numbers and are not reduced further.
+*   Add the reduced numbers for the month, day, and year.
+*   Reduce this final sum to a single digit (1-9) **UNLESS** the sum is 11, 22, or 33. These are Master Numbers and are not reduced further.
 
 **Example:** Birthday: November 26, 1975
 
@@ -641,7 +636,7 @@ The calculation is straightforward and involves reducing your birth month, day, 
 *   **Year:** 1975 -> 1 + 9 + 7 + 5 = 22 (Master Number, keep as 22)
 *   **Sum:** 11 (month) + 8 (day) + 22 (year) = 41
 *   **Final Reduction:** 4 + 1 = 5
-    **Life Path Number = 5**
+**Life Path Number = 5**
 
 ## Brief Meanings of Life Path Numbers:
 
@@ -673,7 +668,7 @@ Your Life Path Number is a lifelong companion. Embracing its lessons and leverag
     author: "NUMO Oracle Team",
     isPublished: true,
     createdAt: "2025-05-30T13:00:00Z",
-    updatedAt: "2025-06-01T10:15:00Z", // Updated timestamp
+    updatedAt: "2025-06-01T10:15:00Z",
     featuredImage: "/images/blog/life-path.png",
     categories: ["Numerology", "Life Path", "Self-Discovery"],
     tags: [
@@ -686,7 +681,6 @@ Your Life Path Number is a lifelong companion. Embracing its lessons and leverag
     ],
   },
   {
-    // NEW POST ADDED HERE
     id: "12",
     title: "Combining Tarot and Numerology for Deeper Insights",
     slug: "combining-tarot-numerology-deeper-insights",
@@ -731,7 +725,7 @@ By exploring the synergy between Tarot and Numerology, you can unlock a more pro
     isPublished: true,
     createdAt: "2025-06-01T11:00:00Z",
     updatedAt: "2025-06-01T11:00:00Z",
-    featuredImage: "/images/blog/tarot-numerology.png", // Using an existing relevant image
+    featuredImage: "/images/blog/tarot-numerology.png",
     categories: ["Numerology", "Tarot", "Divination"],
     tags: [
       "tarot",
@@ -744,9 +738,101 @@ By exploring the synergy between Tarot and Numerology, you can unlock a more pro
     ],
   },
   {
-    id: "1",
+    id: "13",
+    title: "The Mystical Power of the Sword: Symbolism and Significance",
+    slug: "mystical-power-sword-symbolism-significance",
+    content: `
+# The Mystical Power of the Sword: Symbolism and Significance
+
+The sword, an iconic emblem throughout human history, transcends its role as a mere weapon to become a potent symbol of power, justice, and decisive action. Its gleaming blade, often depicted cutting through darkness or illusion, represents clarity of thought, truth, and the unwavering resolve needed to uphold principles. In countless cultures, the sword is intrinsically linked to leadership and sovereignty; kings are coronated with swords, knights are dubbed with them, and legendary heroes wield them as extensions of their valor and divine mandate. Think of King Arthur's Excalibur, not just a weapon but a symbol of rightful rule and destiny, or the Japanese katana, embodying the samurai's spirit and discipline. This connection to authority also casts the sword as an instrument of justice, capable of both defending the innocent and punishing the wicked, demanding immense responsibility from its wielder.
+
+Beyond its societal roles, the sword delves into the personal realm of courage and honor. To take up the sword is to accept a path of potential conflict, requiring bravery and a strong moral compass. In spiritual traditions, this translates to 'spiritual warfare' – the internal battle against one's own flaws, doubts, or external negative influences. The 'sword of spirit' mentioned in various texts is a metaphor for discernment, the ability to cut through mental clutter and perceive underlying truths. This makes the sword a tool for self-mastery, challenging individuals to hone their inner strength and integrity.
+
+The historical and mythological tapestry is rich with swords of significance. From the flaming sword guarding Eden to the enchanted blades of epic heroes, these weapons often carry magical properties or divine blessings, signifying a connection to higher powers or fated events. In many traditions, the act of forging a sword is itself a sacred process, imbuing the metal with intention and elemental energies. This multifaceted symbolism—encompassing protection, sacrifice, the duality of creation and destruction, and the unwavering pursuit of truth—ensures the sword remains a compelling and enduring symbol in our collective consciousness, reminding us of the power of conviction and the sharp edge of responsibility.
+  `,
+    excerpt:
+      "Explore the multifaceted symbolism of the sword, from its representation of power, justice, and protection to its connection with courage, honor, and spiritual warfare. Delve into its historical and cultural contexts.",
+    author: "NUMO Oracle Team",
+    isPublished: true,
+    createdAt: "2025-06-05T10:00:00Z",
+    updatedAt: "2025-06-05T10:00:00Z",
+    featuredImage: "/images/blog/generated/mystical-sword-symbolism.png",
+    categories: ["Symbolism", "Mysticism", "Spiritual Tools"],
+    tags: ["sword", "power", "justice", "courage", "honor", "spiritual warfare", "mythology"],
+  },
+  {
+    id: "14",
+    title: "The Sacred Cord: Unraveling the Symbolism of Connection and Unity",
+    slug: "sacred-cord-symbolism-connection-unity",
+    content: `
+# The Sacred Cord: Unraveling the Symbolism of Connection and Unity
+
+The cord, in its elegant simplicity, is a universal symbol of connection, weaving through the spiritual and cultural fabric of humanity. It represents the invisible threads that bind us—to each other, to our ancestors, to nature, and to the divine. From the life-giving umbilical cord to the intricate knots of a sailor's rope, the cord speaks of linkage, continuity, and the strength found in unity. Its flexibility allows it to represent both gentle ties and unbreakable bonds, adapting to the nature of the connection it symbolizes.
+
+In sacred rituals, the cord often plays a central role. Handfasting ceremonies, for example, use a cord to physically and symbolically unite two individuals, signifying their intertwined paths and shared commitments. Prayer beads, such as malas or rosaries, are essentially sacred cords punctuated by knots or beads, each marking a prayer or mantra, guiding the devotee into a state of focused meditation and connection with the divine. These practices highlight the cord's ability to create tangible links to intangible realities, fostering a sense of belonging and shared spiritual purpose. It can also represent a lineage, a thread of wisdom passed down through generations.
+
+The symbolism of the cord extends to grand cosmic concepts like fate and destiny. The Moirai, or Fates, of Greek mythology spun, measured, and cut the thread of life for every mortal and god, illustrating the profound belief in an interconnected destiny. Similarly, the East Asian 'Red Thread of Fate' is said to invisibly tie together those who are destined to meet and help one another. These narratives emphasize that no individual is an island; our lives are interwoven in a vast, intricate tapestry. The cord reminds us that every action creates ripples, affecting the whole. In spiritual development, the cord can symbolize the pathway of energy, like the Sushumna Nadi in yogic philosophy, or the 'silver cord' connecting the soul to the body. It invites us to explore our connections, to nurture them, and to recognize the profound unity underlying all existence.
+  `,
+    excerpt:
+      "Uncover the profound symbolism of the cord, representing connection, unity, and binding forces across spiritual practices. Explore its role in rituals, fate, and interconnectedness.",
+    author: "NUMO Oracle Team",
+    isPublished: true,
+    createdAt: "2025-06-05T10:00:00Z",
+    updatedAt: "2025-06-05T10:00:00Z",
+    featuredImage: "/images/blog/generated/sacred-cord-connection-unity.png",
+    categories: ["Symbolism", "Mysticism", "Spiritual Practices"],
+    tags: ["cord", "connection", "unity", "fate", "destiny", "interconnectedness", "rituals"],
+  },
+  {
+    id: "15",
+    title: "The Spear: Symbol of Focus, Protection, and Divine Energy",
+    slug: "spear-symbol-focus-protection-divine-energy",
+    content: `
+# The Spear: Symbol of Focus, Protection, and Divine Energy
+
+The spear, with its direct and piercing form, stands as a powerful emblem of focused intention, unwavering protection, and the channeling of potent, often divine, energy. Unlike the broad sweep of a sword, the spear signifies a singular, concentrated point of power, a direct line of force aimed with precision and purpose. This makes it a compelling symbol for achieving specific goals, overcoming targeted obstacles, and maintaining a clear, undeviated path towards one's aspirations. Its length often implies reach, the ability to project influence or defense from a strategic distance.
+
+Throughout mythology and history, the spear is the chosen implement of formidable warriors, wise hunters, and authoritative deities. Odin's Gungnir, which never missed its mark and was bound by sacred oaths, or Athena's spear, representing strategic wisdom in conflict, highlight its association with not just might, but also with skill, foresight, and righteous power. The spear demands accuracy and a deep understanding of one's objective, symbolizing the importance of clear vision and decisive action. It is the tool of the guardian, the sentinel, and the leader who must protect their charge with unwavering resolve.
+
+In ritualistic contexts, the spear can serve as an axis mundi, a symbolic connection between the earthly and celestial realms, channeling energies and intentions. Shamans and spiritual leaders might use spear-like implements to direct healing, banish negativity, or invoke protective forces. Its association with elements like air (for its swiftness) or lightning (for its striking power) further enhances its dynamic symbolism. The spear encourages a focused mind, a 'spearheading' of one's efforts towards enlightenment or truth, cutting through distractions and illusions. It is a call to align oneself with a higher purpose, to stand firm in one's convictions, and to project one's energy with clarity and integrity. The spear reminds us that true strength lies in focused will and the courage to aim directly for what is right and true.
+  `,
+    excerpt:
+      "Examine the spear's symbolism as an emblem of focus, protection, and divine energy. Investigate its association with warriors, deities, and the pursuit of higher consciousness.",
+    author: "NUMO Oracle Team",
+    isPublished: true,
+    createdAt: "2025-06-05T10:00:00Z",
+    updatedAt: "2025-06-05T10:00:00Z",
+    featuredImage: "/images/blog/generated/spear-focus-protection-energy.png",
+    categories: ["Symbolism", "Mysticism", "Spiritual Tools"],
+    tags: ["spear", "focus", "protection", "divine energy", "strength", "courage", "warriors"],
+  },
+  {
+    id: "16",
+    title: "The Sacred Stone: Exploring the Symbolism of Stability, Grounding, and Timelessness",
+    slug: "sacred-stone-symbolism-stability-grounding",
+    content: `
+# The Sacred Stone: Exploring the Symbolism of Stability, Grounding, and Timelessness
+
+The stone, in its silent, unyielding presence, is one of the most ancient and universal symbols of stability, grounding, and timelessness. From the smallest pebble shaped by eons of flowing water to the colossal mountains that pierce the sky, stones embody the enduring strength and primordial wisdom of the Earth itself. They are the very bones of our planet, offering a tangible connection to the vastness of geological time and the slow, cyclical rhythms of nature. Holding a stone can feel like holding a piece of history, a silent witness to the unfolding of ages.
+
+Across diverse cultures, stones are revered for their inherent qualities. Their weight and solidity make them natural symbols of grounding, helping to anchor our energy, calm a scattered mind, and connect us firmly to the physical realm, especially during periods of uncertainty. In sacred practices, stones often delineate holy spaces, form the foundations of temples, or stand as altars for offerings and prayer. Ancient stone circles like Stonehenge or the Carnac stones, their exact purposes shrouded in mystery, nonetheless speak to humanity's long-standing use of stone to mark significant sites, observe celestial events, and create enduring places of communal gathering and spiritual focus.
+
+The stone's connection to ancestry and the passage of time is profound. Megaliths, cairns, and gravestones serve as lasting memorials, linking the present to the past and honoring the lineage of those who came before. They represent the enduring fabric of existence, a comforting constant against the backdrop of transient human lives. This timeless quality makes stones powerful aids in meditation, fostering inner peace and a sense of connection to something larger and more ancient than oneself. In many healing traditions, specific stones and crystals are believed to possess unique energetic vibrations capable of promoting physical, emotional, and spiritual well-being, absorbing negativity and radiating stabilizing frequencies. The simple act of choosing and keeping a stone can be a deeply personal practice, a reminder of resilience, patience, and the quiet, unshakeable strength that resides both in the Earth and within ourselves.
+  `,
+    excerpt:
+      "Delve into the stone's symbolism, representing stability, grounding, and timelessness. Explore its connection to nature, history, meditation, and inner peace.",
+    author: "NUMO Oracle Team",
+    isPublished: true,
+    createdAt: "2025-06-05T10:00:00Z",
+    updatedAt: "2025-06-05T10:00:00Z",
+    featuredImage: "/images/blog/generated/sacred-stone-stability-grounding.png",
+    categories: ["Symbolism", "Mysticism", "Nature Spirituality"],
+    tags: ["stone", "stability", "grounding", "timelessness", "earth", "nature", "healing"],
+  },
+  {
+    id: "1", // This was a duplicate ID in the provided code. Assuming it should be unique or the content is distinct.
     title: "Understanding Numerology",
-    slug: "understanding-numerology",
+    slug: "understanding-numerology", // This was a duplicate slug.
     content: `
 # Understanding Numerology: The Ancient Science of Numbers
 
@@ -846,9 +932,9 @@ Ready to explore how numbers shape your destiny? [Begin your numerological journ
     tags: ["numerology basics", "life path number", "pythagoras", "number meanings"],
   },
   {
-    id: "2",
+    id: "2", // Duplicate ID
     title: "The Sacred Geometry of Numerology: How Numbers Shape Your Destiny",
-    slug: "sacred-geometry-numerology-destiny",
+    slug: "sacred-geometry-numerology-destiny", // Duplicate slug
     content: `
 # The Sacred Geometry of Numerology: How Numbers Shape Your Destiny
 
@@ -905,7 +991,7 @@ At the heart of the NUMO Oracle system lies the wisdom of the Goddess Danu, whos
 
 The connection between these two powerful goddesses reveals a universal truth about the feminine divine principle and its relationship to creation. This connection is mirrored in the symmetrical number patterns discovered in our system, where numbers pair in perfect balance (1-9, 2-8, 3-7, 4-6, with 5 at the center).
 
-These pairings create a total of 10—the number of completion and divine order. This symmetry suggests that the ancient Indo-Eastern scribes who developed our modern number system embedded sacred knowledge within it, connecting numerical patterns to cosmic principles.
+These pairings create a total of 10—the number of completion and divine order. This symmetry suggests that ancient Indo-Eastern scribes embedded sacred knowledge within our number system, connecting numerical patterns to cosmic principles.
 
 Learn more about the [Goddess Danu](/about) and her connection to our numerological system.
 
@@ -936,17 +1022,17 @@ Ready to explore how numbers shape your destiny? [Begin your numerological journ
     excerpt:
       "Discover how the ancient science of numerology reveals the hidden patterns that shape your destiny. Learn about Life Path Numbers, elemental associations, and the sacred geometry that connects numbers to your life purpose.",
     author: "Raziel Ali",
+    isPublished: true,
     createdAt: "2024-09-20T14:30:00Z",
     updatedAt: "2024-09-20T14:30:00Z",
-    isPublished: true,
     featuredImage: "/images/blog/generated/sacred-geometry-destiny-blog.png",
     categories: ["Numerology", "Sacred Geometry", "Life Path"],
     tags: ["life path number", "sacred geometry", "destiny", "goddess danu", "elemental numerology"],
   },
   {
-    id: "3",
+    id: "3", // Duplicate ID
     title: "Astrological Houses and Numerology: The Cosmic Blueprint of Your Life",
-    slug: "astrological-houses-numerology-cosmic-blueprint",
+    slug: "astrological-houses-numerology-cosmic-blueprint", // Duplicate slug
     content: `
 # Astrological Houses and Numerology: The Cosmic Blueprint of Your Life
 
@@ -1001,7 +1087,6 @@ Ready to explore the synergy between astrology and numerology? [Begin your journ
   },
 ]
 
-// Mock data for pages
 const pages: Page[] = [
   {
     id: "about-page",
@@ -1024,9 +1109,7 @@ const pages: Page[] = [
   },
 ]
 
-// --- Post Functions ---
 export async function getAllPosts(): Promise<Post[]> {
-  // In a real app, this would fetch from a DB or CMS
   return Promise.resolve(
     posts
       .filter((post) => post.isPublished)
@@ -1035,7 +1118,6 @@ export async function getAllPosts(): Promise<Post[]> {
 }
 
 export async function getPosts(limit?: number, offset?: number): Promise<Post[]> {
-  // Basic implementation, can be expanded with actual pagination
   const publishedPosts = posts
     .filter((post) => post.isPublished)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -1067,7 +1149,6 @@ export async function deletePost(id: string): Promise<boolean> {
   return Promise.resolve(posts.length < initialLength)
 }
 
-// --- Page Functions ---
 export async function getPages(): Promise<Page[]> {
   return Promise.resolve(pages.filter((page) => page.isPublished).sort((a, b) => a.title.localeCompare(b.title)))
 }
@@ -1084,6 +1165,3 @@ export async function updatePage(id: string, updatedData: Partial<Page>): Promis
   pages[pageIndex] = { ...pages[pageIndex], ...updatedData, updatedAt: new Date().toISOString() }
   return Promise.resolve(pages[pageIndex])
 }
-
-// Note: createPost, createPage, deletePage functions can be added if needed.
-// The error only specified the listed exports.
