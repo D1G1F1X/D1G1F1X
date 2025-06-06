@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 
+// Force dynamic rendering for this route
+export const dynamic = "force-dynamic"
+
 export async function GET() {
   try {
     // Check for admin session cookie
-    const adminSession = cookies().get("admin_session")
+    const cookieStore = cookies()
+    const adminSession = cookieStore.get("admin_session")
 
     if (adminSession && adminSession.value === "logged_in") {
       return NextResponse.json({ authenticated: true })

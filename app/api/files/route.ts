@@ -1,6 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getAllFiles, getFilesByCategory, getFilesByPath, searchFiles } from "@/lib/services/file-service"
 
+// Force dynamic rendering for this route
+export const dynamic = "force-dynamic"
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams

@@ -1,90 +1,79 @@
-import type { SavedReading, ReadingHistoryItem } from "@/types/saved-readings"
+import type { SavedReading } from "@/types/saved-readings"
 
 export class ReadingHistoryService {
-  private static STORAGE_KEY = "numo_saved_readings"
+  private static isClient = typeof window !== "undefined"
 
-  /**
-   * Save a reading to local storage
-   */
-  static saveReading(reading: SavedReading): string {
-    try {
-      // Get existing readings
-      const existingReadings = this.getAllReadings()
-
-      // If reading has no ID, generate one
-      if (!reading.id) {
-        reading.id = `reading_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
-      }
-
-      // Add or update reading
-      const updatedReadings = existingReadings.filter((r) => r.id !== reading.id)
-      updatedReadings.push(reading)
-
-      // Save to storage
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedReadings))
-
-      return reading.id
-    } catch (error) {
-      console.error("Error saving reading:", error)
-      throw new Error("Failed to save reading")
-    }
-  }
-
-  /**
-   * Get all saved readings
-   */
   static getAllReadings(): SavedReading[] {
+    if (!this.isClient) {
+      // Return empty array on server side
+      return []
+    }
+
     try {
-      const savedReadings = localStorage.getItem(this.STORAGE_KEY)
-      return savedReadings ? JSON.parse(savedReadings) : []
+      const readings = localStorage.getItem("numo_saved_readings")
+      return readings ? JSON.parse(readings) : []
     } catch (error) {
-      console.error("Error getting readings:", error)
+      console.error("Error loading readings from localStorage:", error)
       return []
     }
   }
 
-  /**
-   * Get reading history (simplified list for display)
-   */
-  static getReadingHistory(): ReadingHistoryItem[] {
-    const readings = this.getAllReadings()
+  static saveReading(reading: SavedReading): void {
+    if (!this.isClient) {
+      console.warn("Cannot save reading on server side")
+      return
+    }
 
-    return readings.map((reading) => ({
-      id: reading.id,
-      date: reading.date,
-      title: reading.title,
-      spreadType: reading.spreadType,
-      cardCount: reading.cards.length,
-      previewImage: reading.cards[0]?.card.firstEndImage || reading.cards[0]?.card.secondEndImage,
-    }))
+    try {
+      const existingReadings = this.getAllReadings()
+      const updatedReadings = [reading, ...existingReadings.filter((r) => r.id !== reading.id)]
+      localStorage.setItem("numo_saved_readings", JSON.stringify(updatedReadings))
+    } catch (error) {
+      console.error("Error saving reading to localStorage:", error)
+    }
   }
 
-  /**
-   * Get a specific reading by ID
-   */
-  static getReadingById(id: string): SavedReading | null {
+  static deleteReading(id: string): void {
+    if (!this.isClient) {
+      console.warn("Cannot delete reading on server side")
+      return
+    }
+
+    try {
+      const existingReadings = this.getAllReadings()
+      const updatedReadings = existingReadings.filter((r) => r.id !== id)
+      localStorage.setItem("numo_saved_readings", JSON.stringify(updatedReadings))
+    } catch (error) {
+      console.error("Error deleting reading from localStorage:", error)
+    }
+  }
+
+  static getReading(id: string): SavedReading | null {
+    if (!this.isClient) {
+      return null
+    }
+
     try {
       const readings = this.getAllReadings()
       return readings.find((r) => r.id === id) || null
     } catch (error) {
-      console.error("Error getting reading:", error)
+      console.error("Error getting reading from localStorage:", error)
       return null
     }
   }
 
-  /**
-   * Delete a reading by ID
-   */
-  static deleteReading(id: string): boolean {
-    try {
-      const readings = this.getAllReadings()
-      const updatedReadings = readings.filter((r) => r.id !== id)
+  static updateReading(id: string, updates: Partial<SavedReading>): void {
+    if (!this.isClient) {
+      console.warn("Cannot update reading on server side")
+      return
+    }
 
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedReadings))
-      return true
+    try {
+      const existingReadings = this.getAllReadings()
+      const updatedReadings = existingReadings.map((r) => (r.id === id ? { ...r, ...updates } : r))
+      localStorage.setItem("numo_saved_readings", JSON.stringify(updatedReadings))
     } catch (error) {
-      console.error("Error deleting reading:", error)
-      return false
+      console.error("Error updating reading in localStorage:", error)
     }
   }
 }

@@ -4,7 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useActionState } from "react" // This import is correct for React 18.3+ / Next.js 14.1+
+import { useState, useTransition } from "react"
 import { ShoppingBag, Info, AlertCircle, CheckCircle } from "lucide-react"
 
 import { submitSalesInquiry, type SalesInquiryState } from "./actions"
@@ -46,18 +46,37 @@ const products = [
     description:
       "A beautifully designed spread cloth featuring sacred Numo symbols, complete with a guide to enhance your reading experience.",
     price: 11.0,
-    image: "/images/products/speardcloth01.jpg.jpg", // Note: ".jpg.jpg" might be a typo in the path
+    image: "/images/products/speardcloth01.jpg.jpg",
     features: ["High-Quality Fabric", "Symbolic Print", "Includes Layout Guide"],
     status: "available",
   },
 ]
 
 function SalesInquiryFormComponent() {
-  const initialState: SalesInquiryState = { message: "", success: false, fieldErrors: {} }
-  const [formState, formAction] = useActionState(submitSalesInquiry, initialState)
+  const [formState, setFormState] = useState<SalesInquiryState>({
+    message: "",
+    success: false,
+    fieldErrors: {},
+  })
+  const [isPending, startTransition] = useTransition()
+
+  const handleSubmit = async (formData: FormData) => {
+    startTransition(async () => {
+      try {
+        const result = await submitSalesInquiry(formState, formData)
+        setFormState(result)
+      } catch (error) {
+        setFormState({
+          message: "An error occurred while submitting your inquiry.",
+          success: false,
+          fieldErrors: {},
+        })
+      }
+    })
+  }
 
   return (
-    <form action={formAction} className="space-y-4 text-left">
+    <form action={handleSubmit} className="space-y-4 text-left">
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-300">
           Full Name
@@ -146,8 +165,8 @@ function SalesInquiryFormComponent() {
         </div>
       )}
 
-      <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
-        Submit Inquiry
+      <Button type="submit" disabled={isPending} className="w-full bg-purple-600 hover:bg-purple-700">
+        {isPending ? "Submitting..." : "Submit Inquiry"}
       </Button>
     </form>
   )
