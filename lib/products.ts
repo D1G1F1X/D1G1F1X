@@ -14,7 +14,8 @@ export const availableProducts: Product[] = [
     name: "The Novice Oracle Deck",
     price: 25,
     image: "/images/products/novice-deck-symbols.jpg",
-    description: "A beginner-friendly oracle deck.",
+    description:
+      "Larger format 25-card deck with keywords printed on cards, perfect for beginners. Includes premium website access.",
     isSelectable: true,
   },
   {
@@ -22,7 +23,8 @@ export const availableProducts: Product[] = [
     name: "The Adepts Oracle Deck",
     price: 22,
     image: "/images/products/01cauldron-fire.jpg",
-    description: "An advanced oracle deck for seasoned readers.",
+    description:
+      "Standard size 25-card deck without printed keywords, designed for experienced readers. Includes premium website access.",
     isSelectable: true,
   },
   {

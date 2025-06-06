@@ -1,13 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Shuffle, Save, Share2 } from "lucide-react"
+import { Shuffle, Save, Share2, User, Clock } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import { PrivacyNotice } from "@/components/privacy-notice"
+import { userDataService, type UserProfile } from "@/lib/services/user-data-service"
 
 // Mock card data
 const mockCards = [
@@ -86,12 +90,66 @@ const mockCards = [
 export function CardSimulator() {
   const [selectedCards, setSelectedCards] = useState<typeof mockCards>([])
   const [question, setQuestion] = useState("")
+  const [fullName, setFullName] = useState("")
   const [spreadType, setSpreadType] = useState("single")
   const [isShuffling, setIsShuffling] = useState(false)
   const [reading, setReading] = useState("")
+  const [hasConsent, setHasConsent] = useState(false)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+
+  // Load user data on component mount
+  useEffect(() => {
+    const consent = userDataService.hasConsent()
+    setHasConsent(consent)
+
+    if (consent) {
+      const profile = userDataService.getUserProfile()
+      if (profile) {
+        setUserProfile(profile)
+        setFullName(profile.fullName || "")
+        setSpreadType(profile.preferredSpread || "single")
+      }
+    }
+  }, [])
+
+  // Save user data when form changes
+  useEffect(() => {
+    if (hasConsent && (fullName || spreadType !== "single")) {
+      const profileData: Partial<UserProfile> = {}
+
+      if (fullName) profileData.fullName = fullName
+      if (spreadType !== "single") profileData.preferredSpread = spreadType
+
+      userDataService.saveUserProfile(profileData)
+    }
+  }, [fullName, spreadType, hasConsent])
+
+  const handleConsentChange = (consent: boolean) => {
+    setHasConsent(consent)
+
+    if (consent) {
+      // Load existing data if available
+      const profile = userDataService.getUserProfile()
+      if (profile) {
+        setUserProfile(profile)
+        setFullName(profile.fullName || "")
+        setSpreadType(profile.preferredSpread || "single")
+      }
+    } else {
+      // Clear form data when consent is withdrawn
+      setUserProfile(null)
+      setFullName("")
+      setSpreadType("single")
+    }
+  }
 
   const shuffleCards = async () => {
     setIsShuffling(true)
+
+    // Update last used timestamp
+    if (hasConsent) {
+      userDataService.updateLastUsed()
+    }
 
     // Simulate shuffling animation
     await new Promise((resolve) => setTimeout(resolve, 1500))
@@ -107,8 +165,10 @@ export function CardSimulator() {
 
   const generateReading = (cards: typeof mockCards) => {
     const meanings = cards.map((card) => `${card.name}: ${card.meaning}`).join("\n\n")
+    const personalizedGreeting = fullName ? `Dear ${fullName.split(" ")[0]}, your` : "Your"
+
     setReading(
-      `Your reading reveals:\n\n${meanings}\n\nThis combination suggests a time of balance between different aspects of your life. Trust your intuition as you move forward.`,
+      `${personalizedGreeting} reading reveals:\n\n${meanings}\n\nThis combination suggests a time of balance between different aspects of your life. Trust your intuition as you move forward.`,
     )
   }
 
@@ -124,6 +184,7 @@ export function CardSimulator() {
       cards: selectedCards,
       reading,
       spreadType,
+      fullName,
       date: new Date().toISOString(),
       isFavorite: false,
     }
@@ -167,17 +228,46 @@ export function CardSimulator() {
         <p className="text-gray-400">Ask a question and let the cards guide you</p>
       </div>
 
+      <PrivacyNotice context="card-simulator" onConsentChange={handleConsentChange} />
+
       <Card className="bg-black/30 border-gray-800">
         <CardHeader>
-          <CardTitle>Your Question</CardTitle>
+          <CardTitle className="flex items-center">
+            <User className="h-5 w-5 mr-2" />
+            Your Information
+            {userProfile?.lastUsed && hasConsent && (
+              <Badge variant="outline" className="ml-auto text-xs">
+                <Clock className="h-3 w-3 mr-1" />
+                Last used: {new Date(userProfile.lastUsed).toLocaleDateString()}
+              </Badge>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Textarea
-            placeholder="What guidance do you seek today?"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            className="min-h-[100px]"
-          />
+          <div>
+            <Label htmlFor="fullName">Your Name (Optional)</Label>
+            <Input
+              id="fullName"
+              placeholder="Enter your name for personalized readings"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="mt-1"
+            />
+            {hasConsent && fullName && (
+              <p className="text-xs text-green-400 mt-1">✓ Name will be remembered for future readings</p>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="question">Your Question</Label>
+            <Textarea
+              id="question"
+              placeholder="What guidance do you seek today?"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              className="min-h-[100px] mt-1"
+            />
+          </div>
 
           <div className="flex gap-4 items-center">
             <label className="text-sm font-medium">Spread Type:</label>
@@ -188,6 +278,11 @@ export function CardSimulator() {
                 <TabsTrigger value="five">Five Elements</TabsTrigger>
               </TabsList>
             </Tabs>
+            {hasConsent && spreadType !== "single" && (
+              <Badge variant="outline" className="text-xs">
+                Preference saved
+              </Badge>
+            )}
           </div>
 
           <Button onClick={shuffleCards} disabled={isShuffling || !question.trim()} className="w-full">
@@ -213,7 +308,7 @@ export function CardSimulator() {
                       fill
                       className="object-cover"
                       onError={(e) => {
-                        e.currentTarget.src = "/placeholder.svg?height=300&width=200&query=oracle card"
+                        e.currentTarget.src = "/placeholder.svg?height=300&width=200"
                       }}
                     />
                   </div>

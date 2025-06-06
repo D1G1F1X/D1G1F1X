@@ -15,13 +15,13 @@ import {
   ShoppingCart,
   BookOpen,
   Sparkles,
+  Zap,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
 import { LoginModal } from "@/components/login-modal"
 import SoundToggle from "./sound-toggle"
 import ManualCartIcon from "@/components/manual-cart-icon"
-// import SiteNewsBanner from "@/components/site-news-banner" // Added import - REMOVED
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -33,12 +33,9 @@ const navLinks = [
       { href: "/tools/numerology-calculator", label: "Numerology Calculator" },
       { href: "/tools/card-directory", label: "Card Directory" },
       { href: "/tools/elemental-dice", label: "Elemental Dice" },
-      { href: "/tools/simple-card-reading", label: "Simple Card Reading" },
     ],
   },
-  { href: "/guidebook", label: "Guidebook" },
   { href: "/blog", label: "Blog" },
-  { href: "/buy", label: "Buy The Deck" },
   { href: "/contact", label: "Contact" },
   { href: "/faq", label: "FAQ" },
 ]
@@ -199,12 +196,39 @@ export default function Navbar() {
                 />
               </Link>
             </div>
+
+            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-2">
               {navLinks.map((link) => renderNavLink(link))}
+
+              {/* Action Buttons */}
+              <div className="flex items-center space-x-2 ml-4">
+                <Link href="/tools/card-simulator">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-2 border-purple-500 text-purple-300 hover:bg-purple-500/10 hover:text-purple-200 transition-all duration-200 font-semibold"
+                  >
+                    <Zap className="mr-1 h-4 w-4" />
+                    FREE DEMO
+                  </Button>
+                </Link>
+                <Link href="/buy">
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200"
+                  >
+                    <ShoppingCart className="mr-1 h-4 w-4" />
+                    Buy NOW
+                  </Button>
+                </Link>
+              </div>
+
               <SoundToggle />
-              <ManualCartIcon /> {/* <--- ADDED HERE */}
-              {/* ModeToggle removed here */}
+              <ManualCartIcon />
             </div>
+
+            {/* User Menu / Login */}
             <div className="hidden md:flex items-center ml-4">
               {user ? (
                 <div className="relative" ref={dropdownRef}>
@@ -261,10 +285,11 @@ export default function Navbar() {
                 </Button>
               )}
             </div>
+
+            {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center">
               <SoundToggle />
-              <ManualCartIcon /> {/* <--- ADDED HERE */}
-              {/* ModeToggle removed here */}
+              <ManualCartIcon />
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="ml-2 p-2 rounded-md text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500"
@@ -280,7 +305,30 @@ export default function Navbar() {
         {/* Mobile menu */}
         {isOpen && (
           <div className="md:hidden bg-black/90 backdrop-blur-md border-t border-slate-800">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">{navLinks.map((link) => renderNavLink(link, true))}</div>
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+              {navLinks.map((link) => renderNavLink(link, true))}
+
+              {/* Mobile Action Buttons */}
+              <div className="pt-4 space-y-2">
+                <Link href="/tools/card-simulator" onClick={closeAllModals}>
+                  <Button
+                    variant="outline"
+                    className="w-full border-2 border-purple-500 text-purple-300 hover:bg-purple-500/10 hover:text-purple-200 transition-all duration-200 font-semibold"
+                  >
+                    <Zap className="mr-2 h-4 w-4" />
+                    FREE DEMO
+                  </Button>
+                </Link>
+                <Link href="/buy" onClick={closeAllModals}>
+                  <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200">
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    Buy NOW
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Mobile User Menu */}
             <div className="pt-4 pb-3 border-t border-slate-700">
               {user ? (
                 <div className="px-5">
@@ -333,7 +381,6 @@ export default function Navbar() {
           </div>
         )}
       </nav>
-      {/* <SiteNewsBanner /> REMOVED */}
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </>
   )

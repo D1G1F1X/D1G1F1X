@@ -14,20 +14,32 @@ const products = [
     id: "novice-oracle-deck",
     name: "The Novice Oracle Deck",
     description:
-      "Begin your journey with this essential 78-card deck, beautifully illustrated to introduce the core wisdom of the Numo Oracle.",
+      "Begin your journey with this larger-format deck, featuring 25 beautifully illustrated cards with keywords printed directly on them to help you learn the NUMO Oracle system.",
     price: 25.0,
     image: "/images/products/novice-deck-symbols.jpg",
-    features: ["78 Full-Color Cards", "Durable Card Stock", "Includes Quick Start Guide"],
+    features: [
+      "25 Full-Color Cards in Larger Format",
+      "Keywords Printed on Cards for Easy Learning",
+      "Durable Premium Card Stock",
+      "Includes Premium Website Access",
+      "Perfect for Beginners",
+    ],
     status: "available",
   },
   {
     id: "adepts-oracle-deck",
     name: "The Adepts Oracle Deck",
     description:
-      "Deepen your practice with the Adept's 100-card Oracle system, featuring advanced elemental and archetypal cards for profound insights.",
+      "For the experienced practitioner, this standard-sized 25-card deck offers a more compact and refined experience without printed keywords for a cleaner aesthetic.",
     price: 22.0,
     image: "/images/products/01cauldron-fire.jpg",
-    features: ["100 Premium Cards", "Enhanced Artwork", "Expanded Symbology"],
+    features: [
+      "25 Premium Cards in Standard Size",
+      "Clean Design Without Printed Keywords",
+      "Durable Premium Card Stock",
+      "Includes Premium Website Access",
+      "Ideal for Experienced Readers",
+    ],
     status: "available",
   },
   {
@@ -186,6 +198,59 @@ export default function BuyPageClient() {
       <main className="container mx-auto px-4 py-12">
         <section id="products" className="mb-16">
           <h2 className="text-3xl font-semibold text-center mb-10 text-purple-400">Our Offerings</h2>
+
+          {/* Deck Comparison Section */}
+          <div className="mb-12 bg-gray-800/70 p-6 rounded-lg border border-purple-500/30">
+            <h3 className="text-2xl font-medium text-center mb-6 text-purple-300">Comparing Our Oracle Decks</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gradient-to-br from-purple-900/50 to-blue-900/50 p-5 rounded-lg">
+                <h4 className="text-xl font-semibold text-yellow-300 mb-3">Novice Oracle Deck</h4>
+                <ul className="space-y-2 text-gray-300">
+                  <li className="flex items-start">
+                    <span className="text-yellow-400 mr-2">•</span>
+                    <span>Larger format cards for easier handling</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-yellow-400 mr-2">•</span>
+                    <span>Keywords printed directly on cards</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-yellow-400 mr-2">•</span>
+                    <span>Ideal for beginners learning the system</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-yellow-400 mr-2">•</span>
+                    <span>$25 - slightly higher price point</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="bg-gradient-to-br from-indigo-900/50 to-purple-900/50 p-5 rounded-lg">
+                <h4 className="text-xl font-semibold text-green-300 mb-3">Adepts Oracle Deck</h4>
+                <ul className="space-y-2 text-gray-300">
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-2">•</span>
+                    <span>Standard size for experienced readers</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-2">•</span>
+                    <span>Clean design without printed keywords</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-2">•</span>
+                    <span>More minimalist aesthetic</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-2">•</span>
+                    <span>$22 - more affordable option</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div className="mt-6 text-center text-gray-400 text-sm">
+              <p>Both decks include 25 cards on premium card stock and come with access to our online resources.</p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product) => (
               <Card

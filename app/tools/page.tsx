@@ -1,10 +1,8 @@
-// This is the corrected version from the previous response,
-// based on v13/v34 styling and toolset.
 import { CardFooter } from "@/components/ui/card"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Sparkles, Calculator, Dice6, GraduationCap } from "lucide-react"
+import { Sparkles, Calculator, Dice6, GraduationCap, BookOpen } from "lucide-react"
 
 export default function ToolsPage() {
   const tools = [
@@ -31,14 +29,25 @@ export default function ToolsPage() {
     },
   ]
 
-  const tutorialTool = {
-    title: "NUMO Oracle Tutorial",
-    description: "New to NUMO? Learn how to use the oracle system with our step-by-step guided tutorial.",
-    icon: <GraduationCap className="h-8 w-8" />,
-    href: "/tutorial",
-    featured: false, // Or true if you want it to span full width like the card dealer
-    actionText: "Start Learning",
-  }
+  const resourceTools = [
+    {
+      title: "NUMO Oracle Tutorial",
+      description: "New to NUMO? Learn how to use the oracle system with our step-by-step guided tutorial.",
+      icon: <GraduationCap className="h-8 w-8" />,
+      href: "/tutorial",
+      actionText: "Start Learning",
+      buttonClass: "bg-yellow-500 hover:bg-yellow-600 text-black",
+    },
+    {
+      title: "NUMO Guidebook",
+      description:
+        "Comprehensive guide to understanding the NUMO Oracle system, card meanings, and reading techniques.",
+      icon: <BookOpen className="h-8 w-8" />,
+      href: "/guidebook",
+      actionText: "Read Guidebook",
+      buttonClass: "bg-blue-500 hover:bg-blue-600 text-white",
+    },
+  ]
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black text-slate-50">
@@ -80,25 +89,32 @@ export default function ToolsPage() {
               </Card>
             ))}
 
-          {/* Tutorial Card */}
-          <Card
-            className={`bg-purple-900/50 border-purple-700 backdrop-blur-sm hover:border-purple-500/90 transition-all duration-300 rounded-xl shadow-lg hover:shadow-purple-600/30 flex flex-col`}
-          >
-            <CardHeader className="items-center text-center">
-              <div className="text-yellow-300 mb-3">{tutorialTool.icon}</div>
-              <CardTitle className="text-xl text-white">{tutorialTool.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex-grow text-center">
-              <CardDescription className="text-slate-200">{tutorialTool.description}</CardDescription>
-            </CardContent>
-            <CardFooter className="mt-auto justify-center p-4">
-              <Link href={tutorialTool.href} className="w-full max-w-xs">
-                <Button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold">
-                  {tutorialTool.actionText}
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
+          {/* Learning Resources */}
+          {resourceTools.map((tool, index) => (
+            <Card
+              key={`resource-${index}`}
+              className={`${
+                tool.href === "/tutorial"
+                  ? "bg-purple-900/50 border-purple-700 hover:border-purple-500/90 hover:shadow-purple-600/30"
+                  : "bg-blue-900/50 border-blue-700 hover:border-blue-500/90 hover:shadow-blue-600/30"
+              } backdrop-blur-sm transition-all duration-300 rounded-xl shadow-lg flex flex-col`}
+            >
+              <CardHeader className="items-center text-center">
+                <div className={`${tool.href === "/tutorial" ? "text-yellow-300" : "text-blue-300"} mb-3`}>
+                  {tool.icon}
+                </div>
+                <CardTitle className="text-xl text-white">{tool.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-grow text-center">
+                <CardDescription className="text-slate-200">{tool.description}</CardDescription>
+              </CardContent>
+              <CardFooter className="mt-auto justify-center p-4">
+                <Link href={tool.href} className="w-full max-w-xs">
+                  <Button className={`w-full ${tool.buttonClass} font-semibold`}>{tool.actionText}</Button>
+                </Link>
+              </CardFooter>
+            </Card>
+          ))}
 
           {/* Other Tools */}
           {tools
@@ -149,7 +165,7 @@ export default function ToolsPage() {
                     variant="outline"
                     className="w-full border-purple-500 text-purple-300 hover:bg-purple-500/10 hover:text-purple-200 transition-colors"
                   >
-                    Guidebook & Library
+                    Library & Resources
                   </Button>
                 </Link>
               </div>

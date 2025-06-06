@@ -784,7 +784,7 @@ export default function FixedCardDealer() {
                       <span className="text-gray-400">Planet:</span> {cardEnd.planet}
                     </div>
                     <div>
-                      <span className="text-gray-400">Rules:</span> {cardEnd.astrologicalSign}
+                      <span className="text-gray-400">Rules:</span> Capricorn
                     </div>
                   </div>
                 </div>
