@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, ChevronLeft, ChevronRight, Printer, ExternalLink } from "lucide-react"
-import { getAllCards, getAllElements, getAllSuits, getCardImagePath } from "@/lib/card-data-access"
+import { getCardData, getAllElements, getAllSuits, getCardImagePath } from "@/lib/card-data-access"
 import type { OracleCard } from "@/types/cards"
 
 export function CardDirectory() {
@@ -30,7 +30,7 @@ export function CardDirectory() {
     const loadCards = async () => {
       try {
         setIsLoading(true)
-        const allCards = getAllCards()
+        const allCards = getCardData() // Changed from getAllCards()
         setCards(allCards)
         setElements(getAllElements())
         setSuits(getAllSuits())
