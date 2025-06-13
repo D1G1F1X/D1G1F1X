@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { useState } from "react"
 import { createDescriptivePlaceholder } from "@/lib/image-utils"
-import { CardHeader, CardTitle } from "@/components/ui/card"
 
 interface CardOverviewProps {
   cardNumber: number
@@ -23,11 +22,6 @@ interface CardOverviewProps {
     description: string
   }[]
   imagePath?: string // New prop for card image
-  card: {
-    fullTitle: string
-    suit: string
-    number: number
-  }
 }
 
 export function CardOverview({
@@ -42,18 +36,11 @@ export function CardOverview({
   symbolism = [],
   elements = [],
   imagePath,
-  card,
 }: CardOverviewProps) {
   const [imageError, setImageError] = useState(false)
 
   return (
     <Card className="bg-purple-950 text-white border-purple-800 shadow-lg overflow-hidden">
-      <CardHeader className="flex flex-col items-center text-center p-6 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-gray-800 dark:to-gray-900 rounded-t-lg">
-        <CardTitle className="text-3xl font-extrabold text-purple-900 dark:text-purple-200">{card.fullTitle}</CardTitle>
-        <p className="text-lg text-gray-700 dark:text-gray-300 mt-2">
-          {card.suit} - Number {card.number}
-        </p>
-      </CardHeader>
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="grid grid-cols-3 bg-purple-900 rounded-none border-b border-purple-800">
           <TabsTrigger
@@ -128,8 +115,8 @@ export function CardOverview({
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-purple-300 mb-2">Number</h3>
-                <p className="font-semibold">{cardNumber}</p>
+                <h3 className="text-sm font-medium text-purple-300 mb-2">Number Meaning</h3>
+                <p className="font-semibold">{numberMeaning || "Not specified"}</p>
               </div>
 
               <div>

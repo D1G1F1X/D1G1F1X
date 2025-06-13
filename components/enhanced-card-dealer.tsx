@@ -16,7 +16,7 @@ import { useToast } from "@/components/ui/use-toast"
 import type { ReadingData } from "@/types/readings"
 import { cn } from "@/lib/utils"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getSymbolValue, getCardNumericalValue } from "@/lib/card-data-access"
+import { getSymbolValue } from "@/lib/card-data-access"
 import { Badge } from "@/components/ui/badge"
 import { calculateLifePath } from "@/lib/numerology"
 import { useMembership } from "@/lib/membership-context"
@@ -606,8 +606,8 @@ I've consulted the NUMO Oracle cards to provide guidance on your question. The $
         const icon = getSymbolValue(card, "Icon")
         const orientation = getSymbolValue(card, "Orientation")
 
-        // Use the correct number from the card data
-        const cardNumber = getCardNumericalValue(card)
+        // Use the correct number from the card data - directly from the number field
+        const cardNumber = card.number || "0"
 
         return `
 ### ${position.name}: ${card.fullTitle} (${card.baseElement})
@@ -699,7 +699,7 @@ Remember that you have the power to shape your path forward. These cards offer g
     if (lifePath) {
       return `Your Life Path number ${lifePath} resonates with the energy of ${getLifePathMeaning(lifePath)}. This core vibration influences how you interact with the energies shown in the cards.`
     } else {
-      const cardNumbers = drawnCards.map((item) => getCardNumericalValue(item.card))
+      const cardNumbers = drawnCards.map((item) => Number.parseInt(item.card.number || "0", 10))
       const averageNumber = Math.round(cardNumbers.reduce((sum, num) => sum + num, 0) / cardNumbers.length)
       return `The numerical vibrations in your cards (${cardNumbers.join(", ")}) suggest patterns of ${getNumberMeaning(averageNumber)}.`
     }
@@ -805,8 +805,8 @@ Remember that you have the power to shape your path forward. These cards offer g
     const { card, endUp } = drawnCard
     const hasImageError = imageErrors[card.id]
 
-    // Use the correct numerical value from the card
-    const cardNumber = getCardNumericalValue(card)
+    // Use the correct numerical value from the card - directly from the number field
+    const cardNumber = card.number || "0"
 
     return (
       <div
@@ -888,7 +888,7 @@ Remember that you have the power to shape your path forward. These cards offer g
     if (!selectedCard) return null
 
     const { card, endUp } = selectedCard
-    const cardNumber = getCardNumericalValue(card)
+    const cardNumber = card.number || "0"
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 p-4">
@@ -1020,7 +1020,7 @@ Remember that you have the power to shape your path forward. These cards offer g
                 <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-center">
                   <div className="text-sm font-medium text-white">{card.fullTitle}</div>
                   <div className="text-xs text-gray-300">
-                    {getCardNumericalValue(card)} • {card.baseElement}
+                    {card.number} • {card.baseElement}
                   </div>
                 </div>
               </div>
@@ -1069,7 +1069,7 @@ Remember that you have the power to shape your path forward. These cards offer g
         <div className="space-y-8">
           {drawnCards.map((drawnCard, index) => {
             const { card } = drawnCard
-            const cardNumber = getCardNumericalValue(card)
+            const cardNumber = card.number || "0"
 
             return (
               <Card key={index} className="overflow-hidden">

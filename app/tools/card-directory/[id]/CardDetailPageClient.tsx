@@ -102,9 +102,6 @@ export default function CardDetailPageClient({ cardId }: CardDetailPageClientPro
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-800 dark:text-gray-200">
             <div>
               <p>
-                <strong>Number:</strong> {card.number}
-              </p>
-              <p>
                 <strong>Base Element:</strong> {card.baseElement}
               </p>
               <p>

@@ -56,13 +56,12 @@ export function getRandomCards(count: number): OracleCard[] {
 export function getCardImagePath(card: OracleCard, end: "first" | "second"): string {
   if (!card) return "/placeholder.svg"
 
-  // Use the card's number directly, ensuring it's a string
-  const number = card.number || "00"
+  // Ensure the number is properly formatted (pad with zero if single digit)
+  const number = card.number?.toString().padStart(2, "0") || "00"
   const suit = card.suit?.toLowerCase() || "unknown"
   const element =
     end === "first" ? card.baseElement?.toLowerCase() || "spirit" : card.synergisticElement?.toLowerCase() || "spirit"
 
-  // Format the path correctly
   return `/cards/${number}${suit}-${element}.jpg`
 }
 
