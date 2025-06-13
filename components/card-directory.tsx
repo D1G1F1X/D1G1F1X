@@ -1,7 +1,8 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect, useMemo } from "react"
+
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
@@ -30,12 +31,12 @@ export function CardDirectory() {
     const loadCards = async () => {
       try {
         setIsLoading(true)
-        const allCards = getCardData() // Changed from getAllCards()
+        const allCards = getCardData()
         setCards(allCards)
         setElements(getAllElements())
         setSuits(getAllSuits())
         if (allCards.length > 0) {
-          setSelectedCardId(allCards[0].id) // Select the first card by default
+          setSelectedCardId(allCards[0].id)
         }
       } catch (error) {
         console.error("Error loading cards:", error)
@@ -54,15 +55,12 @@ export function CardDirectory() {
       result = result.filter(
         (card) =>
           card.fullTitle?.toLowerCase().includes(term) ||
-          card.firstEnd?.number?.toString().includes(term) || // Use firstEnd.number for search
+          card.number?.toString().includes(term) ||
           card.suit?.toLowerCase().includes(term) ||
           card.baseElement?.toLowerCase().includes(term) ||
           card.synergisticElement?.toLowerCase().includes(term) ||
-          card.description?.toLowerCase().includes(term) ||
-          card.firstEnd?.meaning?.toLowerCase().includes(term) ||
-          card.secondEnd?.meaning?.toLowerCase().includes(term) ||
-          card.firstEnd?.keywords?.some((keyword) => keyword.toLowerCase().includes(term)) ||
-          card.secondEnd?.keywords?.some((keyword) => keyword.toLowerCase().includes(term)),
+          card.symbolismBreakdown?.some((item) => item.toLowerCase().includes(term)) ||
+          card.keyMeanings?.some((meaning) => meaning.toLowerCase().includes(term)),
       )
     }
 
@@ -81,9 +79,7 @@ export function CardDirectory() {
     setFilteredCards(result)
   }, [searchTerm, elementFilter, suitFilter, cards])
 
-  const selectedCard = useMemo(() => {
-    return filteredCards.find((card) => card.id === selectedCardId) || null
-  }, [selectedCardId, filteredCards])
+  const selectedCard = filteredCards.find((card) => card.id === selectedCardId) || null
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, card: OracleCard, endUp: "first" | "second") => {
     const target = e.target as HTMLImageElement
@@ -95,7 +91,7 @@ export function CardDirectory() {
         element?.charAt(0).toUpperCase() + element?.slice(1).toLowerCase(),
       ]
       for (const elementVar of elementVariations) {
-        const altPath = `/cards/${card.firstEnd?.number}${card.suit?.toLowerCase()}-${elementVar || "spirit"}.jpg` // Use firstEnd.number for image path
+        const altPath = `/cards/${card.number}${card.suit?.toLowerCase()}-${elementVar || "spirit"}.jpg`
         if (target.src !== altPath) {
           target.src = altPath
           return
@@ -142,36 +138,34 @@ export function CardDirectory() {
 
   const getCardImage = (card: OracleCard, endUp: "first" | "second") => {
     const hasImageError = imageErrors[`${card.id}-${endUp}`]
-    const imagePath = endUp === "first" ? card.firstEndImage : card.secondEndImage
+    const imagePath = getCardImagePath(card, endUp)
     const fallbackPath = `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
 
     if (hasImageError) {
       return (
         <div
-          className={`w-full h-full ${getElementColor(card.element).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4 rounded-md`}
+          className={`w-full h-full ${getElementColor(card.baseElement).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4 rounded-md`}
         >
           <div className="text-center mb-2 text-sm font-medium text-white">{card.fullTitle}</div>
           <div className="w-24 h-24 my-4 rounded-full bg-gray-800/50 border border-gray-300/30 flex items-center justify-center">
-            <span className={getElementColor(card.element).split(" ").slice(2).join(" ") + " text-4xl"}>
-              {getElementSymbol(card.element)}
+            <span className={getElementColor(card.baseElement).split(" ").slice(2).join(" ") + " text-4xl"}>
+              {getElementSymbol(card.baseElement)}
             </span>
           </div>
           <div className="text-xs text-center text-white/80 mt-2">
-            {card.type} • {card.element}
+            {card.suit} • {card.baseElement}
           </div>
-          <div className="text-lg font-bold text-white mt-2">
-            {endUp === "first" ? card.firstEnd?.number : card.secondEnd?.number}
-          </div>
+          <div className="text-lg font-bold text-white mt-2">{card.number}</div>
         </div>
       )
     }
 
     return (
       <Image
-        src={imagePath || getCardImagePath(card, endUp) || fallbackPath}
-        alt={`${card.fullTitle} - ${endUp === "first" ? "First End" : "Second End"}`}
+        src={imagePath || fallbackPath}
+        alt={`${card.fullTitle} - ${endUp === "first" ? "Base Element" : "Synergistic Element"}`}
         fill
-        className="object-contain rounded-md" // Use object-contain for line art style
+        className="object-contain rounded-md"
         onError={(e) => handleImageError(e, card, endUp)}
         priority
       />
@@ -206,9 +200,6 @@ export function CardDirectory() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 to-gray-900 text-white p-6 md:p-10 relative overflow-hidden">
-      {/* Background elements - assuming constellation-background or similar is used in layout.tsx */}
-      {/* <ConstellationBackground /> */}
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
         {/* Left Sidebar: Card List */}
         <Card className="md:col-span-1 bg-gray-900/50 border-purple-500/20 shadow-lg flex flex-col">
@@ -269,13 +260,9 @@ export function CardDirectory() {
                   >
                     <div className="relative h-10 w-10 flex-shrink-0">
                       {card.iconSymbol ? (
-                        <Image
-                          src={card.iconSymbol || "/placeholder.svg"}
-                          alt={`${card.suit} icon`}
-                          fill
-                          className="object-contain"
-                          onError={(e) => (e.currentTarget.src = "/placeholder.svg?height=40&width=40")}
-                        />
+                        <div className="h-full w-full bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-300">
+                          {card.iconSymbol.charAt(0).toUpperCase()}
+                        </div>
                       ) : (
                         <div className="h-full w-full bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-300">
                           {card.suit?.charAt(0).toUpperCase()}
@@ -337,12 +324,9 @@ export function CardDirectory() {
                   >
                     {selectedCard.baseElement}
                   </span>
-
-                  {selectedCard.firstEnd?.number !== undefined && selectedCard.secondEnd?.number !== undefined && (
-                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-800 text-gray-300">
-                      Pair: {selectedCard.firstEnd.number}/{selectedCard.secondEnd.number}
-                    </span>
-                  )}
+                  <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-800 text-gray-300">
+                    Number: {selectedCard.number}
+                  </span>
                   <Link href={`/tools/card-directory/${selectedCard.id}`} passHref>
                     <Button variant="ghost" size="sm" className="text-purple-300 hover:bg-purple-900/30">
                       View Full Page <ExternalLink className="ml-2 h-4 w-4" />
@@ -387,26 +371,20 @@ export function CardDirectory() {
                     </TabsList>
                     <TabsContent value="overview" className="mt-4 space-y-4">
                       <div>
-                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Description</h3>
-                        <p className="text-gray-300">{selectedCard.description || "No description available."}</p>
+                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Key Meanings</h3>
+                        <ul className="list-disc pl-5 text-gray-300">
+                          {selectedCard.keyMeanings.map((meaning, i) => (
+                            <li key={i}>{meaning}</li>
+                          ))}
+                        </ul>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Number Meaning</h3>
-                        <p className="text-gray-300">{selectedCard.firstEnd?.meaning || "No meaning available."}</p>
+                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Number</h3>
+                        <p className="text-gray-300">{selectedCard.number}</p>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Keywords</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {(selectedCard.firstEnd?.keywords || []).length > 0 ? (
-                            selectedCard.firstEnd.keywords.map((keyword, i) => (
-                              <span key={i} className="px-2 py-1 bg-purple-900/20 text-purple-300 text-sm rounded-full">
-                                {keyword}
-                              </span>
-                            ))
-                          ) : (
-                            <p className="text-gray-400 italic">No keywords</p>
-                          )}
-                        </div>
+                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Suit</h3>
+                        <p className="text-gray-300">{selectedCard.suit}</p>
                       </div>
                     </TabsContent>
                     <TabsContent value="elements" className="mt-4 space-y-4">
@@ -424,59 +402,18 @@ export function CardDirectory() {
                           The complementary elemental energy that influences the card's meaning.
                         </p>
                       </div>
-                      {selectedCard.firstEnd?.elementalGuidance && (
-                        <div>
-                          <h3 className="text-lg font-semibold text-purple-300 mb-2">Elemental Guidance</h3>
-                          <div className="p-4 bg-purple-900/20 border border-purple-500/30 rounded-lg">
-                            {typeof selectedCard.firstEnd.elementalGuidance === "string" ? (
-                              <p className="text-gray-300">{selectedCard.firstEnd.elementalGuidance}</p>
-                            ) : (
-                              <div className="space-y-3">
-                                {selectedCard.firstEnd.elementalGuidance.earth && (
-                                  <div>
-                                    <h5 className="text-green-300 font-medium">Earth</h5>
-                                    <p className="text-gray-300 text-sm">
-                                      {selectedCard.firstEnd.elementalGuidance.earth}
-                                    </p>
-                                  </div>
-                                )}
-                                {selectedCard.firstEnd.elementalGuidance.air && (
-                                  <div>
-                                    <h5 className="text-yellow-300 font-medium">Air</h5>
-                                    <p className="text-gray-300 text-sm">
-                                      {selectedCard.firstEnd.elementalGuidance.air}
-                                    </p>
-                                  </div>
-                                )}
-                                {selectedCard.firstEnd.elementalGuidance.fire && (
-                                  <div>
-                                    <h5 className="text-red-300 font-medium">Fire</h5>
-                                    <p className="text-gray-300 text-sm">
-                                      {selectedCard.firstEnd.elementalGuidance.fire}
-                                    </p>
-                                  </div>
-                                )}
-                                {selectedCard.firstEnd.elementalGuidance.water && (
-                                  <div>
-                                    <h5 className="text-blue-300 font-medium">Water</h5>
-                                    <p className="text-gray-300 text-sm">
-                                      {selectedCard.firstEnd.elementalGuidance.water}
-                                    </p>
-                                  </div>
-                                )}
-                                {selectedCard.firstEnd.elementalGuidance.spirit && (
-                                  <div>
-                                    <h5 className="text-purple-300 font-medium">Spirit</h5>
-                                    <p className="text-gray-300 text-sm">
-                                      {selectedCard.firstEnd.elementalGuidance.spirit}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Elemental Symbolism</h3>
+                        <div className="p-4 bg-purple-900/20 border border-purple-500/30 rounded-lg">
+                          {selectedCard.symbolismBreakdown
+                            .filter((item) => item.includes("Element"))
+                            .map((item, i) => (
+                              <p key={i} className="text-gray-300 mb-2">
+                                {item}
+                              </p>
+                            ))}
                         </div>
-                      )}
+                      </div>
                     </TabsContent>
                     <TabsContent value="symbolism" className="mt-4 space-y-4">
                       <div>
@@ -493,20 +430,18 @@ export function CardDirectory() {
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-purple-300 mb-2">Sacred Geometry</h3>
-                        <p className="text-gray-300">
-                          {selectedCard.firstEnd?.sacredGeometry || "No sacred geometry information available."}
-                        </p>
+                        <p className="text-gray-300">{selectedCard.sacredGeometry || "No information available."}</p>
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-purple-300 mb-2">Planetary Influence</h3>
                         <p className="text-gray-300">
-                          {selectedCard.firstEnd?.planet || "No planetary influence information available."}
+                          {selectedCard.planetInternalInfluence || "No information available."}
                         </p>
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-purple-300 mb-2">Astrological Domain</h3>
                         <p className="text-gray-300">
-                          {selectedCard.firstEnd?.astrologicalSign || "No astrological domain information available."}
+                          {selectedCard.astrologyExternalDomain || "No information available."}
                         </p>
                       </div>
                     </TabsContent>
