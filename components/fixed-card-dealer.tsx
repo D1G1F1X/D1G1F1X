@@ -795,11 +795,6 @@ export default function FixedCardDealer() {
                 </div>
 
                 <div className="mb-4">
-                  <h4 className="text-purple-300 font-semibold mb-1">Shadow Aspect</h4>
-                  <p className="text-gray-300">{cardEnd.shadowAspect}</p>
-                </div>
-
-                <div className="mb-4">
                   <h4 className="text-purple-300 font-semibold mb-1">Keywords</h4>
                   <div className="flex flex-wrap gap-2">
                     {cardEnd.keywords.map((keyword, i) => (

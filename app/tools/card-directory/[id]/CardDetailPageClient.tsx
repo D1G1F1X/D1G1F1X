@@ -277,17 +277,11 @@ export default function CardDetailPageClient({ cardId }: CardDetailPageClientPro
                     <div className="space-y-3">
                       <h3 className="text-lg font-medium">Primary Meaning</h3>
                       <p>{card.firstEnd?.meaning || "No primary meaning available."}</p>
-
-                      <h4 className="font-medium">Shadow Aspect</h4>
-                      <p>{card.firstEnd?.shadowAspect || "No shadow aspect available."}</p>
                     </div>
 
                     <div className="space-y-3">
                       <h3 className="text-lg font-medium">Secondary Meaning</h3>
                       <p>{card.secondEnd?.meaning || "No secondary meaning available."}</p>
-
-                      <h4 className="font-medium">Shadow Aspect</h4>
-                      <p>{card.secondEnd?.shadowAspect || "No shadow aspect available."}</p>
                     </div>
                   </div>
                 </TabsContent>
