@@ -1,9 +1,14 @@
+interface Symbol {
+  key: string
+  value: string
+}
+
 export interface OracleCard {
   id: string
   number: string
   suit: string
   fullTitle: string
-  symbols: { key: string; value: string }[]
+  symbols: Symbol[]
   symbolismBreakdown: string[]
   keyMeanings: string[]
   baseElement: string
@@ -13,34 +18,4 @@ export interface OracleCard {
   orientation: string
   sacredGeometry: string
   synergisticElement: string
-}
-
-export interface CardCollection {
-  id: string
-  name: string
-  description: string
-  cards: OracleCard[]
-}
-
-export interface CardReading {
-  id: string
-  date: string
-  question?: string
-  cards: {
-    card: OracleCard
-    position: string
-    endUp: "first" | "second" // This is a runtime property for display, not part of OracleCard itself
-  }[]
-  interpretation?: string
-  userId?: string
-}
-
-export interface CardSpread {
-  id: string
-  name: string
-  description: string
-  positions: {
-    name: string
-    description: string
-  }[]
 }

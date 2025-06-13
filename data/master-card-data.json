@@ -184,7 +184,7 @@
       "Sacred Geometry (Vesica Piscis): The divine intersection—understanding through union. Formed by two overlapping circles, it symbolizes the meeting point of spirit and matter, conscious and unconscious, or two distinct entities, creating a space of shared understanding and creativity.",
       "Planet (Moon): Reflective depth, changeability, and emotional navigation. The Moon governs intuition, the subconscious, and the ebb and flow of emotions. Its influence encourages introspection and listening to inner guidance.",
       "Astrology (Cancer): Emotional awareness applied to outer security and nurturing. Cancer emphasizes the need for a secure emotional foundation, using intuition to protect and care for oneself and others. It brings a sensitive, empathetic quality to perception.",
-      "Synergistic Element (Water): Water enhances the sword's clarity by infusing emotional depth into logical discernment, allowing intuition to guide precise thought. This creates a balance where intellect is informed by empathy, leading to more holistic understanding."
+      "Synergistic Element (Water): Water enhances the sword's clarity by infusing emotional depth into logical discernment, allowing intuition to guide precise thought, creating a balance where intellect is informed by empathy, leading to more holistic understanding."
     ],
     "keyMeanings": [
       "Focused Awareness: Seeing clearly without reacting impulsively. This calls for keen observation and understanding of a situation before taking action, using both intellect and intuition to perceive the truth.",
@@ -414,6 +414,34 @@
       {
         "key": "Suit",
         "value": "Stone"
+      },
+      {
+        "key": "Element (Base)",
+        "value": "Earth"
+      },
+      {
+        "key": "Planet (Internal Influence)",
+        "value": "Venus – beauty, receptivity, and sensual expression."
+      },
+      {
+        "key": "Astrology (External Domain)",
+        "value": "Taurus – comfort, stability, and persistent building."
+      },
+      {
+        "key": "Icon",
+        "value": "Pentagon"
+      },
+      {
+        "key": "Orientation",
+        "value": "Rough Side"
+      },
+      {
+        "key": "Sacred Geometry",
+        "value": "Spiral"
+      },
+      {
+        "key": "Synergistic Element",
+        "value": "Earth"
       }
     ],
     "symbolismBreakdown": [

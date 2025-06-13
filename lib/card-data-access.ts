@@ -6,25 +6,27 @@ import type { OracleCard } from "@/types/cards"
  * Directly uses the master card data structure.
  */
 
+// Cast the imported JSON data to the OracleCard array type
+const allCards: OracleCard[] = masterCardData as OracleCard[]
+
 /**
  * Gets all available cards from the master deck.
  */
-export function getAllCards(): OracleCard[] {
-  return masterCardData as OracleCard[]
+export function getCardData(): OracleCard[] {
+  return allCards
 }
 
 /**
  * Gets a card by its ID from the master deck.
  */
 export function getCardById(id: string): OracleCard | undefined {
-  return (masterCardData as OracleCard[]).find((card) => card.id === id)
+  return allCards.find((card) => card.id === id)
 }
 
 /**
  * Gets cards filtered by element (either base or synergistic).
  */
 export function getCardsByElement(element: string): OracleCard[] {
-  const allCards = getAllCards()
   return allCards.filter(
     (card) =>
       card.baseElement?.toLowerCase() === element.toLowerCase() ||
@@ -36,7 +38,6 @@ export function getCardsByElement(element: string): OracleCard[] {
  * Gets cards filtered by suit.
  */
 export function getCardsBySuit(suit: string): OracleCard[] {
-  const allCards = getAllCards()
   return allCards.filter((card) => card.suit?.toLowerCase() === suit.toLowerCase())
 }
 
@@ -44,7 +45,6 @@ export function getCardsBySuit(suit: string): OracleCard[] {
  * Gets a random selection of cards.
  */
 export function getRandomCards(count: number): OracleCard[] {
-  const allCards = getAllCards()
   const shuffled = [...allCards].sort(() => 0.5 - Math.random())
   return shuffled.slice(0, count)
 }
@@ -72,7 +72,7 @@ export function getCardImagePath(card: OracleCard, end: "first" | "second"): str
  */
 export function getCardByNumber(number: string | number): OracleCard | undefined {
   const numStr = number.toString()
-  return (masterCardData as OracleCard[]).find((card) => card.number === numStr)
+  return allCards.find((card) => card.number === numStr)
 }
 
 /**
@@ -109,7 +109,7 @@ export function getSymbolValue(card: OracleCard, key: string): string | undefine
  * Gets all unique suits from the cards.
  */
 export function getAllSuits(): string[] {
-  const suits = new Set(masterCardData.map((card) => card.suit).filter(Boolean))
+  const suits = new Set(allCards.map((card) => card.suit).filter(Boolean))
   return Array.from(suits).sort()
 }
 
@@ -118,8 +118,8 @@ export function getAllSuits(): string[] {
  */
 export function getAllElements(): string[] {
   const elements = new Set([
-    ...masterCardData.map((card) => card.baseElement).filter(Boolean),
-    ...masterCardData.map((card) => card.synergisticElement).filter(Boolean),
+    ...allCards.map((card) => card.baseElement).filter(Boolean),
+    ...allCards.map((card) => card.synergisticElement).filter(Boolean),
   ])
   return Array.from(elements).sort()
 }
@@ -129,10 +129,9 @@ export function getAllElements(): string[] {
  * This function now primarily checks for missing critical fields based on the OracleCard interface.
  */
 export function checkDataIntegrity() {
-  const masterData = masterCardData as OracleCard[]
   const issues: string[] = []
 
-  masterData.forEach((card) => {
+  allCards.forEach((card) => {
     if (!card.id) issues.push(`Card missing ID: ${JSON.stringify(card)}`)
     if (!card.number) issues.push(`Card ${card.id} missing number`)
     if (!card.suit) issues.push(`Card ${card.id} missing suit`)

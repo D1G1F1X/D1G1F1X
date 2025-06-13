@@ -1,16 +1,11 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronLeft, Printer, Share2 } from "lucide-react"
-import { getCardById, getCardImagePath } from "@/lib/card-data-access"
+import { useEffect, useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { getCardById } from "@/lib/card-data-access"
 import type { OracleCard } from "@/types/cards"
+import { AlertCircle } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 interface CardDetailPageClientProps {
   cardId: string
@@ -19,344 +14,118 @@ interface CardDetailPageClientProps {
 export default function CardDetailPageClient({ cardId }: CardDetailPageClientProps) {
   const [card, setCard] = useState<OracleCard | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [activeEnd, setActiveEnd] = useState<"first" | "second">("first")
-  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({})
-  const [activeTab, setActiveTab] = useState("overview")
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const loadCard = async () => {
-      try {
-        setIsLoading(true)
-        const cardData = getCardById(cardId)
-
-        if (cardData) {
-          setCard(cardData)
-        } else {
-          console.error(`Card with ID ${cardId} not found`)
-        }
-      } catch (error) {
-        console.error("Error loading card:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadCard()
-  }, [cardId])
-
-  // Handle image error with improved fallback strategy
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, card: OracleCard, endUp: "first" | "second") => {
-    console.log(`Image error for card: ${card.id}, end: ${endUp}`)
-
-    const target = e.target as HTMLImageElement
-
-    // Try alternative path formats before falling back
-    if (!target.src.includes("placeholder")) {
-      // First fallback: Try with different case for element
-      const element = endUp === "first" ? card.baseElement : card.synergisticElement
-      const elementVariations = [
-        element?.toLowerCase(),
-        element?.toUpperCase(),
-        element?.charAt(0).toUpperCase() + element?.slice(1).toLowerCase(),
-      ]
-
-      // Try each variation
-      for (const elementVar of elementVariations) {
-        const altPath = `/cards/${card.number}${card.suit?.toLowerCase()}-${elementVar || "spirit"}.jpg`
-        if (target.src !== altPath) {
-          target.src = altPath
-          return
-        }
-      }
-
-      // If all variations fail, use placeholder
-      target.src = `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
-    }
-
-    // Record the error
-    setImageErrors((prev) => ({
-      ...prev,
-      [`${card.id}-${endUp}`]: true,
-    }))
-  }
-
-  // Get element color
-  const getElementColor = (element: string) => {
-    switch (element?.toLowerCase()) {
-      case "earth":
-        return "bg-green-900/20 border-green-500/30 text-green-300"
-      case "water":
-        return "bg-blue-900/20 border-blue-500/30 text-blue-300"
-      case "fire":
-        return "bg-red-900/20 border-red-500/30 text-red-300"
-      case "air":
-        return "bg-yellow-900/20 border-yellow-500/30 text-yellow-300"
-      case "spirit":
-        return "bg-purple-900/20 border-purple-500/30 text-purple-300"
-      default:
-        return "bg-gray-900/20 border-gray-500/30 text-gray-300"
-    }
-  }
-
-  // Get element symbol
-  const getElementSymbol = (element: string) => {
-    switch (element?.toLowerCase()) {
-      case "earth":
-        return "⊕"
-      case "water":
-        return "≈"
-      case "fire":
-        return "△"
-      case "air":
-        return "≋"
-      case "spirit":
-        return "✧"
-      default:
-        return "★"
-    }
-  }
-
-  // Get card image with fallback handling
-  const getCardImage = (card: OracleCard, endUp: "first" | "second") => {
-    const hasImageError = imageErrors[`${card.id}-${endUp}`]
-    const imagePath = getCardImagePath(card, endUp)
-    const fallbackPath = `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
-
-    if (hasImageError) {
-      return (
-        <div
-          className={`w-full h-full ${getElementColor(card.baseElement).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4 rounded-md`}
-        >
-          <div className="text-center mb-2 text-sm font-medium text-white">{card.fullTitle}</div>
-          <div className="w-24 h-24 my-4 rounded-full bg-gray-800/50 border border-gray-300/30 flex items-center justify-center">
-            <span className={getElementColor(card.baseElement).split(" ").slice(2).join(" ") + " text-4xl"}>
-              {getElementSymbol(card.baseElement)}
-            </span>
-          </div>
-          <div className="text-xs text-center text-white/80 mt-2">
-            {card.suit} • {card.baseElement}
-          </div>
-          <div className="text-lg font-bold text-white mt-2">{card.number}</div>
-        </div>
-      )
-    }
-
-    return (
-      <Image
-        src={imagePath || fallbackPath}
-        alt={`${card.fullTitle} - ${endUp === "first" ? "Base Element" : "Synergistic Element"}`}
-        fill
-        className="object-contain rounded-md" // Use object-contain for line art style
-        onError={(e) => handleImageError(e, card, endUp)}
-        priority
-      />
-    )
-  }
-
-  const handleShare = async () => {
+    setIsLoading(true)
+    setError(null)
     try {
-      if (navigator.share) {
-        await navigator.share({
-          title: card?.fullTitle || "Numoracle Card",
-          text: `Check out this Numoracle card: ${card?.fullTitle}`,
-          url: window.location.href,
-        })
+      const fetchedCard = getCardById(cardId)
+      if (fetchedCard) {
+        setCard(fetchedCard)
       } else {
-        await navigator.clipboard.writeText(window.location.href)
-        alert("Link copied to clipboard!")
+        setError("Card not found.")
       }
     } catch (err) {
-      console.error("Error sharing:", err)
+      console.error("Failed to fetch card data:", err)
+      setError("Failed to load card details. Please try again later.")
+    } finally {
+      setIsLoading(false)
     }
-  }
-
-  const handlePrint = () => {
-    window.print()
-  }
+  }, [cardId])
 
   if (isLoading) {
+    return <div className="flex justify-center items-center h-64">Loading card details...</div>
+  }
+
+  if (error) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
+      <Alert variant="destructive" className="max-w-md mx-auto mt-8">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
     )
   }
 
   if (!card) {
     return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-        <h3 className="text-red-800 font-medium">Error</h3>
-        <p className="text-red-600">Card not found</p>
-        <Link href="/tools/card-directory">
-          <Button variant="outline" className="mt-2">
-            Back to Directory
-          </Button>
-        </Link>
-      </div>
+      <Alert className="max-w-md mx-auto mt-8">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>No Card Data</AlertTitle>
+        <AlertDescription>No card data available to display.</AlertDescription>
+      </Alert>
     )
   }
 
-  const primaryMeaning = card.keyMeanings?.[0] || "No primary meaning available."
-  const secondaryMeaning = card.keyMeanings?.[2] || "No secondary meaning available."
-
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <Link href="/tools/card-directory">
-          <Button variant="outline" size="sm">
-            <ChevronLeft className="mr-2 h-4 w-4" />
-            Back to Directory
-          </Button>
-        </Link>
+    <div className="container mx-auto py-8 px-4">
+      <Card className="w-full max-w-3xl mx-auto shadow-lg">
+        <CardHeader className="flex flex-col items-center text-center p-6 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-gray-800 dark:to-gray-900 rounded-t-lg">
+          <CardTitle className="text-3xl font-extrabold text-purple-900 dark:text-purple-200">
+            {card.fullTitle}
+          </CardTitle>
+          <p className="text-lg text-gray-700 dark:text-gray-300 mt-2">
+            {card.suit} - Number {card.number}
+          </p>
+        </CardHeader>
+        <CardContent className="p-6 space-y-6">
+          <div className="space-y-3">
+            <h3 className="font-bold text-xl text-purple-800 dark:text-purple-300">Key Meanings:</h3>
+            <ul className="list-disc list-inside text-gray-800 dark:text-gray-200 space-y-1">
+              {card.keyMeanings.map((meaning, index) => (
+                <li key={index}>{meaning}</li>
+              ))}
+            </ul>
+          </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handlePrint}>
-            <Printer className="mr-2 h-4 w-4" />
-            Print
-          </Button>
+          <div className="space-y-3">
+            <h3 className="font-bold text-xl text-purple-800 dark:text-purple-300">Symbolism Breakdown:</h3>
+            <ul className="list-disc list-inside text-gray-800 dark:text-gray-200 space-y-1">
+              {card.symbolismBreakdown.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+          </div>
 
-          <Button variant="outline" size="sm" onClick={handleShare}>
-            <Share2 className="mr-2 h-4 w-4" />
-            Share
-          </Button>
-        </div>
-      </div>
+          <div className="space-y-3">
+            <h3 className="font-bold text-xl text-purple-800 dark:text-purple-300">Core Symbols:</h3>
+            <ul className="list-disc list-inside text-gray-800 dark:text-gray-200 space-y-1">
+              {card.symbols.map((symbol, index) => (
+                <li key={index}>
+                  <strong>{symbol.key}:</strong> {symbol.value}
+                </li>
+              ))}
+            </ul>
+          </div>
 
-      <Card>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-1">
-              <div className="space-y-4">
-                <div className="relative h-80 w-full">{getCardImage(card, activeEnd)}</div>
-
-                <div className="text-center">
-                  <h2 className="text-xl font-bold">{card.fullTitle}</h2>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-800 dark:text-gray-200">
+            <div>
+              <p>
+                <strong>Base Element:</strong> {card.baseElement}
+              </p>
+              <p>
+                <strong>Synergistic Element:</strong> {card.synergisticElement}
+              </p>
             </div>
-
-            <div className="md:col-span-2">
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid grid-cols-4 mb-4">
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="meanings">Meanings</TabsTrigger>
-                  <TabsTrigger value="symbolism">Symbolism</TabsTrigger>
-                  <TabsTrigger value="elements">Elements</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="overview" className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-medium">Key Meanings</h3>
-                    <ul className="list-disc pl-5 mt-2 space-y-1">
-                      {card.keyMeanings?.map((keyword, index) => (
-                        <li key={index}>{keyword}</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-medium">Base Element</h4>
-                      <p>{card.baseElement}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Synergistic Element</h4>
-                      <p>{card.synergisticElement}</p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-medium">Symbolism Summary</h3>
-                    <p className="mt-2">{card.symbolismBreakdown.join(" ") || "No description available."}</p>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="meanings" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-medium">Primary Meaning</h3>
-                      <p>{primaryMeaning}</p>
-                    </div>
-
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-medium">Secondary Meaning</h3>
-                      <p>{secondaryMeaning}</p>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="symbolism" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="text-lg font-medium">Sacred Geometry</h3>
-                      <p className="mt-2">{card.sacredGeometry || "No sacred geometry information available."}</p>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg font-medium">Astrological Influences</h3>
-                      <div className="mt-2 space-y-2">
-                        <div>
-                          <h4 className="font-medium">Planet (Internal Influence)</h4>
-                          <p>{card.planetInternalInfluence || "No planetary information available."}</p>
-                        </div>
-                        <div>
-                          <h4 className="font-medium">Astrology (External Domain)</h4>
-                          <p>{card.astrologyExternalDomain || "No astrological sign information available."}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-medium">Symbolism Breakdown</h3>
-                    <ul className="list-disc pl-5 mt-2 space-y-1">
-                      {card.symbolismBreakdown?.map((symbol, index) => (
-                        <li key={index}>{symbol}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="elements" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-medium">Base Element: {card.baseElement}</h3>
-                      <div className="relative h-40 w-full">
-                        <Image
-                          src={getCardImagePath(card, "first") || "/placeholder.svg"}
-                          alt={`${card.fullTitle} - ${card.baseElement}`}
-                          fill
-                          className="object-contain"
-                          onError={handleImageError}
-                        />
-                      </div>
-                      <p>The base element represents the primary energy of the card.</p>
-                    </div>
-
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-medium">Synergistic Element: {card.synergisticElement}</h3>
-                      <div className="relative h-40 w-full">
-                        <Image
-                          src={getCardImagePath(card, "second") || "/placeholder.svg"}
-                          alt={`${card.fullTitle} - ${card.synergisticElement}`}
-                          fill
-                          className="object-contain"
-                          onError={handleImageError}
-                        />
-                      </div>
-                      <p>The synergistic element represents the complementary energy of the card.</p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-medium">Elemental Interaction</h3>
-                    <p className="mt-2">
-                      The interaction between {card.baseElement} and {card.synergisticElement} creates a unique energy
-                      that influences the card's meaning and interpretation.
-                    </p>
-                  </div>
-                </TabsContent>
-              </Tabs>
+            <div>
+              <p>
+                <strong>Planet (Internal Influence):</strong> {card.planetInternalInfluence}
+              </p>
+              <p>
+                <strong>Astrology (External Domain):</strong> {card.astrologyExternalDomain}
+              </p>
+            </div>
+            <div>
+              <p>
+                <strong>Icon Symbol:</strong> {card.iconSymbol}
+              </p>
+              <p>
+                <strong>Orientation:</strong> {card.orientation}
+              </p>
+              <p>
+                <strong>Sacred Geometry:</strong> {card.sacredGeometry}
+              </p>
             </div>
           </div>
         </CardContent>

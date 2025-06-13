@@ -1,12 +1,10 @@
 "use client"
 
 import type React from "react"
-
-import { useRef } from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
@@ -16,12 +14,13 @@ import { useToast } from "@/components/ui/use-toast"
 import type { ReadingData } from "@/types/readings"
 import { cn } from "@/lib/utils"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getCardByNumber, getBaseElement, getCardImagePath } from "@/lib/card-data-access" // Updated import
+import { getCardData, getCardImagePath } from "@/lib/card-data-access" // Updated import
 import { Badge } from "@/components/ui/badge"
 import { calculateLifePath } from "@/lib/numerology"
 import { useMembership } from "@/lib/membership-context"
 import type { SavedReading } from "@/types/saved-readings"
 import type { OracleCard } from "@/types/cards" // Import the types
+import { Sparkles, RefreshCw, BookOpen } from "lucide-react"
 
 interface SpreadType {
   id: string
@@ -264,6 +263,12 @@ interface EnhancedCardDealerProps {
   allowFreeReading?: boolean
   maxCards?: number
   defaultSpread?: "single" | "three"
+  initialCards?: OracleCard[]
+  onDeal?: (cards: OracleCard[]) => void
+  numberOfCards?: number
+  showDetails?: boolean
+  enableSave?: boolean
+  onSaveReading?: (reading: { cards: OracleCard[]; timestamp: string }) => void
 }
 
 export default function EnhancedCardDealer({
@@ -273,8 +278,14 @@ export default function EnhancedCardDealer({
   allowFreeReading = false,
   maxCards = 3,
   defaultSpread = "three",
+  initialCards = [],
+  onDeal,
+  numberOfCards = 1,
+  showDetails = true,
+  enableSave = false,
+  onSaveReading,
 }: EnhancedCardDealerProps) {
-  const [selectedCards, setSelectedCards] = useState<OracleCard[]>([])
+  const [selectedCards, setSelectedCards] = useState<OracleCard[]>(initialCards)
   const [flippedCards, setFlippedCards] = useState<boolean[]>([])
   const [isDealing, setIsDealing] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -313,9 +324,8 @@ export default function EnhancedCardDealer({
   const [showHistory, setShowHistory] = useState(false)
   const [selectedReading, setSelectedReading] = useState<SavedReading | null>(null)
   const [readingTitle, setReadingTitle] = useState<string>("")
-  const [isSaving, setIsSaving] = useState(false)
-  const [saveSuccess, setSaveSuccess] = useState(false)
-  const [readingNotes, setReadingNotes] = useState<string>("")
+  const [allAvailableCards, setAllAvailableCards] = useState<OracleCard[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [membership, setMembership] = useState({
     isAuthenticated: false,
     checkMembership: () => false,
@@ -327,6 +337,8 @@ export default function EnhancedCardDealer({
   const [drawnCards, setDrawnCards] = useState<any[]>([])
   const [selectedElement, setSelectedElement] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("overview")
+  const [dealtCards, setDealtCards] = useState<OracleCard[]>([])
+  const [isSaving, setIsSaving] = useState(false)
 
   const context = useMembership()
   const { isAuthenticated, checkMembership } = context
@@ -348,7 +360,7 @@ export default function EnhancedCardDealer({
     setError(null)
   }
 
-  const dealCards = async () => {
+  const dealCards = useCallback(async () => {
     if (isDealing) return
 
     resetDealer()
@@ -365,7 +377,7 @@ export default function EnhancedCardDealer({
     }
 
     setIsDealing(false)
-  }
+  }, [cards, spreadType])
 
   const flipCard = (index: number) => {
     if (isDealing || flippedCards[index]) return
@@ -470,59 +482,49 @@ export default function EnhancedCardDealer({
     }
   }
 
-  const handleDrawCards = () => {
-    setIsDrawing(true)
-    setShowReading(false)
-    setShowBackside(true)
-    setShowExpandedReading(false)
-    setShowDetailedReading(false)
-    setAiGeneratedReading("")
-    setReadingTitle("")
-    setSaveSuccess(false)
+  const handleDrawCards = useCallback(() => {
+    if (allAvailableCards.length === 0) {
+      setError("No cards available to deal.")
+      return
+    }
 
-    setTimeout(() => {
-      dealAreaRef.current?.scrollIntoView({ behavior: "smooth" })
-    }, 100)
+    const shuffled = [...allAvailableCards].sort(() => 0.5 - Math.random())
+    const newDealtCards = shuffled.slice(0, numberOfCards)
+    setDrawnCards(newDealtCards)
+    setDealtCards(newDealtCards) // Declare dealtCards variable
+    onDeal?.(newDealtCards)
+  }, [allAvailableCards, numberOfCards, onDeal])
 
-    setDrawnCards([])
+  const handleSave = useCallback(async () => {
+    if (!enableSave || !onSaveReading || dealtCards.length === 0) return
 
-    setTimeout(() => {
-      const numCards = currentSpread.positions.length
-
-      if (!cards || cards.length === 0) {
-        console.error("No card data available")
-        setIsDrawing(false)
-        return
+    setIsSaving(true)
+    try {
+      const reading = {
+        cards: dealtCards,
+        timestamp: new Date().toISOString(),
       }
+      await onSaveReading(reading)
+      // Optionally show a toast or success message
+    } catch (err) {
+      console.error("Failed to save reading:", err)
+      // Optionally show an error toast
+    } finally {
+      setIsSaving(false)
+    }
+  }, [dealtCards, enableSave, onSaveReading])
 
-      let shuffled = [...cards]
-      while (shuffled.length < numCards) {
-        shuffled = [...shuffled, ...cards]
-      }
-
-      shuffled = shuffled.sort(() => 0.5 - Math.random())
-      const selected = shuffled.slice(0, numCards).map((card) => ({
-        card,
-        endUp: Math.random() > 0.5 ? "first" : ("second" as "first" | "second"),
-      }))
-
-      setDrawnCards(selected)
-      setIsDrawing(false)
-
-      setTimeout(() => {
-        setIsFlipping(true)
-        setTimeout(() => {
-          setShowBackside(false)
-          setIsFlipping(false)
-
-          setTimeout(() => {
-            setShowReading(true)
-            setCurrentStep("reading")
-          }, 500)
-        }, 600)
-      }, 1000)
-    }, 1500)
-  }
+  useEffect(() => {
+    try {
+      const cardsData = getCardData()
+      setAllAvailableCards(cardsData)
+      setIsLoading(false)
+    } catch (err) {
+      console.error("Failed to load card data:", err)
+      setError("Failed to load card data. Please try again later.")
+      setIsLoading(false)
+    }
+  }, [])
 
   const handleImageError = (cardId: string) => {
     setImageErrors((prev) => ({
@@ -957,7 +959,7 @@ Remember that you have the power to shape your path forward. These cards offer g
 
   const drawCard = () => {
     const randomNumber = Math.floor(Math.random() * 10)
-    const cardData = getCardByNumber(randomNumber)
+    const cardData = getCardData().find((card) => card.number === randomNumber)
 
     if (cardData) {
       const elements = ["Water", "Fire", "Earth", "Air", "Spirit"]
@@ -971,6 +973,10 @@ Remember that you have the power to shape your path forward. These cards offer g
   const resetCards = () => {
     setDrawnCards([])
     setSelectedElement(null)
+  }
+
+  const getBaseElement = (card: OracleCard): string => {
+    return card.baseElement
   }
 
   return (
@@ -1179,6 +1185,107 @@ Remember that you have the power to shape your path forward. These cards offer g
           <p className="text-lg text-muted-foreground">Draw a card to begin your reading</p>
         </div>
       )}
+
+      {isLoading && <div className="flex justify-center items-center h-64">Loading cards...</div>}
+
+      {error && !isLoading && (
+        <div className="flex flex-col items-center justify-center h-64 text-red-500">
+          <p>{error}</p>
+          <Button onClick={dealCards} className="mt-4">
+            <RefreshCw className="mr-2 h-4 w-4" /> Try Dealing Again
+          </Button>
+        </div>
+      )}
+
+      <div className="flex space-x-4">
+        <Button onClick={dealCards} className="w-full max-w-xs">
+          <Sparkles className="mr-2 h-4 w-4" /> Deal New Card{numberOfCards > 1 ? "s" : ""}
+        </Button>
+        {enableSave && (
+          <Button onClick={handleSave} disabled={isSaving || dealtCards.length === 0} className="w-full max-w-xs">
+            <BookOpen className="mr-2 h-4 w-4" /> {isSaving ? "Saving..." : "Save Reading"}
+          </Button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
+        {selectedCards.map((card) => (
+          <Card key={card.id} className="w-full shadow-lg">
+            <CardHeader className="flex flex-col items-center text-center p-4">
+              <CardTitle className="text-2xl font-bold text-purple-800 dark:text-purple-300">
+                {card.fullTitle}
+              </CardTitle>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {card.suit} - {card.number}
+              </p>
+            </CardHeader>
+            <CardContent className="p-4 space-y-4">
+              {showDetails && (
+                <>
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-lg text-purple-700 dark:text-purple-200">Key Meanings:</h3>
+                    <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
+                      {card.keyMeanings.map((meaning, index) => (
+                        <li key={index}>{meaning}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-lg text-purple-700 dark:text-purple-200">Symbolism Breakdown:</h3>
+                    <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
+                      {card.symbolismBreakdown.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-lg text-purple-700 dark:text-purple-200">Symbols:</h3>
+                    <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
+                      {card.symbols.map((symbol, index) => (
+                        <li key={index}>
+                          <strong>{symbol.key}:</strong> {symbol.value}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
+                    <div>
+                      <p>
+                        <strong>Base Element:</strong> {card.baseElement}
+                      </p>
+                      <p>
+                        <strong>Synergistic Element:</strong> {card.synergisticElement}
+                      </p>
+                    </div>
+                    <div>
+                      <p>
+                        <strong>Planet (Internal Influence):</strong> {card.planetInternalInfluence}
+                      </p>
+                      <p>
+                        <strong>Astrology (External Domain):</strong> {card.astrologyExternalDomain}
+                      </p>
+                    </div>
+                    <div>
+                      <p>
+                        <strong>Icon Symbol:</strong> {card.iconSymbol}
+                      </p>
+                      <p>
+                        <strong>Orientation:</strong> {card.orientation}
+                      </p>
+                      <p>
+                        <strong>Sacred Geometry:</strong> {card.sacredGeometry}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   )
 }
