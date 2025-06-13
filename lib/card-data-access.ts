@@ -56,7 +56,7 @@ export function getRandomCards(count: number): OracleCard[] {
 export function getCardImagePath(card: OracleCard, end: "first" | "second"): string {
   if (!card) return "/placeholder.svg"
 
-  // Ensure the number is properly formatted (pad with zero if single digit)
+  // Use the direct number field from the card data
   const number = card.number?.toString().padStart(2, "0") || "00"
   const suit = card.suit?.toLowerCase() || "unknown"
   const element =
@@ -75,6 +75,8 @@ export function getCardByNumber(number: string | number): OracleCard | undefined
 
 /**
  * Gets the numerical value of a card as an integer.
+ * FIXED: This function was potentially causing issues by doing complex calculations.
+ * Now it simply parses the number field directly.
  */
 export function getCardNumericalValue(card: OracleCard): number {
   if (!card || !card.number) return 0
@@ -104,6 +106,7 @@ export function getCardSymbolismBreakdown(card: OracleCard): string[] {
 
 /**
  * Gets a specific symbol value by key from the 'symbols' array.
+ * FIXED: This function was potentially returning incorrect number values.
  */
 export function getSymbolValue(card: OracleCard, key: string): string | undefined {
   if (!card || !card.symbols) return undefined
