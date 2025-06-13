@@ -2,75 +2,27 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect } from "react"
+import { useRef } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Card, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
-import {
-  Sparkles,
-  Info,
-  Book,
-  Wand2,
-  Flame,
-  Droplets,
-  Wind,
-  Leaf,
-  Star,
-  CalendarIcon,
-  User,
-  MessageSquare,
-  Loader2,
-  MapPin,
-} from "lucide-react"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+import { Skeleton } from "@/components/ui/skeleton"
 import { generateReading } from "@/lib/actions/generate-reading"
-import ReactMarkdown from "react-markdown"
-import { format } from "date-fns"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { calculateLifePath, calculateDestinyNumber } from "@/lib/numerology"
+import { useToast } from "@/components/ui/use-toast"
+import type { ReadingData } from "@/types/readings"
+import { cn } from "@/lib/utils"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getCardByNumber, getBaseElement, getCardImagePath } from "@/lib/card-data-access" // Updated import
+import { Badge } from "@/components/ui/badge"
+import { calculateLifePath } from "@/lib/numerology"
+import { useMembership } from "@/lib/membership-context"
+import type { SavedReading } from "@/types/saved-readings"
+import type { OracleCard } from "@/types/cards" // Import the types
 
-// Import the image utility functions at the top of the file
-import { normalizeImagePath, preloadCriticalImages } from "@/lib/image-utils"
-
-// Card interfaces
-interface CardEnd {
-  number: number
-  meaning: string
-  shadowAspect: string
-  keywords: string[]
-  sacredGeometry: string
-  planet: string
-  astrologicalSign: string
-  expandedMeaning?: string
-  elementalGuidance?:
-    | {
-        earth?: string
-        air?: string
-        fire?: string
-        water?: string
-        spirit?: string
-      }
-    | string
-}
-
-interface OracleCard {
-  id: string
-  name: string
-  element: string
-  type: string
-  firstEnd: CardEnd
-  secondEnd: CardEnd
-  firstEndImage: string
-  secondEndImage: string
-}
-
-// Define spread types
 interface SpreadType {
   id: string
   name: string
@@ -81,7 +33,6 @@ interface SpreadType {
   }[]
 }
 
-// Define user input form data
 interface UserFormData {
   fullName: string
   birthDate: Date | undefined
@@ -89,7 +40,7 @@ interface UserFormData {
   question: string
 }
 
-const spreadTypes: SpreadType[] = [
+const basicSpreadTypes: SpreadType[] = [
   {
     id: "single",
     name: "Single Card",
@@ -149,314 +100,192 @@ const spreadTypes: SpreadType[] = [
   },
 ]
 
-// Card data with updated numbering scheme
-const cardData: OracleCard[] = [
+const advancedSpreadTypes: SpreadType[] = [
+  ...basicSpreadTypes,
   {
-    id: "cauldron-fire-01-10",
-    name: "The Cauldron of Fire",
-    element: "Fire",
-    type: "Cauldron",
-    firstEnd: {
-      number: 1, // Represented as 01
-      meaning: "New beginnings and opportunities. The spark of creation ignites your path.",
-      shadowAspect: "Impulsiveness and lack of planning can lead to false starts.",
-      keywords: ["Beginning", "Creation", "Potential", "Initiative"],
-      sacredGeometry: "Point/Dot - The origin of all forms",
-      planet: "Sun",
-      astrologicalSign: "Aries",
-      expandedMeaning:
-        "The Cauldron of Fire represents the primordial spark of creation, the divine inspiration that begins all journeys. When this card appears, it signals a time of new beginnings, fresh ideas, and the courage to embark on a new path.",
-    },
-    secondEnd: {
-      number: 10, // Represented as 10
-      meaning: "Completion of a cycle and the attainment of mastery in the realm of fire.",
-      shadowAspect: "Burnout or the fear of completion leading to self-sabotage.",
-      keywords: ["Mastery", "Completion", "Achievement", "Fulfillment"],
-      sacredGeometry: "Decad - The return to unity after experiencing the cycle of numbers",
-      planet: "Mercury",
-      astrologicalSign: "Virgo",
-      expandedMeaning:
-        "The second end of the Cauldron of Fire represents the culmination of your fiery journey. You have mastered the lessons of passion, creativity, and transformation.",
-    },
-    firstEndImage: "/cards/01cauldron-fire.jpg",
-    secondEndImage: "/cards/10cauldron-fire.jpg",
+    id: "celtic",
+    name: "Celtic Cross",
+    description: "A comprehensive spread that examines multiple aspects of your question.",
+    positions: [
+      {
+        name: "Present",
+        description: "The central issue or present situation",
+      },
+      {
+        name: "Challenge",
+        description: "The immediate challenge or crossing influence",
+      },
+      {
+        name: "Foundation",
+        description: "The foundation or root of the matter",
+      },
+      {
+        name: "Recent Past",
+        description: "Recent events or influences that are still relevant",
+      },
+      {
+        name: "Potential",
+        description: "Potential outcome or what could manifest",
+      },
+      {
+        name: "Near Future",
+        description: "Upcoming influences or what's beginning to unfold",
+      },
+      {
+        name: "Self",
+        description: "Your attitude or approach to the situation",
+      },
+      {
+        name: "Environment",
+        description: "External influences, other people's attitudes",
+      },
+      {
+        name: "Hopes/Fears",
+        description: "Your hopes and/or fears about the situation",
+      },
+      {
+        name: "Outcome",
+        description: "The likely outcome if the current course is maintained",
+      },
+    ],
   },
   {
-    id: "sword-air-25-52",
-    name: "The Sword of Air",
-    element: "Air",
-    type: "Sword",
-    firstEnd: {
-      number: 25, // Represented as 25
-      meaning: "Clarity of thought and communication. The sword cuts through confusion.",
-      shadowAspect: "Overthinking and mental anxiety can cloud judgment.",
-      keywords: ["Clarity", "Communication", "Intellect", "Truth"],
-      sacredGeometry: "Pentagram - The five-pointed star representing harmony and balance",
-      planet: "Mercury",
-      astrologicalSign: "Gemini",
-      expandedMeaning:
-        "The Sword of Air represents the power of the mind, the ability to discern truth from falsehood, and the clarity that comes from intellectual understanding.",
-    },
-    secondEnd: {
-      number: 52, // Represented as 52
-      meaning: "Mastery of communication and the ability to share wisdom effectively.",
-      shadowAspect: "Using words as weapons or manipulating others through speech.",
-      keywords: ["Wisdom", "Teaching", "Expression", "Leadership"],
-      sacredGeometry: "Vesica Piscis - The intersection of two circles, representing the union of opposites",
-      planet: "Jupiter",
-      astrologicalSign: "Sagittarius",
-      expandedMeaning:
-        "The second end of the Sword of Air represents the mastery of communication and the ability to share wisdom with others. You have learned to use your intellect in service of higher truth.",
-    },
-    firstEndImage: "/cards/25sword-air.jpg",
-    secondEndImage: "/cards/52sword-air.jpg",
+    id: "relationship",
+    name: "Relationship Reading",
+    description: "Explores the dynamics and potential of a relationship.",
+    positions: [
+      {
+        name: "You",
+        description: "Your energy in the relationship",
+      },
+      {
+        name: "Partner",
+        description: "The other person's energy in the relationship",
+      },
+      {
+        name: "Connection",
+        description: "The nature of your connection",
+      },
+      {
+        name: "Challenge",
+        description: "Current challenges in the relationship",
+      },
+      {
+        name: "Potential",
+        description: "Potential for growth and development",
+      },
+      {
+        name: "Guidance",
+        description: "Advice for nurturing the relationship",
+      },
+    ],
   },
   {
-    id: "cord-water-38-83",
-    name: "The Cord of Water",
-    element: "Water",
-    type: "Cord",
-    firstEnd: {
-      number: 3, // Correct number
-      meaning:
-        "Emotional connections and the flow of feelings. The cord binds hearts together. The knot in the cord is before you.",
-      shadowAspect: "Emotional dependency and attachment can lead to suffering.",
-      keywords: ["Connection", "Emotion", "Intuition", "Relationships"],
-      sacredGeometry: "Finite Symbol - The bounded nature of existence",
-      planet: "Jupiter",
-      astrologicalSign: "Sagittarius",
-      expandedMeaning:
-        "The Cord of Water represents the emotional bonds that connect us to others, the intuitive wisdom of the heart, and the flowing nature of feelings. The knot in the cord is before you, representing challenges that must be untangled.",
-    },
-    secondEnd: {
-      number: 83, // Represented as 83
-      meaning: "Deep emotional wisdom and the ability to navigate the waters of the unconscious.",
-      shadowAspect: "Emotional manipulation or using empathy to control others.",
-      keywords: ["Wisdom", "Depth", "Healing", "Compassion"],
-      sacredGeometry: "Spiral - The inward journey to the center of being",
-      planet: "Neptune",
-      astrologicalSign: "Pisces",
-      expandedMeaning:
-        "The second end of the Cord of Water represents the mastery of emotional wisdom and the ability to navigate the depths of the unconscious mind.",
-    },
-    firstEndImage: "/cards/38cord-water.jpg",
-    secondEndImage: "/cards/83cord-water.jpg",
+    id: "career",
+    name: "Career Path",
+    description: "Guidance for your professional life and career decisions.",
+    positions: [
+      {
+        name: "Current Situation",
+        description: "Your current career position",
+      },
+      {
+        name: "Strengths",
+        description: "Your professional strengths and assets",
+      },
+      {
+        name: "Challenges",
+        description: "Obstacles or areas for growth",
+      },
+      {
+        name: "Hidden Factors",
+        description: "Unseen influences affecting your career",
+      },
+      {
+        name: "Next Steps",
+        description: "Immediate actions to consider",
+      },
+      {
+        name: "Long-term Potential",
+        description: "Future possibilities and direction",
+      },
+    ],
   },
   {
-    id: "spear-earth-47-74",
-    name: "The Spear of Earth",
-    element: "Earth",
-    type: "Spear",
-    firstEnd: {
-      number: 47, // Represented as 47
-      meaning: "Grounding and manifestation. The spear plants firmly in the earth.",
-      shadowAspect: "Materialism and attachment to possessions can limit growth.",
-      keywords: ["Stability", "Abundance", "Practicality", "Manifestation"],
-      sacredGeometry: "Cube - The solid foundation of material existence",
-      planet: "Saturn",
-      astrologicalSign: "Capricorn",
-      expandedMeaning:
-        "The Spear of Earth represents the power of manifestation, the ability to bring ideas into physical form, and the stability that comes from being grounded in the material world.",
-    },
-    secondEnd: {
-      number: 74, // Represented as 74
-      meaning: "Mastery of the material realm and the ability to create lasting abundance.",
-      shadowAspect: "Hoarding resources or becoming overly rigid in one's approach.",
-      keywords: ["Mastery", "Legacy", "Wealth", "Security"],
-      sacredGeometry: "Octahedron - The balance of above and below",
-      planet: "Venus",
-      astrologicalSign: "Taurus",
-      expandedMeaning:
-        "The second end of the Spear of Earth represents the mastery of the material realm and the ability to create lasting abundance and security.",
-    },
-    firstEndImage: "/cards/47spear-earth.jpg",
-    secondEndImage: "/cards/74spear-earth.jpg",
-  },
-  {
-    id: "stone-spirit-69-96",
-    name: "The Stone of Spirit",
-    element: "Spirit",
-    type: "Stone",
-    firstEnd: {
-      number: 69, // Represented as 69
-      meaning: "Spiritual awakening and connection to higher consciousness. The stone holds ancient wisdom.",
-      shadowAspect: "Spiritual bypassing or using spirituality to avoid dealing with reality.",
-      keywords: ["Awakening", "Connection", "Wisdom", "Transcendence"],
-      sacredGeometry: "Merkaba - The vehicle of light for ascension",
-      planet: "Uranus",
-      astrologicalSign: "Aquarius",
-      expandedMeaning:
-        "The Stone of Spirit represents the connection to higher consciousness, the wisdom of the ancestors, and the transcendent nature of the soul.",
-    },
-    secondEnd: {
-      number: 96, // Represented as 96
-      meaning: "Mastery of spiritual wisdom and the ability to bridge worlds.",
-      shadowAspect: "Spiritual elitism or using spiritual knowledge to manipulate others.",
-      keywords: ["Mastery", "Integration", "Teaching", "Enlightenment"],
-      sacredGeometry: "Dodecahedron - The cosmic container of all possibilities",
-      planet: "Pluto",
-      astrologicalSign: "Scorpio",
-      expandedMeaning:
-        "The second end of the Stone of Spirit represents the mastery of spiritual wisdom and the ability to integrate the lessons of all elements into a cohesive whole.",
-    },
-    firstEndImage: "/cards/69stone-spirit.jpg",
-    secondEndImage: "/cards/96stone-spirit.jpg",
-  },
-  // Additional cards for each element
-  {
-    id: "cauldron-water-01-10",
-    name: "The Cauldron of Water",
-    element: "Water",
-    type: "Cauldron",
-    firstEnd: {
-      number: 1,
-      meaning: "The beginning of emotional awareness and intuitive connection.",
-      shadowAspect: "Emotional overwhelm or denial of feelings.",
-      keywords: ["Intuition", "Feelings", "Receptivity", "Flow"],
-      sacredGeometry: "Point/Dot - The origin of all emotional experience",
-      planet: "Moon",
-      astrologicalSign: "Cancer",
-      expandedMeaning:
-        "The Cauldron of Water represents the wellspring of emotions, the source of intuition, and the beginning of your journey into the depths of feeling.",
-    },
-    secondEnd: {
-      number: 10,
-      meaning: "Emotional mastery and the ability to navigate the waters of life with grace.",
-      shadowAspect: "Emotional manipulation or using feelings to control others.",
-      keywords: ["Mastery", "Empathy", "Healing", "Wisdom"],
-      sacredGeometry: "Decad - The completion of the emotional cycle",
-      planet: "Neptune",
-      astrologicalSign: "Pisces",
-      expandedMeaning:
-        "The second end of the Cauldron of Water represents emotional fulfillment and the wisdom that comes from fully experiencing and integrating your feelings.",
-    },
-    firstEndImage: "/cards/01cauldron-water.jpg",
-    secondEndImage: "/cards/10cauldron-water.jpg",
-  },
-  {
-    id: "cauldron-earth-01-10",
-    name: "The Cauldron of Earth",
-    element: "Earth",
-    type: "Cauldron",
-    firstEnd: {
-      number: 1,
-      meaning: "The beginning of material manifestation and physical existence.",
-      shadowAspect: "Materialism or attachment to physical possessions.",
-      keywords: ["Manifestation", "Abundance", "Grounding", "Stability"],
-      sacredGeometry: "Point/Dot - The seed of physical creation",
-      planet: "Saturn",
-      astrologicalSign: "Capricorn",
-      expandedMeaning:
-        "The Cauldron of Earth represents the vessel of physical creation, the container for manifestation, and the beginning of your journey into the material world.",
-    },
-    secondEnd: {
-      number: 10,
-      meaning: "Mastery of the physical realm and the ability to create lasting abundance.",
-      shadowAspect: "Hoarding or excessive focus on material security.",
-      keywords: ["Mastery", "Wealth", "Security", "Legacy"],
-      sacredGeometry: "Decad - The completion of the material cycle",
-      planet: "Venus",
-      astrologicalSign: "Taurus",
-      expandedMeaning:
-        "The second end of the Cauldron of Earth represents material fulfillment and the wisdom that comes from creating and stewarding physical resources.",
-    },
-    firstEndImage: "/cards/01cauldron-earth.jpg",
-    secondEndImage: "/cards/10cauldron-earth.jpg",
-  },
-  {
-    id: "cauldron-air-01-10",
-    name: "The Cauldron of Air",
-    element: "Air",
-    type: "Cauldron",
-    firstEnd: {
-      number: 1,
-      meaning: "The beginning of mental clarity and intellectual understanding.",
-      shadowAspect: "Overthinking or mental confusion.",
-      keywords: ["Thought", "Communication", "Ideas", "Clarity"],
-      sacredGeometry: "Point/Dot - The origin of all thought",
-      planet: "Mercury",
-      astrologicalSign: "Gemini",
-      expandedMeaning:
-        "The Cauldron of Air represents the vessel of thought, the container for ideas, and the beginning of your journey into the realm of the mind.",
-    },
-    secondEnd: {
-      number: 10,
-      meaning: "Mastery of the mental realm and the ability to communicate with wisdom.",
-      shadowAspect: "Intellectual arrogance or using knowledge to manipulate.",
-      keywords: ["Mastery", "Wisdom", "Teaching", "Expression"],
-      sacredGeometry: "Decad - The completion of the mental cycle",
-      planet: "Jupiter",
-      astrologicalSign: "Aquarius",
-      expandedMeaning:
-        "The second end of the Cauldron of Air represents intellectual fulfillment and the wisdom that comes from developing and sharing your thoughts.",
-    },
-    firstEndImage: "/cards/01cauldron-air.jpg",
-    secondEndImage: "/cards/10cauldron-air.jpg",
-  },
-  {
-    id: "cauldron-spirit-01-10",
-    name: "The Cauldron of Spirit",
-    element: "Spirit",
-    type: "Cauldron",
-    firstEnd: {
-      number: 1,
-      meaning: "The beginning of spiritual awakening and connection to the divine.",
-      shadowAspect: "Spiritual bypassing or denial of physical reality.",
-      keywords: ["Awakening", "Connection", "Divinity", "Transcendence"],
-      sacredGeometry: "Point/Dot - The spark of divine consciousness",
-      planet: "Uranus",
-      astrologicalSign: "Aquarius",
-      expandedMeaning:
-        "The Cauldron of Spirit represents the vessel of divine connection, the container for spiritual growth, and the beginning of your journey into higher consciousness.",
-    },
-    secondEnd: {
-      number: 10,
-      meaning: "Spiritual mastery and the ability to bridge worlds.",
-      shadowAspect: "Spiritual elitism or using spiritual knowledge to control others.",
-      keywords: ["Mastery", "Integration", "Teaching", "Enlightenment"],
-      sacredGeometry: "Decad - The completion of the spiritual cycle",
-      planet: "Pluto",
-      astrologicalSign: "Scorpio",
-      expandedMeaning:
-        "The second end of the Cauldron of Spirit represents spiritual fulfillment and the wisdom that comes from integrating divine consciousness into everyday life.",
-    },
-    firstEndImage: "/cards/01cauldron-spirit.jpg",
-    secondEndImage: "/cards/10cauldron-spirit.jpg",
+    id: "decision",
+    name: "Decision Making",
+    description: "Helps clarify options and factors in an important decision.",
+    positions: [
+      {
+        name: "Current Situation",
+        description: "The context of your decision",
+      },
+      {
+        name: "Option A",
+        description: "First choice or path",
+      },
+      {
+        name: "Option B",
+        description: "Second choice or path",
+      },
+      {
+        name: "Key Factor",
+        description: "Important consideration that may be overlooked",
+      },
+      {
+        name: "Guidance",
+        description: "Advice for making the best decision",
+      },
+    ],
   },
 ]
 
-// Helper functions
-const formatCardNumber = (number: number): string => {
-  // For single-digit numbers (1-9), just return the number as a string
-  // For double-digit numbers (10+), format as is
-  if (number < 10) {
-    return number.toString()
-  }
-  return number.toString()
-}
-
-// Get element icon
 const getElementIcon = (element: string) => {
   switch (element.toLowerCase()) {
     case "earth":
-      return <Leaf className="h-5 w-5" />
+      return "⊕"
     case "water":
-      return <Droplets className="h-5 w-5" />
+      return "≈"
     case "fire":
-      return <Flame className="h-5 w-5" />
+      return "△"
     case "air":
-      return <Wind className="h-5 w-5" />
+      return "≋"
     case "spirit":
-      return <Star className="h-5 w-5" />
+      return "✧"
     default:
-      return <Star className="h-5 w-5" />
+      return "★"
   }
 }
 
-export default function EnhancedNumoDealer() {
-  // State variables
+interface EnhancedCardDealerProps {
+  cards: OracleCard[]
+  onReadingGenerated?: (reading: ReadingData) => void
+  className?: string
+  allowFreeReading?: boolean
+  maxCards?: number
+  defaultSpread?: "single" | "three"
+}
+
+export default function EnhancedCardDealer({
+  cards,
+  onReadingGenerated,
+  className,
+  allowFreeReading = false,
+  maxCards = 3,
+  defaultSpread = "three",
+}: EnhancedCardDealerProps) {
+  const [selectedCards, setSelectedCards] = useState<OracleCard[]>([])
+  const [flippedCards, setFlippedCards] = useState<boolean[]>([])
+  const [isDealing, setIsDealing] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [reading, setReading] = useState<ReadingData | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [spreadType, setSpreadType] = useState<"single" | "three">(defaultSpread)
+  const [question, setQuestion] = useState("")
+  const { toast } = useToast()
+  const dealerRef = useRef<HTMLDivElement>(null)
   const [selectedSpread, setSelectedSpread] = useState<string>("three")
-  const [drawnCards, setDrawnCards] = useState<{ card: OracleCard; endUp: "first" | "second" }[]>([])
+  const [drawnCardsState, setDrawnCardsState] = useState<{ card: OracleCard; endUp: "first" | "second" }[]>([])
   const [isDrawing, setIsDrawing] = useState(false)
   const [showBackside, setShowBackside] = useState(true)
   const [isFlipping, setIsFlipping] = useState(false)
@@ -476,31 +305,132 @@ export default function EnhancedNumoDealer() {
   })
   const [formErrors, setFormErrors] = useState<Partial<UserFormData>>({})
   const [lifePath, setLifePath] = useState<number | null>(null)
-  const [destinyNumber, setDestinyNumber] = useState<number | null>(null)
   const dealAreaRef = useRef<HTMLDivElement>(null)
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  const [datePickerOpen, setDatePickerOpen] = useState(false)
+  const [readingMode, setReadingMode] = useState<"basic" | "advanced">("basic")
+  const [showLoginModal, setShowLoginModal] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
+  const [selectedReading, setSelectedReading] = useState<SavedReading | null>(null)
+  const [readingTitle, setReadingTitle] = useState<string>("")
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [readingNotes, setReadingNotes] = useState<string>("")
+  const [membership, setMembership] = useState({
+    isAuthenticated: false,
+    checkMembership: () => false,
+    login: () => Promise.resolve(false),
+    logout: () => {},
+  })
 
-  // Add a useEffect to preload critical images
-  useEffect(() => {
-    preloadCriticalImages()
-  }, [])
+  const [isAdvancedModeAvailable, setIsAdvancedModeAvailable] = useState(false)
+  const [drawnCards, setDrawnCards] = useState<any[]>([])
+  const [selectedElement, setSelectedElement] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState("overview")
 
-  // Debug logging
+  const context = useMembership()
+  const { isAuthenticated, checkMembership } = context
+  setMembership(context)
+
   useEffect(() => {
-    console.log("EnhancedNumoDealer mounted")
-    console.log("Card data:", cardData)
-    return () => {
-      console.log("EnhancedNumoDealer unmounted")
+    setIsAdvancedModeAvailable(isAuthenticated)
+  }, [isAuthenticated])
+
+  useEffect(() => {
+    resetDealer()
+  }, [spreadType])
+
+  const resetDealer = () => {
+    setSelectedCards([])
+    setFlippedCards([])
+    setIsDealing(false)
+    setReading(null)
+    setError(null)
+  }
+
+  const dealCards = async () => {
+    if (isDealing) return
+
+    resetDealer()
+    setIsDealing(true)
+
+    const numCards = spreadType === "single" ? 1 : 3
+    const shuffled = [...cards].sort(() => Math.random() - 0.5)
+    const newSelectedCards = shuffled.slice(0, numCards)
+
+    for (let i = 0; i < numCards; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      setSelectedCards((prev) => [...prev, newSelectedCards[i]])
+      setFlippedCards((prev) => [...prev, false])
     }
-  }, [])
 
-  // Get current spread configuration
-  const currentSpread = spreadTypes.find((spread) => spread.id === selectedSpread) || spreadTypes[0]
+    setIsDealing(false)
+  }
 
-  // Handle form input changes
+  const flipCard = (index: number) => {
+    if (isDealing || flippedCards[index]) return
+
+    const newFlippedCards = [...flippedCards]
+    newFlippedCards[index] = true
+    setFlippedCards(newFlippedCards)
+  }
+
+  const generateReadingFromCards = async () => {
+    if (isGenerating || selectedCards.length === 0) return
+
+    if (!flippedCards.every((flipped) => flipped)) {
+      toast({
+        title: "Flip all cards",
+        description: "Please flip all cards before generating a reading",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!question.trim()) {
+      toast({
+        title: "Question required",
+        description: "Please enter your question for the reading",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsGenerating(true)
+    setError(null)
+
+    try {
+      const readingData = await generateReading({
+        cards: selectedCards,
+        question: question,
+      })
+
+      setReading(readingData)
+      if (onReadingGenerated) {
+        onReadingGenerated(readingData)
+      }
+    } catch (err) {
+      console.error("Error generating reading:", err)
+      setError("Failed to generate reading. Please try again.", err)
+      toast({
+        title: "Error",
+        description: "Failed to generate reading. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const cardWidth = spreadType === "single" ? "w-64" : "w-48"
+  const cardHeight = spreadType === "single" ? "h-96" : "h-72"
+
+  const availableSpreadTypes = readingMode === "basic" ? basicSpreadTypes : advancedSpreadTypes
+  const currentSpread = availableSpreadTypes.find((spread) => spread.id === selectedSpread) || availableSpreadTypes[0]
+
   const handleInputChange = (field: keyof UserFormData, value: any) => {
     setFormData({ ...formData, [field]: value })
 
-    // Clear error for this field if it exists
     if (formErrors[field]) {
       const newErrors = { ...formErrors }
       delete newErrors[field]
@@ -508,16 +438,11 @@ export default function EnhancedNumoDealer() {
     }
   }
 
-  // Validate form
   const validateForm = () => {
     const errors: Partial<UserFormData> = {}
 
     if (!formData.fullName.trim()) {
       errors.fullName = "Full name is required"
-    }
-
-    if (!formData.birthDate) {
-      errors.birthDate = "Birth date is required"
     }
 
     if (!formData.question.trim()) {
@@ -528,72 +453,51 @@ export default function EnhancedNumoDealer() {
     return Object.keys(errors).length === 0
   }
 
-  // Handle form submission
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
     if (validateForm()) {
-      // Calculate numerology numbers
-      if (formData.fullName && formData.birthDate) {
+      if (formData.birthDate) {
         const lifePathNumber = calculateLifePath(formData.birthDate)
         setLifePath(lifePathNumber)
-
-        const destNumber = calculateDestinyNumber(formData.fullName)
-        setDestinyNumber(destNumber)
-
-        console.log("Life Path Number:", lifePathNumber)
-        console.log("Destiny Number:", destNumber)
       }
 
-      // Move to card drawing step
       setCurrentStep("cards")
 
-      // Scroll to the deal area
       setTimeout(() => {
         dealAreaRef.current?.scrollIntoView({ behavior: "smooth" })
       }, 100)
     }
   }
 
-  // Handle drawing cards
   const handleDrawCards = () => {
-    console.log("Draw cards button clicked")
     setIsDrawing(true)
     setShowReading(false)
     setShowBackside(true)
     setShowExpandedReading(false)
-    setActiveCardIndex(null)
     setShowDetailedReading(false)
     setAiGeneratedReading("")
+    setReadingTitle("")
+    setSaveSuccess(false)
 
-    // Scroll to the deal area
     setTimeout(() => {
-      console.log("Scrolling to deal area")
       dealAreaRef.current?.scrollIntoView({ behavior: "smooth" })
     }, 100)
 
-    // Clear cards first
     setDrawnCards([])
-    console.log("Cards cleared")
 
-    // Simulate card drawing animation
     setTimeout(() => {
-      console.log("Drawing new cards")
       const numCards = currentSpread.positions.length
-      console.log("Number of cards to draw:", numCards)
-      console.log("Available cards:", cardData.length)
 
-      // Make sure we have enough cards
-      if (cardData.length === 0) {
+      if (!cards || cards.length === 0) {
         console.error("No card data available")
         setIsDrawing(false)
         return
       }
 
-      // If we don't have enough cards, repeat some
-      let shuffled = [...cardData]
+      let shuffled = [...cards]
       while (shuffled.length < numCards) {
-        shuffled = [...shuffled, ...cardData]
+        shuffled = [...shuffled, ...cards]
       }
 
       shuffled = shuffled.sort(() => 0.5 - Math.random())
@@ -602,43 +506,31 @@ export default function EnhancedNumoDealer() {
         endUp: Math.random() > 0.5 ? "first" : ("second" as "first" | "second"),
       }))
 
-      console.log("Selected cards:", selected)
       setDrawnCards(selected)
       setIsDrawing(false)
 
-      // Flip cards after a short delay
       setTimeout(() => {
-        console.log("Flipping cards")
         setIsFlipping(true)
         setTimeout(() => {
-          console.log("Showing card fronts")
           setShowBackside(false)
           setIsFlipping(false)
 
-          // Show reading after cards are revealed
           setTimeout(() => {
-            console.log("Showing reading")
             setShowReading(true)
             setCurrentStep("reading")
-
-            // Automatically generate detailed reading
-            generateDetailedReading()
           }, 500)
         }, 600)
       }, 1000)
     }, 1500)
   }
 
-  // Handle image error
   const handleImageError = (cardId: string) => {
-    console.error(`Image error for card: ${cardId}`)
     setImageErrors((prev) => ({
       ...prev,
       [cardId]: true,
     }))
   }
 
-  // Get element color
   const getElementColor = (element: string) => {
     switch (element.toLowerCase()) {
       case "earth":
@@ -656,7 +548,6 @@ export default function EnhancedNumoDealer() {
     }
   }
 
-  // Get element symbol
   const getElementSymbol = (element: string) => {
     switch (element.toLowerCase()) {
       case "earth":
@@ -674,29 +565,14 @@ export default function EnhancedNumoDealer() {
     }
   }
 
-  // Generate detailed reading using Google AI API
   const generateDetailedReading = async () => {
-    console.log("Generating detailed reading")
     setIsGeneratingReading(true)
 
     try {
-      // Create an enhanced prompt that includes user's personal information
-      const enhancedPrompt = {
-        userData: {
-          name: formData.fullName,
-          birthDate: formData.birthDate ? format(formData.birthDate, "yyyy-MM-dd") : "",
-          birthPlace: formData.birthPlace,
-          lifePath: lifePath,
-          destinyNumber: destinyNumber,
-        },
-        question: formData.question,
-        spreadType: currentSpread.id,
-      }
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      // Call the server action to generate the reading
-      const reading = await generateReading(drawnCards, JSON.stringify(enhancedPrompt), currentSpread)
+      const reading = generateSimulatedReading()
 
-      // Update state with the generated reading
       setAiGeneratedReading(reading)
       setShowDetailedReading(true)
     } catch (error) {
@@ -707,23 +583,225 @@ export default function EnhancedNumoDealer() {
     }
   }
 
-  // Render a card
-  const renderCard = (drawnCard: { card: OracleCard; endUp: "first" | "second" } | undefined, index: number) => {
-    if (!drawnCard) {
-      console.log("No drawn card for index:", index)
-      return null
+  const generateSimulatedReading = (): string => {
+    const userName = formData.fullName.split(" ")[0] || "Seeker"
+    const question = formData.question
+    const spreadName = currentSpread.name
+
+    const intro = `# NUMO Oracle Reading for ${userName}
+
+## Your Question
+"${question}"
+
+I've consulted the NUMO Oracle cards to provide guidance on your question. The ${spreadName} reveals important insights about your situation.`
+
+    const cardInterpretations = drawnCards
+      .map((drawnCard, index) => {
+        const { card, endUp } = drawnCard
+        // Access meanings directly from keyMeanings array
+        const primaryMeaning = card.keyMeanings?.[0] || "No primary meaning available."
+        const secondaryMeaning = card.keyMeanings?.[2] || "No secondary meaning available." // Assuming keyMeanings[2] is secondary
+        const position = currentSpread.positions[index]
+
+        const planet = card.planetInternalInfluence
+        const astrology = card.astrologyExternalDomain
+        const sacredGeometry = card.sacredGeometry
+        const icon = card.iconSymbol
+        const orientation = card.orientation
+
+        return `
+### ${position.name}: ${card.fullTitle} (${card.baseElement})
+
+This ${card.baseElement} card in the ${position.name} position reveals:
+- **Primary Meaning:** ${primaryMeaning}
+- **Secondary Meaning:** ${secondaryMeaning}
+- **Key Meanings:** ${card.keyMeanings?.join(", ") || "N/A"}
+
+**Symbolism Breakdown:**
+${card.symbolismBreakdown.map((s) => `- ${s}`).join("\n")}
+
+**Additional Symbolism:**
+- **Sacred Geometry:** ${sacredGeometry}
+- **Planet (Internal Influence):** ${planet}
+- **Astrology (External Domain):** ${astrology}
+- **Icon:** ${icon}
+- **Orientation:** ${orientation}
+`
+      })
+      .join("\n")
+
+    const patterns = `
+## Patterns and Connections
+
+${getPatternInsight()}
+
+${getElementalInsight()}
+
+${getNumerologicalInsight()}`
+
+    const guidance = `
+## Guidance and Recommendations
+
+Based on these cards, consider the following actions:
+
+1. ${getActionRecommendation(1)}
+2. ${getActionRecommendation(2)}
+3. ${getActionRecommendation(3)}
+
+## Timing Considerations
+
+${getTimingInsight()}
+
+## Final Thoughts
+
+Remember that you have the power to shape your path forward. These cards offer guidance, but your free will and choices ultimately determine your journey. Trust your intuition as you integrate these insights.`
+
+    return `${intro}\n\n## Card Interpretations\n${cardInterpretations}\n${patterns}\n${guidance}`
+  }
+
+  const getNumberMeaning = (number: number): string => {
+    const meanings = {
+      0: "infinite potential and the void from which all creation emerges",
+      1: "new beginnings, independence, and leadership",
+      2: "balance, partnership, and duality",
+      3: "creativity, expression, and growth",
+      4: "stability, structure, and foundation",
+      5: "change, freedom, and adventure",
+      6: "harmony, responsibility, and nurturing",
+      7: "spirituality, wisdom, and inner knowing",
+      8: "abundance, power, and manifestation",
+      9: "completion, humanitarianism, and wisdom",
     }
 
+    return meanings[number as keyof typeof meanings] || "personal transformation and spiritual growth"
+  }
+
+  const getPatternInsight = (): string => {
+    const elements = drawnCards.map((item) => item.card.baseElement.toLowerCase())
+    const dominantElement = getMostCommonElement(elements)
+
+    return `The cards show a predominance of ${dominantElement} energy, suggesting that ${getElementalAdvice(dominantElement)}.`
+  }
+
+  const getElementalInsight = (): string => {
+    const elements = drawnCards.map((item) => item.card.baseElement.toLowerCase())
+    const missingElements = ["fire", "water", "air", "earth", "spirit"].filter((el) => !elements.includes(el))
+
+    if (missingElements.length > 0) {
+      return `You may benefit from consciously incorporating more ${missingElements.join(", ")} energy into your approach, as these elements are not strongly represented in your reading.`
+    } else {
+      return `Your reading shows a balanced representation of all elemental energies, suggesting a holistic approach to your situation.`
+    }
+  }
+
+  const getNumerologicalInsight = (): string => {
+    if (lifePath) {
+      return `Your Life Path number ${lifePath} resonates with the energy of ${getLifePathMeaning(lifePath)}. This core vibration influences how you interact with the energies shown in the cards.`
+    } else {
+      return `The numerical vibrations in your cards suggest patterns of ${getRandomNumerologicalInsight()}.`
+    }
+  }
+
+  const getLifePathMeaning = (lifePath: number): string => {
+    const meanings = {
+      1: "independence, leadership, and pioneering new paths",
+      2: "cooperation, diplomacy, and sensitivity to others",
+      3: "creative expression, joy, and communication",
+      4: "stability, practicality, and building solid foundations",
+      5: "freedom, change, and adaptability",
+      6: "responsibility, nurturing, and harmony",
+      7: "analysis, wisdom, and spiritual seeking",
+      8: "abundance, power, and material mastery",
+      9: "compassion, humanitarianism, and completion",
+      11: "spiritual insight, intuition, and inspiration",
+      22: "practical mastery and building for the greater good",
+      33: "selfless service and spiritual teaching",
+    }
+
+    return meanings[lifePath as keyof typeof meanings] || "personal growth and spiritual development"
+  }
+
+  const getRandomNumerologicalInsight = (): string => {
+    const insights = [
+      "transformation and personal growth",
+      "stability balanced with necessary change",
+      "creative expression and emotional depth",
+      "practical wisdom and spiritual insight",
+      "building new foundations while honoring the past",
+    ]
+
+    return insights[Math.floor(Math.random() * insights.length)]
+  }
+
+  const getActionRecommendation = (index: number): string => {
+    const recommendations = [
+      "Trust your intuition more fully, especially regarding matters of timing.",
+      "Create more structure in your approach to this situation.",
+      "Express your feelings more openly with those involved.",
+      "Research additional information before making a final decision.",
+      "Allow yourself time for reflection before taking action.",
+      "Seek input from someone with expertise in this area.",
+      "Consider how your past experiences are influencing your current perspective.",
+      "Focus on practical, step-by-step progress rather than seeking immediate results.",
+      "Explore creative solutions that you haven't previously considered.",
+      "Pay attention to recurring symbols or patterns in your daily life.",
+      "Balance your analytical thinking with emotional intelligence.",
+      "Create a specific ritual or practice to help you connect with your inner wisdom.",
+    ]
+
+    const adjustedIndex = (index * 3 + drawnCards.length) % recommendations.length
+    return recommendations[adjustedIndex]
+  }
+
+  const getTimingInsight = (): string => {
+    const insights = [
+      "The cards suggest that timing is particularly important in this situation. The presence of multiple elemental energies indicates that you may need to coordinate different aspects carefully.",
+      "This reading indicates that the coming month will be particularly significant for developments related to your question.",
+      "The energies shown here suggest that patience is needed. Allow situations to develop naturally rather than forcing outcomes.",
+      "There appears to be an acceleration of energy around your situation. Be prepared for developments to unfold more quickly than expected.",
+      "Cycles are highlighted in this reading. Pay attention to patterns from your past as they may offer insights about timing.",
+    ]
+
+    return insights[Math.floor(Math.random() * insights.length)]
+  }
+
+  const getMostCommonElement = (elements: string[]): string => {
+    const counts: Record<string, number> = {}
+    elements.forEach((element) => {
+      counts[element] = (counts[element] || 0) + 1
+    })
+
+    let maxElement = elements[0]
+    let maxCount = 0
+
+    Object.entries(counts).forEach(([element, count]) => {
+      if (count > maxCount) {
+        maxElement = element
+        maxCount = count
+      }
+    })
+
+    return maxElement
+  }
+
+  const getElementalAdvice = (element: string): string => {
+    const advice = {
+      fire: "passion, creativity, and transformation are key themes in your situation",
+      water: "emotions, intuition, and relationships are central to your question",
+      air: "communication, mental clarity, and new ideas will be important",
+      earth: "practical matters, stability, and material concerns need attention",
+      spirit: "spiritual connection, purpose, and higher guidance are significant",
+    }
+
+    return advice[element as keyof typeof advice] || "balance between different aspects of life is important"
+  }
+
+  const renderCard = (drawnCard: { card: OracleCard; endUp: "first" | "second" } | undefined, index: number) => {
+    if (!drawnCard) return null
+
     const { card, endUp } = drawnCard
-    const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
-    const cardImage = endUp === "first" ? card.firstEndImage : card.secondEndImage
+    const cardImage = getCardImagePath(card, endUp)
     const hasImageError = imageErrors[card.id]
-
-    // Format the card number according to the new numbering scheme
-    const formattedNumber = formatCardNumber(cardEnd.number)
-
-    // Update the renderCard function to use normalized image paths
-    const normalizedCardImage = normalizeImagePath(cardImage)
 
     return (
       <div
@@ -753,46 +831,44 @@ export default function EnhancedNumoDealer() {
                 width={180}
                 height={280}
                 className="object-cover"
-                onError={() => console.error("Error loading card back image")}
-                unoptimized={process.env.NODE_ENV === "development"}
-                priority
+                onError={() => {}}
               />
             </div>
           ) : (
             <>
-              {!hasImageError && normalizedCardImage ? (
+              {!hasImageError && cardImage ? (
                 <div className="relative w-full h-full">
                   <Image
-                    src={normalizedCardImage || "/placeholder.svg?height=280&width=180&query=mystical card"}
-                    alt={`${card.name} - ${endUp === "first" ? "First End" : "Second End"}`}
+                    src={
+                      cardImage || `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
+                    }
+                    alt={`${card.fullTitle} - ${endUp === "first" ? "Base Element" : "Synergistic Element"}`}
                     fill
                     className="object-cover"
                     onError={() => handleImageError(card.id)}
                     priority
-                    sizes="(max-width: 768px) 100vw, 180px"
-                    unoptimized={process.env.NODE_ENV === "development"}
                   />
                   <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-center">
-                    <div className="text-xs font-medium text-white">{card.name}</div>
+                    <div className="text-xs font-medium text-white">{card.fullTitle}</div>
                     <div className="text-xs text-gray-300">
-                      {formattedNumber} • {card.element}
+                      {card.number} • {endUp === "first" ? card.baseElement : card.synergisticElement}
                     </div>
                   </div>
                 </div>
               ) : (
                 <div
-                  className={`w-full h-full ${getElementColor(card.element).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4`}
+                  className={`w-full h-full ${getElementColor(card.baseElement).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4`}
                 >
-                  <div className="text-center mb-2 text-sm font-medium text-white">{card.name}</div>
+                  <div className="text-center mb-2 text-sm font-medium text-white">{card.fullTitle}</div>
                   <div className="w-24 h-24 my-4 rounded-full bg-gray-800/50 border border-gray-300/30 flex items-center justify-center">
-                    <span className={getElementColor(card.element).split(" ").slice(2).join(" ") + " text-4xl"}>
-                      {getElementSymbol(card.element)}
+                    <span className={getElementColor(card.baseElement).split(" ").slice(2).join(" ") + " text-4xl"}>
+                      {getElementSymbol(card.baseElement)}
                     </span>
                   </div>
                   <div className="text-xs text-center text-white/80 mt-2">
-                    {card.type} • {card.element}
+                    {card.suit} • {card.baseElement}
                   </div>
-                  <div className="text-lg font-bold text-white mt-2">{formattedNumber}</div>
+                  <div className="text-lg font-bold text-white mt-2">{card.number}</div>
                 </div>
               )}
             </>
@@ -802,653 +878,307 @@ export default function EnhancedNumoDealer() {
     )
   }
 
-  // Render reading interpretation
-  const renderReadingInterpretation = () => {
-    if (!showReading || drawnCards.length === 0) return null
-
-    return (
-      <div className="mt-8">
-        <Tabs defaultValue="detailed" className="w-full">
-          <TabsList className="grid grid-cols-2 mb-4">
-            <TabsTrigger value="basic">Basic Reading</TabsTrigger>
-            <TabsTrigger value="detailed" disabled={!showDetailedReading && !isGeneratingReading} className="relative">
-              Detailed Reading
-              {!showDetailedReading && !isGeneratingReading && (
-                <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
-                </span>
-              )}
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="basic" className="space-y-4">
-            <Card className="bg-gray-900/50 border-gray-700">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Reading Interpretation</span>
-                  {!showDetailedReading && !isGeneratingReading && (
-                    <Button
-                      onClick={generateDetailedReading}
-                      className="bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600"
-                      disabled={isGeneratingReading}
-                    >
-                      <Wand2 className="mr-2 h-4 w-4" />
-                      {isGeneratingReading ? "Generating..." : "Generate Detailed Reading"}
-                    </Button>
-                  )}
-                </CardTitle>
-                <CardDescription>
-                  {formData.question
-                    ? `Question: "${formData.question}"`
-                    : "Your cards have been drawn. Here's what they reveal:"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {drawnCards.map((drawnCard, index) => {
-                  const { card, endUp } = drawnCard
-                  const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
-                  const position = currentSpread.positions[index]
-                  const formattedNumber = formatCardNumber(cardEnd.number)
-
-                  return (
-                    <div key={`${card.id}-${index}`} className="border-b border-gray-800 pb-4 last:border-0">
-                      <h4 className="font-semibold text-purple-300 mb-2 flex items-center justify-between">
-                        <span className="flex items-center">
-                          {getElementIcon(card.element)}
-                          <span className="ml-2">
-                            {card.name} ({endUp === "first" ? "First End" : "Second End"}) - {position.name}
-                          </span>
-                        </span>
-                        <button
-                          onClick={() => {
-                            setActiveCardIndex(activeCardIndex === index ? null : index)
-                            setShowExpandedReading(true)
-                          }}
-                          className="text-xs bg-purple-900/40 hover:bg-purple-900/60 px-2 py-1 rounded flex items-center"
-                        >
-                          <Info className="w-3 h-3 mr-1" />
-                          Expanded Meaning
-                        </button>
-                      </h4>
-                      <p className="text-gray-300 mb-3">{cardEnd.meaning}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {cardEnd.keywords.map((keyword, i) => (
-                          <span key={i} className="px-2 py-1 bg-purple-900/20 text-purple-300 text-xs rounded-full">
-                            {keyword}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="mt-3 text-sm grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <div>
-                          <span className="text-purple-300">Number:</span> {formattedNumber}
-                        </div>
-                        <div>
-                          <span className="text-purple-300">Sacred Geometry:</span> {cardEnd.sacredGeometry}
-                        </div>
-                        <div>
-                          <span className="text-purple-300">Planet:</span> {cardEnd.planet}
-                        </div>
-                        <div>
-                          <span className="text-purple-300">Astrological Sign:</span> {cardEnd.astrologicalSign}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </CardContent>
-              <CardFooter>
-                {currentSpread.id !== "single" && (
-                  <div className="w-full bg-purple-900/20 p-4 rounded-lg border border-purple-500/30">
-                    <h4 className="font-semibold text-purple-300 mb-2">Overall Reading</h4>
-                    <p className="text-gray-300 mb-2">
-                      This {currentSpread.name} reveals {currentSpread.description}
-                    </p>
-                    <ul className="list-disc pl-5 text-gray-300 space-y-1">
-                      {currentSpread.positions.map((position, index) => (
-                        <li key={index}>
-                          <span className="text-purple-300">{position.name}:</span> {position.description}
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="mt-2 text-gray-300">
-                      Consider how these energies flow together to guide your path forward.
-                    </p>
-                  </div>
-                )}
-              </CardFooter>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="detailed">
-            <Card className="bg-gray-900/50 border-gray-700">
-              <CardHeader>
-                <CardTitle>Detailed NUMO Oracle Reading</CardTitle>
-                <CardDescription>A comprehensive analysis of your cards by NUMOracle</CardDescription>
-              </CardHeader>
-              <CardContent className="prose prose-invert max-w-none">
-                {isGeneratingReading ? (
-                  <div className="flex flex-col items-center justify-center py-12">
-                    <div className="w-16 h-16 border-4 border-t-purple-500 border-r-transparent border-b-purple-500 border-l-transparent rounded-full animate-spin"></div>
-                    <p className="mt-4 text-center text-gray-400">Channeling the wisdom of the cosmos...</p>
-                  </div>
-                ) : showDetailedReading ? (
-                  <ReactMarkdown className="prose prose-invert max-w-none prose-headings:text-purple-300 prose-a:text-blue-300">
-                    {aiGeneratedReading}
-                  </ReactMarkdown>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-12">
-                    <Book className="w-16 h-16 text-gray-500" />
-                    <p className="mt-4 text-center text-gray-400">
-                      Generate a detailed reading to see the comprehensive analysis
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-    )
-  }
-
-  // Update the renderExpandedCardReading function to display the correct information
   const renderExpandedCardReading = () => {
     if (!showExpandedReading || activeCardIndex === null || !drawnCards[activeCardIndex]) return null
 
-    const { card, endUp } = drawnCards[activeCardIndex]
-    const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
-    const cardImage = endUp === "first" ? card.firstEndImage : card.secondEndImage
-    const formattedNumber = formatCardNumber(cardEnd.number)
+    const selectedCard = drawnCards[activeCardIndex]
+    if (!selectedCard) return null
 
-    // Update the renderCard function to use normalized image paths
-    const normalizedCardImage = normalizeImagePath(cardImage)
+    const { card, endUp } = selectedCard
+    const cardImage = getCardImagePath(card, endUp)
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 p-4">
         <div className="bg-gray-900 border border-purple-500/30 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="sticky top-0 bg-gray-900 p-4 border-b border-purple-500/30 flex justify-between items-center">
-            <h3 className="text-xl font-bold text-purple-300">
-              {card.name} - {endUp === "first" ? "First End" : "Second End"}
-            </h3>
-            <button
-              onClick={() => {
-                setShowExpandedReading(false)
-                setActiveCardIndex(null)
-              }}
-              className="text-gray-400 hover:text-white"
-            >
-              ✕
-            </button>
-          </div>
-
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="md:col-span-1 flex justify-center">
-                <div className="relative w-[180px] h-[280px] rounded-lg overflow-hidden shadow-[0_0_20px_rgba(128,0,128,0.3)]">
+          <div className="p-4">
+            <h2 className="text-2xl font-bold text-white mb-4">{card.fullTitle}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                {cardImage ? (
                   <Image
-                    src={normalizedCardImage || "/placeholder.svg?height=280&width=180&query=mystical card"}
-                    alt={card.name}
-                    width={180}
-                    height={280}
-                    className="object-cover w-full h-full"
-                    onError={() => handleImageError(card.id)}
-                    unoptimized={process.env.NODE_ENV === "development"}
+                    src={cardImage || "/placeholder.svg"}
+                    alt={`${card.fullTitle} - ${endUp === "first" ? "Base Element" : "Synergistic Element"}`}
+                    width={300}
+                    height={420}
+                    className="object-cover rounded-lg"
                   />
-                </div>
-              </div>
-
-              <div className="md:col-span-2">
-                <div className="mb-4">
-                  <h4 className="text-purple-300 font-semibold mb-1">Card Details</h4>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <span className="text-gray-400">Element:</span> {card.element}
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Type:</span> {card.type}
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Number:</span> {formattedNumber}
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Sacred Geometry:</span> {cardEnd.sacredGeometry}
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Planet:</span> {cardEnd.planet}
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Rules:</span> {cardEnd.astrologicalSign}
-                    </div>
+                ) : (
+                  <div className="w-full h-[420px] bg-gray-800 flex items-center justify-center text-white">
+                    No Image Available
                   </div>
-                </div>
-
-                <div className="mb-4">
-                  <h4 className="text-purple-300 font-semibold mb-1">Meaning</h4>
-                  <p className="text-gray-300">{cardEnd.meaning}</p>
-                </div>
-
-                <div className="mb-4">
-                  <h4 className="text-purple-300 font-semibold mb-1">Keywords</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {cardEnd.keywords.map((keyword, i) => (
-                      <span key={i} className="px-2 py-1 bg-purple-900/20 text-purple-300 text-xs rounded-full">
-                        {keyword}
-                      </span>
-                    ))}
+                )}
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-purple-300 mb-2">Card Details</h3>
+                <div className="text-gray-300 space-y-2">
+                  <div>
+                    <strong>Base Element:</strong> {card.baseElement}
+                  </div>
+                  <div>
+                    <strong>Synergistic Element:</strong> {card.synergisticElement}
+                  </div>
+                  <div>
+                    <strong>Suit:</strong> {card.suit}
+                  </div>
+                  <div>
+                    <strong>Number:</strong> {card.number}
+                  </div>
+                  <div>
+                    <strong>Sacred Geometry:</strong> {card.sacredGeometry}
+                  </div>
+                  <div>
+                    <strong>Planet (Internal Influence):</strong> {card.planetInternalInfluence}
+                  </div>
+                  <div>
+                    <strong>Astrology (External Domain):</strong> {card.astrologyExternalDomain}
+                  </div>
+                  <div>
+                    <strong>Orientation:</strong> {card.orientation}
+                  </div>
+                  <div>
+                    <strong>Icon:</strong> {card.iconSymbol}
                   </div>
                 </div>
               </div>
             </div>
-
-            {cardEnd.expandedMeaning && (
-              <div className="mt-6 border-t border-purple-500/30 pt-4">
-                <h4 className="text-purple-300 font-semibold mb-2">Expanded Interpretation</h4>
-                <p className="text-gray-300 mb-4">{cardEnd.expandedMeaning}</p>
-              </div>
-            )}
-
-            {cardEnd.elementalGuidance && (
-              <div className="mt-6 border-t border-purple-500/30 pt-4">
-                <h4 className="text-purple-300 font-semibold mb-2">Elemental Guidance</h4>
-                <div className="p-3 bg-purple-900/20 border border-purple-500/30 rounded-md">
-                  {typeof cardEnd.elementalGuidance === "string" ? (
-                    <p className="text-gray-300">{cardEnd.elementalGuidance}</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {cardEnd.elementalGuidance.earth && (
-                        <div>
-                          <h5 className="text-green-300 font-medium">Earth</h5>
-                          <p className="text-gray-300 text-sm">{cardEnd.elementalGuidance.earth}</p>
-                        </div>
-                      )}
-                      {cardEnd.elementalGuidance.air && (
-                        <div>
-                          <h5 className="text-yellow-300 font-medium">Air</h5>
-                          <p className="text-gray-300 text-sm">{cardEnd.elementalGuidance.air}</p>
-                        </div>
-                      )}
-                      {cardEnd.elementalGuidance.fire && (
-                        <div>
-                          <h5 className="text-red-300 font-medium">Fire</h5>
-                          <p className="text-gray-300 text-sm">{cardEnd.elementalGuidance.fire}</p>
-                        </div>
-                      )}
-                      {cardEnd.elementalGuidance.water && (
-                        <div>
-                          <h5 className="text-blue-300 font-medium">Water</h5>
-                          <p className="text-gray-300 text-sm">{cardEnd.elementalGuidance.water}</p>
-                        </div>
-                      )}
-                      {cardEnd.elementalGuidance.spirit && (
-                        <div>
-                          <h5 className="text-purple-300 font-medium">Spirit</h5>
-                          <p className="text-gray-300 text-sm">{cardEnd.elementalGuidance.spirit}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+            <div className="mt-4">
+              <button
+                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+                onClick={() => setShowExpandedReading(false)}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       </div>
     )
   }
 
-  // Render card layout based on spread type
-  const renderCardLayout = () => {
-    console.log("Rendering card layout, drawnCards:", drawnCards)
+  const drawCard = () => {
+    const randomNumber = Math.floor(Math.random() * 10)
+    const cardData = getCardByNumber(randomNumber)
 
-    if (drawnCards.length === 0) return null
+    if (cardData) {
+      const elements = ["Water", "Fire", "Earth", "Air", "Spirit"]
+      const randomElement = elements[Math.floor(Math.random() * elements.length)]
 
-    if (selectedSpread === "single") {
-      return <div className="flex justify-center">{renderCard(drawnCards[0], 0)}</div>
-    } else if (selectedSpread === "three") {
-      return (
-        <div className="flex flex-wrap justify-center gap-6">
-          {drawnCards.map((card, index) => (
-            <div key={`${card.card.id}-${index}`} className="text-center">
-              {renderCard(card, index)}
-              <div className="mt-2 text-sm text-purple-300">{currentSpread.positions[index].name}</div>
-            </div>
-          ))}
-        </div>
-      )
-    } else if (selectedSpread === "five") {
-      return (
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 max-w-3xl mx-auto">
-          <div className="md:col-start-3 md:col-span-1 flex justify-center relative">
-            {renderCard(drawnCards[0], 0)}
-            <div className="absolute -mt-8 text-sm text-purple-300">{currentSpread.positions[0].name}</div>
-          </div>
-          <div className="md:col-start-2 md:col-span-1 flex justify-center items-center relative">
-            {renderCard(drawnCards[1], 1)}
-            <div className="absolute -ml-16 text-sm text-purple-300">{currentSpread.positions[1].name}</div>
-          </div>
-          <div className="md:col-start-4 md:col-span-1 flex justify-center items-center relative">
-            {renderCard(drawnCards[2], 2)}
-            <div className="absolute ml-16 text-sm text-purple-300">{currentSpread.positions[2].name}</div>
-          </div>
-          <div className="md:col-start-1 md:col-span-1 flex justify-center relative">
-            {renderCard(drawnCards[3], 3)}
-            <div className="absolute -ml-16 text-sm text-purple-300">{currentSpread.positions[3].name}</div>
-          </div>
-          <div className="md:col-start-5 md:col-span-1 flex justify-center relative">
-            {renderCard(drawnCards[4], 4)}
-            <div className="absolute ml-16 text-sm text-purple-300">{currentSpread.positions[4].name}</div>
-          </div>
-        </div>
-      )
+      setSelectedElement(randomElement)
+      setDrawnCards([...drawnCardsState, { ...cardData, selectedElement: randomElement }])
     }
-
-    return null
   }
 
-  // Render user input form
-  const renderUserForm = () => {
-    return (
-      <Card className="bg-gray-900/50 border-gray-700">
-        <CardHeader>
-          <CardTitle>Your Personal Oracle Reading</CardTitle>
-          <CardDescription>
-            Enter your details to receive a personalized reading that incorporates numerology and sacred symbolism
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleFormSubmit} className="space-y-6">
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName" className="flex items-center">
-                    <User className="w-4 h-4 mr-2" />
-                    Full Name <span className="text-red-500 ml-1">*</span>
-                  </Label>
-                  <Input
-                    id="fullName"
-                    placeholder="Enter your full name"
-                    value={formData.fullName}
-                    onChange={(e) => handleInputChange("fullName", e.target.value)}
-                    className={`bg-gray-800 border-gray-700 ${formErrors.fullName ? "border-red-500" : ""}`}
-                  />
-                  {formErrors.fullName && <p className="text-red-500 text-sm">{formErrors.fullName}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="birthDate" className="flex items-center">
-                    <CalendarIcon className="w-4 h-4 mr-2" />
-                    Birth Date <span className="text-red-500 ml-1">*</span>
-                  </Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={`w-full justify-start text-left font-normal bg-gray-800 border-gray-700 ${
-                          formErrors.birthDate ? "border-red-500" : ""
-                        }`}
-                      >
-                        {formData.birthDate ? (
-                          format(formData.birthDate, "PPP")
-                        ) : (
-                          <span className="text-muted-foreground">Select your birth date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 bg-gray-800 border-gray-700">
-                      <Calendar
-                        mode="single"
-                        selected={formData.birthDate}
-                        onSelect={(date) => handleInputChange("birthDate", date)}
-                        initialFocus
-                        disabled={(date) => date > new Date()}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  {formErrors.birthDate && <p className="text-red-500 text-sm">{formErrors.birthDate}</p>}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="birthPlace" className="flex items-center">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Birth Place <span className="text-gray-400 text-sm ml-1">(optional)</span>
-                </Label>
-                <Input
-                  id="birthPlace"
-                  placeholder="Enter your birth place"
-                  value={formData.birthPlace}
-                  onChange={(e) => handleInputChange("birthPlace", e.target.value)}
-                  className="bg-gray-800 border-gray-700"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="question" className="flex items-center">
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Your Question <span className="text-red-500 ml-1">*</span>
-                </Label>
-                <Textarea
-                  id="question"
-                  placeholder="What guidance do you seek from the oracle?"
-                  value={formData.question}
-                  onChange={(e) => handleInputChange("question", e.target.value)}
-                  className={`bg-gray-800 border-gray-700 min-h-[100px] ${formErrors.question ? "border-red-500" : ""}`}
-                />
-                {formErrors.question && <p className="text-red-500 text-sm">{formErrors.question}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="spreadType">Spread Type</Label>
-                <Select value={selectedSpread} onValueChange={setSelectedSpread}>
-                  <SelectTrigger id="spreadType" className="bg-gray-800 border-gray-700">
-                    <SelectValue placeholder="Select spread type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700">
-                    {spreadTypes.map((spread) => (
-                      <SelectItem key={spread.id} value={spread.id}>
-                        {spread.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-gray-400">{currentSpread.description}</p>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600"
-            >
-              <Sparkles className="mr-2 h-5 w-5" />
-              Begin Your Oracle Reading
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  // Render the current step
-  const renderCurrentStep = () => {
-    switch (currentStep) {
-      case "form":
-        return renderUserForm()
-      case "cards":
-        return (
-          <div>
-            <div className="mb-8">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold mb-2 flex items-center">
-                    <Sparkles className="mr-2 h-5 w-5 text-purple-400" />
-                    <span>Draw Your Oracle Cards</span>
-                  </h2>
-                  <p className="text-gray-300">
-                    Focus on your question as you draw your cards. Each card will reveal insights about your situation.
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-6 mb-6">
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-purple-300 mb-2">Your Reading Details</h3>
-                    <div className="space-y-1 text-sm">
-                      <p>
-                        <span className="text-gray-400">Name:</span> {formData.fullName}
-                      </p>
-                      <p>
-                        <span className="text-gray-400">Birth Date:</span>{" "}
-                        {formData.birthDate ? format(formData.birthDate, "PPP") : "Not provided"}
-                      </p>
-                      {formData.birthPlace && (
-                        <p>
-                          <span className="text-gray-400">Birth Place:</span> {formData.birthPlace}
-                        </p>
-                      )}
-                      {lifePath !== null && (
-                        <p>
-                          <span className="text-gray-400">Life Path Number:</span> {lifePath}
-                        </p>
-                      )}
-                      {destinyNumber !== null && (
-                        <p>
-                          <span className="text-gray-400">Destiny Number:</span> {destinyNumber}
-                        </p>
-                      )}
-                      <p>
-                        <span className="text-gray-400">Question:</span> {formData.question}
-                      </p>
-                      <p>
-                        <span className="text-gray-400">Spread:</span> {currentSpread.name}
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    className="bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white"
-                    onClick={handleDrawCards}
-                    disabled={isDrawing}
-                  >
-                    {isDrawing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Drawing Cards...
-                      </>
-                    ) : (
-                      "Draw Cards"
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div ref={dealAreaRef} className="min-h-[300px] mb-8">
-              {drawnCards.length > 0 ? (
-                renderCardLayout()
-              ) : (
-                <div className="h-[300px] flex items-center justify-center text-center text-gray-400">
-                  <div>
-                    <Book className="h-16 w-16 mx-auto mb-4 opacity-30" />
-                    <p>Click "Draw Your Cards" to begin your reading</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )
-      case "reading":
-        return (
-          <div>
-            <div className="mb-8">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold mb-2 flex items-center">
-                    <Sparkles className="mr-2 h-5 w-5 text-purple-400" />
-                    <span>Your Oracle Reading</span>
-                  </h2>
-                  <p className="text-gray-300">Here is your personalized reading based on the cards you've drawn.</p>
-                </div>
-              </div>
-
-              <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-6 mb-6">
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-purple-300 mb-2">Your Reading Details</h3>
-                    <div className="space-y-1 text-sm">
-                      <p>
-                        <span className="text-gray-400">Name:</span> {formData.fullName}
-                      </p>
-                      <p>
-                        <span className="text-gray-400">Birth Date:</span>{" "}
-                        {formData.birthDate ? format(formData.birthDate, "PPP") : "Not provided"}
-                      </p>
-                      {formData.birthPlace && (
-                        <p>
-                          <span className="text-gray-400">Birth Place:</span> {formData.birthPlace}
-                        </p>
-                      )}
-                      {lifePath !== null && (
-                        <p>
-                          <span className="text-gray-400">Life Path Number:</span> {lifePath}
-                        </p>
-                      )}
-                      {destinyNumber !== null && (
-                        <p>
-                          <span className="text-gray-400">Destiny Number:</span> {destinyNumber}
-                        </p>
-                      )}
-                      <p>
-                        <span className="text-gray-400">Question:</span> {formData.question}
-                      </p>
-                      <p>
-                        <span className="text-gray-400">Spread:</span> {currentSpread.name}
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    className="bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white"
-                    onClick={handleDrawCards}
-                    disabled={isDrawing}
-                  >
-                    {isDrawing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Drawing Cards...
-                      </>
-                    ) : (
-                      "Draw Cards"
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div ref={dealAreaRef} className="min-h-[300px] mb-8">
-              {drawnCards.length > 0 ? (
-                renderCardLayout()
-              ) : (
-                <div className="h-[300px] flex items-center justify-center text-center text-gray-400">
-                  <div>
-                    <Book className="h-16 w-16 mx-auto mb-4 opacity-30" />
-                    <p>Click "Draw Your Cards" to begin your reading</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {renderReadingInterpretation()}
-          </div>
-        )
-    }
+  const resetCards = () => {
+    setDrawnCards([])
+    setSelectedElement(null)
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        {renderCurrentStep()}
-        {renderExpandedCardReading()}
+    <div className={cn("flex flex-col items-center gap-6", className)} ref={dealerRef}>
+      {allowFreeReading && (
+        <div className="w-full max-w-md space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="question">Your Question</Label>
+            <Textarea
+              id="question"
+              placeholder="What would you like to ask the oracle?"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              className="min-h-24"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Reading Type</Label>
+            <RadioGroup
+              defaultValue={spreadType}
+              onValueChange={(value) => setSpreadType(value as "single" | "three")}
+              className="flex space-x-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="single" id="single" />
+                <Label htmlFor="single">Single Card</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="three" id="three" />
+                <Label htmlFor="three">Three Card Spread</Label>
+              </div>
+            </RadioGroup>
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-wrap justify-center gap-4">
+        {selectedCards.map((card, index) => (
+          <div
+            key={index}
+            className={`relative w-64 h-96 perspective-1000 cursor-pointer transition-transform duration-500 transform hover:scale-105`}
+            onClick={() => flipCard(index)}
+          >
+            <div
+              className={`absolute w-full h-full transition-transform duration-500 transform-style-3d ${
+                flippedCards[index] ? "rotate-y-180" : ""
+              }`}
+            >
+              <div className="absolute w-full h-full backface-hidden">
+                <Image
+                  src="/back.jpg"
+                  alt="Card Back"
+                  width={300}
+                  height={450}
+                  className="rounded-lg object-cover w-64 h-96"
+                />
+              </div>
+
+              <div className="absolute w-full h-full backface-hidden rotate-y-180">
+                <Image
+                  src={getCardImagePath(card, "first") || "/placeholder.svg"}
+                  alt={card.fullTitle}
+                  width={300}
+                  height={450}
+                  className="rounded-lg object-cover w-64 h-96"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {isDealing && (
+          <div className="w-64 h-96 flex items-center justify-center">
+            <Skeleton className="w-64 h-96 rounded-lg" />
+          </div>
+        )}
       </div>
+
+      <div className="flex flex-wrap gap-4 justify-center mt-4">
+        <Button onClick={dealCards} disabled={isDealing || isGenerating} size="lg">
+          {selectedCards.length === 0 ? "Deal Cards" : "Redeal"}
+        </Button>
+
+        {selectedCards.length > 0 && (
+          <Button
+            onClick={generateReadingFromCards}
+            disabled={isGenerating || !selectedCards.length || !flippedCards.every((flipped) => flipped)}
+            size="lg"
+            variant="secondary"
+          >
+            {isGenerating ? "Generating..." : "Generate Reading"}
+          </Button>
+        )}
+      </div>
+
+      {error && <div className="text-red-500 mt-4">{error}</div>}
+
+      {reading && (
+        <Card className="w-full max-w-3xl mt-8">
+          <CardContent className="p-6">
+            <h3 className="text-2xl font-bold mb-4">Your Reading</h3>
+            <div className="prose dark:prose-invert">
+              <div dangerouslySetInnerHTML={{ __html: reading.content }} />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {drawnCards.length > 0 ? (
+        <div className="space-y-8">
+          {drawnCards.map((drawnCard, index) => {
+            const { card, endUp } = drawnCard
+            const cardImage = getCardImagePath(card, endUp)
+            const primaryMeaning = card.keyMeanings?.[0] || "No primary meaning available."
+            const secondaryMeaning = card.keyMeanings?.[2] || "No secondary meaning available."
+
+            return (
+              <Card key={index} className="overflow-hidden">
+                <div className="flex flex-col md:flex-row">
+                  <div className="w-full md:w-1/3 p-4 flex justify-center items-center">
+                    <div className="relative w-full aspect-[3/4] bg-muted rounded-md overflow-hidden">
+                      <Image
+                        src={cardImage || "/placeholder.svg"}
+                        alt={card.fullTitle}
+                        fill
+                        className="object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = `/cards/${card.number}${card.suit.toLowerCase()}.jpg`
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="w-full md:w-2/3 p-4">
+                    <h2 className="text-2xl font-bold mb-2">{card.fullTitle}</h2>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Badge variant="secondary">{card.suit}</Badge>
+                      <Badge>Number: {card.number}</Badge>
+                      <Badge variant="outline">Synergistic Element: {card.synergisticElement}</Badge>
+                      <Badge variant="destructive">Base Element: {card.baseElement}</Badge>
+                      {getBaseElement(card) === card.baseElement && (
+                        <Badge className="bg-amber-500">Base Element Match!</Badge>
+                      )}
+                    </div>
+                    <Tabs defaultValue="overview">
+                      <TabsList className="w-full">
+                        <TabsTrigger value="overview" className="flex-1">
+                          Overview
+                        </TabsTrigger>
+                        <TabsTrigger value="element" className="flex-1">
+                          Elemental Influence
+                        </TabsTrigger>
+                        <TabsTrigger value="symbolism" className="flex-1">
+                          Symbolism Breakdown
+                        </TabsTrigger>
+                      </TabsList>
+
+                      <TabsContent value="overview" className="space-y-4">
+                        <div>
+                          <h3 className="text-lg font-semibold">Key Meanings</h3>
+                          <ul className="list-disc pl-5">
+                            {card.keyMeanings.map((meaning, i) => (
+                              <li key={i}>{meaning}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold">Symbolism Summary</h3>
+                          <p>{(card.symbolismBreakdown || []).join(" ")}</p>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="element" className="space-y-4">
+                        <div className="border rounded-lg p-3">
+                          <h3 className="text-lg font-semibold flex items-center gap-2">Elemental Influence</h3>
+                          <div className="mt-2 space-y-2">
+                            {card.symbolismBreakdown
+                              .filter((s) => s.includes("Element"))
+                              .map((line, i) => (
+                                <p key={i} className="text-sm text-gray-300">
+                                  {line}
+                                </p>
+                              ))}
+                          </div>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="symbolism" className="space-y-4">
+                        <div className="space-y-2">
+                          {card.symbolismBreakdown.map((item, i) => (
+                            <div key={i}>
+                              <p className="text-gray-300">{item}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                </div>
+              </Card>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="flex justify-center items-center h-64 bg-muted rounded-lg">
+          <p className="text-lg text-muted-foreground">Draw a card to begin your reading</p>
+        </div>
+      )}
     </div>
   )
 }

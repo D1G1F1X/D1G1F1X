@@ -233,21 +233,8 @@ function validateCardData(card: OracleCard): string[] {
   if (!card.baseElement) errors.push("Missing base element")
   if (!card.suit) errors.push("Missing suit")
 
-  if (!card.firstEnd) {
-    errors.push("Missing first end data")
-  } else {
-    if (card.firstEnd.number === undefined) errors.push("Missing first end number")
-    if (!card.firstEnd.meaning) errors.push("Missing first end meaning")
-    if (!card.keyMeanings || card.keyMeanings.length < 4) {
-      errors.push("Missing or insufficient key meanings (expected at least 4)")
-    }
-  }
-
-  if (!card.secondEnd) {
-    errors.push("Missing second end data")
-  } else {
-    if (card.secondEnd.number === undefined) errors.push("Missing second end number")
-    if (!card.secondEnd.meaning) errors.push("Missing second end meaning")
+  if (!card.keyMeanings || card.keyMeanings.length < 4) {
+    errors.push("Missing or insufficient key meanings (expected at least 4)")
   }
 
   if (!card.symbolismBreakdown || !Array.isArray(card.symbolismBreakdown) || card.symbolismBreakdown.length === 0) {
@@ -503,7 +490,7 @@ export default function CardDealer({
   // Get card image with fallback handling
   const getCardImage = (card: OracleCard, endUp: "first" | "second") => {
     const hasImageError = imageErrors[`${card.id}-${endUp}`]
-    const imagePath = endUp === "first" ? card.firstEndImage : card.secondEndImage
+    const imagePath = getCardImagePath(card, endUp)
     const fallbackPath = `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
 
     if (hasImageError) {
@@ -520,17 +507,15 @@ export default function CardDealer({
           <div className="text-xs text-center text-white/80 mt-2">
             {card.suit} • {card.baseElement}
           </div>
-          <div className="text-lg font-bold text-white mt-2">
-            {endUp === "first" ? card.firstEnd?.number : card.secondEnd?.number}
-          </div>
+          <div className="text-lg font-bold text-white mt-2">{card.number}</div>
         </div>
       )
     }
 
     return (
       <Image
-        src={imagePath || getCardImagePath(card, endUp) || fallbackPath}
-        alt={`${card.fullTitle} - ${endUp === "first" ? "First End" : "Second End"}`}
+        src={imagePath || fallbackPath}
+        alt={`${card.fullTitle} - ${endUp === "first" ? "Base Element" : "Synergistic Element"}`}
         fill
         className="object-cover"
         onError={(e) => handleImageError(e, card, endUp)}
@@ -544,7 +529,6 @@ export default function CardDealer({
     if (!drawnCard) return null
 
     const { card, endUp } = drawnCard
-    const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
     const hasErrors = dataErrors[card.id]?.length > 0
 
     return (
@@ -584,7 +568,7 @@ export default function CardDealer({
               <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-center">
                 <div className="text-xs font-medium text-white">{card.fullTitle}</div>
                 <div className="text-xs text-gray-300">
-                  {cardEnd?.number} • {card.baseElement}
+                  {card.number} • {endUp === "first" ? card.baseElement : card.synergisticElement}
                 </div>
               </div>
               {hasErrors && (
@@ -660,8 +644,8 @@ export default function CardDealer({
 
                 {drawnCards.map((drawnCard, index) => {
                   const { card, endUp } = drawnCard
-                  const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
                   const position = currentSpread.positions[index]
+                  const meaning = endUp === "first" ? card.keyMeanings?.[0] : card.keyMeanings?.[2] // Use keyMeanings directly
 
                   return (
                     <div key={`${card.id}-${index}`} className="border-b border-gray-800 pb-4 last:border-0">
@@ -669,7 +653,8 @@ export default function CardDealer({
                         <span className="flex items-center">
                           {getElementIcon(card.baseElement)}
                           <span className="ml-2">
-                            {card.fullTitle} ({endUp === "first" ? "First End" : "Second End"}) - {position.name}
+                            {card.fullTitle} ({endUp === "first" ? "Base Element" : "Synergistic Element"}) -{" "}
+                            {position.name}
                           </span>
                         </span>
                         <button
@@ -682,7 +667,7 @@ export default function CardDealer({
                           Expanded Meaning
                         </button>
                       </h4>
-                      <p className="text-gray-300 mb-3">{cardEnd?.meaning || "No meaning available"}</p>
+                      <p className="text-gray-300 mb-3">{meaning || "No meaning available"}</p>
                       <div className="flex flex-wrap gap-2">
                         {card.keyMeanings.map((keyword, i) => (
                           <span key={i} className="px-2 py-1 bg-purple-900/20 text-purple-300 text-xs rounded-full">
@@ -762,10 +747,10 @@ export default function CardDealer({
     if (!showExpandedReading || activeCardIndex === null || !drawnCards[activeCardIndex]) return null
 
     const { card, endUp } = drawnCards[activeCardIndex]
-    const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
+    const cardImage = getCardImagePath(card, endUp)
     const hasErrors = dataErrors[card.id]?.length > 0
+    const meaning = endUp === "first" ? card.keyMeanings?.[0] : card.keyMeanings?.[2] // Use keyMeanings directly
 
-    // Update renderExpandedCardReading function:
     const closeExpandedReading = () => {
       setShowExpandedReading(false) // Use setShowExpandedReading instead of dispatch
     }
@@ -775,7 +760,7 @@ export default function CardDealer({
         <div className="bg-gray-900 border border-purple-500/30 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-gray-900 p-4 border-b border-purple-500/30 flex justify-between items-center">
             <h3 className="text-xl font-bold text-purple-300">
-              {card.fullTitle} - {endUp === "first" ? "First End" : "Second End"}
+              {card.fullTitle} - {endUp === "first" ? "Base Element" : "Synergistic Element"}
             </h3>
             <button onClick={closeExpandedReading} className="text-gray-400 hover:text-white">
               ✕
@@ -809,10 +794,16 @@ export default function CardDealer({
                   <h4 className="text-purple-300 font-semibold mb-1">Card Details</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
-                      <span className="text-gray-400">Element:</span> {card.baseElement || "Unknown"}
+                      <span className="text-gray-400">Base Element:</span> {card.baseElement || "Unknown"}
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Synergistic Element:</span> {card.synergisticElement || "Unknown"}
                     </div>
                     <div>
                       <span className="text-gray-400">Suit:</span> {card.suit || "Unknown"}
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Number:</span> {card.number || "Unknown"}
                     </div>
                     <div>
                       <span className="text-gray-400">Sacred Geometry:</span> {card.sacredGeometry || "Unknown"}
@@ -830,15 +821,12 @@ export default function CardDealer({
                     <div>
                       <span className="text-gray-400">Orientation:</span> {card.orientation || "Unknown"}
                     </div>
-                    <div>
-                      <span className="text-gray-400">Synergistic Element:</span> {card.synergisticElement || "Unknown"}
-                    </div>
                   </div>
                 </div>
 
                 <div className="mb-4">
                   <h4 className="text-purple-300 font-semibold mb-1">Meaning</h4>
-                  <p className="text-gray-300">{cardEnd?.meaning || "No meaning available"}</p>
+                  <p className="text-gray-300">{meaning || "No meaning available"}</p>
                 </div>
 
                 {card.keyMeanings && card.keyMeanings.length > 0 && (
@@ -860,7 +848,7 @@ export default function CardDealer({
                     <div className="space-y-2">
                       {card.symbolismBreakdown.map((item, i) => (
                         <p key={i} className="text-gray-300 text-sm">
-                          {item.replace(/^Number: \d+ – /, "")}
+                          {item}
                         </p>
                       ))}
                     </div>

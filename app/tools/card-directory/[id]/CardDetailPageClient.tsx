@@ -21,7 +21,7 @@ export default function CardDetailPageClient({ cardId }: CardDetailPageClientPro
   const [isLoading, setIsLoading] = useState(true)
   const [activeEnd, setActiveEnd] = useState<"first" | "second">("first")
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({})
-  const [activeTab, setActiveTab] = useState("overview") // Declare activeTab and setActiveTab
+  const [activeTab, setActiveTab] = useState("overview")
 
   useEffect(() => {
     const loadCard = async () => {
@@ -62,7 +62,7 @@ export default function CardDetailPageClient({ cardId }: CardDetailPageClientPro
 
       // Try each variation
       for (const elementVar of elementVariations) {
-        const altPath = `/cards/${card.firstEnd?.number}${card.suit?.toLowerCase()}-${elementVar || "spirit"}.jpg` // Use firstEnd.number for image path
+        const altPath = `/cards/${card.number}${card.suit?.toLowerCase()}-${elementVar || "spirit"}.jpg`
         if (target.src !== altPath) {
           target.src = altPath
           return
@@ -119,34 +119,32 @@ export default function CardDetailPageClient({ cardId }: CardDetailPageClientPro
   // Get card image with fallback handling
   const getCardImage = (card: OracleCard, endUp: "first" | "second") => {
     const hasImageError = imageErrors[`${card.id}-${endUp}`]
-    const imagePath = endUp === "first" ? card.firstEndImage : card.secondEndImage
+    const imagePath = getCardImagePath(card, endUp)
     const fallbackPath = `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
 
     if (hasImageError) {
       return (
         <div
-          className={`w-full h-full ${getElementColor(card.element).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4 rounded-md`}
+          className={`w-full h-full ${getElementColor(card.baseElement).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4 rounded-md`}
         >
           <div className="text-center mb-2 text-sm font-medium text-white">{card.fullTitle}</div>
           <div className="w-24 h-24 my-4 rounded-full bg-gray-800/50 border border-gray-300/30 flex items-center justify-center">
-            <span className={getElementColor(card.element).split(" ").slice(2).join(" ") + " text-4xl"}>
-              {getElementSymbol(card.element)}
+            <span className={getElementColor(card.baseElement).split(" ").slice(2).join(" ") + " text-4xl"}>
+              {getElementSymbol(card.baseElement)}
             </span>
           </div>
           <div className="text-xs text-center text-white/80 mt-2">
-            {card.type} • {card.element}
+            {card.suit} • {card.baseElement}
           </div>
-          <div className="text-lg font-bold text-white mt-2">
-            {endUp === "first" ? card.firstEnd?.number : card.secondEnd?.number}
-          </div>
+          <div className="text-lg font-bold text-white mt-2">{card.number}</div>
         </div>
       )
     }
 
     return (
       <Image
-        src={imagePath || getCardImagePath(card, endUp) || fallbackPath}
-        alt={`${card.fullTitle} - ${endUp === "first" ? "First End" : "Second End"}`}
+        src={imagePath || fallbackPath}
+        alt={`${card.fullTitle} - ${endUp === "first" ? "Base Element" : "Synergistic Element"}`}
         fill
         className="object-contain rounded-md" // Use object-contain for line art style
         onError={(e) => handleImageError(e, card, endUp)}
@@ -198,7 +196,8 @@ export default function CardDetailPageClient({ cardId }: CardDetailPageClientPro
     )
   }
 
-  const cardEnd = activeEnd === "first" ? card.firstEnd : card.secondEnd
+  const primaryMeaning = card.keyMeanings?.[0] || "No primary meaning available."
+  const secondaryMeaning = card.keyMeanings?.[2] || "No secondary meaning available."
 
   return (
     <div className="space-y-6">
@@ -247,8 +246,12 @@ export default function CardDetailPageClient({ cardId }: CardDetailPageClientPro
 
                 <TabsContent value="overview" className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-medium">Description</h3>
-                    <p className="mt-2">{card.description || "No description available."}</p>
+                    <h3 className="text-lg font-medium">Key Meanings</h3>
+                    <ul className="list-disc pl-5 mt-2 space-y-1">
+                      {card.keyMeanings?.map((keyword, index) => (
+                        <li key={index}>{keyword}</li>
+                      ))}
+                    </ul>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -263,12 +266,8 @@ export default function CardDetailPageClient({ cardId }: CardDetailPageClientPro
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-medium">Key Meanings</h3>
-                    <ul className="list-disc pl-5 mt-2 space-y-1">
-                      {card.firstEnd?.keywords?.map((keyword, index) => (
-                        <li key={index}>{keyword}</li>
-                      ))}
-                    </ul>
+                    <h3 className="text-lg font-medium">Symbolism Summary</h3>
+                    <p className="mt-2">{card.symbolismBreakdown.join(" ") || "No description available."}</p>
                   </div>
                 </TabsContent>
 
@@ -276,12 +275,12 @@ export default function CardDetailPageClient({ cardId }: CardDetailPageClientPro
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-3">
                       <h3 className="text-lg font-medium">Primary Meaning</h3>
-                      <p>{card.firstEnd?.meaning || "No primary meaning available."}</p>
+                      <p>{primaryMeaning}</p>
                     </div>
 
                     <div className="space-y-3">
                       <h3 className="text-lg font-medium">Secondary Meaning</h3>
-                      <p>{card.secondEnd?.meaning || "No secondary meaning available."}</p>
+                      <p>{secondaryMeaning}</p>
                     </div>
                   </div>
                 </TabsContent>
@@ -290,28 +289,26 @@ export default function CardDetailPageClient({ cardId }: CardDetailPageClientPro
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <h3 className="text-lg font-medium">Sacred Geometry</h3>
-                      <p className="mt-2">
-                        {card.firstEnd?.sacredGeometry || "No sacred geometry information available."}
-                      </p>
+                      <p className="mt-2">{card.sacredGeometry || "No sacred geometry information available."}</p>
                     </div>
 
                     <div>
                       <h3 className="text-lg font-medium">Astrological Influences</h3>
                       <div className="mt-2 space-y-2">
                         <div>
-                          <h4 className="font-medium">Planet</h4>
-                          <p>{card.firstEnd?.planet || "No planetary information available."}</p>
+                          <h4 className="font-medium">Planet (Internal Influence)</h4>
+                          <p>{card.planetInternalInfluence || "No planetary information available."}</p>
                         </div>
                         <div>
-                          <h4 className="font-medium">Astrological Sign</h4>
-                          <p>{card.firstEnd?.astrologicalSign || "No astrological sign information available."}</p>
+                          <h4 className="font-medium">Astrology (External Domain)</h4>
+                          <p>{card.astrologyExternalDomain || "No astrological sign information available."}</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-medium">Symbolism</h3>
+                    <h3 className="text-lg font-medium">Symbolism Breakdown</h3>
                     <ul className="list-disc pl-5 mt-2 space-y-1">
                       {card.symbolismBreakdown?.map((symbol, index) => (
                         <li key={index}>{symbol}</li>
