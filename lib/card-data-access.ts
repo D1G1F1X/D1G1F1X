@@ -56,23 +56,29 @@ export function getRandomCards(count: number): OracleCard[] {
 export function getCardImagePath(card: OracleCard, end: "first" | "second"): string {
   if (!card) return "/placeholder.svg"
 
-  const number = card.number || "00"
+  // Ensure the number is properly formatted (pad with zero if single digit)
+  const number = card.number?.toString().padStart(2, "0") || "00"
   const suit = card.suit?.toLowerCase() || "unknown"
   const element =
     end === "first" ? card.baseElement?.toLowerCase() || "spirit" : card.synergisticElement?.toLowerCase() || "spirit"
 
-  // Special handling for specific card images if needed, otherwise general pattern
-  // Example: if (card.id === "6-Stone" && end === "spirit") return "/public/cards/6-9-spirit.jpg";
-  // For now, stick to the general pattern as per the master data structure
   return `/cards/${number}${suit}-${element}.jpg`
 }
 
 /**
- * Gets a card by its number.
+ * Gets a card by its number (returns the actual numerical value, not derived).
  */
 export function getCardByNumber(number: string | number): OracleCard | undefined {
   const numStr = number.toString()
   return allCards.find((card) => card.number === numStr)
+}
+
+/**
+ * Gets the numerical value of a card as an integer.
+ */
+export function getCardNumericalValue(card: OracleCard): number {
+  if (!card || !card.number) return 0
+  return Number.parseInt(card.number, 10)
 }
 
 /**
@@ -125,8 +131,19 @@ export function getAllElements(): string[] {
 }
 
 /**
+ * Validates that a card's number matches its intended numerical value.
+ */
+export function validateCardNumber(card: OracleCard): boolean {
+  if (!card || !card.number) return false
+
+  // Extract the expected number from the card ID (e.g., "5-Sword" should have number "5")
+  const expectedNumber = card.id.split("-")[0]
+  return card.number === expectedNumber
+}
+
+/**
  * Check data integrity between master data and the OracleCard type.
- * This function now primarily checks for missing critical fields based on the OracleCard interface.
+ * This function now primarily checks for missing critical fields and validates card numbers.
  */
 export function checkDataIntegrity() {
   const issues: string[] = []
@@ -142,7 +159,33 @@ export function checkDataIntegrity() {
     if (!card.symbolismBreakdown || card.symbolismBreakdown.length === 0)
       issues.push(`Card ${card.id} missing symbolismBreakdown`)
     if (!card.symbols || card.symbols.length === 0) issues.push(`Card ${card.id} missing symbols array`)
+
+    // Validate that the card number matches its ID
+    if (!validateCardNumber(card)) {
+      issues.push(`Card ${card.id} has incorrect number value: expected ${card.id.split("-")[0]}, got ${card.number}`)
+    }
   })
 
   return issues
+}
+
+/**
+ * Gets cards in numerical order (0-9).
+ */
+export function getCardsInNumericalOrder(): OracleCard[] {
+  return [...allCards].sort((a, b) => {
+    const numA = getCardNumericalValue(a)
+    const numB = getCardNumericalValue(b)
+    return numA - numB
+  })
+}
+
+/**
+ * Gets cards by their numerical value range.
+ */
+export function getCardsByNumberRange(min: number, max: number): OracleCard[] {
+  return allCards.filter((card) => {
+    const num = getCardNumericalValue(card)
+    return num >= min && num <= max
+  })
 }

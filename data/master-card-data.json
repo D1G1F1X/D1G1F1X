@@ -111,7 +111,7 @@
     ],
     "symbolismBreakdown": [
       "Number: 1 – The number of individuality and manifestation—initiation of purpose. It represents the first step, originality, leadership, and the power of focused will to bring ideas into concrete form. The singular point of action.",
-      "Suit (Cauldron): Pouring forth its contents—the creation is emerging. The vessel now actively releases what has been brewing, symbolizing the sharing of gifts, ideas, or projects with the world. It’s an act of giving and outward expression.",
+      "Suit (Cauldron): Pouring forth its contents—the creation is emerging. The vessel now actively releases what has been brewing, symbolizing the sharing of gifts, ideas, or projects with the world. It's an act of giving and outward expression.",
       "Icon (Pentagram): Balanced elemental structure driving harmonious emergence. Here, the integrated elements provide a stable foundation for the creative output, ensuring that what is manifested is well-rounded and aligned with a greater harmony.",
       "Orientation (Pouring): Indicates readiness to act—release of the creation. This signifies a conscious decision to move from internal preparation to external action, sharing what has been cultivated. It's a dynamic and generous gesture.",
       "Sacred Geometry (Plus Sign): The crossroads of action and potential—energy merging. The plus sign represents the intersection of different planes or energies, creating a focal point where intention meets opportunity, leading to active creation and expansion.",
@@ -244,7 +244,7 @@
       }
     ],
     "symbolismBreakdown": [
-      "Number: 3 – Completion of a small cycle—body, mind, spirit. Represents initial synthesis, creativity, expression, and the first stage of fruition. It’s about bringing different elements together to create something new.",
+      "Number: 3 – Completion of a small cycle—body, mind, spirit. Represents initial synthesis, creativity, expression, and the first stage of fruition. It's about bringing different elements together to create something new.",
       "Suit (Cord): Binds, restrains, or ends that which must be sealed. The cord symbolizes connection, commitment, but also the potential for limitation or the conclusion of a phase. It marks a point of definition.",
       "Icon (Hourglass): Measures time, inevitability, and clarity in limitation. The hourglass reminds us of the passage of time and the importance of using it wisely. It highlights cycles, deadlines, and the beauty found within defined parameters.",
       "Orientation (Knot Before): Suggests the binding is imminent—preparation for conclusion. A knot tied signifies commitment, a decision made, or a process being secured. \"Knot Before\" implies the final actions leading up to this sealing.",
@@ -459,7 +459,14 @@
       "Sacred Groundwork: Root in what nourishes and sustains you. Identify and connect with the core elements – be they values, relationships, or practices – that provide fundamental support, stability, and a sense of belonging.",
       "Embodied Cycles: Growth takes time—trust organic rhythms. Recognize that true development unfolds naturally and often cyclically. Patience and trust in these inherent life patterns are key to sustainable progress.",
       "Earth as Teacher: The path of grounded wisdom begins in the body. Pay attention to physical sensations and the wisdom of the material world. Practical experience and connection to nature offer profound lessons."
-    ]
+    ],
+    "baseElement": "Earth",
+    "planetInternalInfluence": "Venus – beauty, receptivity, and sensual expression.",
+    "astrologyExternalDomain": "Taurus – comfort, stability, and persistent building.",
+    "iconSymbol": "Pentagon",
+    "orientation": "Rough Side",
+    "sacredGeometry": "Spiral",
+    "synergisticElement": "Earth"
   },
   {
     "id": "7-Spear",

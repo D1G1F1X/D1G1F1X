@@ -16,12 +16,12 @@ import { useToast } from "@/components/ui/use-toast"
 import type { ReadingData } from "@/types/readings"
 import { cn } from "@/lib/utils"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getCardByNumber, getBaseElement, getSymbolValue } from "@/lib/card-data-access" // Updated import
+import { getSymbolValue, getCardNumericalValue } from "@/lib/card-data-access"
 import { Badge } from "@/components/ui/badge"
 import { calculateLifePath } from "@/lib/numerology"
 import { useMembership } from "@/lib/membership-context"
 import type { SavedReading } from "@/types/saved-readings"
-import type { OracleCard } from "@/types/cards" // Import the types
+import type { OracleCard } from "@/types/cards"
 
 interface SpreadType {
   id: string
@@ -258,7 +258,7 @@ const getElementIcon = (element: string) => {
 }
 
 interface EnhancedCardDealerProps {
-  cards: OracleCard[] // Changed from CardData to OracleCard
+  cards: OracleCard[]
   onReadingGenerated?: (reading: ReadingData) => void
   className?: string
   allowFreeReading?: boolean
@@ -274,7 +274,7 @@ export default function EnhancedCardDealer({
   maxCards = 3,
   defaultSpread = "three",
 }: EnhancedCardDealerProps) {
-  const [selectedCards, setSelectedCards] = useState<OracleCard[]>([]) // Changed from CardData to OracleCard
+  const [selectedCards, setSelectedCards] = useState<OracleCard[]>([])
   const [flippedCards, setFlippedCards] = useState<boolean[]>([])
   const [isDealing, setIsDealing] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -292,7 +292,7 @@ export default function EnhancedCardDealer({
   const [showReading, setShowReading] = useState(false)
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({})
   const [showExpandedReading, setShowExpandedReading] = useState(false)
-  const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null) // Declared the variable
+  const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null)
   const [showDetailedReading, setShowDetailedReading] = useState(false)
   const [isGeneratingReading, setIsGeneratingReading] = useState(false)
   const [aiGeneratedReading, setAiGeneratedReading] = useState<string>("")
@@ -411,7 +411,7 @@ export default function EnhancedCardDealer({
       }
     } catch (err) {
       console.error("Error generating reading:", err)
-      setError("Failed to generate reading. Please try again.", err)
+      setError("Failed to generate reading. Please try again.")
       toast({
         title: "Error",
         description: "Failed to generate reading. Please try again.",
@@ -598,7 +598,6 @@ I've consulted the NUMO Oracle cards to provide guidance on your question. The $
     const cardInterpretations = drawnCards
       .map((drawnCard, index) => {
         const { card, endUp } = drawnCard
-        const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
         const position = currentSpread.positions[index]
 
         const planet = getSymbolValue(card, "Planet (Internal Influence)")
@@ -607,11 +606,16 @@ I've consulted the NUMO Oracle cards to provide guidance on your question. The $
         const icon = getSymbolValue(card, "Icon")
         const orientation = getSymbolValue(card, "Orientation")
 
+        // Use the correct number from the card data
+        const cardNumber = getCardNumericalValue(card)
+
         return `
 ### ${position.name}: ${card.fullTitle} (${card.baseElement})
 
+**Card Number:** ${cardNumber}
+**Element:** ${endUp === "first" ? card.baseElement : card.synergisticElement}
+
 This ${card.baseElement} card in the ${position.name} position reveals:
-- **Meaning:** ${cardEnd.meaning}
 - **Key Meanings:** ${card.keyMeanings?.join(", ") || "N/A"}
 
 **Symbolism Breakdown:**
@@ -695,7 +699,9 @@ Remember that you have the power to shape your path forward. These cards offer g
     if (lifePath) {
       return `Your Life Path number ${lifePath} resonates with the energy of ${getLifePathMeaning(lifePath)}. This core vibration influences how you interact with the energies shown in the cards.`
     } else {
-      return `The numerical vibrations in your cards suggest patterns of ${getRandomNumerologicalInsight()}.`
+      const cardNumbers = drawnCards.map((item) => getCardNumericalValue(item.card))
+      const averageNumber = Math.round(cardNumbers.reduce((sum, num) => sum + num, 0) / cardNumbers.length)
+      return `The numerical vibrations in your cards (${cardNumbers.join(", ")}) suggest patterns of ${getNumberMeaning(averageNumber)}.`
     }
   }
 
@@ -797,9 +803,10 @@ Remember that you have the power to shape your path forward. These cards offer g
     if (!drawnCard) return null
 
     const { card, endUp } = drawnCard
-    const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
-    const cardImage = endUp === "first" ? card.firstEndImage : card.secondEndImage
     const hasImageError = imageErrors[card.id]
+
+    // Use the correct numerical value from the card
+    const cardNumber = getCardNumericalValue(card)
 
     return (
       <div
@@ -834,11 +841,11 @@ Remember that you have the power to shape your path forward. These cards offer g
             </div>
           ) : (
             <>
-              {!hasImageError && cardImage ? (
+              {!hasImageError ? (
                 <div className="relative w-full h-full">
                   <Image
-                    src={cardImage || "/placeholder.svg?height=280&width=180&query=mystical card"}
-                    alt={`${card.fullTitle} - ${endUp === "first" ? "First End" : "Second End"}`}
+                    src={`/cards/${card.number.padStart(2, "0")}${card.suit.toLowerCase()}-${(endUp === "first" ? card.baseElement : card.synergisticElement).toLowerCase()}.jpg`}
+                    alt={`${card.fullTitle} - ${endUp === "first" ? "Base Element" : "Synergistic Element"}`}
                     fill
                     className="object-cover"
                     onError={() => handleImageError(card.id)}
@@ -847,7 +854,7 @@ Remember that you have the power to shape your path forward. These cards offer g
                   <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-center">
                     <div className="text-xs font-medium text-white">{card.fullTitle}</div>
                     <div className="text-xs text-gray-300">
-                      {cardEnd.number} • {card.baseElement}
+                      {cardNumber} • {card.baseElement}
                     </div>
                   </div>
                 </div>
@@ -864,7 +871,7 @@ Remember that you have the power to shape your path forward. These cards offer g
                   <div className="text-xs text-center text-white/80 mt-2">
                     {card.suit} • {card.baseElement}
                   </div>
-                  <div className="text-lg font-bold text-white mt-2">{cardEnd.number}</div>
+                  <div className="text-lg font-bold text-white mt-2">{cardNumber}</div>
                 </div>
               )}
             </>
@@ -881,8 +888,7 @@ Remember that you have the power to shape your path forward. These cards offer g
     if (!selectedCard) return null
 
     const { card, endUp } = selectedCard
-    const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
-    const cardImage = endUp === "first" ? card.firstEndImage : card.secondEndImage
+    const cardNumber = getCardNumericalValue(card)
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 p-4">
@@ -891,31 +897,25 @@ Remember that you have the power to shape your path forward. These cards offer g
             <h2 className="text-2xl font-bold text-white mb-4">{card.fullTitle}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                {cardImage ? (
-                  <Image
-                    src={cardImage || "/placeholder.svg"}
-                    alt={`${card.fullTitle} - ${endUp === "first" ? "First End" : "Second End"}`}
-                    width={300}
-                    height={420}
-                    className="object-cover rounded-lg"
-                  />
-                ) : (
-                  <div className="w-full h-[420px] bg-gray-800 flex items-center justify-center text-white">
-                    No Image Available
-                  </div>
-                )}
+                <Image
+                  src={`/cards/${card.number.padStart(2, "0")}${card.suit.toLowerCase()}-${(endUp === "first" ? card.baseElement : card.synergisticElement).toLowerCase()}.jpg`}
+                  alt={`${card.fullTitle} - ${endUp === "first" ? "Base Element" : "Synergistic Element"}`}
+                  width={300}
+                  height={420}
+                  className="object-cover rounded-lg"
+                />
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-purple-300 mb-2">Card Details</h3>
                 <div className="text-gray-300 space-y-2">
                   <div>
+                    <strong>Number:</strong> {cardNumber}
+                  </div>
+                  <div>
                     <strong>Element:</strong> {card.baseElement}
                   </div>
                   <div>
                     <strong>Suit:</strong> {card.suit}
-                  </div>
-                  <div>
-                    <strong>Meaning:</strong> {cardEnd.meaning}
                   </div>
                   <div>
                     <strong>Sacred Geometry:</strong> {card.sacredGeometry}
@@ -950,29 +950,6 @@ Remember that you have the power to shape your path forward. These cards offer g
         </div>
       </div>
     )
-  }
-
-  const drawCard = () => {
-    const randomNumber = Math.floor(Math.random() * 10)
-    const cardData = getCardByNumber(randomNumber)
-
-    if (cardData) {
-      const elements = ["Water", "Fire", "Earth", "Air", "Spirit"]
-      const randomElement = elements[Math.floor(Math.random() * elements.length)]
-
-      setSelectedElement(randomElement)
-      setDrawnCards([...drawnCardsState, { ...cardData, selectedElement: randomElement }])
-    }
-  }
-
-  const resetCards = () => {
-    setDrawnCards([])
-    setSelectedElement(null)
-  }
-
-  const getCardImagePath = (card: any) => {
-    if (!card) return ""
-    return `/cards/${card.number}${card.suit.toLowerCase()}-${card.baseElement.toLowerCase()}.jpg`
   }
 
   return (
@@ -1034,12 +1011,18 @@ Remember that you have the power to shape your path forward. These cards offer g
 
               <div className="absolute w-full h-full backface-hidden rotate-y-180">
                 <Image
-                  src={card.firstEndImage || "/placeholder.svg"}
+                  src={`/cards/${card.number.padStart(2, "0")}${card.suit.toLowerCase()}-${card.baseElement.toLowerCase()}.jpg`}
                   alt={card.fullTitle}
                   width={300}
                   height={450}
                   className="rounded-lg object-cover w-64 h-96"
                 />
+                <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-center">
+                  <div className="text-sm font-medium text-white">{card.fullTitle}</div>
+                  <div className="text-xs text-gray-300">
+                    {getCardNumericalValue(card)} • {card.baseElement}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1082,98 +1065,88 @@ Remember that you have the power to shape your path forward. These cards offer g
         </Card>
       )}
 
-      {drawnCards.length > 0 ? (
+      {drawnCards.length > 0 && (
         <div className="space-y-8">
-          {drawnCards.map((card, index) => (
-            <Card key={index} className="overflow-hidden">
-              <div className="flex flex-col md:flex-row">
-                <div className="w-full md:w-1/3 p-4 flex justify-center items-center">
-                  <div className="relative w-full aspect-[3/4] bg-muted rounded-md overflow-hidden">
-                    <Image
-                      src={getCardImagePath(card.card) || "/placeholder.svg"}
-                      alt={card.card.fullTitle}
-                      fill
-                      className="object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = `/cards/${card.card.number}${card.card.suit.toLowerCase()}.jpg`
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="w-full md:w-2/3 p-4">
-                  <h2 className="text-2xl font-bold mb-2">{card.card.fullTitle}</h2>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge variant="secondary">{card.card.suit}</Badge>
-                    <Badge>Number: {card.card.firstEnd.number}</Badge>
-                    <Badge variant="outline">Synergistic Element: {card.card.synergisticElement}</Badge>
-                    <Badge variant="destructive">Base Element: {card.card.baseElement}</Badge>
-                    {getBaseElement(card.card) === card.card.baseElement && (
-                      <Badge className="bg-amber-500">Base Element Match!</Badge>
-                    )}
-                  </div>
-                  <Tabs defaultValue="overview">
-                    <TabsList className="w-full">
-                      <TabsTrigger value="overview" className="flex-1">
-                        Overview
-                      </TabsTrigger>
-                      <TabsTrigger value="element" className="flex-1">
-                        Elemental Influence
-                      </TabsTrigger>
-                      <TabsTrigger value="symbolism" className="flex-1">
-                        Symbolism Breakdown
-                      </TabsTrigger>
-                    </TabsList>
+          {drawnCards.map((drawnCard, index) => {
+            const { card } = drawnCard
+            const cardNumber = getCardNumericalValue(card)
 
-                    <TabsContent value="overview" className="space-y-4">
-                      <div>
-                        <h3 className="text-lg font-semibold">Key Meanings</h3>
-                        <ul className="list-disc pl-5">
-                          {card.card.keyMeanings.map((meaning, i) => (
-                            <li key={i}>{meaning}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">Description</h3>
-                        <p>{(card.card.symbolismBreakdown || []).join(" ")}</p>
-                      </div>
-                    </TabsContent>
+            return (
+              <Card key={index} className="overflow-hidden">
+                <div className="flex flex-col md:flex-row">
+                  <div className="w-full md:w-1/3 p-4 flex justify-center items-center">
+                    {renderCard(drawnCard, index)}
+                  </div>
+                  <div className="w-full md:w-2/3 p-4">
+                    <h2 className="text-2xl font-bold mb-2">{card.fullTitle}</h2>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Badge variant="secondary">{card.suit}</Badge>
+                      <Badge>Number: {cardNumber}</Badge>
+                      <Badge variant="outline">Synergistic Element: {card.synergisticElement}</Badge>
+                      <Badge variant="destructive">Base Element: {card.baseElement}</Badge>
+                    </div>
+                    <Tabs defaultValue="overview">
+                      <TabsList className="w-full">
+                        <TabsTrigger value="overview" className="flex-1">
+                          Overview
+                        </TabsTrigger>
+                        <TabsTrigger value="element" className="flex-1">
+                          Elemental Influence
+                        </TabsTrigger>
+                        <TabsTrigger value="symbolism" className="flex-1">
+                          Symbolism Breakdown
+                        </TabsTrigger>
+                      </TabsList>
 
-                    <TabsContent value="element" className="space-y-4">
-                      <div className="border rounded-lg p-3">
-                        <h3 className="text-lg font-semibold flex items-center gap-2">Elemental Influence</h3>
-                        <div className="mt-2 space-y-2">
-                          {card.card.symbolismBreakdown
-                            .filter((s) => s.includes("Element"))
-                            .map((line, i) => (
-                              <p key={i} className="text-sm text-gray-300">
-                                {line}
-                              </p>
+                      <TabsContent value="overview" className="space-y-4">
+                        <div>
+                          <h3 className="text-lg font-semibold">Key Meanings</h3>
+                          <ul className="list-disc pl-5">
+                            {card.keyMeanings.map((meaning, i) => (
+                              <li key={i}>{meaning}</li>
                             ))}
+                          </ul>
                         </div>
-                      </div>
-                    </TabsContent>
+                        <div>
+                          <h3 className="text-lg font-semibold">Description</h3>
+                          <p>{(card.symbolismBreakdown || []).join(" ")}</p>
+                        </div>
+                      </TabsContent>
 
-                    <TabsContent value="symbolism" className="space-y-4">
-                      <div className="space-y-2">
-                        {card.card.symbolismBreakdown.map((item, i) => (
-                          <div key={i}>
-                            <p className="text-gray-300">{item.replace(/^Number: \d+ – /, "")}</p>
+                      <TabsContent value="element" className="space-y-4">
+                        <div className="border rounded-lg p-3">
+                          <h3 className="text-lg font-semibold flex items-center gap-2">Elemental Influence</h3>
+                          <div className="mt-2 space-y-2">
+                            {card.symbolismBreakdown
+                              .filter((s) => s.includes("Element"))
+                              .map((line, i) => (
+                                <p key={i} className="text-sm text-gray-300">
+                                  {line}
+                                </p>
+                              ))}
                           </div>
-                        ))}
-                      </div>
-                    </TabsContent>
-                  </Tabs>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="symbolism" className="space-y-4">
+                        <div className="space-y-2">
+                          {card.symbolismBreakdown.map((item, i) => (
+                            <div key={i}>
+                              <p className="text-gray-300">{item.replace(/^Number: \d+ – /, "")}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="flex justify-center items-center h-64 bg-muted rounded-lg">
-          <p className="text-lg text-muted-foreground">Draw a card to begin your reading</p>
+              </Card>
+            )
+          })}
         </div>
       )}
+
+      {renderExpandedCardReading()}
     </div>
   )
 }
