@@ -1,0 +1,182 @@
+[
+  {
+    "id": "01-cauldron",
+    "number": "01",
+    "suit": "Cauldron",
+    "baseElement": "Fire",
+    "synergisticElement": "Water",
+    "fullTitle": "Cauldron of Fire",
+    "keyMeanings": ["Transformation", "Creativity", "Rebirth", "Passion"],
+    "symbolismBreakdown": [
+      "The cauldron represents the vessel of transformation",
+      "Fire symbolizes passion and creative energy",
+      "The bubbling contents signify ideas coming to life",
+      "The steam rising shows the manifestation of thoughts into reality"
+    ],
+    "sacredGeometry": "Triangle",
+    "planetInternalInfluence": "Mars",
+    "astrologyExternalDomain": "Aries"
+  },
+  {
+    "id": "10-cauldron",
+    "number": "10",
+    "suit": "Cauldron",
+    "baseElement": "Spirit",
+    "synergisticElement": "Earth",
+    "fullTitle": "Cauldron of Spirit",
+    "keyMeanings": ["Divine Inspiration", "Spiritual Growth", "Inner Wisdom", "Enlightenment"],
+    "symbolismBreakdown": [
+      "The cauldron represents the vessel of spiritual transformation",
+      "Spirit symbolizes connection to the divine",
+      "The glowing contents signify illumination from within",
+      "The ethereal energy shows transcendence of material concerns"
+    ],
+    "sacredGeometry": "Spiral",
+    "planetInternalInfluence": "Neptune",
+    "astrologyExternalDomain": "Pisces"
+  },
+  {
+    "id": "25-sword",
+    "number": "25",
+    "suit": "Sword",
+    "baseElement": "Air",
+    "synergisticElement": "Fire",
+    "fullTitle": "Sword of Air",
+    "keyMeanings": ["Clarity", "Truth", "Communication", "Intellect"],
+    "symbolismBreakdown": [
+      "The sword represents the power to cut through illusion",
+      "Air symbolizes the realm of thought and ideas",
+      "The sharp edge signifies precision in thinking",
+      "The gleaming blade shows reflection and self-awareness"
+    ],
+    "sacredGeometry": "Hexagon",
+    "planetInternalInfluence": "Mercury",
+    "astrologyExternalDomain": "Gemini"
+  },
+  {
+    "id": "38-cord",
+    "number": "38",
+    "suit": "Cord",
+    "baseElement": "Water",
+    "synergisticElement": "Earth",
+    "fullTitle": "Cord of Water",
+    "keyMeanings": ["Connection", "Emotion", "Relationships", "Flow"],
+    "symbolismBreakdown": [
+      "The cord represents bonds between people and ideas",
+      "Water symbolizes emotional depth and intuition",
+      "The flowing pattern signifies adaptability",
+      "The intertwined strands show interconnectedness"
+    ],
+    "sacredGeometry": "Vesica Piscis",
+    "planetInternalInfluence": "Moon",
+    "astrologyExternalDomain": "Cancer"
+  },
+  {
+    "id": "47-spear",
+    "number": "47",
+    "suit": "Spear",
+    "baseElement": "Fire",
+    "synergisticElement": "Air",
+    "fullTitle": "Spear of Fire",
+    "keyMeanings": ["Direction", "Purpose", "Focus", "Action"],
+    "symbolismBreakdown": [
+      "The spear represents directed energy and intention",
+      "Fire symbolizes passion and transformation",
+      "The pointed tip signifies focus and precision",
+      "The shaft shows the path of energy flow"
+    ],
+    "sacredGeometry": "Arrow",
+    "planetInternalInfluence": "Mars",
+    "astrologyExternalDomain": "Sagittarius"
+  },
+  {
+    "id": "52-sword",
+    "number": "52",
+    "suit": "Sword",
+    "baseElement": "Spirit",
+    "synergisticElement": "Air",
+    "fullTitle": "Sword of Spirit",
+    "keyMeanings": ["Divine Truth", "Spiritual Discernment", "Higher Wisdom", "Transcendent Clarity"],
+    "symbolismBreakdown": [
+      "The sword represents the power to distinguish truth",
+      "Spirit symbolizes connection to higher consciousness",
+      "The luminous blade signifies illuminated thought",
+      "The ethereal quality shows transcendence of ordinary perception"
+    ],
+    "sacredGeometry": "Star Tetrahedron",
+    "planetInternalInfluence": "Uranus",
+    "astrologyExternalDomain": "Aquarius"
+  },
+  {
+    "id": "69-stone",
+    "number": "69",
+    "suit": "Stone",
+    "baseElement": "Earth",
+    "synergisticElement": "Water",
+    "fullTitle": "Stone of Earth",
+    "keyMeanings": ["Stability", "Grounding", "Manifestation", "Abundance"],
+    "symbolismBreakdown": [
+      "The stone represents solidity and permanence",
+      "Earth symbolizes material reality and practicality",
+      "The crystalline structure signifies order and pattern",
+      "The embedded minerals show hidden potential"
+    ],
+    "sacredGeometry": "Cube",
+    "planetInternalInfluence": "Saturn",
+    "astrologyExternalDomain": "Capricorn"
+  },
+  {
+    "id": "74-spear",
+    "number": "74",
+    "suit": "Spear",
+    "baseElement": "Spirit",
+    "synergisticElement": "Fire",
+    "fullTitle": "Spear of Spirit",
+    "keyMeanings": ["Divine Direction", "Spiritual Purpose", "Inspired Action", "Transcendent Will"],
+    "symbolismBreakdown": [
+      "The spear represents directed spiritual energy",
+      "Spirit symbolizes connection to divine purpose",
+      "The luminous tip signifies enlightened intention",
+      "The ethereal shaft shows the channel for higher guidance"
+    ],
+    "sacredGeometry": "Spiral Arrow",
+    "planetInternalInfluence": "Jupiter",
+    "astrologyExternalDomain": "Sagittarius"
+  },
+  {
+    "id": "83-cord",
+    "number": "83",
+    "suit": "Cord",
+    "baseElement": "Spirit",
+    "synergisticElement": "Water",
+    "fullTitle": "Cord of Spirit",
+    "keyMeanings": ["Divine Connection", "Spiritual Relationships", "Soul Bonds", "Higher Communion"],
+    "symbolismBreakdown": [
+      "The cord represents spiritual connections between souls",
+      "Spirit symbolizes the divine essence in all beings",
+      "The luminous strands signify channels of higher energy",
+      "The intricate patterns show the complexity of spiritual relationships"
+    ],
+    "sacredGeometry": "Flower of Life",
+    "planetInternalInfluence": "Neptune",
+    "astrologyExternalDomain": "Pisces"
+  },
+  {
+    "id": "96-stone",
+    "number": "96",
+    "suit": "Stone",
+    "baseElement": "Spirit",
+    "synergisticElement": "Earth",
+    "fullTitle": "Stone of Spirit",
+    "keyMeanings": ["Divine Foundation", "Spiritual Grounding", "Sacred Manifestation", "Transcendent Stability"],
+    "symbolismBreakdown": [
+      "The stone represents the eternal foundation of being",
+      "Spirit symbolizes the divine essence in material form",
+      "The luminous crystalline structure signifies enlightened order",
+      "The ethereal quality within solid form shows spirit manifesting in matter"
+    ],
+    "sacredGeometry": "Merkaba",
+    "planetInternalInfluence": "Pluto",
+    "astrologyExternalDomain": "Capricorn"
+  }
+]

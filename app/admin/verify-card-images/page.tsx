@@ -3,10 +3,10 @@ import CardImageVerifier from "@/components/card-image-verifier"
 export default function VerifyCardImagesPage() {
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6 text-white">Verify Card Images</h1>
-      <p className="text-gray-300 mb-8">
-        Use this tool to verify that all card images are loading correctly. This helps identify any missing or
-        incorrectly named image files.
+      <h1 className="text-3xl font-bold mb-6">Card Image Verification</h1>
+      <p className="text-gray-400 mb-8">
+        This tool checks all card images to ensure they load correctly. It helps identify any missing or problematic
+        images.
       </p>
 
       <CardImageVerifier />

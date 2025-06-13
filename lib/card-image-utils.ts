@@ -1,41 +1,80 @@
-import cardImagePathsManifest from "@/data/card-image-paths.json"
+/**
+ * Utility functions for handling card images
+ */
 
-// Type assertion for the imported JSON
-const imageManifest: Record<string, string> = cardImagePathsManifest
-
-// DEBUG: Log if manifest is loaded and a sample key
-// console.log("IMAGE MANIFEST LOADED (card-image-utils.ts):", Object.keys(imageManifest).length, "keys. Sample '01cauldron-air.jpg':", imageManifest["01cauldron-air.jpg"]);
-
-export function createCardFallbackUrl(cardName = "Card"): string {
-  return `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardName + " image")}`
-}
-
-export function getCardImagePath(cardId: string | null | undefined, cardName?: string): string {
-  console.log(`DEBUG: getCardImagePath called with cardId: [${cardId}], cardName: [${cardName}]`)
-
-  if (!cardId) {
-    console.log("DEBUG: cardId is null/undefined, returning placeholder.")
-    return createCardFallbackUrl(cardName || "Card")
+/**
+ * Gets the image path for a card based on its descriptive key or name
+ */
+export function getCardImagePath(descriptiveKey: string | null, cardName: string): string {
+  if (!descriptiveKey) {
+    // Fallback to a placeholder if no descriptive key is available
+    return `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardName || "oracle card")}`
   }
 
-  const filename = `${cardId.toLowerCase().trim()}.jpg` // Added trim() for safety
-  console.log(`DEBUG: Constructed filename for manifest lookup: [${filename}]`)
+  // Return the path to the card image
+  return `/cards/${descriptiveKey}.jpg`
+}
 
-  const pathFromPublicDir = imageManifest[filename]
-  console.log(`DEBUG: Path from manifest for [${filename}]: [${pathFromPublicDir}]`)
+/**
+ * Creates a fallback URL for when a card image is not found
+ */
+export function createCardFallbackUrl(cardName: string): string {
+  return `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardName || "oracle card")}`
+}
 
-  if (pathFromPublicDir) {
-    const resultPath = pathFromPublicDir.startsWith("public/")
-      ? `/${pathFromPublicDir.substring("public/".length)}`
-      : `/${pathFromPublicDir}` // Should not happen if JSON is correct
-    console.log(`DEBUG: Returning image path: [${resultPath}]`)
-    return resultPath
-  } else {
-    console.warn(
-      `Image path not found for card ID "${cardId}" (filename: "${filename}") in manifest. Using placeholder.`,
-    )
-    const placeholderUrl = createCardFallbackUrl(cardName || cardId)
-    console.log(`DEBUG: Returning placeholder URL: [${placeholderUrl}]`)
-    return placeholderUrl
+/**
+ * Validates if a card image exists
+ */
+export async function validateCardImage(imagePath: string): Promise<boolean> {
+  try {
+    const response = await fetch(imagePath, { method: "HEAD" })
+    return response.ok
+  } catch (error) {
+    console.error(`Error validating image at ${imagePath}:`, error)
+    return false
+  }
+}
+
+/**
+ * Gets the element color class for styling
+ */
+export function getElementColorClass(element: string | undefined): string {
+  if (!element) return "bg-gray-500/20 text-gray-400 border-gray-500/30"
+
+  switch (element.toLowerCase()) {
+    case "fire":
+      return "bg-red-500/20 text-red-400 border-red-500/30"
+    case "water":
+      return "bg-blue-500/20 text-blue-400 border-blue-500/30"
+    case "air":
+      return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+    case "earth":
+      return "bg-green-500/20 text-green-400 border-green-500/30"
+    case "spirit":
+      return "bg-purple-500/20 text-purple-400 border-purple-500/30"
+    default:
+      return "bg-gray-500/20 text-gray-400 border-gray-500/30"
+  }
+}
+
+/**
+ * Gets the suit icon for display
+ */
+export function getSuitIcon(suit: string | undefined): string {
+  if (!suit) return "✧"
+
+  switch (suit.toLowerCase()) {
+    case "cauldron":
+      return "🔮"
+    case "sword":
+      return "⚔️"
+    case "spear":
+      return "🔱"
+    case "stone":
+      return "🪨"
+    case "cord":
+      return "⚝"
+    default:
+      return "✧"
   }
 }

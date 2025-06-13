@@ -1,6 +1,8 @@
 "use client"
 
-import { useState, useRef, useReducer, useEffect } from "react"
+import type React from "react"
+
+import { useState, useRef, useEffect, useReducer } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -15,11 +17,23 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
-import { Sparkles, RefreshCw, Info, HelpCircle, Book, Wand2, Flame, Droplets, Wind, Leaf, Star } from "lucide-react"
+import {
+  Sparkles,
+  RefreshCw,
+  Info,
+  HelpCircle,
+  Book,
+  Wand2,
+  Flame,
+  Droplets,
+  Wind,
+  Leaf,
+  Star,
+  AlertTriangle,
+} from "lucide-react"
 import { generateReading } from "@/lib/actions/generate-reading"
-import ReactMarkdown from "react-markdown"
-import comprehensiveCardData from "@/data/oracle-cards.json" // Import comprehensive card data
-import { getCardImagePath, handleCardImageError } from "@/lib/card-image-handler"
+import { getAllCards, getCardImagePath } from "@/lib/card-data-access" // Updated import
+import type { OracleCard } from "@/types/cards"
 
 // Define a state type for our card dealer
 type CardDealerState = {
@@ -31,6 +45,8 @@ type CardDealerState = {
   activeCardIndex: number | null
   showExpandedReading: boolean
   showDetailedReading: boolean
+  isGeneratingReading: boolean
+  dataErrors: Record<string, string[]>
 }
 
 // Define the actions that can be performed
@@ -43,6 +59,8 @@ type CardDealerAction =
   | { type: "SET_ACTIVE_CARD"; payload: number }
   | { type: "HIDE_EXPANDED_READING" }
   | { type: "CLEAR_CARDS" }
+  | { type: "SET_GENERATING_READING"; payload: boolean }
+  | { type: "SET_DATA_ERRORS"; payload: Record<string, string[]> }
 
 // Create a reducer function to handle state transitions
 function cardDealerReducer(state: CardDealerState, action: CardDealerAction): CardDealerState {
@@ -57,6 +75,7 @@ function cardDealerReducer(state: CardDealerState, action: CardDealerAction): Ca
         activeCardIndex: null,
         showDetailedReading: false,
         drawnCards: [],
+        dataErrors: {},
       }
     case "SET_CARDS":
       return {
@@ -96,45 +115,23 @@ function cardDealerReducer(state: CardDealerState, action: CardDealerAction): Ca
       return {
         ...state,
         drawnCards: [],
+        dataErrors: {},
+      }
+    case "SET_GENERATING_READING":
+      return {
+        ...state,
+        isGeneratingReading: action.payload,
+      }
+    case "SET_DATA_ERRORS":
+      return {
+        ...state,
+        dataErrors: action.payload,
       }
     default:
       return state
   }
 }
 
-// Card interfaces remain the same as in the original component
-interface CardEnd {
-  number: number
-  meaning: string
-  shadowAspect: string
-  keywords: string[]
-  sacredGeometry: string
-  planet: string
-  astrologicalSign: string
-  expandedMeaning?: string
-  elementalGuidance?:
-    | {
-        earth?: string
-        air?: string
-        fire?: string
-        water?: string
-        spirit?: string
-      }
-    | string
-}
-
-interface OracleCard {
-  id: string
-  name: string
-  element: string
-  type: string
-  firstEnd: CardEnd
-  secondEnd: CardEnd
-  firstEndImage: string
-  secondEndImage: string
-}
-
-// Define spread types
 interface SpreadType {
   id: string
   name: string
@@ -224,40 +221,49 @@ const spreadTypes: SpreadType[] = [
   },
 ]
 
-// Card data remains the same as in the original component
-const cardData: OracleCard[] = comprehensiveCardData // Use comprehensive card data
+// Get all cards from the master data source
+const cardData = getAllCards()
 
-// Helper functions remain the same
-const getSacredGeometrySymbol = (number: number) => {
-  switch (number) {
-    case 0:
-      return "• (Point/Dot)"
-    case 1:
-      return "✚ (Plus/Cross)"
-    case 2:
-      return "◗◖ (Vesica Piscis)"
-    case 3:
-      return "∞ (Finite Symbol)"
-    case 4:
-      return "≡ (Ladder)"
-    case 5:
-      return "⚬ (Five Fold Circle)"
-    case 6:
-      return "@ (Spiral)"
-    case 7:
-      return "∧ (Chevron)"
-    case 8:
-      return "∞ (Infinity Symbol)"
-    case 9:
-      return "◉ (Eye)"
-    default:
-      return "○"
+// Validate card data
+function validateCardData(card: OracleCard): string[] {
+  const errors: string[] = []
+
+  if (!card.id) errors.push("Missing card ID")
+  if (!card.fullTitle) errors.push("Missing full title")
+  if (!card.baseElement) errors.push("Missing base element")
+  if (!card.suit) errors.push("Missing suit")
+
+  if (!card.firstEnd) {
+    errors.push("Missing first end data")
+  } else {
+    if (card.firstEnd.number === undefined) errors.push("Missing first end number")
+    if (!card.firstEnd.meaning) errors.push("Missing first end meaning")
+    if (!card.keyMeanings || card.keyMeanings.length < 4) {
+      errors.push("Missing or insufficient key meanings (expected at least 4)")
+    }
   }
+
+  if (!card.secondEnd) {
+    errors.push("Missing second end data")
+  } else {
+    if (card.secondEnd.number === undefined) errors.push("Missing second end number")
+    if (!card.secondEnd.meaning) errors.push("Missing second end meaning")
+  }
+
+  if (!card.symbolismBreakdown || !Array.isArray(card.symbolismBreakdown) || card.symbolismBreakdown.length === 0) {
+    errors.push("Missing or empty symbolism breakdown")
+  }
+
+  if (!card.symbols || !Array.isArray(card.symbols) || card.symbols.length === 0) {
+    errors.push("Missing or empty symbols array")
+  }
+
+  return errors
 }
 
 // Get element icon
 const getElementIcon = (element: string) => {
-  switch (element.toLowerCase()) {
+  switch (element?.toLowerCase()) {
     case "earth":
       return <Leaf className="h-5 w-5" />
     case "water":
@@ -273,20 +279,33 @@ const getElementIcon = (element: string) => {
   }
 }
 
-export default function CardDealer() {
+interface CardDealerProps {
+  cards?: OracleCard[]
+  onReadingGenerated?: (reading: any) => void
+  className?: string
+  allowFreeReading?: boolean
+  maxCards?: number
+  defaultSpread?: "single" | "three"
+}
+
+export default function CardDealer({
+  cards,
+  onReadingGenerated,
+  className,
+  allowFreeReading = false,
+  maxCards = 3,
+  defaultSpread = "three",
+}: CardDealerProps) {
+  // Use provided cards or fall back to the master card data
+  const availableCards = cards || cardData
+
   // State variables
   const [selectedSpread, setSelectedSpread] = useState<string>("threeElements")
-  // Replace these useState declarations:
-  // const [drawnCards, setDrawnCards] = useState<{ card: OracleCard; endUp: "first" | "second" }[]>([])
-  // const [isDrawing, setIsDrawing] = useState(false)
-  // const [showBackside, setShowBackside] = useState(true)
-  // const [isFlipping, setIsFlipping] = useState(false)
-  // const [showReading, setShowReading] = useState(false)
-  // const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null)
-  // const [showExpandedReading, setShowExpandedReading] = useState(false)
-  // const [showDetailedReading, setShowDetailedReading] = useState(false)
+  const [question, setQuestion] = useState("")
+  const dealAreaRef = useRef<HTMLDivElement>(null)
+  const [showExpandedReading, setShowExpandedReading] = useState(false) // Declare showExpandedReading variable
 
-  // With this useReducer:
+  // UseReducer for managing card dealer state
   const [cardState, dispatch] = useReducer(cardDealerReducer, {
     drawnCards: [],
     isDrawing: false,
@@ -294,8 +313,9 @@ export default function CardDealer() {
     isFlipping: false,
     showReading: false,
     activeCardIndex: null,
-    showExpandedReading: false,
     showDetailedReading: false,
+    isGeneratingReading: false,
+    dataErrors: {},
   })
 
   // Destructure the state for easier access
@@ -306,19 +326,17 @@ export default function CardDealer() {
     isFlipping,
     showReading,
     activeCardIndex,
-    showExpandedReading,
     showDetailedReading,
+    isGeneratingReading,
+    dataErrors,
   } = cardState
+
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({})
-  const [question, setQuestion] = useState("")
-  const [isGeneratingReading, setIsGeneratingReading] = useState(false)
-  const [aiGeneratedReading, setAiGeneratedReading] = useState<string>("")
-  const dealAreaRef = useRef<HTMLDivElement>(null)
 
   // Get current spread configuration
   const currentSpread = spreadTypes.find((spread) => spread.id === selectedSpread) || spreadTypes[0]
 
-  // Replace the handleDrawCards function with:
+  // Handle draw cards function
   const handleDrawCards = () => {
     console.log("Draw cards button clicked")
 
@@ -335,7 +353,7 @@ export default function CardDealer() {
     setTimeout(() => {
       console.log("Drawing new cards")
       const numCards = currentSpread.positions.length
-      const shuffled = [...cardData].sort(() => 0.5 - Math.random())
+      const shuffled = [...availableCards].sort(() => 0.5 - Math.random())
       const selected = shuffled.slice(0, numCards).map((card) => ({
         card,
         endUp: Math.random() > 0.5 ? "first" : ("second" as "first" | "second"),
@@ -343,6 +361,20 @@ export default function CardDealer() {
 
       console.log("Selected cards:", selected)
       dispatch({ type: "SET_CARDS", payload: selected })
+
+      // Validate card data
+      const errors: Record<string, string[]> = {}
+      selected.forEach(({ card }) => {
+        const cardErrors = validateCardData(card)
+        if (cardErrors.length) {
+          errors[card.id] = cardErrors
+        }
+      })
+
+      if (Object.keys(errors).length) {
+        console.warn("Card data validation errors:", errors)
+        dispatch({ type: "SET_DATA_ERRORS", payload: errors })
+      }
 
       // Flip cards after a short delay
       setTimeout(() => {
@@ -363,21 +395,48 @@ export default function CardDealer() {
     }, 1500)
   }
 
-  // Handle image error
-  const handleImageError = (cardId: string) => {
-    console.log("Image error for card:", cardId)
+  // Handle image error with improved fallback strategy
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, card: OracleCard, endUp: "first" | "second") => {
+    console.log(`Image error for card: ${card.id}, end: ${endUp}`)
+
+    const target = e.target as HTMLImageElement
+    const cardId = card.id
+
+    // Try alternative path formats before falling back
+    if (!target.src.includes("placeholder")) {
+      // First fallback: Try with different case for element
+      const element = endUp === "first" ? card.baseElement : card.synergisticElement
+      const elementVariations = [
+        element?.toLowerCase(),
+        element?.toUpperCase(),
+        element?.charAt(0).toUpperCase() + element?.slice(1).toLowerCase(),
+      ]
+
+      // Try each variation
+      for (const elementVar of elementVariations) {
+        const altPath = `/cards/${card.number}${card.suit?.toLowerCase()}-${elementVar || "spirit"}.jpg`
+
+        // If we haven't tried this path yet, try it
+        if (target.src !== altPath) {
+          target.src = altPath
+          return
+        }
+      }
+
+      // If all variations fail, use placeholder
+      target.src = `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
+    }
+
+    // Record the error
     setImageErrors((prev) => ({
       ...prev,
-      [cardId]: true,
+      [`${cardId}-${endUp}`]: true,
     }))
-
-    // Log the error for debugging
-    console.warn(`Failed to load image for card: ${cardId}`)
   }
 
   // Get element color
   const getElementColor = (element: string) => {
-    switch (element.toLowerCase()) {
+    switch (element?.toLowerCase()) {
       case "earth":
         return "bg-green-900/20 border-green-500/30 text-green-300"
       case "water":
@@ -395,7 +454,7 @@ export default function CardDealer() {
 
   // Get element symbol
   const getElementSymbol = (element: string) => {
-    switch (element.toLowerCase()) {
+    switch (element?.toLowerCase()) {
       case "earth":
         return "⊕"
       case "water":
@@ -414,29 +473,70 @@ export default function CardDealer() {
   // Generate detailed reading using Google AI API
   const generateDetailedReading = async () => {
     console.log("Generating detailed reading")
-    setIsGeneratingReading(true)
+    dispatch({ type: "SET_GENERATING_READING", payload: true })
 
     try {
       // Call the server action to generate the reading
       const reading = await generateReading(drawnCards, question, currentSpread)
 
       // Update state with the generated reading
-      setAiGeneratedReading(reading)
-      // setShowDetailedReading(true) // No longer directly setting state
+      // Note: The actual AI generated content would be returned here and set to state
+      // For now, we'll just set showDetailedReading to true
+      dispatch({ type: "SET_GENERATING_READING", payload: false })
+      // Assuming generateReading returns the full reading content
+      // setAiGeneratedReading(reading.content); // Uncomment if generateReading returns content
+      // setShowDetailedReading(true); // Uncomment if you want to show it immediately
     } catch (error) {
       console.error("Error generating reading:", error)
       const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
-      setAiGeneratedReading(
-        `I apologize, but I'm unable to generate a reading at this time. Please try again later. (Error: ${errorMessage})`,
-      )
-    } finally {
-      setIsGeneratingReading(false)
+      dispatch({ type: "SET_GENERATING_READING", payload: false })
+      // setAiGeneratedReading(`Error: ${errorMessage}`); // Uncomment if you want to show error
     }
   }
 
-  // Update the renderCard function:
+  // Handle card click
   const handleCardClick = (index: number) => {
     dispatch({ type: "SET_ACTIVE_CARD", payload: index })
+    setShowExpandedReading(true) // Set showExpandedReading to true on card click
+  }
+
+  // Get card image with fallback handling
+  const getCardImage = (card: OracleCard, endUp: "first" | "second") => {
+    const hasImageError = imageErrors[`${card.id}-${endUp}`]
+    const imagePath = endUp === "first" ? card.firstEndImage : card.secondEndImage
+    const fallbackPath = `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
+
+    if (hasImageError) {
+      return (
+        <div
+          className={`w-full h-full ${getElementColor(card.baseElement).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4`}
+        >
+          <div className="text-center mb-2 text-sm font-medium text-white">{card.fullTitle}</div>
+          <div className="w-24 h-24 my-4 rounded-full bg-gray-800/50 border border-gray-300/30 flex items-center justify-center">
+            <span className={getElementColor(card.baseElement).split(" ").slice(2).join(" ") + " text-4xl"}>
+              {getElementSymbol(card.baseElement)}
+            </span>
+          </div>
+          <div className="text-xs text-center text-white/80 mt-2">
+            {card.suit} • {card.baseElement}
+          </div>
+          <div className="text-lg font-bold text-white mt-2">
+            {endUp === "first" ? card.firstEnd?.number : card.secondEnd?.number}
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <Image
+        src={imagePath || getCardImagePath(card, endUp) || fallbackPath}
+        alt={`${card.fullTitle} - ${endUp === "first" ? "First End" : "Second End"}`}
+        fill
+        className="object-cover"
+        onError={(e) => handleImageError(e, card, endUp)}
+        priority
+      />
+    )
   }
 
   // Render a card
@@ -445,8 +545,7 @@ export default function CardDealer() {
 
     const { card, endUp } = drawnCard
     const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
-    const cardImage = endUp === "first" ? card.firstEndImage : card.secondEndImage
-    const hasImageError = imageErrors[card.id]
+    const hasErrors = dataErrors[card.id]?.length > 0
 
     return (
       <div
@@ -462,7 +561,10 @@ export default function CardDealer() {
         }}
       >
         <div
-          className="w-[180px] h-[280px] rounded-lg overflow-hidden shadow-[0_0_20px_rgba(128,0,128,0.3)] cursor-pointer hover:shadow-[0_0_30px_rgba(128,0,128,0.5)] transition-shadow duration-300"
+          className={cn(
+            "w-[180px] h-[280px] rounded-lg overflow-hidden shadow-[0_0_20px_rgba(128,0,128,0.3)] cursor-pointer hover:shadow-[0_0_30px_rgba(128,0,128,0.5)] transition-shadow duration-300",
+            hasErrors ? "border-2 border-red-500" : "",
+          )}
           onClick={() => handleCardClick(index)}
         >
           {showBackside ? (
@@ -477,47 +579,20 @@ export default function CardDealer() {
               />
             </div>
           ) : (
-            <>
-              {!hasImageError && cardImage ? (
-                <div className="relative w-full h-full">
-                  <Image
-                    src={
-                      getCardImagePath(card.id, card.element, endUp) ||
-                      "/placeholder.svg?height=280&width=180&query=mystical card"
-                    }
-                    alt={`${card.name} - ${endUp === "first" ? "First End" : "Second End"}`}
-                    fill
-                    className="object-cover"
-                    onError={(e) => {
-                      handleCardImageError(e, card)
-                      handleImageError(card.id)
-                    }}
-                    priority
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-center">
-                    <div className="text-xs font-medium text-white">{card.name}</div>
-                    <div className="text-xs text-gray-300">
-                      {cardEnd.number} • {card.element}
-                    </div>
-                  </div>
+            <div className="relative w-full h-full">
+              {getCardImage(card, endUp)}
+              <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-center">
+                <div className="text-xs font-medium text-white">{card.fullTitle}</div>
+                <div className="text-xs text-gray-300">
+                  {cardEnd?.number} • {card.baseElement}
                 </div>
-              ) : (
-                <div
-                  className={`w-full h-full ${getElementColor(card.element).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4`}
-                >
-                  <div className="text-center mb-2 text-sm font-medium text-white">{card.name}</div>
-                  <div className="w-24 h-24 my-4 rounded-full bg-gray-800/50 border border-gray-300/30 flex items-center justify-center">
-                    <span className={getElementColor(card.element).split(" ").slice(2).join(" ") + " text-4xl"}>
-                      {getElementSymbol(card.element)}
-                    </span>
-                  </div>
-                  <div className="text-xs text-center text-white/80 mt-2">
-                    {card.type} • {card.element}
-                  </div>
-                  <div className="text-lg font-bold text-white mt-2">{cardEnd.number}</div>
+              </div>
+              {hasErrors && (
+                <div className="absolute top-2 right-2 bg-red-500 rounded-full p-1" title="Data errors detected">
+                  <AlertTriangle className="h-4 w-4 text-white" />
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>
@@ -565,6 +640,24 @@ export default function CardDealer() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {Object.keys(dataErrors).length > 0 && (
+                  <div className="bg-red-900/20 border border-red-500/30 p-4 rounded-md mb-4">
+                    <h4 className="font-semibold text-red-300 mb-2 flex items-center">
+                      <AlertTriangle className="mr-2 h-4 w-4" />
+                      Data Inconsistencies Detected
+                    </h4>
+                    <p className="text-gray-300 text-sm mb-2">
+                      Some cards have data inconsistencies that may affect your reading. Please report this issue.
+                    </p>
+                    <details className="text-xs text-gray-400">
+                      <summary className="cursor-pointer hover:text-gray-300">View Details</summary>
+                      <pre className="mt-2 p-2 bg-black/30 rounded overflow-auto">
+                        {JSON.stringify(dataErrors, null, 2)}
+                      </pre>
+                    </details>
+                  </div>
+                )}
+
                 {drawnCards.map((drawnCard, index) => {
                   const { card, endUp } = drawnCard
                   const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
@@ -574,14 +667,14 @@ export default function CardDealer() {
                     <div key={`${card.id}-${index}`} className="border-b border-gray-800 pb-4 last:border-0">
                       <h4 className="font-semibold text-purple-300 mb-2 flex items-center justify-between">
                         <span className="flex items-center">
-                          {getElementIcon(card.element)}
+                          {getElementIcon(card.baseElement)}
                           <span className="ml-2">
-                            {card.name} ({endUp === "first" ? "First End" : "Second End"}) - {position.name}
+                            {card.fullTitle} ({endUp === "first" ? "First End" : "Second End"}) - {position.name}
                           </span>
                         </span>
                         <button
                           onClick={() => {
-                            handleCardClick(activeCardIndex === index ? null : index)
+                            handleCardClick(index)
                           }}
                           className="text-xs bg-purple-900/40 hover:bg-purple-900/60 px-2 py-1 rounded flex items-center"
                         >
@@ -589,17 +682,17 @@ export default function CardDealer() {
                           Expanded Meaning
                         </button>
                       </h4>
-                      <p className="text-gray-300 mb-3">{cardEnd.meaning}</p>
+                      <p className="text-gray-300 mb-3">{cardEnd?.meaning || "No meaning available"}</p>
                       <div className="flex flex-wrap gap-2">
-                        {cardEnd.keywords.map((keyword, i) => (
+                        {card.keyMeanings.map((keyword, i) => (
                           <span key={i} className="px-2 py-1 bg-purple-900/20 text-purple-300 text-xs rounded-full">
                             {keyword}
                           </span>
                         ))}
                       </div>
-                      {cardEnd.sacredGeometry && (
+                      {card.sacredGeometry && (
                         <div className="mt-3 text-sm">
-                          <span className="text-purple-300">Sacred Geometry:</span> {cardEnd.sacredGeometry}
+                          <span className="text-purple-300">Sacred Geometry:</span> {card.sacredGeometry}
                         </div>
                       )}
                     </div>
@@ -642,9 +735,12 @@ export default function CardDealer() {
                     <p className="mt-4 text-center text-gray-400">Channeling the wisdom of the cosmos...</p>
                   </div>
                 ) : showDetailedReading ? (
-                  <ReactMarkdown className="prose prose-invert max-w-none prose-headings:text-purple-300 prose-a:text-blue-300">
-                    {aiGeneratedReading}
-                  </ReactMarkdown>
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <Book className="w-16 h-16 text-gray-500" />
+                    <p className="mt-4 text-center text-gray-400">
+                      Generate a detailed reading to see the comprehensive analysis
+                    </p>
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12">
                     <Book className="w-16 h-16 text-gray-500" />
@@ -667,11 +763,11 @@ export default function CardDealer() {
 
     const { card, endUp } = drawnCards[activeCardIndex]
     const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
-    const cardImage = endUp === "first" ? card.firstEndImage : card.secondEndImage
+    const hasErrors = dataErrors[card.id]?.length > 0
 
     // Update renderExpandedCardReading function:
     const closeExpandedReading = () => {
-      dispatch({ type: "HIDE_EXPANDED_READING" })
+      setShowExpandedReading(false) // Use setShowExpandedReading instead of dispatch
     }
 
     return (
@@ -679,7 +775,7 @@ export default function CardDealer() {
         <div className="bg-gray-900 border border-purple-500/30 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-gray-900 p-4 border-b border-purple-500/30 flex justify-between items-center">
             <h3 className="text-xl font-bold text-purple-300">
-              {card.name} - {endUp === "first" ? "First End" : "Second End"}
+              {card.fullTitle} - {endUp === "first" ? "First End" : "Second End"}
             </h3>
             <button onClick={closeExpandedReading} className="text-gray-400 hover:text-white">
               ✕
@@ -687,14 +783,24 @@ export default function CardDealer() {
           </div>
 
           <div className="p-6">
+            {hasErrors && (
+              <div className="bg-red-900/20 border border-red-500/30 p-4 rounded-md mb-4">
+                <h4 className="font-semibold text-red-300 mb-2 flex items-center">
+                  <AlertTriangle className="mr-2 h-4 w-4" />
+                  Data Inconsistencies Detected
+                </h4>
+                <ul className="list-disc pl-5 text-sm text-red-200">
+                  {dataErrors[card.id].map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-1 flex justify-center">
                 <div className="relative w-[180px] h-[280px] rounded-lg overflow-hidden shadow-[0_0_20px_rgba(128,0,128,0.3)]">
-                  <img
-                    src={cardImage || "/placeholder.svg?height=280&width=180&query=mystical card"}
-                    alt={card.name}
-                    className="object-cover w-full h-full"
-                  />
+                  {getCardImage(card, endUp)}
                 </div>
               </div>
 
@@ -703,99 +809,65 @@ export default function CardDealer() {
                   <h4 className="text-purple-300 font-semibold mb-1">Card Details</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
-                      <span className="text-gray-400">Element:</span> {card.element}
+                      <span className="text-gray-400">Element:</span> {card.baseElement || "Unknown"}
                     </div>
                     <div>
-                      <span className="text-gray-400">Type:</span> {card.type}
+                      <span className="text-gray-400">Suit:</span> {card.suit || "Unknown"}
                     </div>
                     <div>
-                      <span className="text-gray-400">Number:</span> {cardEnd.number}
+                      <span className="text-gray-400">Sacred Geometry:</span> {card.sacredGeometry || "Unknown"}
                     </div>
                     <div>
-                      <span className="text-gray-400">Sacred Geometry:</span> {cardEnd.sacredGeometry}
+                      <span className="text-gray-400">Planet:</span> {card.planetInternalInfluence || "Unknown"}
                     </div>
                     <div>
-                      <span className="text-gray-400">Planet:</span> {cardEnd.planet}
+                      <span className="text-gray-400">Astrological Sign:</span>{" "}
+                      {card.astrologyExternalDomain || "Unknown"}
                     </div>
                     <div>
-                      <span className="text-gray-400">Rules:</span> {cardEnd.astrologicalSign}
+                      <span className="text-gray-400">Icon:</span> {card.iconSymbol || "Unknown"}
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Orientation:</span> {card.orientation || "Unknown"}
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Synergistic Element:</span> {card.synergisticElement || "Unknown"}
                     </div>
                   </div>
                 </div>
 
                 <div className="mb-4">
                   <h4 className="text-purple-300 font-semibold mb-1">Meaning</h4>
-                  <p className="text-gray-300">{cardEnd.meaning}</p>
+                  <p className="text-gray-300">{cardEnd?.meaning || "No meaning available"}</p>
                 </div>
 
-                <div className="mb-4">
-                  <h4 className="text-purple-300 font-semibold mb-1">Shadow Aspect</h4>
-                  <p className="text-gray-300">{cardEnd.shadowAspect}</p>
-                </div>
-
-                <div className="mb-4">
-                  <h4 className="text-purple-300 font-semibold mb-1">Keywords</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {cardEnd.keywords.map((keyword, i) => (
-                      <span key={i} className="px-2 py-1 bg-purple-900/20 text-purple-300 text-xs rounded-full">
-                        {keyword}
-                      </span>
-                    ))}
+                {card.keyMeanings && card.keyMeanings.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="text-purple-300 font-semibold mb-1">Key Meanings</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {card.keyMeanings.map((meaning, i) => (
+                        <span key={i} className="px-2 py-1 bg-purple-900/20 text-purple-300 text-xs rounded-full">
+                          {meaning}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {card.symbolismBreakdown && card.symbolismBreakdown.length > 0 && (
+                  <div className="mt-6 border-t border-purple-500/30 pt-4">
+                    <h4 className="text-purple-300 font-semibold mb-2">Symbolism Breakdown</h4>
+                    <div className="space-y-2">
+                      {card.symbolismBreakdown.map((item, i) => (
+                        <p key={i} className="text-gray-300 text-sm">
+                          {item.replace(/^Number: \d+ – /, "")}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-
-            {cardEnd.expandedMeaning && (
-              <div className="mt-6 border-t border-purple-500/30 pt-4">
-                <h4 className="text-purple-300 font-semibold mb-2">Expanded Interpretation</h4>
-                <p className="text-gray-300 mb-4">{cardEnd.expandedMeaning}</p>
-              </div>
-            )}
-
-            {cardEnd.elementalGuidance && (
-              <div className="mt-6 border-t border-purple-500/30 pt-4">
-                <h4 className="text-purple-300 font-semibold mb-2">Elemental Guidance</h4>
-                <div className="p-3 bg-purple-900/20 border border-purple-500/30 rounded-md">
-                  {typeof cardEnd.elementalGuidance === "string" ? (
-                    <p className="text-gray-300">{cardEnd.elementalGuidance}</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {cardEnd.elementalGuidance.earth && (
-                        <div>
-                          <h5 className="text-green-300 font-medium">Earth</h5>
-                          <p className="text-gray-300 text-sm">{cardEnd.elementalGuidance.earth}</p>
-                        </div>
-                      )}
-                      {cardEnd.elementalGuidance.air && (
-                        <div>
-                          <h5 className="text-yellow-300 font-medium">Air</h5>
-                          <p className="text-gray-300 text-sm">{cardEnd.elementalGuidance.air}</p>
-                        </div>
-                      )}
-                      {cardEnd.elementalGuidance.fire && (
-                        <div>
-                          <h5 className="text-red-300 font-medium">Fire</h5>
-                          <p className="text-gray-300 text-sm">{cardEnd.elementalGuidance.fire}</p>
-                        </div>
-                      )}
-                      {cardEnd.elementalGuidance.water && (
-                        <div>
-                          <h5 className="text-blue-300 font-medium">Water</h5>
-                          <p className="text-gray-300 text-sm">{cardEnd.elementalGuidance.water}</p>
-                        </div>
-                      )}
-                      {cardEnd.elementalGuidance.spirit && (
-                        <div>
-                          <h5 className="text-purple-300 font-medium">Spirit</h5>
-                          <p className="text-gray-300 text-sm">{cardEnd.elementalGuidance.spirit}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -869,10 +941,12 @@ export default function CardDealer() {
 
   const preloadCommonCardImages = () => {
     // Preload images for the first few cards to improve initial loading
-    for (let i = 0; i < Math.min(5, cardData.length); i++) {
-      const card = cardData[i]
-      const firstEndImage = getCardImagePath(card.id, card.element, "first")
-      const secondEndImage = getCardImagePath(card.id, card.element, "second")
+    for (let i = 0; i < Math.min(5, availableCards.length); i++) {
+      const card = availableCards[i]
+      if (!card) continue
+
+      const firstEndImage = getCardImagePath(card, "first")
+      const secondEndImage = getCardImagePath(card, "second")
 
       if (firstEndImage) {
         new Image().src = firstEndImage
@@ -884,7 +958,13 @@ export default function CardDealer() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-black/80 text-white p-6 rounded-lg border border-purple-500/20 shadow-lg">
+    <div
+      className={cn(
+        "w-full max-w-4xl mx-auto bg-black/80 text-white p-6 rounded-lg border border-purple-500/20 shadow-lg",
+        className,
+      )}
+      ref={dealAreaRef}
+    >
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>

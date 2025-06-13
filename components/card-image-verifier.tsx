@@ -1,180 +1,250 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
-import { getCardImagePath } from "@/lib/card-image-handler"
 import Image from "next/image"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertTriangle, CheckCircle, RefreshCw } from "lucide-react"
+import { getAllCards, getCardImagePath } from "@/lib/card-data-access"
 
-interface CardImageStatus {
-  id: string
-  element: string
-  endUp: "first" | "second"
-  status: "loading" | "success" | "error"
-  path: string
+interface ImageVerificationResult {
+  cardId: string
+  cardName: string
+  firstEndStatus: "loading" | "success" | "error"
+  secondEndStatus: "loading" | "success" | "error"
+  firstEndPath: string
+  secondEndPath: string
+  firstEndFallbackUsed: boolean
+  secondEndFallbackUsed: boolean
 }
 
-// Named export
-export function CardImageVerifier() {
-  const [cardStatuses, setCardStatuses] = useState<CardImageStatus[]>([])
+export default function CardImageVerifier() {
+  const [results, setResults] = useState<ImageVerificationResult[]>([])
   const [isVerifying, setIsVerifying] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [totalCards, setTotalCards] = useState(0)
   const [showSuccessful, setShowSuccessful] = useState(true)
-
-  const elements = ["fire", "water", "air", "earth", "spirit"]
-  const cardTypes = ["cauldron", "sword", "spear", "stone", "cord"]
-  const cardNumbers = ["01", "10", "25", "38", "47", "52", "69", "74", "83", "96"]
 
   const verifyImages = async () => {
     setIsVerifying(true)
-    setCardStatuses([])
     setProgress(0)
 
-    const allCards: CardImageStatus[] = []
+    const cards = getAllCards()
+    setTotalCards(cards.length)
 
-    // Generate all possible card combinations
-    for (const type of cardTypes) {
-      for (const element of elements) {
-        for (const number of cardNumbers) {
-          // First end
-          const firstEndId = `${number}${type}-${element}`
-          allCards.push({
-            id: firstEndId,
-            element,
-            endUp: "first",
-            status: "loading",
-            path: getCardImagePath(firstEndId, element, "first"),
+    const initialResults: ImageVerificationResult[] = cards.map((card) => ({
+      cardId: card.id,
+      cardName: card.name,
+      firstEndStatus: "loading",
+      secondEndStatus: "loading",
+      firstEndPath: getCardImagePath(card, "first"),
+      secondEndPath: getCardImagePath(card, "second"),
+      firstEndFallbackUsed: false,
+      secondEndFallbackUsed: false,
+    }))
+
+    setResults(initialResults)
+
+    // Process in batches to avoid overwhelming the browser
+    const batchSize = 5
+    for (let i = 0; i < cards.length; i += batchSize) {
+      const batch = cards.slice(i, i + batchSize)
+
+      await Promise.all(
+        batch.map(async (card, batchIndex) => {
+          const index = i + batchIndex
+
+          // Create a promise that resolves when the image loads or rejects when it fails
+          const checkImage = (src: string): Promise<boolean> => {
+            return new Promise((resolve) => {
+              const img = new Image()
+              img.onload = () => resolve(true)
+              img.onerror = () => resolve(false)
+              img.src = src
+            })
+          }
+
+          // Check first end image
+          const firstEndPath = getCardImagePath(card, "first")
+          const firstEndSuccess = await checkImage(firstEndPath)
+
+          // Check second end image
+          const secondEndPath = getCardImagePath(card, "second")
+          const secondEndSuccess = await checkImage(secondEndPath)
+
+          // Update results
+          setResults((prev) => {
+            const newResults = [...prev]
+            newResults[index] = {
+              ...newResults[index],
+              firstEndStatus: firstEndSuccess ? "success" : "error",
+              secondEndStatus: secondEndSuccess ? "success" : "error",
+              firstEndPath,
+              secondEndPath,
+              firstEndFallbackUsed: false,
+              secondEndFallbackUsed: false,
+            }
+            return newResults
           })
 
-          // Second end (reverse the number)
-          const secondEndNumber = number.split("").reverse().join("")
-          const secondEndId = `${secondEndNumber}${type}-${element}`
-          allCards.push({
-            id: secondEndId,
-            element,
-            endUp: "second",
-            status: "loading",
-            path: getCardImagePath(secondEndId, element, "second"),
+          // Update progress
+          setProgress((prev) => {
+            const newProgress = prev + (1 / cards.length) * 100
+            return Math.min(newProgress, 100)
           })
-        }
-      }
-    }
-
-    setCardStatuses(allCards)
-
-    // Check each image
-    let completed = 0
-    for (let i = 0; i < allCards.length; i++) {
-      const card = allCards[i]
-      try {
-        const response = await fetch(card.path, { method: "HEAD" })
-        allCards[i].status = response.ok ? "success" : "error"
-      } catch (error) {
-        allCards[i].status = "error"
-      }
-
-      completed++
-      setProgress(Math.floor((completed / allCards.length) * 100))
-      setCardStatuses([...allCards])
-
-      // Small delay to prevent browser from freezing
-      if (i % 10 === 0) {
-        await new Promise((resolve) => setTimeout(resolve, 100))
-      }
+        }),
+      )
     }
 
     setIsVerifying(false)
   }
 
-  const successCount = cardStatuses.filter((card) => card.status === "success").length
-  const errorCount = cardStatuses.filter((card) => card.status === "error").length
+  // Filter results based on showSuccessful state
+  const filteredResults = showSuccessful
+    ? results
+    : results.filter((r) => r.firstEndStatus === "error" || r.secondEndStatus === "error")
+
+  // Calculate statistics
+  const totalVerified = results.filter((r) => r.firstEndStatus !== "loading" && r.secondEndStatus !== "loading").length
+
+  const totalErrors = results.filter((r) => r.firstEndStatus === "error" || r.secondEndStatus === "error").length
+
+  const firstEndErrors = results.filter((r) => r.firstEndStatus === "error").length
+  const secondEndErrors = results.filter((r) => r.secondEndStatus === "error").length
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Card Image Verification</CardTitle>
+          <CardTitle className="flex justify-between items-center">
+            <span>Card Image Verification</span>
+            <Button onClick={verifyImages} disabled={isVerifying} size="sm">
+              <RefreshCw className={`mr-2 h-4 w-4 ${isVerifying ? "animate-spin" : ""}`} />
+              {isVerifying ? "Verifying..." : "Verify Images"}
+            </Button>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-              <Button onClick={verifyImages} disabled={isVerifying}>
-                {isVerifying ? "Verifying..." : "Verify Card Images"}
-              </Button>
-
-              <div className="flex items-center gap-4">
-                <Badge variant="outline" className="bg-green-500/20">
-                  Success: {successCount}
-                </Badge>
-                <Badge variant="outline" className="bg-red-500/20">
-                  Error: {errorCount}
-                </Badge>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowSuccessful(!showSuccessful)}
-                  disabled={isVerifying}
-                >
-                  {showSuccessful ? "Hide Successful" : "Show All"}
-                </Button>
-              </div>
-            </div>
-
             {isVerifying && (
               <div className="space-y-2">
-                <Progress value={progress} />
-                <p className="text-sm text-center">{progress}% complete</p>
+                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                  <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Verifying {totalVerified} of {totalCards} cards ({Math.round(progress)}%)
+                </p>
               </div>
             )}
 
-            {cardStatuses.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
-                {cardStatuses
-                  .filter((card) => showSuccessful || card.status === "error")
-                  .map((card, index) => (
-                    <div
-                      key={`${card.id}-${index}`}
-                      className={`border rounded-md overflow-hidden ${
-                        card.status === "success"
-                          ? "border-green-500/30"
-                          : card.status === "error"
-                            ? "border-red-500/30"
-                            : "border-gray-500/30"
-                      }`}
-                    >
-                      <div className="relative h-40 bg-black/20">
-                        {card.status === "success" && (
-                          <Image src={card.path || "/placeholder.svg"} alt={card.id} fill className="object-contain" />
-                        )}
-                        {card.status === "error" && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-red-900/20">
-                            <span className="text-xs text-red-400">Image Missing</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-2 text-xs">
-                        <p className="font-medium truncate">{card.id}</p>
-                        <div className="flex justify-between items-center mt-1">
-                          <Badge variant="outline" className="text-xs">
-                            {card.element}
-                          </Badge>
-                          <Badge variant={card.status === "success" ? "success" : "destructive"} className="text-xs">
-                            {card.status}
-                          </Badge>
-                        </div>
-                      </div>
+            {totalVerified > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 bg-muted rounded-md">
+                  <h3 className="font-medium mb-2">Total Cards</h3>
+                  <p className="text-2xl font-bold">{totalCards}</p>
+                </div>
+
+                <div className="p-4 bg-muted rounded-md">
+                  <h3 className="font-medium mb-2">Verified</h3>
+                  <p className="text-2xl font-bold">{totalVerified}</p>
+                </div>
+
+                <div className={`p-4 rounded-md ${totalErrors > 0 ? "bg-red-900/20" : "bg-green-900/20"}`}>
+                  <h3 className="font-medium mb-2">Errors</h3>
+                  <p className="text-2xl font-bold">{totalErrors}</p>
+                  {totalErrors > 0 && (
+                    <div className="text-xs mt-2">
+                      <p>First End: {firstEndErrors}</p>
+                      <p>Second End: {secondEndErrors}</p>
                     </div>
-                  ))}
+                  )}
+                </div>
               </div>
             )}
+
+            {totalVerified > 0 && (
+              <div className="flex justify-between items-center">
+                <h3 className="font-medium">Results</h3>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="showSuccessful"
+                    checked={showSuccessful}
+                    onChange={(e) => setShowSuccessful(e.target.checked)}
+                    className="mr-2"
+                  />
+                  <label htmlFor="showSuccessful" className="text-sm">
+                    Show successful
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {totalErrors > 0 && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Image Loading Issues Detected</AlertTitle>
+                <AlertDescription>
+                  {totalErrors} cards have image loading issues. These cards will use fallback displays.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <div className="space-y-2">
+              {filteredResults.map((result) => (
+                <div
+                  key={result.cardId}
+                  className={`p-3 rounded-md border ${
+                    result.firstEndStatus === "error" || result.secondEndStatus === "error"
+                      ? "bg-red-900/10 border-red-500/30"
+                      : "bg-green-900/10 border-green-500/30"
+                  }`}
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="font-medium">{result.cardName}</h4>
+                    <div className="flex space-x-2">
+                      <span
+                        className={`flex items-center ${
+                          result.firstEndStatus === "error" ? "text-red-400" : "text-green-400"
+                        }`}
+                      >
+                        {result.firstEndStatus === "error" ? (
+                          <AlertTriangle className="h-4 w-4 mr-1" />
+                        ) : (
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                        )}
+                        First
+                      </span>
+                      <span
+                        className={`flex items-center ${
+                          result.secondEndStatus === "error" ? "text-red-400" : "text-green-400"
+                        }`}
+                      >
+                        {result.secondEndStatus === "error" ? (
+                          <AlertTriangle className="h-4 w-4 mr-1" />
+                        ) : (
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                        )}
+                        Second
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <p className="truncate">First: {result.firstEndPath}</p>
+                    </div>
+                    <div>
+                      <p className="truncate">Second: {result.secondEndPath}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
     </div>
   )
 }
-
-// Default export that points to the named export
-export default CardImageVerifier
