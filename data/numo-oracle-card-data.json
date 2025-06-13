@@ -200,37 +200,44 @@
     "pair": "2/5",
     "description": "Embodies the sword's cutting edge, representing masculine, forceful energy needed for decisive action, cutting through obstacles, navigating conflict, and embracing intense change or freedom. It demands bold, direct, assertive movement.",
     "numberMeaning": "Represents dynamic change, freedom, conflict, adventure, transformation, versatility, and curiosity. The energy of movement, breaking limitations, seeking new horizons, embracing unpredictability, and adapting quickly to thrive amidst disruption.",
-    "sacredGeometryName": "Delta Triangle / Five-Fold Circle",
-    "sacredGeometryMeaning": "The Delta (Δ)/Triangle here symbolizes dramatic, forceful transformation achieved through decisive, cutting power, requiring balance amidst intensity. The Five-Fold Circle (Flower of Life) signifies cosmic order, reminding that even forceful actions have interconnected ripple effects.",
-    "centerIconName": "Sword (Edge Position)",
-    "centerIconMeaning": "Signifies masculine cutting power, strength, and the necessity for direct, bold, sharp action. This is the tool for forcefully removing obstacles, cutting through confusion, achieving victory, and asserting control decisively.",
+    "sacredGeometryName": "Fivefold Circles",
+    "sacredGeometryMeaning": "Symbolizes harmony in chaos—balance through multiplicity. Fivefold geometry (like a pentagram or patterns of five) often symbolizes the human form or dynamic balance. Here, it suggests that even within conflict or multiplicity, an underlying order or potential for new harmony exists.",
+    "centerIconName": "Delta",
+    "centerIconMeaning": "A symbol of forceful change and active transformation. The Delta here underscores the dynamic and often abrupt nature of the change indicated by the number 5, a gateway to a new state often passed through challenge.",
     "planetName": "Mercury (☿)",
     "planetMeaning": "Governs communication, intellect, adaptability, and mental agility. Aligns with 5's dynamic nature, enabling quick thinking, rapid information processing, and the flexibility to move freely between ideas during change.",
     "astroSignName": "Gemini (♊)",
     "astroSignMeaning": "Represents duality, adaptability, communication, and intellectual curiosity. In conflict (5), it urges awareness of multiple perspectives, strategic thinking, and flexible responses rather than rigid, one-sided force.",
     "elements": {
-      "Fire": {
-        "influence": "Base element: Emphasizing intense passion, decisive action, intensity, and transformation through force. This is a time for direct, bold movements using power to enact necessary changes.",
-        "guidance": "Take decisive, swift, and strong action now. Do not hesitate; move forward with focused strength and unwavering determination to cut through the challenges you are facing.",
+      "Earth": {
+        "influence": "Base element: Focuses on stability, practicality, and grounded achievement. Encourages taking grounded actions to maintain success and continue nurturing physical well-being and resources responsibly.",
+        "guidance": "Focus on maintaining the stability you have achieved in your material life. Build upon your success by staying grounded and taking practical steps to ensure long-term security and continued prosperity.",
         "baseElementNote": "Base for 5 Sword"
+      },
+      "Water": {
+        "influence": "Adds emotional depth, suggesting foundations consider emotional needs. Reminds to maintain emotional awareness while building stability.",
+        "guidance": "Balance your practical efforts with keen emotional awareness. Ensure your actions fully support your emotional well-being."
       },
       "Spirit": {
         "influence": "Requires ensuring powerful actions align with your soul's higher purpose and integrity. Reminds you to stay spiritually conscious and grounded even while navigating conflict or using force.",
         "guidance": "Seek divine clarity before acting forcefully. Ensure your actions reflect your soul's path and true mission. Align power with your highest spiritual principles and understanding."
       },
-      "Earth": {
-        "influence": "Demands grounding your power in practicality and considering sustainability. While action is needed, ensure it leads to stable, manageable outcomes rather than pure destruction or chaos.",
-        "guidance": "Temper your necessary boldness with practical considerations and planning. Make absolutely sure your forceful actions will ultimately lead towards, or create space for, long-term stability."
-      },
       "Air": {
         "influence": "Brings essential clarity, strategic thinking, and intellectual sharpness to the conflict or change. Encourages using your mind as the most potent tool, ensuring actions are calculated.",
         "guidance": "Utilize your mental clarity and sharp strategic thinking to cut through confusion effectively. Ensure your decisive actions are well-calculated, intelligently planned, and clearly communicated if necessary."
       },
-      "Water": {
-        "influence": "Introduces crucial emotional awareness and intuition into the situation. Reminds that even in conflict, emotions play a significant role and impact outcomes. Consider feelings carefully.",
-        "guidance": "Balance your necessary bold actions with genuine emotional sensitivity for yourself and others involved. Ensure your choices align with your core emotional well-being and values."
+      "Fire": {
+        "influence": "Base element: Emphasizing intense passion, decisive action, intensity, and transformation through force. This is a time for direct, bold movements using power to enact necessary changes.",
+        "guidance": "Take decisive, swift, and strong action now. Do not hesitate; move forward with focused strength and unwavering determination to cut through the challenges you are facing.",
+        "baseElementNote": "Base for 5 Sword"
       }
-    }
+    },
+    "keyMeanings": [
+      "Power Through Speech: A situation may demand clarity, assertion, or confrontation. This is a call to use your words carefully but decisively, to speak your truth, or to engage in necessary discussions even if they are difficult.",
+      "Conflict as Catalyst: Tension can lead to needed movement. Disagreements or challenges, while uncomfortable, often highlight areas that require change, forcing new perspectives and ultimately paving the way for progress.",
+      "Mental Dexterity: Use adaptability and cleverness to handle resistance. This advises approaching challenges with a flexible mind, being resourceful, and using wit and strategic thinking to overcome obstacles or opposition.",
+      "Sharp Direction: Know when to cut ties or move forward with bold clarity. Sometimes, resolution requires decisive action, such as ending a situation that is no longer tenable or making a clear choice to pursue a new path, even if it's difficult."
+    ]
   },
   "6": {
     "number": 6,

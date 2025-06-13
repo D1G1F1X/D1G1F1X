@@ -1,4 +1,5 @@
 import type { OracleCard, Symbol } from "@/types/cards"
+import { getCardData } from "./card-data-access"
 
 /**
  * Types for validation results
@@ -245,4 +246,66 @@ export function validateCardData(cards: any[]): string {
   })
 
   return report
+}
+
+/**
+ * Validates that all cards have the correct number value
+ * The number should match the first part of the card ID
+ */
+export function validateCardNumbers(): { valid: boolean; issues: string[] } {
+  const cards = getCardData()
+  const issues: string[] = []
+
+  cards.forEach((card) => {
+    if (!card.id || !card.number) {
+      issues.push(`Card missing ID or number: ${JSON.stringify(card)}`)
+      return
+    }
+
+    // Extract the expected number from the card ID (e.g., "5-Sword" should have number "5")
+    const idParts = card.id.split("-")
+    if (idParts.length < 2) {
+      issues.push(`Invalid card ID format: ${card.id}`)
+      return
+    }
+
+    const expectedNumber = idParts[0]
+    if (card.number !== expectedNumber) {
+      issues.push(`Card ${card.id} has incorrect number: ${card.number}, expected: ${expectedNumber}`)
+    }
+  })
+
+  return {
+    valid: issues.length === 0,
+    issues,
+  }
+}
+
+/**
+ * Fixes card numbers to match their IDs
+ */
+export function fixCardNumbers(cards: OracleCard[]): OracleCard[] {
+  return cards.map((card) => {
+    if (!card.id) return card
+
+    const idParts = card.id.split("-")
+    if (idParts.length < 2) return card
+
+    // Update the card number to match the ID
+    const expectedNumber = idParts[0]
+
+    // Also update the number in the symbols array
+    const updatedSymbols = card.symbols?.map((symbol) => {
+      if (symbol.key === "Number") {
+        return { ...symbol, value: expectedNumber }
+      }
+      return symbol
+    })
+
+    return {
+      ...card,
+      number: expectedNumber,
+      symbols: updatedSymbols || card.symbols,
+    }
+  })
 }
