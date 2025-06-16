@@ -22,6 +22,7 @@ import { calculateLifePath } from "@/lib/numerology"
 import { useMembership } from "@/lib/membership-context"
 import type { SavedReading } from "@/types/saved-readings"
 import type { OracleCard } from "@/types/cards"
+import { EnhancedCardImage } from "@/components/enhanced-card-image-handler" // Ensure this is imported
 
 interface SpreadType {
   id: string
@@ -267,7 +268,7 @@ interface EnhancedCardDealerProps {
 }
 
 export default function EnhancedCardDealer({
-  cards,
+  cards, // This prop is already there
   onReadingGenerated,
   className,
   allowFreeReading = false,
@@ -355,7 +356,7 @@ export default function EnhancedCardDealer({
     setIsDealing(true)
 
     const numCards = spreadType === "single" ? 1 : 3
-    const shuffled = [...cards].sort(() => Math.random() - 0.5)
+    const shuffled = [...cards].sort(() => Math.random() - 0.5) // Use 'cards' prop directly
     const newSelectedCards = shuffled.slice(0, numCards)
 
     for (let i = 0; i < numCards; i++) {
@@ -490,14 +491,15 @@ export default function EnhancedCardDealer({
       const numCards = currentSpread.positions.length
 
       if (!cards || cards.length === 0) {
+        // Use 'cards' prop directly
         console.error("No card data available")
         setIsDrawing(false)
         return
       }
 
-      let shuffled = [...cards]
+      let shuffled = [...cards] // Use 'cards' prop directly
       while (shuffled.length < numCards) {
-        shuffled = [...shuffled, ...cards]
+        shuffled = [...shuffled, ...cards] // Use 'cards' prop directly
       }
 
       shuffled = shuffled.sort(() => 0.5 - Math.random())
@@ -805,9 +807,6 @@ Remember that you have the power to shape your path forward. These cards offer g
     const { card, endUp } = drawnCard
     const hasImageError = imageErrors[card.id]
 
-    // Use the correct numerical value from the card - directly from the number field
-    const cardNumber = card.number || "0"
-
     return (
       <div
         key={`${card.id}-${index}`}
@@ -840,41 +839,14 @@ Remember that you have the power to shape your path forward. These cards offer g
               />
             </div>
           ) : (
-            <>
-              {!hasImageError ? (
-                <div className="relative w-full h-full">
-                  <Image
-                    src={`/cards/${card.number.padStart(2, "0")}${card.suit.toLowerCase()}-${(endUp === "first" ? card.baseElement : card.synergisticElement).toLowerCase()}.jpg`}
-                    alt={`${card.fullTitle} - ${endUp === "first" ? "Base Element" : "Synergistic Element"}`}
-                    fill
-                    className="object-cover"
-                    onError={() => handleImageError(card.id)}
-                    priority
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-center">
-                    <div className="text-xs font-medium text-white">{card.fullTitle}</div>
-                    <div className="text-xs text-gray-300">
-                      {cardNumber} • {card.baseElement}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div
-                  className={`w-full h-full ${getElementColor(card.baseElement).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4`}
-                >
-                  <div className="text-center mb-2 text-sm font-medium text-white">{card.fullTitle}</div>
-                  <div className="w-24 h-24 my-4 rounded-full bg-gray-800/50 border border-gray-300/30 flex items-center justify-center">
-                    <span className={getElementColor(card.baseElement).split(" ").slice(2).join(" ") + " text-4xl"}>
-                      {getElementSymbol(card.baseElement)}
-                    </span>
-                  </div>
-                  <div className="text-xs text-center text-white/80 mt-2">
-                    {card.suit} • {card.baseElement}
-                  </div>
-                  <div className="text-lg font-bold text-white mt-2">{cardNumber}</div>
-                </div>
-              )}
-            </>
+            <EnhancedCardImage
+              card={card} // Pass the full card object
+              endUp={endUp} // Pass the endUp property
+              className="w-full h-full"
+              onImageLoad={(success) => {
+                if (!success) handleImageError(card.id)
+              }}
+            />
           )}
         </div>
       </div>
@@ -897,12 +869,10 @@ Remember that you have the power to shape your path forward. These cards offer g
             <h2 className="text-2xl font-bold text-white mb-4">{card.fullTitle}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Image
-                  src={`/cards/${card.number.padStart(2, "0")}${card.suit.toLowerCase()}-${(endUp === "first" ? card.baseElement : card.synergisticElement).toLowerCase()}.jpg`}
-                  alt={`${card.fullTitle} - ${endUp === "first" ? "Base Element" : "Synergistic Element"}`}
-                  width={300}
-                  height={420}
-                  className="object-cover rounded-lg"
+                <EnhancedCardImage
+                  card={card} // Pass the full card object
+                  endUp={endUp} // Pass the endUp property
+                  className="w-[300px] h-[420px]"
                 />
               </div>
               <div>

@@ -62,7 +62,8 @@ export function getCardImagePath(card: OracleCard, end: "first" | "second"): str
   const element =
     end === "first" ? card.baseElement?.toLowerCase() || "spirit" : card.synergisticElement?.toLowerCase() || "spirit"
 
-  return `/cards/${number}${suit}-${element}.jpg`
+  // Changed from `${number}${suit}-${element}.jpg` to `${number}-${suit}-${element}.jpg`
+  return `/cards/${number}-${suit}-${element}.jpg`
 }
 
 /**
@@ -145,7 +146,7 @@ export function validateCardNumber(card: OracleCard): boolean {
 }
 
 /**
- * Check data integrity between master data and the OracleCard type.
+ * Check data integrity (placeholder for actual validation logic).
  * This function now primarily checks for missing critical fields and validates card numbers.
  */
 export function checkDataIntegrity() {
