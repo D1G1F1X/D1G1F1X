@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge"
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -80,7 +80,7 @@ export default function NumerologyCalculator({
     }
   }, [name, birthdate, hasConsent])
 
-  const handleConsentChange = (consent: boolean) => {
+  const handleConsentChange = useCallback((consent: boolean) => {
     setHasConsent(consent)
 
     if (consent) {
@@ -99,7 +99,7 @@ export default function NumerologyCalculator({
       setPartnerName("")
       setPartnerBirthdate("")
     }
-  }
+  }, [])
 
   // Convert letters to numbers according to numerology
   const letterToNumber = (letter: string): number => {

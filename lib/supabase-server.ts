@@ -4,7 +4,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 type MockSupabaseClient = Partial<SupabaseClient>
 
 // Create a mock Supabase client that won't throw errors
-function createMockSupabaseClient(): MockSupabaseClient {
+export function createMockSupabaseClient(): MockSupabaseClient {
   const handler = {
     get(target: any, prop: string | symbol) {
       if (prop === "then" || prop === "catch" || prop === "finally") {

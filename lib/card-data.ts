@@ -2,7 +2,6 @@
 export interface CardEnd {
   number: number
   meaning: string
-  shadowAspect: string
   keywords: string[]
   sacredGeometry: string
   planet: string
@@ -38,7 +37,6 @@ export const cardData: OracleCard[] = [
       number: 0,
       meaning:
         "Creation in Progress, Alchemy and Transformation, Infinite Potential Turning into Reality, Deep Change and Rebirth",
-      shadowAspect: "Stagnation, resistance to change, fear of the unknown, or inability to see potential.",
       keywords: ["creation", "potential", "transformation", "alchemy", "void"],
       sacredGeometry: "The dot on the 0 Cauldron card symbolizes the point of origin",
       planet: "Pluto (P)",
@@ -54,7 +52,6 @@ export const cardData: OracleCard[] = [
     secondEnd: {
       number: 1,
       meaning: "Manifestation in Progress, Individual Power and Leadership, Self-Expression and Creativity",
-      shadowAspect: "Ego-driven actions, self-centeredness, or inability to collaborate with others.",
       keywords: ["manifestation", "leadership", "individuality", "action", "expression"],
       sacredGeometry: "Plus Sign (+) represents the addition of forces",
       planet: "Sun (☉)",
@@ -80,7 +77,6 @@ export const cardData: OracleCard[] = [
       number: 2,
       meaning:
         "Graceful Decision-Making, Navigating Change, Finding Balance in Duality, Mental Clarity and Communication",
-      shadowAspect: "Indecision, avoidance of necessary choices, or inability to find balance.",
       keywords: ["grace", "balance", "duality", "harmony", "decision"],
       sacredGeometry: "Triangle and Delta (Δ)",
       planet: "",
@@ -96,7 +92,6 @@ export const cardData: OracleCard[] = [
       number: 5,
       meaning:
         "Bold, Decisive Action, Navigating Conflict and Power Struggles, Change Through Force, Balancing Duality, Emotional Depth and Security, Cosmic Balance",
-      shadowAspect: "Aggression, unnecessary conflict, or misuse of power and force.",
       keywords: ["power", "conflict", "decisiveness", "force", "change"],
       sacredGeometry: "Triangle and Delta (Δ)",
       planet: "Cancer (♋)",
@@ -122,7 +117,6 @@ export const cardData: OracleCard[] = [
       number: 3,
       meaning:
         "Creative Collaboration, Harmony in Relationships, Building Strong Connections, Expressive Communication",
-      shadowAspect: "Codependency, entanglement, or inability to establish healthy boundaries.",
       keywords: ["connection", "creativity", "collaboration", "communication", "harmony"],
       sacredGeometry: "",
       planet: "Venus (♀)",
@@ -138,7 +132,6 @@ export const cardData: OracleCard[] = [
       number: 8,
       meaning:
         "Mastery Over Relationships, Power and Influence, Transformation in Relationships, Emotional Depth and Honesty",
-      shadowAspect: "Manipulation, control issues, or abuse of power in relationships.",
       keywords: ["mastery", "power", "influence", "transformation", "depth"],
       sacredGeometry: "",
       planet: "Saturn (♄)",
@@ -164,7 +157,6 @@ export const cardData: OracleCard[] = [
     firstEnd: {
       number: 4,
       meaning: "Strength Through Stability, Strategic Advancement, Precision and Focus, Balanced Ascent",
-      shadowAspect: "Rigidity, inflexibility, or inability to adapt to changing circumstances.",
       keywords: ["stability", "precision", "focus", "structure", "discipline"],
       sacredGeometry: "",
       planet: "Mars (♂)",
@@ -179,7 +171,6 @@ export const cardData: OracleCard[] = [
     secondEnd: {
       number: 7,
       meaning: "Strength Through Endurance, Mastery of Defense, Wisdom in Challenges, Holding Power",
-      shadowAspect: "Stubbornness, resistance to necessary change, or inability to let go.",
       keywords: ["resilience", "mastery", "endurance", "wisdom", "defense"],
       sacredGeometry: "",
       planet: "Saturn (♄)",
@@ -204,7 +195,6 @@ export const cardData: OracleCard[] = [
     firstEnd: {
       number: 6,
       meaning: "Stable Growth, Effortless Security, Prosperity and Nurturing, Graceful Responsibility",
-      shadowAspect: "Over-responsibility, self-sacrifice, or inability to set healthy boundaries.",
       keywords: ["growth", "stability", "nurturing", "balance", "responsibility"],
       sacredGeometry: "",
       planet: "Venus (♀)",
@@ -219,7 +209,6 @@ export const cardData: OracleCard[] = [
     secondEnd: {
       number: 9,
       meaning: "Service and Duty, Observance and Structure, Completion Through Responsibility, Endurance in Service",
-      shadowAspect: "Martyrdom, perfectionism, or inability to delegate responsibility.",
       keywords: ["service", "duty", "completion", "wisdom", "discipline"],
       sacredGeometry: "",
       planet: "Mars (♂)",
@@ -244,8 +233,6 @@ export const cardData: OracleCard[] = [
       number: 1,
       meaning:
         "New beginnings in material matters, foundation building, and stability. This card signals the start of a new phase in your physical world, whether related to finances, career, health, or home. It's a time to plant seeds and establish solid foundations.",
-      shadowAspect:
-        "Missed opportunities, delays in material progress, or instability. You may be struggling to get a new project off the ground or feeling uncertain about your material security.",
       keywords: ["beginnings", "foundation", "material", "stability", "growth"],
       sacredGeometry: "Point/Dot - The origin of all forms",
       planet: "Saturn",
@@ -259,8 +246,6 @@ export const cardData: OracleCard[] = [
       number: 10,
       meaning:
         "Material fulfillment, physical completion, and tangible achievement. This card indicates a cycle of material growth has reached its culmination, bringing a sense of abundance, security, and the manifestation of long-term goals.",
-      shadowAspect:
-        "Material disappointment, incomplete manifestation, or physical depletion. You may feel that your material goals remain unfulfilled or that what you've achieved doesn't bring the satisfaction you expected.",
       keywords: ["fulfillment", "abundance", "completion", "manifestation", "achievement"],
       sacredGeometry: "Decad - The return to unity after experiencing the cycle of numbers",
       planet: "Mercury",
@@ -282,8 +267,6 @@ export const cardData: OracleCard[] = [
       number: 1,
       meaning:
         "The spark of passion, creative inspiration, and transformative energy. This card signals the beginning of a creative project, a new passion, or a spiritual awakening. It's a time to embrace your enthusiasm and allow your inner fire to guide you.",
-      shadowAspect:
-        "Blocked creativity, dampened enthusiasm, or fear of change. You may be hesitant to embrace your passions or feeling that your creative spark is diminished.",
       keywords: ["passion", "creativity", "inspiration", "transformation", "energy"],
       sacredGeometry: "Point/Dot - The origin of all forms",
       planet: "Sun",
@@ -297,8 +280,6 @@ export const cardData: OracleCard[] = [
       number: 10,
       meaning:
         "Creative fulfillment, passionate completion, and transformative achievement. This card indicates a cycle of creative or spiritual growth has reached its culmination, bringing a sense of accomplishment and the transformation of energy into its highest form.",
-      shadowAspect:
-        "Creative burnout, passion that has cooled, or incomplete transformation. You may feel that a creative project or passionate pursuit has lost its spark before reaching completion.",
       keywords: ["fulfillment", "passion", "completion", "transformation", "achievement"],
       sacredGeometry: "Decad - The return to unity after experiencing the cycle of numbers",
       planet: "Mercury",
@@ -320,8 +301,6 @@ export const cardData: OracleCard[] = [
       number: 1,
       meaning:
         "New emotional beginnings, intuitive awakening, and the start of relationships. This card signals the beginning of an emotional journey, a new relationship, or the first stirrings of intuitive awareness. It's a time to open your heart and trust your feelings.",
-      shadowAspect:
-        "Emotional hesitation, intuitive blocks, or fear of vulnerability. You may be reluctant to open yourself emotionally or doubting your intuitive impressions.",
       keywords: ["emotions", "intuition", "relationships", "feelings", "flow"],
       sacredGeometry: "Point/Dot - The origin of all forms",
       planet: "Moon",
@@ -335,8 +314,6 @@ export const cardData: OracleCard[] = [
       number: 10,
       meaning:
         "Emotional fulfillment, deep intuitive wisdom, and emotional completion. This card indicates a cycle of emotional growth has reached its culmination, bringing a sense of wholeness and deep satisfaction in relationships or spiritual connection.",
-      shadowAspect:
-        "Emotional overwhelm, unresolved feelings, or disconnection from intuition. You may be experiencing emotional turbulence or feeling that something remains incomplete in your emotional life.",
       keywords: ["fulfillment", "intuition", "completion", "emotional wisdom", "flow"],
       sacredGeometry: "Decad - The return to unity after experiencing the cycle of numbers",
       planet: "Neptune",
@@ -358,8 +335,6 @@ export const cardData: OracleCard[] = [
       number: 1,
       meaning:
         "New ideas, mental clarity, and the beginning of communication. This card signals the start of intellectual pursuits, learning opportunities, or important conversations. It's a time to embrace new concepts and express your thoughts.",
-      shadowAspect:
-        "Mental confusion, communication barriers, or scattered thoughts. You may be struggling to articulate your ideas or feeling overwhelmed by too many thoughts.",
       keywords: ["ideas", "clarity", "communication", "intellect", "learning"],
       sacredGeometry: "Point/Dot - The origin of all forms",
       planet: "Mercury",
@@ -373,8 +348,6 @@ export const cardData: OracleCard[] = [
       number: 10,
       meaning:
         "Mental fulfillment, intellectual completion, and communicative achievement. This card indicates a cycle of mental growth has reached its culmination, bringing clarity of thought, successful communication, and the mastery of ideas.",
-      shadowAspect:
-        "Mental exhaustion, incomplete understanding, or communication failures. You may feel that your intellectual pursuits have led to confusion rather than clarity, or that important messages remain undelivered.",
       keywords: ["fulfillment", "clarity", "completion", "communication", "understanding"],
       sacredGeometry: "Decad - The return to unity after experiencing the cycle of numbers",
       planet: "Uranus",
@@ -396,8 +369,6 @@ export const cardData: OracleCard[] = [
       number: 1,
       meaning:
         "Spiritual awakening, soul purpose, and divine connection. This card signals the beginning of a spiritual journey, a new understanding of your purpose, or the first connection with higher guidance. It's a time to embrace your spiritual nature.",
-      shadowAspect:
-        "Spiritual doubt, disconnection from purpose, or resistance to divine guidance. You may be questioning your path or feeling separated from your spiritual essence.",
       keywords: ["awakening", "purpose", "connection", "divinity", "essence"],
       sacredGeometry: "Point/Dot - The origin of all forms",
       planet: "Jupiter",
@@ -411,8 +382,6 @@ export const cardData: OracleCard[] = [
       number: 10,
       meaning:
         "Spiritual fulfillment, divine completion, and soul achievement. This card indicates a cycle of spiritual growth has reached its culmination, bringing a profound connection with your higher self, a sense of divine purpose, and the integration of spiritual wisdom.",
-      shadowAspect:
-        "Spiritual disillusionment, incomplete awakening, or divine disconnection. You may feel that your spiritual journey has stalled or that the connection you seek remains elusive.",
       keywords: ["fulfillment", "divinity", "completion", "integration", "wholeness"],
       sacredGeometry: "Decad - The return to unity after experiencing the cycle of numbers",
       planet: "Pluto",
@@ -436,8 +405,6 @@ export const cardData: OracleCard[] = [
       number: 25,
       meaning:
         "Practical truth, material clarity, and grounded decisions. This card indicates a time when your practical wisdom allows you to cut through confusion with stability and make decisions that establish or protect your material foundation.",
-      shadowAspect:
-        "Impractical thinking, material confusion, or indecision about practical matters. You may be struggling to see the practical truth of a situation or hesitating to make necessary decisions about material concerns.",
       keywords: ["practicality", "clarity", "decision", "stability", "truth"],
       sacredGeometry: "Pentagram - The five-pointed star representing harmony and balance",
       planet: "Saturn",
@@ -451,8 +418,6 @@ export const cardData: OracleCard[] = [
       number: 52,
       meaning:
         "Practical truth, material clarity, and grounded decisions. This card indicates a time when your practical wisdom allows you to cut through confusion with stability and make decisions that establish or protect your material foundation.",
-      shadowAspect:
-        "Impractical thinking, material confusion, or indecision about practical matters. You may be struggling to see the practical truth of a situation or hesitating to make necessary decisions about material concerns.",
       keywords: ["practicality", "clarity", "decision", "stability", "truth"],
       sacredGeometry: "Vesica Piscis - The intersection of two circles, representing the union of opposites",
       planet: "Venus",
@@ -474,8 +439,6 @@ export const cardData: OracleCard[] = [
       number: 25,
       meaning:
         "Passionate truth, creative clarity, and transformative decisions. This card indicates a time when your passion and clarity align, allowing you to cut through confusion with the fire of inspiration and make decisions that transform your path.",
-      shadowAspect:
-        "Destructive impulses, creative blocks, or passion without direction. You may be experiencing a disconnect between your truth and your passion, leading to impulsive actions or creative frustration.",
       keywords: ["passion", "clarity", "transformation", "decision", "action"],
       sacredGeometry: "Pentagram - The five-pointed star representing harmony and balance",
       planet: "Mars",
@@ -489,8 +452,6 @@ export const cardData: OracleCard[] = [
       number: 52,
       meaning:
         "Passionate truth, creative clarity, and transformative decisions. This card indicates a time when your passion and clarity align, allowing you to cut through confusion with the fire of inspiration and make decisions that transform your path.",
-      shadowAspect:
-        "Destructive impulses, creative blocks, or passion without direction. You may be experiencing a disconnect between your truth and your passion, leading to impulsive actions or creative frustration.",
       keywords: ["passion", "clarity", "transformation", "decision", "action"],
       sacredGeometry: "Vesica Piscis - The intersection of two circles, representing the union of opposites",
       planet: "Sun",
@@ -512,8 +473,6 @@ export const cardData: OracleCard[] = [
       number: 25,
       meaning:
         "Emotional truth, intuitive clarity, and heart-centered decisions. This card indicates a time when your emotional wisdom and intuition allow you to cut through confusion with compassion and make decisions that honor your feelings and relationships.",
-      shadowAspect:
-        "Emotional confusion, intuitive blocks, or decisions clouded by feelings. You may be struggling to discern emotional truth from projection or finding it difficult to make clear decisions about relationships.",
       keywords: ["emotion", "clarity", "intuition", "decision", "compassion"],
       sacredGeometry: "Pentagram - The five-pointed star representing harmony and balance",
       planet: "Moon",
@@ -527,8 +486,6 @@ export const cardData: OracleCard[] = [
       number: 52,
       meaning:
         "Emotional truth, intuitive clarity, and heart-centered decisions. This card indicates a time when your emotional wisdom and intuition allow you to cut through confusion with compassion and make decisions that honor your feelings and relationships.",
-      shadowAspect:
-        "Emotional confusion, intuitive blocks, or decisions clouded by feelings. You may be struggling to discern emotional truth from projection or finding it difficult to make clear decisions about relationships.",
       keywords: ["emotion", "clarity", "intuition", "decision", "compassion"],
       sacredGeometry: "Vesica Piscis - The intersection of two circles, representing the union of opposites",
       planet: "Neptune",
@@ -550,8 +507,6 @@ export const cardData: OracleCard[] = [
       number: 25,
       meaning:
         "Mental truth, intellectual clarity, and logical decisions. This card indicates a time when your mental acuity is at its peak, allowing you to cut through confusion with sharp intellect and make decisions based on clear thinking and communication.",
-      shadowAspect:
-        "Mental confusion, overthinking, or communication barriers. You may be experiencing a disconnect between your thoughts and your ability to express them, or finding that logic alone is insufficient for the decisions you face.",
       keywords: ["intellect", "clarity", "communication", "decision", "logic"],
       sacredGeometry: "Pentagram - The five-pointed star representing harmony and balance",
       planet: "Mercury",
@@ -565,8 +520,6 @@ export const cardData: OracleCard[] = [
       number: 52,
       meaning:
         "Mental truth, intellectual clarity, and logical decisions. This card indicates a time when your mental acuity is at its peak, allowing you to cut through confusion with sharp intellect and make decisions based on clear thinking and communication.",
-      shadowAspect:
-        "Mental confusion, overthinking, or communication barriers. You may be experiencing a disconnect between your thoughts and your ability to express them, or finding that logic alone is insufficient for the decisions you face.",
       keywords: ["intellect", "clarity", "communication", "decision", "logic"],
       sacredGeometry: "Vesica Piscis - The intersection of two circles, representing the union of opposites",
       planet: "Uranus",
@@ -588,8 +541,6 @@ export const cardData: OracleCard[] = [
       number: 25,
       meaning:
         "Divine truth, spiritual clarity, and soul-aligned decisions. This card indicates a time when your connection to higher wisdom allows you to cut through illusion with spiritual insight and make decisions that align with your soul's purpose.",
-      shadowAspect:
-        "Spiritual confusion, disconnection from higher guidance, or decisions that conflict with your true purpose. You may be struggling to discern divine truth or feeling that your spiritual path is unclear.",
       keywords: ["divinity", "clarity", "purpose", "decision", "alignment"],
       sacredGeometry: "Pentagram - The five-pointed star representing harmony and balance",
       planet: "Jupiter",
@@ -603,8 +554,6 @@ export const cardData: OracleCard[] = [
       number: 52,
       meaning:
         "Divine truth, spiritual clarity, and soul-aligned decisions. This card indicates a time when your connection to higher wisdom allows you to cut through illusion with spiritual insight and make decisions that align with your soul's purpose.",
-      shadowAspect:
-        "Spiritual confusion, disconnection from higher guidance, or decisions that conflict with your true purpose. You may be struggling to discern divine truth or feeling that your spiritual path is unclear.",
       keywords: ["divinity", "clarity", "purpose", "decision", "alignment"],
       sacredGeometry: "Vesica Piscis - The intersection of two circles, representing the union of opposites",
       planet: "Pluto",
@@ -628,8 +577,6 @@ export const cardData: OracleCard[] = [
       number: 47,
       meaning:
         "Material focus, practical direction, and physical goals. This card indicates the ability to direct your physical energy with precision, focus on tangible objectives, and pursue material goals with determination and groundedness.",
-      shadowAspect:
-        "Material scatter, lack of practical focus, or misaligned physical energy. You may be struggling to concentrate on practical matters or finding your energy dispersed among too many material concerns.",
       keywords: ["focus", "practicality", "direction", "goals", "manifestation"],
       sacredGeometry: "Cube - The solid foundation of material existence",
       planet: "Saturn",
@@ -643,8 +590,6 @@ export const cardData: OracleCard[] = [
       number: 74,
       meaning:
         "Material focus, practical direction, and physical goals. This card indicates the ability to direct your physical energy with precision, focus on tangible objectives, and pursue material goals with determination and groundedness.",
-      shadowAspect:
-        "Material scatter, lack of practical focus, or misaligned physical energy. You may be struggling to concentrate on practical matters or finding your energy dispersed among too many material concerns.",
       keywords: ["focus", "practicality", "direction", "goals", "manifestation"],
       sacredGeometry: "Octahedron - The balance of above and below",
       planet: "Venus",
@@ -666,8 +611,6 @@ export const cardData: OracleCard[] = [
       number: 47,
       meaning:
         "Passionate focus, creative direction, and transformative goals. This card indicates the ability to direct your creative energy with precision, focus on inspirational objectives, and pursue transformative goals with determination and enthusiasm.",
-      shadowAspect:
-        "Scattered passion, lack of creative focus, or misaligned transformative energy. You may be struggling to channel your enthusiasm effectively or finding your creative energy dispersed among too many projects.",
       keywords: ["focus", "passion", "direction", "creativity", "transformation"],
       sacredGeometry: "Tetrahedron - The simplest regular solid, representing fire",
       planet: "Mars",
@@ -681,8 +624,6 @@ export const cardData: OracleCard[] = [
       number: 74,
       meaning:
         "Passionate focus, creative direction, and transformative goals. This card indicates the ability to direct your creative energy with precision, focus on inspirational objectives, and pursue transformative goals with determination and enthusiasm.",
-      shadowAspect:
-        "Scattered passion, lack of creative focus, or misaligned transformative energy. You may be struggling to channel your enthusiasm effectively or finding your creative energy dispersed among too many projects.",
       keywords: ["focus", "passion", "direction", "creativity", "transformation"],
       sacredGeometry: "Star Tetrahedron - The interlocking of two tetrahedrons, representing balanced fire energy",
       planet: "Sun",
@@ -704,8 +645,6 @@ export const cardData: OracleCard[] = [
       number: 47,
       meaning:
         "Emotional focus, intuitive direction, and relational goals. This card indicates the ability to direct your emotional energy with precision, focus on intuitive objectives, and pursue relationship goals with determination and sensitivity.",
-      shadowAspect:
-        "Emotional scatter, lack of intuitive focus, or misaligned relational energy. You may be struggling to channel your feelings effectively or finding your emotional energy dispersed among too many relationships.",
       keywords: ["focus", "emotion", "direction", "intuition", "relationships"],
       sacredGeometry: "Icosahedron - The twenty-faced solid associated with water",
       planet: "Moon",
@@ -719,8 +658,6 @@ export const cardData: OracleCard[] = [
       number: 74,
       meaning:
         "Emotional focus, intuitive direction, and relational goals. This card indicates the ability to direct your emotional energy with precision, focus on intuitive objectives, and pursue relationship goals with determination and sensitivity.",
-      shadowAspect:
-        "Emotional scatter, lack of intuitive focus, or misaligned relational energy. You may be struggling to channel your feelings effectively or finding your emotional energy dispersed among too many relationships.",
       keywords: ["focus", "emotion", "direction", "intuition", "relationships"],
       sacredGeometry: "Spiral - The inward journey to the center of being",
       planet: "Neptune",
@@ -742,8 +679,6 @@ export const cardData: OracleCard[] = [
       number: 47,
       meaning:
         "Mental focus, directed communication, and intellectual goals. This card indicates the ability to direct your mental energy with precision, focus on communicative objectives, and pursue intellectual goals with determination and clarity.",
-      shadowAspect:
-        "Mental scatter, lack of communicative focus, or misaligned intellectual energy. You may be struggling to concentrate your thoughts or finding your mental energy dispersed among too many ideas.",
       keywords: ["focus", "intellect", "direction", "communication", "clarity"],
       sacredGeometry: "Octahedron - The eight-faced solid associated with air",
       planet: "Mercury",
@@ -757,8 +692,6 @@ export const cardData: OracleCard[] = [
       number: 74,
       meaning:
         "Mental focus, directed communication, and intellectual goals. This card indicates the ability to direct your mental energy with precision, focus on communicative objectives, and pursue intellectual goals with determination and clarity.",
-      shadowAspect:
-        "Mental scatter, lack of communicative focus, or misaligned intellectual energy. You may be struggling to concentrate your thoughts or finding your mental energy dispersed among too many ideas.",
       keywords: ["focus", "intellect", "direction", "communication", "clarity"],
       sacredGeometry: "Double Spiral - The balance of inward and outward movement",
       planet: "Uranus",
@@ -780,8 +713,6 @@ export const cardData: OracleCard[] = [
       number: 47,
       meaning:
         "Spiritual focus, divine direction, and soul-aligned goals. This card indicates the ability to direct your spiritual energy with precision, focus on divine objectives, and pursue soul-aligned goals with determination and higher awareness.",
-      shadowAspect:
-        "Spiritual scatter, lack of divine focus, or misaligned soul energy. You may be struggling to channel your spiritual awareness effectively or finding your divine energy dispersed among too many paths.",
       keywords: ["focus", "spirit", "direction", "divinity", "purpose"],
       sacredGeometry: "Merkaba - The vehicle of light for ascension",
       planet: "Jupiter",
@@ -795,8 +726,6 @@ export const cardData: OracleCard[] = [
       number: 74,
       meaning:
         "Spiritual focus, divine direction, and soul-aligned goals. This card indicates the ability to direct your spiritual energy with precision, focus on divine objectives, and pursue soul-aligned goals with determination and higher awareness.",
-      shadowAspect:
-        "Spiritual scatter, lack of divine focus, or misaligned soul energy. You may be struggling to channel your spiritual awareness effectively or finding your divine energy dispersed among too many paths.",
       keywords: ["focus", "spirit", "direction", "divinity", "purpose"],
       sacredGeometry: "Dodecahedron - The cosmic container of all possibilities",
       planet: "Pluto",
@@ -820,8 +749,6 @@ export const cardData: OracleCard[] = [
       number: 69,
       meaning:
         "Material foundation, physical stability, and grounded presence. This card indicates a strong connection to the physical world, providing a solid foundation for material growth and tangible achievements.",
-      shadowAspect:
-        "Material instability, physical imbalance, or lack of groundedness. You may be feeling disconnected from your physical needs or experiencing uncertainty in your material foundation.",
       keywords: ["foundation", "stability", "grounding", "material", "presence"],
       sacredGeometry: "Cube - The solid foundation of material existence",
       planet: "Saturn",
@@ -835,8 +762,6 @@ export const cardData: OracleCard[] = [
       number: 96,
       meaning:
         "Material foundation, physical stability, and grounded presence. This card indicates a strong connection to the physical world, providing a solid foundation for material growth and tangible achievements.",
-      shadowAspect:
-        "Material instability, physical imbalance, or lack of groundedness. You may be feeling disconnected from your physical needs or experiencing uncertainty in your material foundation.",
       keywords: ["foundation", "stability", "grounding", "material", "presence"],
       sacredGeometry: "Hexahedron - The six-faced cube representing earth",
       planet: "Venus",
@@ -858,8 +783,6 @@ export const cardData: OracleCard[] = [
       number: 69,
       meaning:
         "Passionate foundation, creative stability, and transformative presence. This card indicates a strong connection to your creative and spiritual fire, providing a solid foundation for inspiration and transformation.",
-      shadowAspect:
-        "Creative instability, passionate imbalance, or lack of transformative grounding. You may be feeling disconnected from your creative source or experiencing uncertainty in your spiritual fire.",
       keywords: ["foundation", "passion", "creativity", "transformation", "presence"],
       sacredGeometry: "Tetrahedron - The simplest regular solid, representing fire",
       planet: "Mars",
@@ -873,8 +796,6 @@ export const cardData: OracleCard[] = [
       number: 96,
       meaning:
         "Passionate foundation, creative stability, and transformative presence. This card indicates a strong connection to your creative and spiritual fire, providing a solid foundation for inspiration and transformation.",
-      shadowAspect:
-        "Creative instability, passionate imbalance, or lack of transformative grounding. You may be feeling disconnected from your creative source or experiencing uncertainty in your spiritual fire.",
       keywords: ["foundation", "passion", "creativity", "transformation", "presence"],
       sacredGeometry: "Star Tetrahedron - The interlocking of two tetrahedrons, representing balanced fire energy",
       planet: "Sun",
@@ -896,8 +817,6 @@ export const cardData: OracleCard[] = [
       number: 69,
       meaning:
         "Emotional foundation, intuitive stability, and flowing presence. This card indicates a strong connection to your emotional wisdom and intuition, providing a solid foundation for relationships and psychic awareness.",
-      shadowAspect:
-        "Emotional instability, intuitive imbalance, or lack of relational grounding. You may be feeling disconnected from your emotional center or experiencing uncertainty in your intuitive guidance.",
       keywords: ["foundation", "emotion", "intuition", "relationships", "flow"],
       sacredGeometry: "Icosahedron - The twenty-faced solid associated with water",
       planet: "Moon",
@@ -911,8 +830,6 @@ export const cardData: OracleCard[] = [
       number: 96,
       meaning:
         "Emotional foundation, intuitive stability, and flowing presence. This card indicates a strong connection to your emotional wisdom and intuition, providing a solid foundation for relationships and psychic awareness.",
-      shadowAspect:
-        "Emotional instability, intuitive imbalance, or lack of relational grounding. You may be feeling disconnected from your emotional center or experiencing uncertainty in your intuitive guidance.",
       keywords: ["foundation", "emotion", "intuition", "relationships", "flow"],
       sacredGeometry: "Spiral - The inward journey to the center of being",
       planet: "Neptune",
@@ -934,8 +851,6 @@ export const cardData: OracleCard[] = [
       number: 69,
       meaning:
         "Mental foundation, intellectual stability, and communicative presence. This card indicates a strong connection to your mental wisdom and communicative abilities, providing a solid foundation for learning and sharing knowledge.",
-      shadowAspect:
-        "Mental instability, intellectual imbalance, or lack of communicative grounding. You may be feeling disconnected from your mental center or experiencing uncertainty in your ability to express ideas.",
       keywords: ["foundation", "intellect", "communication", "ideas", "clarity"],
       sacredGeometry: "Octahedron - The eight-faced solid associated with air",
       planet: "Mercury",
@@ -949,8 +864,6 @@ export const cardData: OracleCard[] = [
       number: 96,
       meaning:
         "Mental foundation, intellectual stability, and communicative presence. This card indicates a strong connection to your mental wisdom and communicative abilities, providing a solid foundation for learning and sharing knowledge.",
-      shadowAspect:
-        "Mental instability, intellectual imbalance, or lack of communicative grounding. You may be feeling disconnected from your mental center or experiencing uncertainty in your ability to express ideas.",
       keywords: ["foundation", "intellect", "communication", "ideas", "clarity"],
       sacredGeometry: "Double Spiral - The balance of inward and outward movement",
       planet: "Uranus",
@@ -972,8 +885,6 @@ export const cardData: OracleCard[] = [
       number: 69,
       meaning:
         "Spiritual foundation, divine stability, and soul presence. This card indicates a strong connection to your higher self and spiritual purpose, providing a solid foundation for your spiritual journey and growth.",
-      shadowAspect:
-        "Spiritual instability, divine imbalance, or lack of soul grounding. You may be feeling disconnected from your spiritual essence or experiencing uncertainty in your divine purpose.",
       keywords: ["foundation", "spirit", "divinity", "purpose", "presence"],
       sacredGeometry: "Merkaba - The vehicle of light for ascension",
       planet: "Jupiter",
@@ -987,8 +898,6 @@ export const cardData: OracleCard[] = [
       number: 96,
       meaning:
         "Spiritual foundation, divine stability, and soul presence. This card indicates a strong connection to your higher self and spiritual purpose, providing a solid foundation for your spiritual journey and growth.",
-      shadowAspect:
-        "Spiritual instability, disconnection from your higher self, or lack of spiritual grounding. You may be feeling adrift in your spiritual practice or disconnected from your sense of purpose.",
       keywords: ["foundation", "spirit", "stability", "presence", "connection"],
       sacredGeometry: "Dodecahedron - The cosmic container of all possibilities",
       planet: "Pluto",
@@ -1012,8 +921,6 @@ export const cardData: OracleCard[] = [
       number: 38,
       meaning:
         "Material connection, physical bonds, and tangible relationships. This card indicates important connections in the material world, whether to people, places, or possessions, that provide grounding and stability in your life.",
-      shadowAspect:
-        "Material entanglement, unhealthy attachment, or physical restriction. You may be experiencing connections that limit rather than support your growth, or feeling overly attached to material possessions or circumstances.",
       keywords: ["connection", "material", "bonds", "stability", "attachment"],
       sacredGeometry: "Cube - The solid foundation of material existence",
       planet: "Saturn",
@@ -1027,8 +934,6 @@ export const cardData: OracleCard[] = [
       number: 83,
       meaning:
         "Material connection, physical bonds, and tangible relationships. This card indicates important connections in the material world, whether to people, places, or possessions, that provide grounding and stability in your life.",
-      shadowAspect:
-        "Material entanglement, unhealthy attachment, or physical restriction. You may be experiencing connections that limit rather than support your growth, or feeling overly attached to material possessions or circumstances.",
       keywords: ["connection", "material", "bonds", "stability", "attachment"],
       sacredGeometry: "Hexahedron - The six-faced cube representing earth",
       planet: "Venus",
@@ -1050,8 +955,6 @@ export const cardData: OracleCard[] = [
       number: 38,
       meaning:
         "Passionate connection, creative bonds, and transformative relationships. This card indicates important connections fueled by shared passion, creativity, or spiritual growth, that inspire and transform you.",
-      shadowAspect:
-        "Passionate entanglement, creative codependence, or transformative restriction. You may be experiencing connections that burn too intensely or feeling that your creative or spiritual growth is limited by certain relationships.",
       keywords: ["connection", "passion", "creativity", "transformation", "inspiration"],
       sacredGeometry: "Tetrahedron - The simplest regular solid, representing fire",
       planet: "Mars",
@@ -1065,8 +968,6 @@ export const cardData: OracleCard[] = [
       number: 83,
       meaning:
         "Passionate connection, creative bonds, and transformative relationships. This card indicates important connections fueled by shared passion, creativity, or spiritual growth, that inspire and transform you.",
-      shadowAspect:
-        "Passionate entanglement, creative codependence, or transformative restriction. You may be experiencing connections that burn too intensely or feeling that your creative or spiritual growth is limited by certain relationships.",
       keywords: ["connection", "passion", "creativity", "transformation", "inspiration"],
       sacredGeometry: "Star Tetrahedron - The interlocking of two tetrahedrons, representing balanced fire energy",
       planet: "Sun",
@@ -1088,8 +989,6 @@ export const cardData: OracleCard[] = [
       number: 38,
       meaning:
         "Emotional connection, intuitive bonds, and flowing relationships. This card indicates important connections based on emotional resonance, intuitive understanding, or psychic links, that nurture and support your emotional well-being.",
-      shadowAspect:
-        "Emotional entanglement, intuitive codependence, or relational restriction. You may be experiencing connections that drain rather than nourish you, or feeling that your emotional growth is limited by certain relationships.",
       keywords: ["connection", "emotion", "intuition", "flow", "nurturing"],
       sacredGeometry: "Icosahedron - The twenty-faced solid associated with water",
       planet: "Moon",
@@ -1103,8 +1002,6 @@ export const cardData: OracleCard[] = [
       number: 83,
       meaning:
         "Emotional connection, intuitive bonds, and flowing relationships. This card indicates important connections based on emotional resonance, intuitive understanding, or psychic links, that nurture and support your emotional well-being.",
-      shadowAspect:
-        "Emotional entanglement, intuitive codependence, or relational restriction. You may be experiencing connections that drain rather than nourish you, or feeling that your emotional growth is limited by certain relationships.",
       keywords: ["connection", "emotion", "intuition", "flow", "nurturing"],
       sacredGeometry: "Spiral - The inward journey to the center of being",
       planet: "Neptune",
@@ -1126,8 +1023,6 @@ export const cardData: OracleCard[] = [
       number: 38,
       meaning:
         "Mental connection, communicative bonds, and intellectual relationships. This card indicates important connections based on shared ideas, communication, or learning, that stimulate and expand your mind.",
-      shadowAspect:
-        "Mental entanglement, communicative codependence, or intellectual restriction. You may be experiencing connections that confuse rather than clarify, or feeling that your mental growth is limited by certain relationships.",
       keywords: ["connection", "intellect", "communication", "ideas", "learning"],
       sacredGeometry: "Octahedron - The eight-faced solid associated with air",
       planet: "Mercury",
@@ -1141,8 +1036,6 @@ export const cardData: OracleCard[] = [
       number: 83,
       meaning:
         "Mental connection, communicative bonds, and intellectual relationships. This card indicates important connections based on shared ideas, communication, or learning, that stimulate and expand your mind.",
-      shadowAspect:
-        "Mental entanglement, communicative codependence, or intellectual restriction. You may be experiencing connections that confuse rather than clarify, or feeling that your mental growth is limited by certain relationships.",
       keywords: ["connection", "intellect", "communication", "ideas", "learning"],
       sacredGeometry: "Double Spiral - The balance of inward and outward movement",
       planet: "Uranus",
@@ -1164,8 +1057,6 @@ export const cardData: OracleCard[] = [
       number: 38,
       meaning:
         "Spiritual connection, divine bonds, and soul relationships. This card indicates important connections based on shared spiritual paths, soul recognition, or divine purpose, that elevate and align you with your highest self.",
-      shadowAspect:
-        "Spiritual entanglement, divine codependence, or soul restriction. You may be experiencing connections that distract rather than direct you spiritually, or feeling that your spiritual growth is limited by certain relationships.",
       keywords: ["connection", "spirit", "divinity", "soul", "purpose"],
       sacredGeometry: "Merkaba - The vehicle of light for ascension",
       planet: "Jupiter",
@@ -1179,8 +1070,6 @@ export const cardData: OracleCard[] = [
       number: 83,
       meaning:
         "Spiritual connection, divine bonds, and soul relationships. This card indicates important connections based on shared spiritual paths, soul recognition, or divine purpose, that elevate and align you with your highest self.",
-      shadowAspect:
-        "Spiritual entanglement, divine codependence, or soul restriction. You may be experiencing connections that distract rather than direct you spiritually, or feeling that your spiritual growth is limited by certain relationships.",
       keywords: ["connection", "spirit", "divinity", "soul", "purpose"],
       sacredGeometry: "Dodecahedron - The cosmic container of all possibilities",
       planet: "Pluto",

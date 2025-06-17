@@ -5,14 +5,17 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { StarRating } from "@/components/star-rating"
 import { getApprovedReviews, getReviewStats } from "@/lib/services/review-service"
 
+export const dynamic = "force-dynamic" // Added to force dynamic rendering
+
 export const metadata: Metadata = {
   title: "NUMO ORACLE | Customer Reviews",
   description: "Read what others are saying about their NUMO ORACLE reading experiences",
 }
 
 export default async function ReviewsPage() {
-  const reviews = await getApprovedReviews()
-  const stats = await getReviewStats()
+  // Ensure reviews is always an array
+  const reviews = (await getApprovedReviews()) || []
+  const stats = (await getReviewStats()) || { averageRating: 0, approvedReviews: 0 } // Provide default for stats
 
   return (
     <main className="container mx-auto px-4 py-12">

@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { getCardImagePath } from "@/lib/card-image-handler"
 import { AlertCircle, CheckCircle, RefreshCw } from "lucide-react"
+import CardImageVerifier from "@/components/card-image-verifier" // Changed to default import
 
 export default function ImageDiagnosticsPage() {
   const [cardData, setCardData] = useState<any>({})
@@ -125,7 +126,7 @@ export default function ImageDiagnosticsPage() {
                 {checking && (
                   <div className="space-y-2">
                     <Progress value={progress} />
-                    <p className="text-sm text-gray-400 text-center">{progress}% complete</p>
+                    <p className="text-sm text-gray-500 text-center">{progress}% complete</p>
                   </div>
                 )}
 
@@ -189,6 +190,8 @@ export default function ImageDiagnosticsPage() {
           )}
         </CardContent>
       </Card>
+      {/* The CardImageVerifier component is rendered here */}
+      <CardImageVerifier />
     </div>
   )
 }

@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CardImageVerifier } from "@/components/card-image-verifier"
+import CardImageVerifier from "@/components/card-image-verifier" // Changed to default import
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import OptimizedImage from "@/components/optimized-image"
+
+export const dynamic = "force-dynamic" // Added to force dynamic rendering
 
 export default function CardImagesDebugPage() {
   const [cardIds, setCardIds] = useState<string[]>([])
@@ -47,7 +49,7 @@ export default function CardImagesDebugPage() {
               <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full"></div>
             </div>
           ) : (
-            <CardImageVerifier cardIds={cardIds} />
+            <CardImageVerifier />
           )}
         </TabsContent>
 

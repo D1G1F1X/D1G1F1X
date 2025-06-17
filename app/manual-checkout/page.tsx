@@ -1,6 +1,4 @@
 "use client"
-
-import Link from "next/link"
 import { useEffect, useState, Suspense, useId } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,12 +6,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { submitManualOrder } from "./actions"
-import type { OrderItem } from "./actions"
-import { useFormStatus, useFormState } from "react-dom"
+import { v4 as uuidv4 } from "uuid"
+import { buyPageDropdownProducts } from "@/lib/products"
 import {
-  AlertCircle,
-  CheckCircle,
   Loader2,
   ShoppingCart,
   User,
@@ -26,43 +21,20 @@ import {
   Package,
   ListPlus,
 } from "lucide-react"
-import { v4 as uuidv4 } from "uuid"
-import { buyPageDropdownProducts } from "@/lib/products"
-
-const initialFormState = {
-  message: "",
-  success: false,
-  fieldErrors: null,
-  itemErrors: null,
-  orderId: null,
-}
 
 // Extend OrderItem for client-side state to include if it's a custom item
-interface ClientOrderItem extends OrderItem {
+interface ClientOrderItem {
+  id: string
+  productId?: string
+  name: string
+  quantity: number
+  price: number
   isCustom: boolean
-}
-
-function SubmitButton() {
-  const { pending } = useFormStatus()
-  return (
-    <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700" disabled={pending}>
-      {pending ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting Order...
-        </>
-      ) : (
-        <>
-          <Send className="mr-2 h-4 w-4" /> Submit Manual Order
-        </>
-      )}
-    </Button>
-  )
 }
 
 function ManualCheckoutFormContent() {
   const [items, setItems] = useState<ClientOrderItem[]>([])
   const [total, setTotal] = useState(0)
-  const [formState, formAction] = useFormState(submitManualOrder, initialFormState)
   const formId = useId()
 
   useEffect(() => {
@@ -119,34 +91,6 @@ function ManualCheckoutFormContent() {
         ),
       )
     }
-  }
-
-  const getItemError = (itemId: string, field: keyof OrderItem) => {
-    if (!formState.itemErrors) return null
-    const itemIndex = items.findIndex((i) => i.id === itemId)
-    if (itemIndex === -1) return null
-    const error = formState.itemErrors.find((err) => err.index === itemIndex && err.field === field)
-    return error ? error.message : null
-  }
-
-  if (formState.success && formState.orderId) {
-    return (
-      <div className="text-center py-10">
-        <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
-        <h2 className="text-2xl font-semibold text-white mb-2">Order Submitted Successfully!</h2>
-        <p className="text-gray-300 mb-4">
-          Your order (ID: {formState.orderId}) has been received. We will contact you shortly with payment and shipping
-          details.
-        </p>
-        <Button
-          asChild
-          variant="outline"
-          className="border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white"
-        >
-          <Link href="/buy">Continue Shopping</Link>
-        </Button>
-      </div>
-    )
   }
 
   return (
@@ -225,9 +169,6 @@ function ManualCheckoutFormContent() {
                     className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                     readOnly={!item.isCustom && !!item.productId}
                   />
-                  {getItemError(item.id, "name") && (
-                    <p className="text-red-400 text-xs mt-1">{getItemError(item.id, "name")}</p>
-                  )}
                 </div>
 
                 <div>
@@ -242,9 +183,6 @@ function ManualCheckoutFormContent() {
                     min="1"
                     className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                   />
-                  {getItemError(item.id, "quantity") && (
-                    <p className="text-red-400 text-xs mt-1">{getItemError(item.id, "quantity")}</p>
-                  )}
                 </div>
 
                 <div>
@@ -261,9 +199,6 @@ function ManualCheckoutFormContent() {
                     className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                     readOnly={!item.isCustom && !!item.productId}
                   />
-                  {getItemError(item.id, "price") && (
-                    <p className="text-red-400 text-xs mt-1">{getItemError(item.id, "price")}</p>
-                  )}
                 </div>
               </div>
               <div className="text-right text-gray-300 font-medium pt-2">
@@ -275,9 +210,6 @@ function ManualCheckoutFormContent() {
         <CardFooter className="border-t border-gray-700 pt-4 flex justify-end">
           <div className="text-xl font-semibold text-white">Grand Total: ${total.toFixed(2)}</div>
         </CardFooter>
-        {formState.errors?.orderItems && (
-          <div className="px-6 pb-4 text-red-400 text-sm">{formState.errors.orderItems[0]}</div>
-        )}
       </Card>
 
       <Card className="bg-gray-800 border-gray-700 shadow-xl md:col-span-2">
@@ -287,7 +219,11 @@ function ManualCheckoutFormContent() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={formAction} className="space-y-6">
+          <form action="https://formsubmit.co/el/tepeta" method="POST" className="space-y-6">
+            {/* Hidden fields for FormSubmit.com */}
+            <input type="hidden" name="_subject" value="New Manual Order Request from Numoracle Website" />
+            <input type="hidden" name="_next" value={`${process.env.NEXT_PUBLIC_APP_URL}/order-confirmation`} />
+            <input type="hidden" name="_captcha" value="false" /> {/* Set to "true" for reCAPTCHA */}
             <input type="hidden" name="orderItems" value={JSON.stringify(items.map(({ isCustom, ...rest }) => rest))} />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
@@ -301,9 +237,6 @@ function ManualCheckoutFormContent() {
                   className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                   placeholder="e.g. Jane Doe"
                 />
-                {formState.fieldErrors?.customerName && (
-                  <p className="text-red-400 text-xs mt-1">{formState.fieldErrors.customerName[0]}</p>
-                )}
               </div>
               <div>
                 <Label htmlFor="customerEmail" className="flex items-center text-gray-300">
@@ -317,9 +250,6 @@ function ManualCheckoutFormContent() {
                   className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                   placeholder="e.g. jane.doe@example.com"
                 />
-                {formState.fieldErrors?.customerEmail && (
-                  <p className="text-red-400 text-xs mt-1">{formState.fieldErrors.customerEmail[0]}</p>
-                )}
               </div>
             </div>
             <div>
@@ -347,9 +277,6 @@ function ManualCheckoutFormContent() {
                   className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                   placeholder="e.g. 123 Oracle Lane"
                 />
-                {formState.fieldErrors?.shippingAddressStreet && (
-                  <p className="text-red-400 text-xs mt-1">{formState.fieldErrors.shippingAddressStreet[0]}</p>
-                )}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 <div>
@@ -363,9 +290,6 @@ function ManualCheckoutFormContent() {
                     className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                     placeholder="e.g. Mystic Springs"
                   />
-                  {formState.fieldErrors?.shippingAddressCity && (
-                    <p className="text-red-400 text-xs mt-1">{formState.fieldErrors.shippingAddressCity[0]}</p>
-                  )}
                 </div>
                 <div>
                   <Label htmlFor="shippingAddressState" className="text-gray-300">
@@ -378,9 +302,6 @@ function ManualCheckoutFormContent() {
                     className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                     placeholder="e.g. CA"
                   />
-                  {formState.fieldErrors?.shippingAddressState && (
-                    <p className="text-red-400 text-xs mt-1">{formState.fieldErrors.shippingAddressState[0]}</p>
-                  )}
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
@@ -395,9 +316,6 @@ function ManualCheckoutFormContent() {
                     className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                     placeholder="e.g. 90210"
                   />
-                  {formState.fieldErrors?.shippingAddressZip && (
-                    <p className="text-red-400 text-xs mt-1">{formState.fieldErrors.shippingAddressZip[0]}</p>
-                  )}
                 </div>
                 <div>
                   <Label htmlFor="shippingAddressCountry" className="text-gray-300">
@@ -410,9 +328,6 @@ function ManualCheckoutFormContent() {
                     className="bg-gray-700 border-gray-600 text-white placeholder-gray-500"
                     placeholder="e.g. USA"
                   />
-                  {formState.fieldErrors?.shippingAddressCountry && (
-                    <p className="text-red-400 text-xs mt-1">{formState.fieldErrors.shippingAddressCountry[0]}</p>
-                  )}
                 </div>
               </div>
             </div>
@@ -428,14 +343,10 @@ function ManualCheckoutFormContent() {
                 placeholder="Any special instructions or notes for your order?"
               />
             </div>
-            {formState.message && !formState.success && (
-              <div className="mt-4 p-3 rounded-md bg-red-900 text-red-200 border border-red-700 flex items-center">
-                <AlertCircle className="h-5 w-5 mr-2" />
-                <span>{formState.message}</span>
-              </div>
-            )}
             <CardFooter className="p-0 pt-6">
-              <SubmitButton />
+              <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
+                <Send className="mr-2 h-4 w-4" /> Submit Manual Order
+              </Button>
             </CardFooter>
           </form>
         </CardContent>

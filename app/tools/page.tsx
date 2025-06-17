@@ -172,6 +172,12 @@ export default function ToolsPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Tools Page */}
+        <div className="container mx-auto py-8">
+          <h1 className="text-3xl font-bold mb-6 text-center">Tools</h1>
+          <p className="text-center">Tools page</p>
+        </div>
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 // lib/supabase.ts
 import { createBrowserClient, type SupabaseClient } from "@supabase/ssr"
-import { createSupabaseAdminClient as createAdminClient } from "./supabase-server" // Import from existing server utility
+import { createSupabaseAdminClient as createAdminClient, createMockSupabaseClient } from "./supabase-server" // Import createMockSupabaseClient
 
 // Declare a global variable to hold the client instance.
 // This helps in reusing the client across the application in a browser context.
@@ -13,6 +13,12 @@ export function getClientSide(): SupabaseClient {
   // Check if the client is already initialized in the global scope
   if (globalThis.supabaseBrowserClientInstance) {
     return globalThis.supabaseBrowserClientInstance
+  }
+
+  // Check if environment variables are available
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    console.warn("Supabase client-side configuration is incomplete. Using mock client.")
+    return createMockSupabaseClient() as SupabaseClient // Cast to SupabaseClient for type compatibility
   }
 
   // If not initialized, create a new client

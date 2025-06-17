@@ -1,4 +1,6 @@
-import { CardImageVerifier } from "@/components/card-image-verifier"
+import CardImageVerifier from "@/components/card-image-verifier" // Changed to default import
+
+export const dynamic = "force-dynamic" // Added to force dynamic rendering
 
 export default function VerifyImagesPage() {
   return (

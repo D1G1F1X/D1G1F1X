@@ -1,8 +1,8 @@
 "use client"
 
-import { useRef } from "react"
-
 import type React from "react"
+
+import { useRef } from "react"
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -13,20 +13,17 @@ import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { generateReading } from "@/lib/actions/generate-reading"
 import { useToast } from "@/components/ui/use-toast"
-import type { CardData } from "@/types/cards"
 import type { ReadingData } from "@/types/readings"
 import { cn } from "@/lib/utils"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getCardByNumber, getBaseElement } from "@/lib/card-data-access"
+import { getSymbolValue, getCardData } from "@/lib/card-data-access" // Import getCardData
 import { Badge } from "@/components/ui/badge"
-
 import { calculateLifePath } from "@/lib/numerology"
 import { useMembership } from "@/lib/membership-context"
 import type { SavedReading } from "@/types/saved-readings"
-import type { OracleCard } from "@/types/cards" // Import the types
-import comprehensiveCardData from "@/lib/comprehensive-card-data" // Import the comprehensive card data
+import type { OracleCard } from "@/types/cards"
+import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
 
-// Define spread types
 interface SpreadType {
   id: string
   name: string
@@ -37,7 +34,6 @@ interface SpreadType {
   }[]
 }
 
-// Define user input form data
 interface UserFormData {
   fullName: string
   birthDate: Date | undefined
@@ -45,7 +41,6 @@ interface UserFormData {
   question: string
 }
 
-// Basic spread types (available to all users)
 const basicSpreadTypes: SpreadType[] = [
   {
     id: "single",
@@ -106,7 +101,6 @@ const basicSpreadTypes: SpreadType[] = [
   },
 ]
 
-// Advanced spread types (available only to members)
 const advancedSpreadTypes: SpreadType[] = [
   ...basicSpreadTypes,
   {
@@ -247,7 +241,6 @@ const advancedSpreadTypes: SpreadType[] = [
   },
 ]
 
-// Get element icon
 const getElementIcon = (element: string) => {
   switch (element.toLowerCase()) {
     case "earth":
@@ -266,7 +259,6 @@ const getElementIcon = (element: string) => {
 }
 
 interface EnhancedCardDealerProps {
-  cards: CardData[]
   onReadingGenerated?: (reading: ReadingData) => void
   className?: string
   allowFreeReading?: boolean
@@ -275,14 +267,14 @@ interface EnhancedCardDealerProps {
 }
 
 export default function EnhancedCardDealer({
-  cards,
   onReadingGenerated,
   className,
   allowFreeReading = false,
   maxCards = 3,
   defaultSpread = "three",
 }: EnhancedCardDealerProps) {
-  const [selectedCards, setSelectedCards] = useState<CardData[]>([])
+  const [allCards, setAllCards] = useState<OracleCard[]>([]) // Use allCards from central data
+  const [selectedCards, setSelectedCards] = useState<OracleCard[]>([])
   const [flippedCards, setFlippedCards] = useState<boolean[]>([])
   const [isDealing, setIsDealing] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -292,7 +284,6 @@ export default function EnhancedCardDealer({
   const [question, setQuestion] = useState("")
   const { toast } = useToast()
   const dealerRef = useRef<HTMLDivElement>(null)
-  // State variables
   const [selectedSpread, setSelectedSpread] = useState<string>("three")
   const [drawnCardsState, setDrawnCardsState] = useState<{ card: OracleCard; endUp: "first" | "second" }[]>([])
   const [isDrawing, setIsDrawing] = useState(false)
@@ -342,6 +333,11 @@ export default function EnhancedCardDealer({
   setMembership(context)
 
   useEffect(() => {
+    // Load all cards from the central data access layer
+    setAllCards(getCardData())
+  }, [])
+
+  useEffect(() => {
     setIsAdvancedModeAvailable(isAuthenticated)
   }, [isAuthenticated])
 
@@ -364,10 +360,9 @@ export default function EnhancedCardDealer({
     setIsDealing(true)
 
     const numCards = spreadType === "single" ? 1 : 3
-    const shuffled = [...cards].sort(() => Math.random() - 0.5)
+    const shuffled = [...allCards].sort(() => Math.random() - 0.5) // Use allCards here
     const newSelectedCards = shuffled.slice(0, numCards)
 
-    // Deal cards one by one with animation
     for (let i = 0; i < numCards; i++) {
       await new Promise((resolve) => setTimeout(resolve, 500))
       setSelectedCards((prev) => [...prev, newSelectedCards[i]])
@@ -388,7 +383,6 @@ export default function EnhancedCardDealer({
   const generateReadingFromCards = async () => {
     if (isGenerating || selectedCards.length === 0) return
 
-    // Check if all cards are flipped
     if (!flippedCards.every((flipped) => flipped)) {
       toast({
         title: "Flip all cards",
@@ -398,7 +392,6 @@ export default function EnhancedCardDealer({
       return
     }
 
-    // Check if question is provided
     if (!question.trim()) {
       toast({
         title: "Question required",
@@ -423,7 +416,7 @@ export default function EnhancedCardDealer({
       }
     } catch (err) {
       console.error("Error generating reading:", err)
-      setError("Failed to generate reading. Please try again.", err)
+      setError("Failed to generate reading. Please try again.")
       toast({
         title: "Error",
         description: "Failed to generate reading. Please try again.",
@@ -437,15 +430,12 @@ export default function EnhancedCardDealer({
   const cardWidth = spreadType === "single" ? "w-64" : "w-48"
   const cardHeight = spreadType === "single" ? "h-96" : "h-72"
 
-  // Get current spread configuration based on reading mode
   const availableSpreadTypes = readingMode === "basic" ? basicSpreadTypes : advancedSpreadTypes
   const currentSpread = availableSpreadTypes.find((spread) => spread.id === selectedSpread) || availableSpreadTypes[0]
 
-  // Handle form input changes
   const handleInputChange = (field: keyof UserFormData, value: any) => {
     setFormData({ ...formData, [field]: value })
 
-    // Clear error for this field if it exists
     if (formErrors[field]) {
       const newErrors = { ...formErrors }
       delete newErrors[field]
@@ -453,7 +443,6 @@ export default function EnhancedCardDealer({
     }
   }
 
-  // Validate form
   const validateForm = () => {
     const errors: Partial<UserFormData> = {}
 
@@ -469,62 +458,52 @@ export default function EnhancedCardDealer({
     return Object.keys(errors).length === 0
   }
 
-  // Handle form submission
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
     if (validateForm()) {
-      // Calculate life path number
       if (formData.birthDate) {
         const lifePathNumber = calculateLifePath(formData.birthDate)
         setLifePath(lifePathNumber)
       }
 
-      // Move to card drawing step
       setCurrentStep("cards")
 
-      // Scroll to the deal area
       setTimeout(() => {
         dealAreaRef.current?.scrollIntoView({ behavior: "smooth" })
       }, 100)
     }
   }
 
-  // Handle drawing cards
   const handleDrawCards = () => {
     setIsDrawing(true)
     setShowReading(false)
     setShowBackside(true)
     setShowExpandedReading(false)
-    setActiveCardIndex(null)
     setShowDetailedReading(false)
     setAiGeneratedReading("")
     setReadingTitle("")
     setSaveSuccess(false)
 
-    // Scroll to the deal area
     setTimeout(() => {
       dealAreaRef.current?.scrollIntoView({ behavior: "smooth" })
     }, 100)
 
-    // Clear cards first
     setDrawnCards([])
 
-    // Simulate card drawing animation
     setTimeout(() => {
       const numCards = currentSpread.positions.length
 
-      // Make sure we have enough cards
-      if (!comprehensiveCardData || comprehensiveCardData.length === 0) {
+      if (!allCards || allCards.length === 0) {
+        // Use allCards here
         console.error("No card data available")
         setIsDrawing(false)
         return
       }
 
-      // If we don't have enough cards, repeat some
-      let shuffled = [...comprehensiveCardData]
+      let shuffled = [...allCards] // Use allCards here
       while (shuffled.length < numCards) {
-        shuffled = [...shuffled, ...comprehensiveCardData]
+        shuffled = [...shuffled, ...allCards] // Use allCards here
       }
 
       shuffled = shuffled.sort(() => 0.5 - Math.random())
@@ -536,14 +515,12 @@ export default function EnhancedCardDealer({
       setDrawnCards(selected)
       setIsDrawing(false)
 
-      // Flip cards after a short delay
       setTimeout(() => {
         setIsFlipping(true)
         setTimeout(() => {
           setShowBackside(false)
           setIsFlipping(false)
 
-          // Show reading after cards are revealed
           setTimeout(() => {
             setShowReading(true)
             setCurrentStep("reading")
@@ -553,7 +530,6 @@ export default function EnhancedCardDealer({
     }, 1500)
   }
 
-  // Handle image error
   const handleImageError = (cardId: string) => {
     setImageErrors((prev) => ({
       ...prev,
@@ -561,7 +537,6 @@ export default function EnhancedCardDealer({
     }))
   }
 
-  // Add memoization to expensive calculations
   const getElementColor = (element: string) => {
     switch (element.toLowerCase()) {
       case "earth":
@@ -579,7 +554,6 @@ export default function EnhancedCardDealer({
     }
   }
 
-  // Get element symbol
   const getElementSymbol = (element: string) => {
     switch (element.toLowerCase()) {
       case "earth":
@@ -597,21 +571,14 @@ export default function EnhancedCardDealer({
     }
   }
 
-  // Generate detailed reading using Google AI API
   const generateDetailedReading = async () => {
     setIsGeneratingReading(true)
 
     try {
-      // In a real app, this would call an API endpoint
-      // For demo purposes, we'll simulate a response
-
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      // Generate a simulated reading
       const reading = generateSimulatedReading()
 
-      // Update state with the generated reading
       setAiGeneratedReading(reading)
       setShowDetailedReading(true)
     } catch (error) {
@@ -622,13 +589,11 @@ export default function EnhancedCardDealer({
     }
   }
 
-  // Generate a simulated reading
   const generateSimulatedReading = (): string => {
     const userName = formData.fullName.split(" ")[0] || "Seeker"
     const question = formData.question
     const spreadName = currentSpread.name
 
-    // Create sections for the reading
     const intro = `# NUMO Oracle Reading for ${userName}
 
 ## Your Question
@@ -639,17 +604,36 @@ I've consulted the NUMO Oracle cards to provide guidance on your question. The $
     const cardInterpretations = drawnCards
       .map((drawnCard, index) => {
         const { card, endUp } = drawnCard
-        const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
         const position = currentSpread.positions[index]
 
+        const planet = getSymbolValue(card, "Planet (Internal Influence)")
+        const astrology = getSymbolValue(card, "Astrology (External Domain)")
+        const sacredGeometry = getSymbolValue(card, "Sacred Geometry")
+        const icon = getSymbolValue(card, "Icon")
+        const orientation = getSymbolValue(card, "Orientation")
+
+        // Use the correct number from the card data - directly from the number field
+        const cardNumber = card.number || "0"
+
         return `
-### ${position.name}: ${card.name} (${card.element})
+### ${position.name}: ${card.fullTitle} (${card.baseElement})
 
-This ${card.element} card in the ${position.name} position reveals ${cardEnd.meaning}
+**Card Number:** ${cardNumber}
+**Element:** ${endUp === "first" ? card.baseElement : card.synergisticElement}
 
-The number ${cardEnd.number} suggests ${getNumberMeaning(cardEnd.number)}.
+This ${card.baseElement} card in the ${position.name} position reveals:
+- **Key Meanings:** ${card.keyMeanings?.join(", ") || "N/A"}
 
-${cardEnd.keywords.join(", ")} are key themes to consider here.`
+**Symbolism Breakdown:**
+${card.symbolismBreakdown.map((s) => `- ${s.replace(/^Number: \d+ – /, "")}`).join("\n")}
+
+**Additional Symbolism:**
+- **Sacred Geometry:** ${sacredGeometry}
+- **Planet (Internal Influence):** ${planet}
+- **Astrology (External Domain):** ${astrology}
+- **Icon:** ${icon}
+- **Orientation:** ${orientation}
+`
       })
       .join("\n")
 
@@ -682,7 +666,6 @@ Remember that you have the power to shape your path forward. These cards offer g
     return `${intro}\n\n## Card Interpretations\n${cardInterpretations}\n${patterns}\n${guidance}`
   }
 
-  // Helper functions for simulated reading
   const getNumberMeaning = (number: number): string => {
     const meanings = {
       0: "infinite potential and the void from which all creation emerges",
@@ -694,29 +677,21 @@ Remember that you have the power to shape your path forward. These cards offer g
       6: "harmony, responsibility, and nurturing",
       7: "spirituality, wisdom, and inner knowing",
       8: "abundance, power, and manifestation",
-      10: "completion of a cycle and the beginning of a new one",
-      25: "intuitive wisdom and spiritual insight",
-      38: "creative expression through relationships",
-      47: "practical analysis and structured growth",
-      52: "transformation through communication",
-      69: "compassionate service and spiritual responsibility",
-      74: "practical wisdom and material mastery",
-      83: "abundance through creative expression",
-      96: "completion and spiritual fulfillment",
+      9: "completion, humanitarianism, and wisdom",
     }
 
     return meanings[number as keyof typeof meanings] || "personal transformation and spiritual growth"
   }
 
   const getPatternInsight = (): string => {
-    const elements = drawnCards.map((item) => item.card.element.toLowerCase())
+    const elements = drawnCards.map((item) => item.card.baseElement.toLowerCase())
     const dominantElement = getMostCommonElement(elements)
 
     return `The cards show a predominance of ${dominantElement} energy, suggesting that ${getElementalAdvice(dominantElement)}.`
   }
 
   const getElementalInsight = (): string => {
-    const elements = drawnCards.map((item) => item.card.element.toLowerCase())
+    const elements = drawnCards.map((item) => item.card.baseElement.toLowerCase())
     const missingElements = ["fire", "water", "air", "earth", "spirit"].filter((el) => !elements.includes(el))
 
     if (missingElements.length > 0) {
@@ -730,7 +705,9 @@ Remember that you have the power to shape your path forward. These cards offer g
     if (lifePath) {
       return `Your Life Path number ${lifePath} resonates with the energy of ${getLifePathMeaning(lifePath)}. This core vibration influences how you interact with the energies shown in the cards.`
     } else {
-      return `The numerical vibrations in your cards suggest patterns of ${getRandomNumerologicalInsight()}.`
+      const cardNumbers = drawnCards.map((item) => Number.parseInt(item.card.number || "0", 10))
+      const averageNumber = Math.round(cardNumbers.reduce((sum, num) => sum + num, 0) / cardNumbers.length)
+      return `The numerical vibrations in your cards (${cardNumbers.join(", ")}) suggest patterns of ${getNumberMeaning(averageNumber)}.`
     }
   }
 
@@ -781,7 +758,6 @@ Remember that you have the power to shape your path forward. These cards offer g
       "Create a specific ritual or practice to help you connect with your inner wisdom.",
     ]
 
-    // Use the index to select different recommendations each time
     const adjustedIndex = (index * 3 + drawnCards.length) % recommendations.length
     return recommendations[adjustedIndex]
   }
@@ -829,14 +805,14 @@ Remember that you have the power to shape your path forward. These cards offer g
     return advice[element as keyof typeof advice] || "balance between different aspects of life is important"
   }
 
-  // Render a card
   const renderCard = (drawnCard: { card: OracleCard; endUp: "first" | "second" } | undefined, index: number) => {
     if (!drawnCard) return null
 
     const { card, endUp } = drawnCard
-    const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
-    const cardImage = endUp === "first" ? card.firstEndImage : card.secondEndImage
     const hasImageError = imageErrors[card.id]
+
+    // Use the correct numerical value from the card - directly from the number field
+    const cardNumber = card.number || "0"
 
     return (
       <div
@@ -871,37 +847,31 @@ Remember that you have the power to shape your path forward. These cards offer g
             </div>
           ) : (
             <>
-              {!hasImageError && cardImage ? (
-                <div className="relative w-full h-full">
-                  <Image
-                    src={cardImage || "/placeholder.svg?height=280&width=180&query=mystical card"}
-                    alt={`${card.name} - ${endUp === "first" ? "First End" : "Second End"}`}
-                    fill
-                    className="object-cover"
-                    onError={() => handleImageError(card.id)}
-                    priority
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-center">
-                    <div className="text-xs font-medium text-white">{card.name}</div>
-                    <div className="text-xs text-gray-300">
-                      {cardEnd.number} • {card.element}
-                    </div>
-                  </div>
-                </div>
+              {!hasImageError ? (
+                <EnhancedCardImage
+                  cardId={`${card.number}-${card.suit}`}
+                  cardTitle={card.fullTitle}
+                  baseElement={card.baseElement}
+                  synergisticElement={card.synergisticElement}
+                  className="w-full h-full"
+                  onImageLoad={(success) => {
+                    if (!success) handleImageError(card.id)
+                  }}
+                />
               ) : (
                 <div
-                  className={`w-full h-full ${getElementColor(card.element).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4`}
+                  className={`w-full h-full ${getElementColor(card.baseElement).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4`}
                 >
-                  <div className="text-center mb-2 text-sm font-medium text-white">{card.name}</div>
+                  <div className="text-center mb-2 text-sm font-medium text-white">{card.fullTitle}</div>
                   <div className="w-24 h-24 my-4 rounded-full bg-gray-800/50 border border-gray-300/30 flex items-center justify-center">
-                    <span className={getElementColor(card.element).split(" ").slice(2).join(" ") + " text-4xl"}>
-                      {getElementSymbol(card.element)}
+                    <span className={getElementColor(card.baseElement).split(" ").slice(2).join(" ") + " text-4xl"}>
+                      {getElementSymbol(card.baseElement)}
                     </span>
                   </div>
                   <div className="text-xs text-center text-white/80 mt-2">
-                    {card.type} • {card.element}
+                    {card.suit} • {card.baseElement}
                   </div>
-                  <div className="text-lg font-bold text-white mt-2">{cardEnd.number}</div>
+                  <div className="text-lg font-bold text-white mt-2">{cardNumber}</div>
                 </div>
               )}
             </>
@@ -911,7 +881,6 @@ Remember that you have the power to shape your path forward. These cards offer g
     )
   }
 
-  // Update the renderExpandedCardReading function to display the correct information
   const renderExpandedCardReading = () => {
     if (!showExpandedReading || activeCardIndex === null || !drawnCards[activeCardIndex]) return null
 
@@ -919,83 +888,52 @@ Remember that you have the power to shape your path forward. These cards offer g
     if (!selectedCard) return null
 
     const { card, endUp } = selectedCard
-    const cardEnd = endUp === "first" ? card.firstEnd : card.secondEnd
-    const cardImage = endUp === "first" ? card.firstEndImage : card.secondEndImage
+    const cardNumber = card.number || "0"
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 p-4">
         <div className="bg-gray-900 border border-purple-500/30 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
           <div className="p-4">
-            <h2 className="text-2xl font-bold text-white mb-4">{card.name}</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">{card.fullTitle}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                {cardImage ? (
-                  <Image
-                    src={cardImage || "/placeholder.svg"}
-                    alt={`${card.name} - ${endUp === "first" ? "First End" : "Second End"}`}
-                    width={300}
-                    height={420}
-                    className="object-cover rounded-lg"
-                  />
-                ) : (
-                  <div className="w-full h-[420px] bg-gray-800 flex items-center justify-center text-white">
-                    No Image Available
-                  </div>
-                )}
+                <EnhancedCardImage
+                  cardId={`${card.number}-${card.suit}`}
+                  cardTitle={card.fullTitle}
+                  baseElement={card.baseElement}
+                  synergisticElement={card.synergisticElement}
+                  className="w-[300px] h-[420px]"
+                />
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-purple-300 mb-2">Card Details</h3>
                 <div className="text-gray-300 space-y-2">
                   <div>
-                    <strong>Number:</strong> {cardEnd.number}
+                    <strong>Number:</strong> {cardNumber}
                   </div>
                   <div>
-                    <strong>Element:</strong> {card.element}
+                    <strong>Element:</strong> {card.baseElement}
                   </div>
                   <div>
-                    <strong>Type:</strong> {card.type}
+                    <strong>Suit:</strong> {card.suit}
                   </div>
                   <div>
-                    <strong>Meaning:</strong> {cardEnd.meaning}
+                    <strong>Sacred Geometry:</strong> {card.sacredGeometry}
                   </div>
                   <div>
-                    <strong>Shadow Aspect:</strong> {cardEnd.shadowAspect}
+                    <strong>Planet:</strong> {card.planetInternalInfluence}
                   </div>
                   <div>
-                    <strong>Keywords:</strong> {cardEnd.keywords.join(", ")}
+                    <strong>Astrological Sign:</strong> {card.astrologyExternalDomain}
                   </div>
                   <div>
-                    <strong>Sacred Geometry:</strong> {cardEnd.sacredGeometry}
+                    <strong>Orientation:</strong> {card.orientation}
                   </div>
                   <div>
-                    <strong>Planet:</strong> {cardEnd.planet}
+                    <strong>Synergistic Element:</strong> {card.synergisticElement}
                   </div>
                   <div>
-                    <strong>Astrological Sign:</strong> {cardEnd.astrologicalSign}
-                  </div>
-                  <div>
-                    <strong>Suit Orientation:</strong>{" "}
-                    {selectedCard?.endUp === "first"
-                      ? selectedCard.card.firstEnd.suitOrientation
-                      : selectedCard.card.secondEnd.suitOrientation}
-                  </div>
-                  <div>
-                    <strong>Base Element:</strong>{" "}
-                    {selectedCard?.endUp === "first"
-                      ? selectedCard.card.firstEnd.baseElement
-                      : selectedCard.card.secondEnd.baseElement}
-                  </div>
-                  <div>
-                    <strong>Dominant Element:</strong>{" "}
-                    {selectedCard?.endUp === "first"
-                      ? selectedCard.card.firstEnd.dominantElement
-                      : selectedCard.card.secondEnd.dominantElement}
-                  </div>
-                  <div>
-                    <strong>Icon:</strong>{" "}
-                    {selectedCard?.endUp === "first"
-                      ? selectedCard.card.firstEnd.icon
-                      : selectedCard.card.secondEnd.icon}
+                    <strong>Icon:</strong> {card.iconSymbol}
                   </div>
                 </div>
               </div>
@@ -1012,33 +950,6 @@ Remember that you have the power to shape your path forward. These cards offer g
         </div>
       </div>
     )
-  }
-
-  const drawCard = () => {
-    // Generate a random number between 0 and 9
-    const randomNumber = Math.floor(Math.random() * 10)
-
-    // Get the card data for this number
-    const cardData = getCardByNumber(randomNumber)
-
-    if (cardData) {
-      // Generate a random element (Water, Fire, Earth, Air, Spirit)
-      const elements = ["Water", "Fire", "Earth", "Air", "Spirit"]
-      const randomElement = elements[Math.floor(Math.random() * elements.length)]
-
-      setSelectedElement(randomElement)
-      setDrawnCards([...drawnCardsState, { ...cardData, selectedElement: randomElement }])
-    }
-  }
-
-  const resetCards = () => {
-    setDrawnCards([])
-    setSelectedElement(null)
-  }
-
-  const getCardImagePath = (card: any) => {
-    if (!card) return ""
-    return `/cards/${card.number}${card.suit.toLowerCase()}-${card.selectedElement.toLowerCase()}.jpg`
   }
 
   return (
@@ -1088,7 +999,6 @@ Remember that you have the power to shape your path forward. These cards offer g
                 flippedCards[index] ? "rotate-y-180" : ""
               }`}
             >
-              {/* Card Back */}
               <div className="absolute w-full h-full backface-hidden">
                 <Image
                   src="/back.jpg"
@@ -1099,15 +1009,20 @@ Remember that you have the power to shape your path forward. These cards offer g
                 />
               </div>
 
-              {/* Card Front */}
               <div className="absolute w-full h-full backface-hidden rotate-y-180">
                 <Image
-                  src={card.imagePath || "/placeholder.svg"}
-                  alt={card.name}
+                  src={`/cards/${card.number.padStart(2, "0")}-${card.suit.toLowerCase()}-${card.baseElement.toLowerCase()}.jpg`} // Updated path
+                  alt={card.fullTitle}
                   width={300}
                   height={450}
                   className="rounded-lg object-cover w-64 h-96"
                 />
+                <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-center">
+                  <div className="text-sm font-medium text-white">{card.fullTitle}</div>
+                  <div className="text-xs text-gray-300">
+                    {card.number} • {card.baseElement}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1150,115 +1065,88 @@ Remember that you have the power to shape your path forward. These cards offer g
         </Card>
       )}
 
-      {drawnCards.length > 0 ? (
+      {drawnCards.length > 0 && (
         <div className="space-y-8">
-          {drawnCards.map((card, index) => (
-            <Card key={index} className="overflow-hidden">
-              <div className="flex flex-col md:flex-row">
-                <div className="w-full md:w-1/3 p-4 flex justify-center items-center">
-                  <div className="relative w-full aspect-[3/4] bg-muted rounded-md overflow-hidden">
-                    <Image
-                      src={getCardImagePath(card) || "/placeholder.svg"}
-                      alt={card.name}
-                      fill
-                      className="object-cover"
-                      onError={(e) => {
-                        // Fallback if element-specific image doesn't exist
-                        e.currentTarget.src = `/cards/${card.number}${card.suit.toLowerCase()}.jpg`
-                      }}
-                    />
+          {drawnCards.map((drawnCard, index) => {
+            const { card } = drawnCard
+            const cardNumber = card.number || "0"
+
+            return (
+              <Card key={index} className="overflow-hidden">
+                <div className="flex flex-col md:flex-row">
+                  <div className="w-full md:w-1/3 p-4 flex justify-center items-center">
+                    {renderCard(drawnCard, index)}
                   </div>
-                </div>
-                <div className="w-full md:w-2/3 p-4">
-                  <h2 className="text-2xl font-bold mb-2">{card.name}</h2>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge variant="secondary">{card.suit}</Badge>
-                    <Badge>Number: {card.number}</Badge>
-                    <Badge variant="outline">Pair: {card.pair}</Badge>
-                    <Badge variant="destructive">Element: {card.selectedElement}</Badge>
-                    {getBaseElement(card) === card.selectedElement && (
-                      <Badge className="bg-amber-500">Base Element Match!</Badge>
-                    )}
-                  </div>
+                  <div className="w-full md:w-2/3 p-4">
+                    <h2 className="text-2xl font-bold mb-2">{card.fullTitle}</h2>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Badge variant="secondary">{card.suit}</Badge>
+                      <Badge>Number: {cardNumber}</Badge>
+                      <Badge variant="outline">Synergistic Element: {card.synergisticElement}</Badge>
+                      <Badge variant="destructive">Base Element: {card.baseElement}</Badge>
+                    </div>
+                    <Tabs defaultValue="overview">
+                      <TabsList className="w-full">
+                        <TabsTrigger value="overview" className="flex-1">
+                          Overview
+                        </TabsTrigger>
+                        <TabsTrigger value="element" className="flex-1">
+                          Elemental Influence
+                        </TabsTrigger>
+                        <TabsTrigger value="symbolism" className="flex-1">
+                          Symbolism
+                        </TabsTrigger>
+                      </TabsList>
 
-                  <Tabs defaultValue="overview">
-                    <TabsList className="w-full">
-                      <TabsTrigger value="overview" className="flex-1">
-                        Overview
-                      </TabsTrigger>
-                      <TabsTrigger value="element" className="flex-1">
-                        Element Influence
-                      </TabsTrigger>
-                      <TabsTrigger value="symbolism" className="flex-1">
-                        Symbolism
-                      </TabsTrigger>
-                    </TabsList>
+                      <TabsContent value="overview" className="space-y-4">
+                        <div>
+                          <h3 className="text-lg font-semibold">Key Meanings</h3>
+                          <ul className="list-disc pl-5">
+                            {card.keyMeanings.map((meaning, i) => (
+                              <li key={i}>{meaning}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold">Description</h3>
+                          <p>{(card.symbolismBreakdown || []).join(" ")}</p>
+                        </div>
+                      </TabsContent>
 
-                    <TabsContent value="overview" className="space-y-4">
-                      <div>
-                        <h3 className="text-lg font-semibold">Description</h3>
-                        <p>{card.description}</p>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">Number Meaning</h3>
-                        <p>{card.numberMeaning}</p>
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="element" className="space-y-4">
-                      {card.elements && card.selectedElement && card.elements[card.selectedElement] && (
+                      <TabsContent value="element" className="space-y-4">
                         <div className="border rounded-lg p-3">
-                          <h3 className="text-lg font-semibold flex items-center gap-2">
-                            {card.selectedElement}
-                            {card.elements[card.selectedElement].baseElementNote && (
-                              <Badge variant="destructive">Base Element</Badge>
-                            )}
-                          </h3>
-                          <div className="mt-2">
-                            <h4 className="font-medium">Influence:</h4>
-                            <p>{card.elements[card.selectedElement].influence}</p>
-                          </div>
-                          <div className="mt-2">
-                            <h4 className="font-medium">Guidance:</h4>
-                            <p>{card.elements[card.selectedElement].guidance}</p>
+                          <h3 className="text-lg font-semibold flex items-center gap-2">Elemental Influence</h3>
+                          <div className="mt-2 space-y-2">
+                            {card.symbolismBreakdown
+                              .filter((s) => s.includes("Element"))
+                              .map((line, i) => (
+                                <p key={i} className="text-sm text-gray-300">
+                                  {line}
+                                </p>
+                              ))}
                           </div>
                         </div>
-                      )}
-                    </TabsContent>
+                      </TabsContent>
 
-                    <TabsContent value="symbolism" className="space-y-4">
-                      <div>
-                        <h3 className="text-lg font-semibold">Sacred Geometry</h3>
-                        <p className="font-medium">{card.sacredGeometryName}</p>
-                        <p>{card.sacredGeometryMeaning}</p>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">Center Icon</h3>
-                        <p className="font-medium">{card.centerIconName}</p>
-                        <p>{card.centerIconMeaning}</p>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">Planetary Association</h3>
-                        <p className="font-medium">{card.planetName}</p>
-                        <p>{card.planetMeaning}</p>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">Astrological Sign</h3>
-                        <p className="font-medium">{card.astroSignName}</p>
-                        <p>{card.astroSignMeaning}</p>
-                      </div>
-                    </TabsContent>
-                  </Tabs>
+                      <TabsContent value="symbolism" className="space-y-4">
+                        <div className="space-y-2">
+                          {card.symbolismBreakdown.map((item, i) => (
+                            <div key={i}>
+                              <p className="text-gray-300">{item.replace(/^Number: \d+ – /, "")}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="flex justify-center items-center h-64 bg-muted rounded-lg">
-          <p className="text-lg text-muted-foreground">Draw a card to begin your reading</p>
+              </Card>
+            )
+          })}
         </div>
       )}
+
+      {renderExpandedCardReading()}
     </div>
   )
 }
