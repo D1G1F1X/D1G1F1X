@@ -1,11 +1,25 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react" // Import useCallback
+import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Shuffle, Save, Share2, User, Clock, Info, Eye, EyeOff, AlertCircle, Wifi, WifiOff } from "lucide-react"
+import {
+  Shuffle,
+  Save,
+  Share2,
+  User,
+  Clock,
+  Info,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  Wifi,
+  WifiOff,
+  MessageCircle,
+  Loader2,
+} from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,8 +28,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { PrivacyNotice } from "@/components/privacy-notice"
 import { userDataService, type UserProfile } from "@/lib/services/user-data-service"
-import { getCardImageFromBlob, preloadCardImages } from "@/lib/card-image-blob-handler"
+import { getCardImageUrl, preloadCardImages } from "@/lib/card-image-blob-handler"
 import { Progress } from "@/components/ui/progress"
+import { AssistantChat } from "@/components/assistant-chat"
 
 // Complete NUMO Oracle Card Data Structure
 interface Symbol {
@@ -38,7 +53,7 @@ interface OracleCard {
   orientation: string
   sacredGeometry: string
   synergisticElement: string
-  imagePath?: string // This will be populated from blob storage
+  imagePath?: string
 }
 
 // Complete MASTER Card Data from the JSON
@@ -297,6 +312,13 @@ const masterCardData: OracleCard[] = [
     symbols: [
       { key: "Number", value: "6" },
       { key: "Suit", value: "Stone" },
+      { key: "Element (Base)", value: "Earth" },
+      { key: "Planet (Internal Influence)", value: "Venus – beauty, receptivity, and sensual expression." },
+      { key: "Astrology (External Domain)", value: "Taurus – comfort, stability, and persistent building." },
+      { key: "Icon", value: "Pentagon" },
+      { key: "Orientation", value: "Rough Side" },
+      { key: "Sacred Geometry", value: "Spiral" },
+      { key: "Synergistic Element", value: "Earth" },
     ],
     symbolismBreakdown: [
       "Number: 6 – Harmony through repetition, balance, and organic growth. Represents reciprocity, community, family, and the beauty found in established rhythms and mutual support. It seeks equilibrium and peaceful coexistence.",
@@ -315,8 +337,8 @@ const masterCardData: OracleCard[] = [
       "Earth as Teacher: The path of grounded wisdom begins in the body. Pay attention to physical sensations and the wisdom of the material world. Practical experience and connection to nature offer profound lessons.",
     ],
     baseElement: "Earth",
-    planetInternalInfluence: "Venus",
-    astrologyExternalDomain: "Taurus",
+    planetInternalInfluence: "Venus – beauty, receptivity, and sensual expression.",
+    astrologyExternalDomain: "Taurus – comfort, stability, and persistent building.",
     iconSymbol: "Pentagon",
     orientation: "Rough Side",
     sacredGeometry: "Spiral",
@@ -390,9 +412,9 @@ const masterCardData: OracleCard[] = [
     symbolismBreakdown: [
       "Number: 8 – Karmic return, balance of effort, cycles of resolution. Represents cause and effect, power, abundance, and the balancing of material and spiritual realms. It often signifies the consequences of past actions coming to fruition.",
       "Suit (Cord): Represents connections, bonds, and energetic ties. In the context of 8, the cord can symbolize commitments, contracts, or energetic links that are now up for review, resolution, or the realization of their long-term implications.",
-      "Icon (Knot): Symbolizes obligations, contracts, or fate-bound energies. The knot signifies something firmly established or an entanglement. Depending on context, it could be a secure bond or a complex issue needing to be untied or resolved.",
+      "Icon (Hourglass): Symbolizes obligations, contracts, or fate-bound energies. The hourglass signifies something firmly established or an entanglement. Depending on context, it could be a secure bond or a complex issue needing to be untied or resolved.",
       'Orientation (Knot Away): Something may be sealed, finished, or removed from current influence. Tying a knot "away" suggests a deliberate act of concluding, securing an outcome, or releasing something by finalizing its form or connection.',
-      "Sacred Geometry (Infinity Loop): Represents eternal return, looping timelines, or continuous connection. The infinity symbol (lemniscate) highlights cycles, endlessness, and the interconnectedness of all things, suggesting that resolutions often lead to new beginnings within a larger pattern.",
+      "Sacred Geometry (Infinity Symbol): Represents eternal return, looping timelines, or continuous connection. The infinity symbol (lemniscate) highlights cycles, endlessness, and the interconnectedness of all things, suggesting that resolutions often lead to new beginnings within a larger pattern.",
       "Planet (Saturn): Speaks to long-term structure, karmic duty, and life's harder lessons. Saturn brings discipline, responsibility, and the wisdom gained through facing limitations and fulfilling obligations. It encourages mastery and integrity.",
       "Astrology (Capricorn): Grounded ambition, duty, and achievement. Capricorn strives for tangible accomplishments through hard work, strategic planning, and a strong sense of responsibility, often building enduring structures.",
       "Synergistic Element (Spirit): Spirit weaves through bonds, elevating connections beyond the material to reveal karmic lessons and soul-level integration. Spirit infuses the practical and material aspects with higher purpose, helping to understand the deeper meaning behind commitments and resolutions.",
@@ -425,7 +447,7 @@ const masterCardData: OracleCard[] = [
         key: "Astrology (External Domain)",
         value: "Aries – courageous movement, initiating closure, leading through resolve.",
       },
-      { key: "Icon", value: "pentagon" },
+      { key: "Icon", value: "Pentagon" },
       { key: "Orientation", value: "Smooth Side" },
       { key: "Sacred Geometry", value: "Eye" },
       { key: "Synergistic Element", value: "Earth" },
@@ -433,7 +455,7 @@ const masterCardData: OracleCard[] = [
     symbolismBreakdown: [
       "Number: 9 – Completion, spiritual wisdom, closure. Represents the culmination of a cycle, attainment, humanitarianism, and the wisdom gained from a full spectrum of experiences. It is a prelude to a new beginning.",
       "Suit (Stone): The physical, ritual witness, the stone of remembrance. The stone here acts as a monument to what has been experienced and learned, a tangible marker of the journey's end and the wisdom consolidated.",
-      "Icon (Eye): The eye represents watchful presence and inner vision, symbolizing the power of sacred attention to bear witness to endings and new beginnings. It implies clear perception, wisdom, and impartial observation.",
+      "Icon (Pentagon): The pentagon represents watchful presence and inner vision, symbolizing the power of sacred attention to bear witness to endings and new beginnings. It implies clear perception, wisdom, and impartial observation.",
       "Orientation (Smooth Side): Completion and ease—what has been shaped can now be released. The polished side of the stone indicates that the work is done, the lessons learned, and there's a sense of peace and fulfillment in the accomplishment.",
       "Sacred Geometry (Eye): Symbol of clear knowing, sacred witness, and divine attention. The Eye of Providence or the inner eye signifies enlightenment, spiritual awareness, and the ability to see things as they truly are, with profound understanding.",
       "Planet (Mars): Brings energy to assert finality or protection. Mars provides the courage and drive to definitively conclude matters, protect the wisdom gained, and make any necessary assertive moves to ensure a clean ending.",
@@ -449,7 +471,7 @@ const masterCardData: OracleCard[] = [
     baseElement: "Air",
     planetInternalInfluence: "Mars – assertion, willpower, protection.",
     astrologyExternalDomain: "Aries – courageous movement, initiating closure, leading through resolve.",
-    iconSymbol: "pentagon",
+    iconSymbol: "Pentagon",
     orientation: "Smooth Side",
     sacredGeometry: "Eye",
     synergisticElement: "Earth",
@@ -476,6 +498,13 @@ export function CardSimulator() {
     isLoading: boolean
   }>({ loaded: 0, total: 0, failed: 0, isLoading: false })
   const [networkStatus, setNetworkStatus] = useState<"online" | "offline" | "slow">("online")
+  const [assistantReading, setAssistantReading] = useState("")
+  const [conversationThreadId, setConversationThreadId] = useState<string>("")
+  const [isGeneratingReading, setIsGeneratingReading] = useState(false)
+  const [showAssistantChat, setShowAssistantChat] = useState(false)
+  const [birthDate, setBirthDate] = useState("")
+  const [birthTime, setBirthTime] = useState("")
+  const [birthPlace, setBirthPlace] = useState("")
 
   // Load card images from blob storage
   useEffect(() => {
@@ -491,11 +520,11 @@ export function CardSimulator() {
           masterCardData.map(async (card, index) => {
             try {
               // Try to get image for base element first, then synergistic element
-              let imagePath = await getCardImageFromBlob(card.id, card.baseElement)
+              let imagePath = await getCardImageUrl(card.id, card.baseElement)
 
               // If base element image not found, try synergistic element
               if (imagePath.includes("placeholder.svg")) {
-                imagePath = await getCardImageFromBlob(card.id, card.synergisticElement)
+                imagePath = await getCardImageUrl(card.id, card.synergisticElement)
               }
 
               // Update progress
@@ -578,15 +607,16 @@ export function CardSimulator() {
 
   // Save user data when form changes
   useEffect(() => {
-    if (hasConsent && (fullName || spreadType !== "single")) {
+    if (hasConsent && (fullName || spreadType !== "single" || birthPlace)) {
       const profileData: Partial<UserProfile> = {}
 
       if (fullName) profileData.fullName = fullName
       if (spreadType !== "single") profileData.preferredSpread = spreadType
+      // Note: birthPlace would need to be added to UserProfile interface if you want to persist it
 
       userDataService.saveUserProfile(profileData)
     }
-  }, [fullName, spreadType, hasConsent])
+  }, [fullName, spreadType, birthPlace, hasConsent])
 
   // Memoize handleConsentChange
   const handleConsentChange = useCallback((consent: boolean) => {
@@ -605,6 +635,7 @@ export function CardSimulator() {
       setUserProfile(null)
       setFullName("")
       setSpreadType("single")
+      setBirthPlace("")
     }
   }, []) // Empty dependency array means this function is created once
 
@@ -628,8 +659,58 @@ export function CardSimulator() {
     setIsShuffling(false)
   }
 
-  // Enhanced reading generation using all card data
-  const generateReading = (cards: OracleCard[]) => {
+  // Enhanced reading generation using ChatGPT Assistant
+  const generateReading = async (cards: OracleCard[]) => {
+    setIsGeneratingReading(true)
+
+    try {
+      // Call the complete reading API
+      const response = await fetch("/api/generateCompleteReading", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: fullName,
+          dateOfBirth: birthDate,
+          timeOfBirth: birthTime,
+          birthPlace: birthPlace,
+          question: question,
+          selectedCards: cards,
+          spreadType: spreadType,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      if (data.success) {
+        setConversationThreadId(data.threadId)
+
+        if (data.content && data.content.trim()) {
+          setAssistantReading(data.content)
+          setReading(data.content)
+        } else {
+          // Fallback to original reading generation
+          generateFallbackReading(cards)
+        }
+      } else {
+        console.warn("AI reading generation failed:", data.error)
+        generateFallbackReading(cards)
+      }
+    } catch (error) {
+      console.error("Error generating AI reading:", error)
+      // Fallback to the original reading generation
+      generateFallbackReading(cards)
+    } finally {
+      setIsGeneratingReading(false)
+    }
+  }
+
+  // Fallback reading generation (original method)
+  const generateFallbackReading = (cards: OracleCard[]) => {
+    // ... (keep the existing generateReading logic as fallback)
     const personalizedGreeting = fullName ? `Dear ${fullName.split(" ")[0]}, your` : "Your"
 
     let readingText = `${personalizedGreeting} reading reveals:\n\n`
@@ -715,6 +796,7 @@ export function CardSimulator() {
       reading,
       spreadType,
       fullName,
+      birthPlace,
       date: new Date().toISOString(),
       isFavorite: false,
     }
@@ -827,203 +909,236 @@ export function CardSimulator() {
           <div>
             <h3 className="text-lg font-semibold mb-3">Symbolism Breakdown</h3>
             <Accordion type="single" collapsible>
-              {card.symbolismBreakdown.map((breakdown, index) => {
-                const [title, ...content] = breakdown.split(" – ")
-                return (
-                  <AccordionItem key={index} value={`item-${index}`}>
-                    <AccordionTrigger className="text-left">{title}</AccordionTrigger>
-                    <AccordionContent>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">{content.join(" – ")}</p>
-                    </AccordionContent>
-                  </AccordionItem>
-                )
-              })}
+              {card.symbolismBreakdown.map((breakdown, index) => (
+                <AccordionItem key={index} value={`item-${index}`}>
+                  <AccordionTrigger className="text-left">{breakdown.split(":")[0]}</AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      {breakdown.split(":").slice(1).join(":").trim()}
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
             </Accordion>
-          </div>
-
-          {/* Astrological Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">Internal Influence</h4>
-              <p className="text-sm">{card.planetInternalInfluence}</p>
-            </div>
-            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">External Domain</h4>
-              <p className="text-sm">{card.astrologyExternalDomain}</p>
-            </div>
           </div>
         </div>
       </DialogContent>
     </Dialog>
   )
 
-  if (isLoadingImages) {
-    return (
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="text-center space-y-4">
-          <h1 className="text-3xl font-bold">NUMO Oracle Card Simulator</h1>
+  return (
+    <div className="max-w-6xl mx-auto p-6 space-y-8">
+      {/* Privacy Notice */}
+      <PrivacyNotice
+        title="Card Simulator Privacy"
+        description="This tool can optionally remember your name and preferences to personalize your readings."
+        onConsentChange={handleConsentChange}
+        storageKey="cardSimulatorConsent"
+        features={[
+          "Save your name for personalized readings",
+          "Remember your preferred spread type",
+          "Track usage for better experience",
+          "Store birth information for astrological insights",
+        ]}
+      />
 
-          {/* Network Status Indicator */}
-          <div className="flex items-center justify-center space-x-2">
-            {networkStatus === "online" ? (
-              <Wifi className="h-5 w-5 text-green-400" />
-            ) : networkStatus === "slow" ? (
-              <Wifi className="h-5 w-5 text-yellow-400" />
-            ) : (
-              <WifiOff className="h-5 w-5 text-red-400" />
-            )}
-            <span className="text-sm text-gray-400">
-              {networkStatus === "online" && "Connected - Loading images..."}
-              {networkStatus === "slow" && "Slow connection - Please wait..."}
-              {networkStatus === "offline" && "Connection issues - Using placeholders..."}
-            </span>
-          </div>
+      {/* Header */}
+      <div className="text-center space-y-4">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          NUMO Oracle Card Simulator
+        </h1>
+        <p className="text-lg text-gray-600 dark:text-gray-300">
+          Experience the wisdom of the Five Sacred Treasures through digital divination
+        </p>
 
-          {/* Enhanced Progress Display */}
-          <div className="space-y-2 max-w-md mx-auto">
-            <Progress value={imageLoadingProgress} className="h-2" />
-            <div className="flex justify-between text-xs text-gray-400">
-              <span>Loading card images from storage...</span>
-              <span>{Math.round(imageLoadingProgress)}%</span>
-            </div>
-            <div className="text-xs text-gray-500">
-              {imageLoadingStats.loaded} of {imageLoadingStats.total} loaded
-              {imageLoadingStats.failed > 0 && (
-                <span className="text-yellow-400 ml-2">({imageLoadingStats.failed} using placeholders)</span>
-              )}
-            </div>
-          </div>
-
-          {/* Performance Tips */}
-          {networkStatus === "slow" && (
-            <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-3 max-w-md mx-auto">
-              <div className="flex items-center space-x-2">
-                <AlertCircle className="h-4 w-4 text-yellow-400" />
-                <p className="text-xs text-yellow-300">Slow connection detected. Images may take longer to load.</p>
-              </div>
-            </div>
+        {/* Network Status Indicator */}
+        <div className="flex items-center justify-center gap-2 text-sm">
+          {networkStatus === "online" ? (
+            <Wifi className="h-4 w-4 text-green-500" />
+          ) : networkStatus === "slow" ? (
+            <Wifi className="h-4 w-4 text-yellow-500" />
+          ) : (
+            <WifiOff className="h-4 w-4 text-red-500" />
           )}
+          <span className="text-gray-500">
+            {networkStatus === "online" ? "Connected" : networkStatus === "slow" ? "Slow Connection" : "Offline Mode"}
+          </span>
         </div>
       </div>
-    )
-  }
 
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold">NUMO Oracle Card Simulator</h1>
-        <p className="text-gray-400">Ask a question and let the cards guide you through the ancient wisdom</p>
-      </div>
+      {/* Image Loading Progress */}
+      {isLoadingImages && (
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Loading Card Images...</h3>
+                <span className="text-sm text-gray-500">
+                  {imageLoadingStats.loaded}/{imageLoadingStats.total}
+                  {imageLoadingStats.failed > 0 && ` (${imageLoadingStats.failed} failed)`}
+                </span>
+              </div>
+              <Progress value={imageLoadingProgress} className="w-full" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">Preparing your mystical experience...</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-      <PrivacyNotice context="card-simulator" onConsentChange={handleConsentChange} />
-
-      <Card className="bg-black/30 border-gray-800">
+      {/* Configuration */}
+      <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <User className="h-5 w-5 mr-2" />
-            Your Information
-            {userProfile?.lastUsed && hasConsent && (
-              <Badge variant="outline" className="ml-auto text-xs">
-                <Clock className="h-3 w-3 mr-1" />
-                Last used: {new Date(userProfile.lastUsed).toLocaleDateString()}
-              </Badge>
-            )}
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Reading Configuration
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="fullName">Your Name (Optional)</Label>
-            <Input
-              id="fullName"
-              placeholder="Enter your name for personalized readings"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="mt-1"
-            />
-            {hasConsent && fullName && (
-              <p className="text-xs text-green-400 mt-1">✓ Name will be remembered for future readings</p>
-            )}
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Your Name (Optional)</Label>
+              <Input
+                id="fullName"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter your full name for personalized readings"
+                disabled={!hasConsent}
+              />
+              {!hasConsent && <p className="text-xs text-gray-500">Enable privacy consent to save your name</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="birthDate">Date of Birth (Optional)</Label>
+              <Input
+                id="birthDate"
+                type="date"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                disabled={!hasConsent}
+              />
+              {!hasConsent && <p className="text-xs text-gray-500">Enable privacy consent to save birth information</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="birthTime">Time of Birth (Optional)</Label>
+              <Input
+                id="birthTime"
+                type="time"
+                value={birthTime}
+                onChange={(e) => setBirthTime(e.target.value)}
+                disabled={!hasConsent}
+                placeholder="HH:MM"
+              />
+              {!hasConsent && <p className="text-xs text-gray-500">Enable privacy consent to save birth information</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="birthPlace">Place of Birth (Optional)</Label>
+              <Input
+                id="birthPlace"
+                value={birthPlace}
+                onChange={(e) => setBirthPlace(e.target.value)}
+                placeholder="City, Country"
+                disabled={!hasConsent}
+              />
+              {!hasConsent && <p className="text-xs text-gray-500">Enable privacy consent to save birth information</p>}
+            </div>
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="question">Your Question</Label>
             <Textarea
               id="question"
-              placeholder="What guidance do you seek from the ancient wisdom?"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              className="min-h-[100px] mt-1"
+              placeholder="What guidance do you seek from the Oracle?"
+              rows={3}
             />
           </div>
 
-          <div className="flex gap-4 items-center flex-wrap">
-            <label className="text-sm font-medium">Spread Type:</label>
+          <div className="space-y-2">
+            <Label>Spread Type</Label>
             <Tabs value={spreadType} onValueChange={setSpreadType}>
-              <TabsList>
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="single">Single Card</TabsTrigger>
                 <TabsTrigger value="three">Three Cards</TabsTrigger>
                 <TabsTrigger value="five">Five Elements</TabsTrigger>
               </TabsList>
             </Tabs>
-            {hasConsent && spreadType !== "single" && (
-              <Badge variant="outline" className="text-xs">
-                Preference saved
-              </Badge>
-            )}
           </div>
-
-          <Button
-            onClick={shuffleCards}
-            disabled={isShuffling || !question.trim() || cardsWithImages.length === 0}
-            className="w-full"
-          >
-            <Shuffle className="h-4 w-4 mr-2" />
-            {isShuffling ? "Shuffling the Ancient Deck..." : "Draw Cards"}
-          </Button>
         </CardContent>
       </Card>
 
+      {/* Shuffle Button */}
+      <div className="text-center">
+        <Button
+          onClick={shuffleCards}
+          disabled={isShuffling || isLoadingImages}
+          size="lg"
+          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+        >
+          {isShuffling ? (
+            <>
+              <Shuffle className="mr-2 h-5 w-5 animate-spin" />
+              Shuffling the Sacred Deck...
+            </>
+          ) : (
+            <>
+              <Shuffle className="mr-2 h-5 w-5" />
+              Draw Your Cards
+            </>
+          )}
+        </Button>
+      </div>
+
+      {/* Selected Cards */}
       {selectedCards.length > 0 && (
-        <Card className="bg-black/30 border-gray-800">
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              Your Cards
-              <Button variant="ghost" size="sm" onClick={() => setShowDetailedView(!showDetailedView)}>
-                {showDetailedView ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                {showDetailedView ? "Simple View" : "Detailed View"}
-              </Button>
+              <span>Your Sacred Cards</span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setShowDetailedView(!showDetailedView)}>
+                  {showDetailedView ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showDetailedView ? "Simple View" : "Detailed View"}
+                </Button>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+            <div
+              className={`grid gap-6 ${selectedCards.length === 1 ? "grid-cols-1 max-w-md mx-auto" : selectedCards.length === 3 ? "grid-cols-1 md:grid-cols-3" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"}`}
+            >
               {selectedCards.map((card, index) => (
-                <div key={card.id} className="text-center space-y-2">
-                  <div className="relative w-full aspect-[2/3] rounded-lg overflow-hidden border border-gray-700">
+                <div key={card.id} className="space-y-4">
+                  <div className="relative aspect-[2/3] rounded-lg overflow-hidden border shadow-lg">
                     <Image
                       src={card.imagePath || "/placeholder.svg"}
                       alt={card.fullTitle}
                       fill
                       className="object-cover"
                       onError={(e) => {
-                        e.currentTarget.src = "/placeholder.svg?height=300&width=200"
+                        e.currentTarget.src = "/placeholder.svg?height=400&width=300"
                       }}
                     />
                   </div>
-                  <div>
-                    <h3 className="font-medium text-sm">{card.fullTitle}</h3>
-                    <div className="flex flex-wrap gap-1 justify-center mt-1">
-                      <Badge variant="outline" className="text-xs">
-                        {card.baseElement}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs bg-purple-900/30">
-                        {card.synergisticElement}
-                      </Badge>
+                  <div className="text-center space-y-2">
+                    <h3 className="font-semibold text-lg">{card.fullTitle}</h3>
+                    <div className="flex justify-center gap-2 flex-wrap">
+                      <Badge variant="secondary">{card.baseElement}</Badge>
+                      <Badge variant="outline">{card.synergisticElement}</Badge>
                     </div>
                     {showDetailedView && (
-                      <div className="mt-2 space-y-1">
-                        <p className="text-xs text-gray-400">{card.orientation}</p>
-                        <p className="text-xs text-gray-500">{card.sacredGeometry}</p>
-                        <p className="text-xs text-gray-500">{card.iconSymbol}</p>
+                      <div className="space-y-2 text-sm">
+                        <p>
+                          <strong>Sacred Geometry:</strong> {card.sacredGeometry}
+                        </p>
+                        <p>
+                          <strong>Orientation:</strong> {card.orientation}
+                        </p>
+                        <p>
+                          <strong>Icon:</strong> {card.iconSymbol}
+                        </p>
                       </div>
                     )}
                     <CardDetailModal card={card} />
@@ -1031,29 +1146,156 @@ export function CardSimulator() {
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+      )}
 
-            {reading && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Your Reading</h3>
-                <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4">
-                  <p className="whitespace-pre-line text-gray-300">{reading}</p>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button onClick={saveReading} variant="outline">
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Reading
+      {/* Reading Display */}
+      {(reading || isGeneratingReading) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Your Oracle Reading</span>
+              <div className="flex gap-2">
+                {conversationThreadId && (
+                  <Button variant="outline" size="sm" onClick={() => setShowAssistantChat(true)}>
+                    <MessageCircle className="h-4 w-4 mr-1" />
+                    Ask Follow-up
                   </Button>
-                  <Button onClick={shareReading} variant="outline">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share
-                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={saveReading} disabled={!reading}>
+                  <Save className="h-4 w-4 mr-1" />
+                  Save
+                </Button>
+                <Button variant="outline" size="sm" onClick={shareReading} disabled={!reading}>
+                  <Share2 className="h-4 w-4 mr-1" />
+                  Share
+                </Button>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isGeneratingReading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-center space-y-4">
+                  <Loader2 className="h-8 w-8 animate-spin mx-auto text-purple-600" />
+                  <p className="text-lg font-medium">Consulting the Oracle...</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    The sacred wisdom is being channeled through the digital realm
+                  </p>
                 </div>
+              </div>
+            ) : (
+              <div className="prose dark:prose-invert max-w-none">
+                <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 leading-relaxed">{reading}</div>
               </div>
             )}
           </CardContent>
         </Card>
       )}
+
+      {/* Assistant Chat Modal */}
+      {showAssistantChat && conversationThreadId && (
+        <Dialog open={showAssistantChat} onOpenChange={setShowAssistantChat}>
+          <DialogContent className="max-w-4xl max-h-[80vh]">
+            <DialogHeader>
+              <DialogTitle>Continue Your Reading</DialogTitle>
+            </DialogHeader>
+            <AssistantChat
+              threadId={conversationThreadId}
+              context={{
+                fullName,
+                question,
+                selectedCards,
+                reading: assistantReading,
+                spreadType,
+                birthDate,
+                birthTime,
+                birthPlace,
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Usage Statistics (if consent given) */}
+      {hasConsent && userProfile && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Your Oracle Journey
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div>
+                <p className="text-2xl font-bold text-purple-600">{userProfile.readingsCount || 0}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Total Readings</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-blue-600">{userProfile.preferredSpread || "Single"}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Preferred Spread</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-green-600">
+                  {userProfile.lastUsed ? new Date(userProfile.lastUsed).toLocaleDateString() : "Today"}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Last Reading</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-orange-600">
+                  {userProfile.createdAt
+                    ? Math.floor((Date.now() - new Date(userProfile.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+                    : 0}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Days Active</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Help Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5" />
+            How to Use the Oracle
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto">
+                <span className="text-xl font-bold text-purple-600">1</span>
+              </div>
+              <h3 className="font-semibold">Set Your Intention</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Enter your question and personal details for a more personalized reading
+              </p>
+            </div>
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto">
+                <span className="text-xl font-bold text-blue-600">2</span>
+              </div>
+              <h3 className="font-semibold">Choose Your Spread</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Select single card for focus, three cards for past-present-future, or five for elemental balance
+              </p>
+            </div>
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto">
+                <span className="text-xl font-bold text-green-600">3</span>
+              </div>
+              <h3 className="font-semibold">Receive Guidance</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Draw your cards and receive personalized insights from the Oracle
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

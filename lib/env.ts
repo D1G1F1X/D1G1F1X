@@ -62,6 +62,21 @@ export function getEnv(key: keyof typeof envConfig): string {
   return config.value
 }
 
+// Check if we're running on the client side
+export const isClient = typeof window !== "undefined"
+
+// Safe environment variable getter for client-side code
+export function getClientEnv(key: string): string | undefined {
+  if (isClient) {
+    // Only return NEXT_PUBLIC_ variables on client
+    if (key.startsWith("NEXT_PUBLIC_")) {
+      return process.env[key]
+    }
+    return undefined
+  }
+  return getEnv(key as keyof typeof envConfig)
+}
+
 // Check if we're in development mode
 export const isDev = process.env.NODE_ENV === "development"
 

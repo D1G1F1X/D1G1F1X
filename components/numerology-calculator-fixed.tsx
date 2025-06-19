@@ -2,16 +2,15 @@
 
 import { Badge } from "@/components/ui/badge"
 import type React from "react"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calculator, Info, User, Clock, FileText, Check, Sparkles } from "lucide-react"
+import { Calculator, Info, User, Clock, FileText, Check, Sparkles, AlertTriangle } from "lucide-react"
 import { MembershipBadge } from "@/components/membership-badge"
 import { type MembershipStatus, hasPremiumAccess } from "@/lib/membership-types"
-import { userDataService, type UserProfile } from "@/lib/services/user-data-service"
 import { NumerologyTimeline } from "@/components/numerology-calculator/numerology-timeline"
 import { ComprehensiveNumerologyReport } from "@/components/comprehensive-numerology-report"
 import { toast } from "@/components/ui/use-toast"
@@ -34,13 +33,34 @@ interface NumerologyResult {
 interface CalculationSession {
   userData: {
     fullName: string
-    currentName: string | undefined
-    nicknames: string | undefined
+    currentName?: string
+    nicknames?: string
     birthDate: string
   }
   results: NumerologyResult
   timestamp: string
   isComplete: boolean
+}
+
+interface UserProfile {
+  fullName?: string
+  currentName?: string
+  nicknames?: string
+  birthDate?: string
+  lastUsed?: string
+}
+
+interface NumerologyCalculation {
+  lifePathNumber?: number
+  destinyNumber?: number
+  soulNumber?: number
+  personalityNumber?: number
+  birthDayNumber?: number
+  expressionNumber?: number
+  maturityNumber?: number
+  challengeNumbers?: number[]
+  pinnacleNumbers?: number[]
+  calculatedAt?: string
 }
 
 interface NumerologyCalculatorProps {
@@ -50,13 +70,118 @@ interface NumerologyCalculatorProps {
   onReportCalculated?: (data: any) => void
 }
 
-export default function NumerologyCalculator({
+// Safe localStorage wrapper
+class SafeStorage {
+  private isAvailable: boolean
+
+  constructor() {
+    this.isAvailable = this.checkAvailability()
+  }
+
+  private checkAvailability(): boolean {
+    try {
+      if (typeof window === "undefined") return false
+      const test = "__storage_test__"
+      localStorage.setItem(test, test)
+      localStorage.removeItem(test)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  getItem(key: string): string | null {
+    if (!this.isAvailable) return null
+    try {
+      return localStorage.getItem(key)
+    } catch {
+      return null
+    }
+  }
+
+  setItem(key: string, value: string): boolean {
+    if (!this.isAvailable) return false
+    try {
+      localStorage.setItem(key, value)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  removeItem(key: string): boolean {
+    if (!this.isAvailable) return false
+    try {
+      localStorage.removeItem(key)
+      return true
+    } catch {
+      return false
+    }
+  }
+}
+
+// Safe user data service
+class SafeUserDataService {
+  private storage = new SafeStorage()
+  private readonly USER_PROFILE_KEY = "numo_user_profile"
+  private readonly LAST_CALCULATION_KEY = "numo_last_calculation"
+
+  getUserProfile(): UserProfile | null {
+    try {
+      const data = this.storage.getItem(this.USER_PROFILE_KEY)
+      return data ? JSON.parse(data) : null
+    } catch {
+      return null
+    }
+  }
+
+  saveUserProfile(profile: Partial<UserProfile>): boolean {
+    try {
+      const existing = this.getUserProfile() || {}
+      const updated = { ...existing, ...profile, lastUsed: new Date().toISOString() }
+      return this.storage.setItem(this.USER_PROFILE_KEY, JSON.stringify(updated))
+    } catch {
+      return false
+    }
+  }
+
+  getLastCalculation(): NumerologyCalculation | null {
+    try {
+      const data = this.storage.getItem(this.LAST_CALCULATION_KEY)
+      return data ? JSON.parse(data) : null
+    } catch {
+      return null
+    }
+  }
+
+  saveNumerologyCalculation(calculation: NumerologyCalculation): boolean {
+    try {
+      const updated = { ...calculation, calculatedAt: new Date().toISOString() }
+      return this.storage.setItem(this.LAST_CALCULATION_KEY, JSON.stringify(updated))
+    } catch {
+      return false
+    }
+  }
+
+  clearAllData(): boolean {
+    try {
+      this.storage.removeItem(this.USER_PROFILE_KEY)
+      this.storage.removeItem(this.LAST_CALCULATION_KEY)
+      return true
+    } catch {
+      return false
+    }
+  }
+}
+
+export default function NumerologyCalculatorFixed({
   membershipStatus = { type: "free", verified: true },
   onVerifyPurchase,
   hasPrivacyConsent = false,
   onReportCalculated,
 }: NumerologyCalculatorProps) {
   const hasPremium = hasPremiumAccess(membershipStatus.type)
+  const userDataService = useRef(new SafeUserDataService()).current
 
   // Form state
   const [name, setName] = useState("")
@@ -80,22 +205,286 @@ export default function NumerologyCalculator({
   const [isGeneratingReport, setIsGeneratingReport] = useState(false)
   const [reportData, setReportData] = useState<any>(null)
 
+  // Prevent duplicate toasts
+  const toastShownRef = useRef(false)
+  const lastRestoredTimestamp = useRef<string>("")
+
+  // Numerology calculation functions with proper validation
+  const letterToNumber = useCallback((letter: string): number => {
+    const letterMap: { [key: string]: number } = {
+      a: 1,
+      b: 2,
+      c: 3,
+      d: 4,
+      e: 5,
+      f: 6,
+      g: 7,
+      h: 8,
+      i: 9,
+      j: 1,
+      k: 2,
+      l: 3,
+      m: 4,
+      n: 5,
+      o: 6,
+      p: 7,
+      q: 8,
+      r: 9,
+      s: 1,
+      t: 2,
+      u: 3,
+      v: 4,
+      w: 5,
+      x: 6,
+      y: 7,
+      z: 8,
+    }
+    const normalized = letter.toLowerCase()
+    return letterMap[normalized] || 0
+  }, [])
+
+  const reduceToSingleDigit = useCallback((num: number): number => {
+    if (!Number.isFinite(num) || num < 0) return 0
+    if (num === 11 || num === 22 || num === 33) return num
+    if (num < 10) return num
+
+    const digits = Math.abs(Math.floor(num)).toString().split("")
+    const sum = digits.reduce((acc, digit) => acc + Number.parseInt(digit, 10), 0)
+    return reduceToSingleDigit(sum)
+  }, [])
+
+  const calculateLifePathNumber = useCallback(
+    (date: string): number => {
+      try {
+        const [year, month, day] = date.split("-").map(Number)
+        if (!year || !month || !day || year < 1900 || month < 1 || month > 12 || day < 1 || day > 31) {
+          throw new Error("Invalid date")
+        }
+
+        const dayNum = reduceToSingleDigit(day)
+        const monthNum = reduceToSingleDigit(month)
+        const yearNum = reduceToSingleDigit(year)
+        return reduceToSingleDigit(dayNum + monthNum + yearNum)
+      } catch {
+        return 0
+      }
+    },
+    [reduceToSingleDigit],
+  )
+
+  const calculateDestinyNumber = useCallback(
+    (fullName: string): number => {
+      try {
+        if (!fullName || typeof fullName !== "string") return 0
+
+        const cleanName = fullName.toLowerCase().replace(/[^a-z]/g, "")
+        if (!cleanName) return 0
+
+        const nameSum = cleanName.split("").reduce((sum, letter) => sum + letterToNumber(letter), 0)
+        return reduceToSingleDigit(nameSum)
+      } catch {
+        return 0
+      }
+    },
+    [letterToNumber, reduceToSingleDigit],
+  )
+
+  const calculateSoulNumber = useCallback(
+    (fullName: string): number => {
+      try {
+        if (!fullName || typeof fullName !== "string") return 0
+
+        const vowels = "aeiou"
+        const cleanName = fullName.toLowerCase().replace(/[^a-z]/g, "")
+        if (!cleanName) return 0
+
+        const vowelSum = cleanName.split("").reduce((sum, letter) => {
+          if (vowels.includes(letter)) {
+            return sum + letterToNumber(letter)
+          }
+          return sum
+        }, 0)
+        return reduceToSingleDigit(vowelSum)
+      } catch {
+        return 0
+      }
+    },
+    [letterToNumber, reduceToSingleDigit],
+  )
+
+  const calculatePersonalityNumber = useCallback(
+    (fullName: string): number => {
+      try {
+        if (!fullName || typeof fullName !== "string") return 0
+
+        const vowels = "aeiou"
+        const cleanName = fullName.toLowerCase().replace(/[^a-z]/g, "")
+        if (!cleanName) return 0
+
+        const consonantSum = cleanName.split("").reduce((sum, letter) => {
+          if (!vowels.includes(letter)) {
+            return sum + letterToNumber(letter)
+          }
+          return sum
+        }, 0)
+        return reduceToSingleDigit(consonantSum)
+      } catch {
+        return 0
+      }
+    },
+    [letterToNumber, reduceToSingleDigit],
+  )
+
+  const calculateBirthDayNumber = useCallback(
+    (date: string): number => {
+      try {
+        const day = Number.parseInt(date.split("-")[2], 10)
+        if (!Number.isFinite(day) || day < 1 || day > 31) return 0
+        return reduceToSingleDigit(day)
+      } catch {
+        return 0
+      }
+    },
+    [reduceToSingleDigit],
+  )
+
+  const calculateExpressionNumber = useCallback(
+    (fullName: string): number => {
+      return calculateDestinyNumber(fullName)
+    },
+    [calculateDestinyNumber],
+  )
+
+  const calculateMaturityNumber = useCallback(
+    (lifePathNumber: number, destinyNumber: number): number => {
+      if (!Number.isFinite(lifePathNumber) || !Number.isFinite(destinyNumber)) return 0
+      return reduceToSingleDigit(lifePathNumber + destinyNumber)
+    },
+    [reduceToSingleDigit],
+  )
+
+  const calculateChallengeNumbers = useCallback(
+    (date: string): number[] => {
+      try {
+        const [year, month, day] = date.split("-").map(Number)
+        if (!year || !month || !day) return [0, 0, 0, 0]
+
+        const m = reduceToSingleDigit(month)
+        const d = reduceToSingleDigit(day)
+        const y = reduceToSingleDigit(year)
+
+        const c1 = reduceToSingleDigit(Math.abs(m - d))
+        const c2 = reduceToSingleDigit(Math.abs(d - y))
+        const c3 = reduceToSingleDigit(Math.abs(c1 - c2))
+        const c4 = reduceToSingleDigit(Math.abs(m - y))
+
+        return [c1, c2, c3, c4]
+      } catch {
+        return [0, 0, 0, 0]
+      }
+    },
+    [reduceToSingleDigit],
+  )
+
+  const calculatePinnacleNumbers = useCallback(
+    (date: string): number[] => {
+      try {
+        const [year, month, day] = date.split("-").map(Number)
+        if (!year || !month || !day) return [0, 0, 0, 0]
+
+        const m = reduceToSingleDigit(month)
+        const d = reduceToSingleDigit(day)
+        const y = reduceToSingleDigit(year)
+
+        const p1 = reduceToSingleDigit(m + d)
+        const p2 = reduceToSingleDigit(d + y)
+        const p3 = reduceToSingleDigit(p1 + p2)
+        const p4 = reduceToSingleDigit(m + y)
+
+        return [p1, p2, p3, p4]
+      } catch {
+        return [0, 0, 0, 0]
+      }
+    },
+    [reduceToSingleDigit],
+  )
+
+  // Validation functions
+  const validateInputs = useCallback((): string | null => {
+    if (!name || typeof name !== "string" || !name.trim()) {
+      return "Please enter your full name"
+    }
+
+    const namePattern = /^[A-Za-z\s'-]+$/
+    if (!namePattern.test(name.trim())) {
+      return "Name should contain only letters, spaces, hyphens, and apostrophes"
+    }
+
+    if (name.trim().length < 2) {
+      return "Name must be at least 2 characters long"
+    }
+
+    if (!birthdate) {
+      return "Please enter your birthdate"
+    }
+
+    try {
+      const [year, month, day] = birthdate.split("-").map(Number)
+      const currentDate = new Date()
+      const selectedDate = new Date(year, month - 1, day)
+
+      if (isNaN(selectedDate.getTime())) {
+        return "Invalid date format"
+      }
+
+      if (selectedDate > currentDate) {
+        return "Birthdate cannot be in the future"
+      }
+
+      if (year < 1900) {
+        return "Birth year must be 1900 or later"
+      }
+
+      if (year > currentDate.getFullYear()) {
+        return "Birth year cannot be in the future"
+      }
+
+      if (month < 1 || month > 12) {
+        return "Invalid month"
+      }
+
+      if (day < 1 || day > 31) {
+        return "Invalid day"
+      }
+
+      // Check for valid day in month
+      const daysInMonth = new Date(year, month, 0).getDate()
+      if (day > daysInMonth) {
+        return "Invalid day for the selected month"
+      }
+    } catch {
+      return "Invalid date format"
+    }
+
+    return null
+  }, [name, birthdate])
+
   // Auto-save session data
   const saveCurrentSession = useCallback(
     (userData: any, results: NumerologyResult) => {
       if (!hasPrivacyConsent) return
 
-      const session: CalculationSession = {
-        userData,
-        results,
-        timestamp: new Date().toISOString(),
-        isComplete: true,
-      }
-
-      setCurrentSession(session)
-
-      // Save to user data service
       try {
+        const session: CalculationSession = {
+          userData,
+          results,
+          timestamp: new Date().toISOString(),
+          isComplete: true,
+        }
+
+        setCurrentSession(session)
+
+        // Save to user data service
         userDataService.saveNumerologyCalculation({
           ...results,
           calculatedAt: session.timestamp,
@@ -107,16 +496,11 @@ export default function NumerologyCalculator({
           nicknames: userData.nicknames,
           birthDate: userData.birthDate,
         })
-      } catch (e) {
-        console.error("Error saving user data:", e)
-        toast({
-          title: "Error Saving Data",
-          description: "There was an error saving your data. Please try again.",
-          variant: "destructive",
-        })
+      } catch (err) {
+        console.warn("Failed to save session:", err)
       }
     },
-    [hasPrivacyConsent],
+    [hasPrivacyConsent, userDataService],
   )
 
   // Load user data on component mount and consent change
@@ -186,20 +570,27 @@ export default function NumerologyCalculator({
                 onReportCalculated(autoReportData)
               }
 
-              toast({
-                title: "Welcome Back!",
-                description: `Your calculation from ${new Date(lastCalculation.calculatedAt || "").toLocaleDateString()} has been restored. Ready to generate your comprehensive report!`,
-              })
+              // Prevent duplicate toasts
+              const currentTimestamp = lastCalculation.calculatedAt || ""
+              if (!toastShownRef.current && currentTimestamp !== lastRestoredTimestamp.current) {
+                lastRestoredTimestamp.current = currentTimestamp
+                toastShownRef.current = true
+
+                toast({
+                  title: "Welcome Back!",
+                  description: `Your calculation from ${new Date(currentTimestamp).toLocaleDateString()} has been restored. Ready to generate your comprehensive report!`,
+                })
+
+                // Reset toast flag after a delay
+                setTimeout(() => {
+                  toastShownRef.current = false
+                }, 5000)
+              }
             }
           }
         }
-      } catch (e) {
-        console.error("Error restoring user data:", e)
-        toast({
-          title: "Error Restoring Data",
-          description: "There was an error restoring your data. Please try again.",
-          variant: "destructive",
-        })
+      } catch (err) {
+        console.warn("Failed to restore user data:", err)
       }
 
       setIsRestoringData(false)
@@ -215,8 +606,10 @@ export default function NumerologyCalculator({
       setDataRestored(false)
       setReportData(null)
       setShowComprehensiveReport(false)
+      toastShownRef.current = false
+      lastRestoredTimestamp.current = ""
     }
-  }, [hasPrivacyConsent, onReportCalculated])
+  }, [hasPrivacyConsent, userDataService, onReportCalculated])
 
   // Auto-save form data as user types (with debouncing)
   useEffect(() => {
@@ -224,288 +617,132 @@ export default function NumerologyCalculator({
 
     const timeoutId = setTimeout(() => {
       if (name || currentName || nicknames || birthdate) {
-        const profileData: Partial<UserProfile> = {}
-        if (name) profileData.fullName = name
-        if (currentName) profileData.currentName = currentName
-        if (nicknames) profileData.nicknames = nicknames
-        if (birthdate) profileData.birthDate = birthdate
-
         try {
+          const profileData: Partial<UserProfile> = {}
+          if (name) profileData.fullName = name
+          if (currentName) profileData.currentName = currentName
+          if (nicknames) profileData.nicknames = nicknames
+          if (birthdate) profileData.birthDate = birthdate
+
           userDataService.saveUserProfile(profileData)
-        } catch (e) {
-          console.error("Error auto-saving user profile:", e)
-          toast({
-            title: "Error Saving Profile",
-            description: "There was an error saving your profile data. Please try again.",
-            variant: "destructive",
-          })
+        } catch (err) {
+          console.warn("Failed to auto-save profile data:", err)
         }
       }
     }, 1000) // Debounce for 1 second
 
     return () => clearTimeout(timeoutId)
-  }, [name, currentName, nicknames, birthdate, hasPrivacyConsent])
-
-  // Numerology calculation functions
-  const letterToNumber = (letter: string): number => {
-    const letterMap: { [key: string]: number } = {
-      a: 1,
-      b: 2,
-      c: 3,
-      d: 4,
-      e: 5,
-      f: 6,
-      g: 7,
-      h: 8,
-      i: 9,
-      j: 1,
-      k: 2,
-      l: 3,
-      m: 4,
-      n: 5,
-      o: 6,
-      p: 7,
-      q: 8,
-      r: 9,
-      s: 1,
-      t: 2,
-      u: 3,
-      v: 4,
-      w: 5,
-      x: 6,
-      y: 7,
-      z: 8,
-    }
-    return letterMap[letter.toLowerCase()] || 0
-  }
-
-  const reduceToSingleDigit = (num: number): number => {
-    if (num === 11 || num === 22 || num === 33) return num
-    if (num < 10) return num
-    return reduceToSingleDigit(
-      num
-        .toString()
-        .split("")
-        .reduce((sum, digit) => sum + Number.parseInt(digit), 0),
-    )
-  }
-
-  const calculateLifePathNumber = (date: string): number => {
-    if (!date) return 0 // Handle empty date
-
-    const [year, month, day] = date.split("-").map(Number)
-
-    if (isNaN(year) || isNaN(month) || isNaN(day)) return 0 // Handle invalid date
-
-    const dayNum = reduceToSingleDigit(day)
-    const monthNum = reduceToSingleDigit(month)
-    const yearNum = reduceToSingleDigit(year)
-    return reduceToSingleDigit(dayNum + monthNum + yearNum)
-  }
-
-  const calculateDestinyNumber = (fullName: string): number => {
-    if (!fullName) return 0 // Handle empty name
-
-    const nameSum = fullName
-      .toLowerCase()
-      .replace(/[^a-z]/g, "")
-      .split("")
-      .reduce((sum, letter) => sum + letterToNumber(letter), 0)
-    return reduceToSingleDigit(nameSum)
-  }
-
-  const calculateSoulNumber = (fullName: string): number => {
-    if (!fullName) return 0 // Handle empty name
-
-    const vowels = "aeiou"
-    const vowelSum = fullName
-      .toLowerCase()
-      .replace(/[^a-z]/g, "")
-      .split("")
-      .reduce((sum, letter) => {
-        if (vowels.includes(letter)) {
-          return sum + letterToNumber(letter)
-        }
-        return sum
-      }, 0)
-    return reduceToSingleDigit(vowelSum)
-  }
-
-  const calculatePersonalityNumber = (fullName: string): number => {
-    if (!fullName) return 0 // Handle empty name
-
-    const vowels = "aeiou"
-    const consonantSum = fullName
-      .toLowerCase()
-      .replace(/[^a-z]/g, "")
-      .split("")
-      .reduce((sum, letter) => {
-        if (!vowels.includes(letter)) {
-          return sum + letterToNumber(letter)
-        }
-        return sum
-      }, 0)
-    return reduceToSingleDigit(consonantSum)
-  }
-
-  const calculateBirthDayNumber = (date: string): number => {
-    if (!date) return 0 // Handle empty date
-
-    const day = Number.parseInt(date.split("-")[2])
-    if (isNaN(day)) return 0 // Handle invalid day
-    return reduceToSingleDigit(day)
-  }
-
-  const calculateExpressionNumber = (fullName: string): number => {
-    return calculateDestinyNumber(fullName)
-  }
-
-  const calculateMaturityNumber = (lifePathNumber: number, destinyNumber: number): number => {
-    return reduceToSingleDigit(lifePathNumber + destinyNumber)
-  }
-
-  const calculateChallengeNumbers = (date: string): number[] => {
-    if (!date) return [0, 0, 0, 0] // Handle empty date
-
-    const [year, month, day] = date.split("-").map(Number)
-
-    if (isNaN(year) || isNaN(month) || isNaN(day)) return [0, 0, 0, 0] // Handle invalid date
-
-    const m = reduceToSingleDigit(month)
-    const d = reduceToSingleDigit(day)
-    const y = reduceToSingleDigit(year)
-
-    const c1 = reduceToSingleDigit(Math.abs(m - d))
-    const c2 = reduceToSingleDigit(Math.abs(d - y))
-    const c3 = reduceToSingleDigit(Math.abs(c1 - c2))
-    const c4 = reduceToSingleDigit(Math.abs(m - y))
-
-    return [c1, c2, c3, c4]
-  }
-
-  const calculatePinnacleNumbers = (date: string): number[] => {
-    if (!date) return [0, 0, 0, 0] // Handle empty date
-
-    const [year, month, day] = date.split("-").map(Number)
-
-    if (isNaN(year) || isNaN(month) || isNaN(day)) return [0, 0, 0, 0] // Handle invalid date
-
-    const m = reduceToSingleDigit(month)
-    const d = reduceToSingleDigit(day)
-    const y = reduceToSingleDigit(year)
-
-    const p1 = reduceToSingleDigit(m + d)
-    const p2 = reduceToSingleDigit(d + y)
-    const p3 = reduceToSingleDigit(p1 + p2)
-    const p4 = reduceToSingleDigit(m + y)
-
-    return [p1, p2, p3, p4]
-  }
-
-  // Validation functions
-  const validateInputs = (): string | null => {
-    if (!name.trim()) return "Please enter your full name"
-
-    const namePattern = /^[A-Za-z\s]+$/
-    if (!namePattern.test(name.trim())) {
-      return "Name should contain only letters and spaces"
-    }
-
-    if (!birthdate) return "Please enter your birthdate"
-
-    try {
-      const [year, month, day] = birthdate.split("-").map(Number)
-      const currentDate = new Date()
-      const selectedDate = new Date(year, month - 1, day)
-
-      if (selectedDate > currentDate) {
-        return "Birthdate cannot be in the future"
-      }
-
-      if (year < 1900) {
-        return "Birth year must be 1900 or later"
-      }
-    } catch (err) {
-      return "Invalid date format"
-    }
-
-    return null
-  }
+  }, [name, currentName, nicknames, birthdate, hasPrivacyConsent, userDataService])
 
   // Handle form submission with automatic session management
-  const handleCalculate = (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
+  const handleCalculate = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault()
+      setError("")
 
-    const validationError = validateInputs()
-    if (validationError) {
-      setError(validationError)
-      return
-    }
-
-    try {
-      const lifePathNumber = calculateLifePathNumber(birthdate)
-      const destinyNumber = calculateDestinyNumber(name)
-      const soulNumber = calculateSoulNumber(name)
-      const personalityNumber = calculatePersonalityNumber(name)
-      const birthDayNumber = calculateBirthDayNumber(birthdate)
-      const expressionNumber = calculateExpressionNumber(name)
-      const maturityNumber = calculateMaturityNumber(lifePathNumber, destinyNumber)
-
-      const newResult: NumerologyResult = {
-        lifePathNumber,
-        destinyNumber,
-        soulNumber,
-        personalityNumber,
-        birthDayNumber,
-        expressionNumber,
-        maturityNumber,
-        challengeNumbers: calculateChallengeNumbers(birthdate),
-        pinnacleNumbers: calculatePinnacleNumbers(birthdate),
+      const validationError = validateInputs()
+      if (validationError) {
+        setError(validationError)
+        return
       }
 
-      setResult(newResult)
+      try {
+        const lifePathNumber = calculateLifePathNumber(birthdate)
+        const destinyNumber = calculateDestinyNumber(name)
+        const soulNumber = calculateSoulNumber(name)
+        const personalityNumber = calculatePersonalityNumber(name)
+        const birthDayNumber = calculateBirthDayNumber(birthdate)
+        const expressionNumber = calculateExpressionNumber(name)
+        const maturityNumber = calculateMaturityNumber(lifePathNumber, destinyNumber)
 
-      // Prepare user data
-      const userData = {
-        fullName: name,
-        currentName: currentName || undefined,
-        nicknames: nicknames || undefined,
-        birthDate: birthdate,
+        // Validate all calculations
+        const numbers = [
+          lifePathNumber,
+          destinyNumber,
+          soulNumber,
+          personalityNumber,
+          birthDayNumber,
+          expressionNumber,
+          maturityNumber,
+        ]
+        if (numbers.some((num) => !Number.isFinite(num) || num < 0)) {
+          throw new Error("Invalid calculation results")
+        }
+
+        const newResult: NumerologyResult = {
+          lifePathNumber,
+          destinyNumber,
+          soulNumber,
+          personalityNumber,
+          birthDayNumber,
+          expressionNumber,
+          maturityNumber,
+          challengeNumbers: calculateChallengeNumbers(birthdate),
+          pinnacleNumbers: calculatePinnacleNumbers(birthdate),
+        }
+
+        setResult(newResult)
+
+        // Prepare user data
+        const userData = {
+          fullName: name,
+          currentName: currentName || undefined,
+          nicknames: nicknames || undefined,
+          birthDate: birthdate,
+        }
+
+        // Auto-save session
+        saveCurrentSession(userData, newResult)
+
+        // Prepare report data automatically
+        const autoReportData = {
+          birthName: name,
+          currentName: currentName || undefined,
+          nickname: nicknames || undefined,
+          birthDate: new Date(birthdate),
+          lifePath: lifePathNumber,
+          expression: expressionNumber,
+          soulUrge: soulNumber,
+          personality: personalityNumber,
+        }
+
+        setReportData(autoReportData)
+
+        if (onReportCalculated) {
+          onReportCalculated(autoReportData)
+        }
+
+        toast({
+          title: "Calculation Complete",
+          description: "Your numerology profile is ready! You can now generate your comprehensive report instantly.",
+        })
+      } catch (err) {
+        console.error("Calculation error:", err)
+        setError("An error occurred during calculation. Please check your inputs and try again.")
       }
-
-      // Auto-save session
-      saveCurrentSession(userData, newResult)
-
-      // Prepare report data automatically
-      const autoReportData = {
-        birthName: name,
-        currentName: currentName || undefined,
-        nickname: nicknames || undefined,
-        birthDate: new Date(birthdate),
-        lifePath: lifePathNumber,
-        expression: expressionNumber,
-        soulUrge: soulNumber,
-        personality: personalityNumber,
-      }
-
-      setReportData(autoReportData)
-
-      if (onReportCalculated) {
-        onReportCalculated(autoReportData)
-      }
-
-      toast({
-        title: "Calculation Complete",
-        description: "Your numerology profile is ready! You can now generate your comprehensive report instantly.",
-      })
-    } catch (err) {
-      setError("An error occurred during calculation. Please check your inputs.")
-    }
-  }
+    },
+    [
+      validateInputs,
+      calculateLifePathNumber,
+      calculateDestinyNumber,
+      calculateSoulNumber,
+      calculatePersonalityNumber,
+      calculateBirthDayNumber,
+      calculateExpressionNumber,
+      calculateMaturityNumber,
+      calculateChallengeNumbers,
+      calculatePinnacleNumbers,
+      birthdate,
+      name,
+      currentName,
+      nicknames,
+      saveCurrentSession,
+      onReportCalculated,
+    ],
+  )
 
   // Streamlined comprehensive report generation
-  const handleGenerateComprehensiveReport = () => {
+  const handleGenerateComprehensiveReport = useCallback(() => {
     if (!currentSession?.isComplete) {
       toast({
         title: "Calculate First",
@@ -517,20 +754,29 @@ export default function NumerologyCalculator({
 
     setIsGeneratingReport(true)
 
-    // Use existing session data - no need to re-enter information
-    setShowComprehensiveReport(true)
-    setActiveTab("comprehensive")
+    try {
+      // Use existing session data - no need to re-enter information
+      setShowComprehensiveReport(true)
+      setActiveTab("comprehensive")
 
-    toast({
-      title: "Report Generated Instantly!",
-      description: "Your comprehensive numerology report is ready using your saved data.",
-    })
-
-    setIsGeneratingReport(false)
-  }
+      toast({
+        title: "Report Generated Instantly!",
+        description: "Your comprehensive numerology report is ready using your saved data.",
+      })
+    } catch (err) {
+      console.error("Report generation error:", err)
+      toast({
+        title: "Report Generation Failed",
+        description: "There was an error generating your report. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsGeneratingReport(false)
+    }
+  }, [currentSession])
 
   // Get number meaning
-  const getNumberMeaning = (number: number): string => {
+  const getNumberMeaning = useCallback((number: number): string => {
     const meanings: { [key: number]: string } = {
       1: "Leadership, independence, originality, and self-confidence. You are a pioneer and innovator.",
       2: "Cooperation, diplomacy, sensitivity, and harmony. You excel at partnerships and mediation.",
@@ -546,7 +792,7 @@ export default function NumerologyCalculator({
       33: "Selfless service, spiritual teaching, and compassionate guidance. You inspire and uplift others.",
     }
     return meanings[number] || "This number represents a unique combination of energies in your life."
-  }
+  }, [])
 
   return (
     <div className="w-full max-w-6xl mx-auto bg-black text-white p-6 rounded-lg">
@@ -607,6 +853,7 @@ export default function NumerologyCalculator({
                           onChange={(e) => setName(e.target.value)}
                           className="bg-gray-800 border-gray-700"
                           placeholder="Enter your full birth name"
+                          maxLength={100}
                         />
                         {hasPrivacyConsent && name && (
                           <p className="text-xs text-green-400 mt-1">✓ Auto-saved for seamless report generation</p>
@@ -621,6 +868,7 @@ export default function NumerologyCalculator({
                           onChange={(e) => setCurrentName(e.target.value)}
                           className="bg-gray-800 border-gray-700"
                           placeholder="Enter your current name if different"
+                          maxLength={100}
                         />
                       </div>
 
@@ -632,6 +880,7 @@ export default function NumerologyCalculator({
                           onChange={(e) => setNicknames(e.target.value)}
                           className="bg-gray-800 border-gray-700"
                           placeholder="Enter any nicknames or aliases"
+                          maxLength={200}
                         />
                       </div>
 
@@ -643,6 +892,8 @@ export default function NumerologyCalculator({
                           value={birthdate}
                           onChange={(e) => setBirthdate(e.target.value)}
                           className="bg-gray-800 border-gray-700"
+                          min="1900-01-01"
+                          max={new Date().toISOString().split("T")[0]}
                         />
                         {hasPrivacyConsent && birthdate && (
                           <p className="text-xs text-green-400 mt-1">✓ Auto-saved for seamless report generation</p>
@@ -666,11 +917,19 @@ export default function NumerologyCalculator({
                         </div>
                       )}
 
-                      {error && <p className="text-red-400 text-sm">{error}</p>}
+                      {error && (
+                        <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-3">
+                          <p className="text-red-400 text-sm flex items-center">
+                            <AlertTriangle className="h-4 w-4 mr-2" />
+                            {error}
+                          </p>
+                        </div>
+                      )}
 
                       <Button
                         type="submit"
                         className="w-full bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600"
+                        disabled={isRestoringData}
                       >
                         <Calculator className="mr-2 h-5 w-5" />
                         {result ? "Recalculate Your Numbers" : "Calculate Your Numbers"}

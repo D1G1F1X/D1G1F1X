@@ -143,24 +143,53 @@ export function getSymbolValue(card: OracleCard, key: string): string | undefine
 }
 
 /**
- * Get card image path with blob storage integration
+ * Enhanced card image path generation with fallback support
  */
 export function getCardImagePath(card: OracleCard): string {
-  // Generate image path based on card properties
+  // Generate image path based on card properties with zero-padded numbers
   const cardNumber = String(card.number).padStart(2, "0")
   const suit = card.suit.toLowerCase()
   const element = card.baseElement.toLowerCase()
 
-  // Try different possible image naming conventions
-  const possiblePaths = [
-    `/cards/${cardNumber}-${suit}-${element}.jpg`,
-    `/cards/${cardNumber}${suit}-${element}.jpg`,
+  // Primary path with zero-padded format
+  const primaryPath = `/cards/${cardNumber}-${suit}-${element}.jpg`
+
+  // Fallback paths for backward compatibility
+  const fallbackPaths = [
+    `/cards/${card.number}-${suit}-${element}.jpg`, // Original single-digit format
+    `/cards/${cardNumber}${suit}-${element}.jpg`, // No hyphen format
     `/cards/${card.id.toLowerCase()}-${element}.jpg`,
     `/cards/${card.id.toLowerCase()}.jpg`,
   ]
 
-  // Return the first path (with fallback handling in the component)
-  return possiblePaths[0]
+  // Return the primary path (component will handle fallbacks)
+  return primaryPath
+}
+
+/**
+ * Get all possible image paths for a card (for validation/checking)
+ */
+export function getAllPossibleImagePaths(card: OracleCard): string[] {
+  const cardNumber = String(card.number).padStart(2, "0")
+  const suit = card.suit.toLowerCase()
+  const baseElement = card.baseElement.toLowerCase()
+  const synergisticElement = card.synergisticElement.toLowerCase()
+
+  const paths: string[] = [][
+    // For both base and synergistic elements
+    (baseElement, synergisticElement)
+  ].forEach((element) => {
+    if (element) {
+      paths.push(
+        `/cards/${cardNumber}-${suit}-${element}.jpg`, // Zero-padded format
+        `/cards/${card.number}-${suit}-${element}.jpg`, // Single-digit format
+        `/cards/${cardNumber}${suit}-${element}.jpg`, // No hyphen format
+        `/cards/${card.id.toLowerCase()}-${element}.jpg`,
+      )
+    }
+  })
+
+  return [...new Set(paths)] // Remove duplicates
 }
 
 /**

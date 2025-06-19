@@ -575,15 +575,43 @@ export default function EnhancedCardDealer({
     setIsGeneratingReading(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Call the new server-side API
+      const response = await fetch("/api/generateReading", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: `Generate a detailed reading for: ${formData.question}`,
+          fullName: formData.fullName,
+          dateOfBirth: formData.birthDate?.toISOString(),
+          question: formData.question,
+          selectedCards: drawnCards.map((dc) => dc.card),
+          spreadType: selectedSpread,
+        }),
+      })
 
-      const reading = generateSimulatedReading()
+      const data = await response.json()
 
-      setAiGeneratedReading(reading)
-      setShowDetailedReading(true)
+      if (response.ok && data.success) {
+        // Store the thread ID for potential follow-up questions
+        // You could expand this to actually get the assistant's response
+        console.log("Reading thread created:", data.threadId)
+
+        // For now, continue with the simulated reading
+        const reading = generateSimulatedReading()
+        setAiGeneratedReading(reading)
+        setShowDetailedReading(true)
+      } else {
+        console.warn("API reading failed, using simulated reading:", data?.error)
+        const reading = generateSimulatedReading()
+        setAiGeneratedReading(reading)
+        setShowDetailedReading(true)
+      }
     } catch (error) {
       console.error("Error generating reading:", error)
-      setAiGeneratedReading("I apologize, but I'm unable to generate a reading at this time. Please try again later.")
+      // Fallback to simulated reading
+      const reading = generateSimulatedReading()
+      setAiGeneratedReading(reading)
+      setShowDetailedReading(true)
     } finally {
       setIsGeneratingReading(false)
     }

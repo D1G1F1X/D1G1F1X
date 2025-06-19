@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react"
 import NumerologyCalculator from "@/components/numerology-calculator"
 import { getMembershipStatus, type MembershipStatus } from "@/lib/membership-types"
-import { EnhanceExperienceSection } from "@/components/enhance-experience-section" // Import the new component
+import { EnhanceExperienceSection } from "@/components/enhance-experience-section"
 import { numerologyReportService, type SavedNumerologyReport } from "@/lib/services/numerology-report-service"
-import type { NumerologyReportProps } from "@/components/numerology-calculator/numerology-report" // Import the type
+import type { NumerologyReportProps } from "@/components/numerology-calculator/numerology-report"
+import { InlinePrivacyNotice } from "@/components/inline-privacy-notice"
+import { Check } from "lucide-react"
 
 export default function NumerologyCalculatorPageClient() {
   const [membershipStatus, setMembershipStatus] = useState<MembershipStatus>({
@@ -13,20 +15,17 @@ export default function NumerologyCalculatorPageClient() {
     verified: true,
   })
   const [isLoading, setIsLoading] = useState(true)
-  const [calculatedReportData, setCalculatedReportData] = useState<NumerologyReportProps["data"] | null>(null) // State to hold the calculated report
+  const [calculatedReportData, setCalculatedReportData] = useState<NumerologyReportProps["data"] | null>(null)
   const [isSavingReport, setIsSavingReport] = useState(false)
   const [saveReportSuccess, setSaveReportSuccess] = useState(false)
   const [saveReportError, setSaveReportError] = useState<any>(null)
+  const [privacyAccepted, setPrivacyAccepted] = useState(false)
+  const [dataRestorationStatus, setDataRestorationStatus] = useState<"loading" | "restored" | "none">("none")
 
-  // Simulate checking user's membership status on page load
   useEffect(() => {
     const checkMembership = async () => {
       try {
-        // In a real app, you would get the user ID from authentication
-        // For demo purposes, we'll use a mock user ID that indicates a regular member
-        // who purchased the app
         const userId = localStorage.getItem("numoUserId") || "app-user-123"
-
         const status = await getMembershipStatus(userId)
         setMembershipStatus(status)
       } catch (error) {
@@ -41,8 +40,6 @@ export default function NumerologyCalculatorPageClient() {
 
   const handleVerifyPurchase = async (purchaseId: string) => {
     if (purchaseId) {
-      // In a real app, you would verify the purchase with your backend
-      // For demo purposes, we'll simulate a successful verification
       const newStatus: MembershipStatus = {
         type: "regular",
         verified: true,
@@ -52,17 +49,14 @@ export default function NumerologyCalculatorPageClient() {
           productId: purchaseId,
         },
       }
-
       setMembershipStatus(newStatus)
-
-      // Store the user ID for future reference
       localStorage.setItem("numoUserId", `card-user-${purchaseId.substring(0, 6)}`)
     }
   }
 
   const handleReportCalculated = (data: NumerologyReportProps["data"]) => {
     setCalculatedReportData(data)
-    setSaveReportSuccess(false) // Reset save status on new calculation
+    setSaveReportSuccess(false)
     setSaveReportError(null)
   }
 
@@ -72,9 +66,8 @@ export default function NumerologyCalculatorPageClient() {
     setSaveReportError(null)
 
     try {
-      // Map the report data to the SavedNumerologyReport interface
       const reportToSave: SavedNumerologyReport = {
-        user_id: localStorage.getItem("numoUserId") || "mock-user-id", // Replace with actual user ID from auth
+        user_id: localStorage.getItem("numoUserId") || "mock-user-id",
         birth_name: data.birthName,
         current_name: data.currentName || undefined,
         nicknames: data.nickname || undefined,
@@ -83,18 +76,17 @@ export default function NumerologyCalculatorPageClient() {
         expression_number: data.expression,
         soul_urge_number: data.soulUrge,
         personality_number: data.personality,
-        // Fill in other required fields with defaults or null if not calculated/available
-        destiny_number: 0, // Placeholder
-        birthday_number: 0, // Placeholder
-        maturity_number: 0, // Placeholder
-        challenge_numbers: [], // Placeholder
-        pinnacle_numbers: [], // Placeholder
-        personal_year: 0, // Placeholder
-        personal_month: 0, // Placeholder
-        personal_day: 0, // Placeholder
-        karmic_lessons: [], // Placeholder
-        hidden_passion_number: 0, // Placeholder
-        is_public: false, // Default to private
+        destiny_number: 0,
+        birthday_number: 0,
+        maturity_number: 0,
+        challenge_numbers: [],
+        pinnacle_numbers: [],
+        personal_year: 0,
+        personal_month: 0,
+        personal_day: 0,
+        karmic_lessons: [],
+        hidden_passion_number: 0,
+        is_public: false,
         report_title: `${data.birthName}'s Numerology Report`,
       }
 
@@ -113,7 +105,22 @@ export default function NumerologyCalculatorPageClient() {
     } finally {
       setIsSavingReport(false)
     }
-    return { success: saveReportSuccess, error: saveReportError } // Return the status
+    return { success: saveReportSuccess, error: saveReportError }
+  }
+
+  const handlePrivacyConsentChange = (hasConsent: boolean) => {
+    setPrivacyAccepted(hasConsent)
+
+    if (hasConsent) {
+      setDataRestorationStatus("loading")
+      // Allow time for data restoration
+      setTimeout(() => {
+        setDataRestorationStatus("restored")
+      }, 1000)
+    } else {
+      setDataRestorationStatus("none")
+      setCalculatedReportData(null)
+    }
   }
 
   if (isLoading) {
@@ -136,13 +143,38 @@ export default function NumerologyCalculatorPageClient() {
           spiritual journey.
         </p>
       </div>
+
+      {/* Inline Privacy Notice */}
+      <InlinePrivacyNotice context="numerology-calculator" onConsentChange={handlePrivacyConsentChange} />
+
+      {dataRestorationStatus === "loading" && (
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/30 rounded-lg">
+          <div className="flex items-center space-x-3">
+            <div className="w-5 h-5 border-2 border-t-blue-500 border-blue-200 rounded-full animate-spin"></div>
+            <p className="text-blue-800 dark:text-blue-200">Checking for saved data...</p>
+          </div>
+        </div>
+      )}
+
+      {dataRestorationStatus === "restored" && privacyAccepted && (
+        <div className="mb-6 p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30 rounded-lg">
+          <div className="flex items-center space-x-3">
+            <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+            <p className="text-green-800 dark:text-green-200">
+              Data restoration complete. Your previous calculations and preferences have been loaded.
+            </p>
+          </div>
+        </div>
+      )}
+
       <NumerologyCalculator
         membershipStatus={membershipStatus}
         onVerifyPurchase={handleVerifyPurchase}
-        onReportCalculated={handleReportCalculated} // Pass the callback
+        onReportCalculated={handleReportCalculated}
+        hasPrivacyConsent={privacyAccepted}
       />
 
-      {calculatedReportData && (
+      {calculatedReportData && privacyAccepted && (
         <EnhanceExperienceSection
           reportData={calculatedReportData}
           membershipStatus={membershipStatus}

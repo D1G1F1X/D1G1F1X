@@ -1,5 +1,5 @@
-import { ComprehensiveCardDealer } from "@/components/comprehensive-card-dealer"
+import CardSimulatorPageClient from "./CardSimulatorPageClient"
 
 export default function CardSimulatorPage() {
-  return <ComprehensiveCardDealer />
+  return <CardSimulatorPageClient />
 }

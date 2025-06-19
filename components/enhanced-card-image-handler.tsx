@@ -45,9 +45,18 @@ export function EnhancedCardImage({
     const lowerElement = element.toLowerCase()
 
     return [
+      // Primary: Zero-padded format (new standard)
       `/cards/${paddedNumber}-${lowerSuit}-${lowerElement}.jpg`,
       `/cards/${paddedNumber}-${lowerSuit}-${lowerElement}.jpeg`,
-      `/cards/${id.toLowerCase()}.jpg`, // General fallback for id
+
+      // Fallback: Single-digit format (legacy)
+      `/cards/${number}-${lowerSuit}-${lowerElement}.jpg`,
+      `/cards/${number}-${lowerSuit}-${lowerElement}.jpeg`,
+
+      // Alternative formats
+      `/cards/${paddedNumber}${lowerSuit}-${lowerElement}.jpg`,
+      `/cards/${paddedNumber}${lowerSuit}-${lowerElement}.jpeg`,
+      `/cards/${id.toLowerCase()}.jpg`,
       `/cards/${id.toLowerCase()}.jpeg`,
     ]
   }
@@ -55,11 +64,11 @@ export function EnhancedCardImage({
   const loadCardImage = async () => {
     try {
       setIsRetrying(true)
-      setImageStatus({ loaded: false, error: false, url: null }) // Reset status on retry
+      setImageStatus({ loaded: false, error: false, url: null })
 
       let successfulPath: string | null = null
 
-      // PRIORITY 1: Try fetching from the API (which should provide blob URLs)
+      // PRIORITY 1: Try fetching from the API (blob URLs)
       try {
         const response = await fetch(`/api/blob/card-images?cardId=${cardId}&element=${baseElement}`, {
           method: "GET",
@@ -68,24 +77,14 @@ export function EnhancedCardImage({
           },
         })
 
-        if (!response.ok) {
-          throw new Error(`API responded with status: ${response.status}`)
-        }
-
-        const contentType = response.headers.get("content-type")
-        if (!contentType || !contentType.includes("application/json")) {
-          throw new Error(`API returned non-JSON response: ${contentType}`)
-        }
-
-        const data = await response.json()
-
-        if (data.success && data.imageUrl) {
-          successfulPath = data.imageUrl
-        } else {
-          console.warn(
-            `API returned unsuccessful response for ${cardId}-${baseElement}:`,
-            data.message || "No image URL",
-          )
+        if (response.ok) {
+          const contentType = response.headers.get("content-type")
+          if (contentType && contentType.includes("application/json")) {
+            const data = await response.json()
+            if (data.success && data.imageUrl) {
+              successfulPath = data.imageUrl
+            }
+          }
         }
       } catch (apiError) {
         console.warn(`API request failed for ${cardId}-${baseElement}:`, apiError)
@@ -102,7 +101,7 @@ export function EnhancedCardImage({
         return
       }
 
-      // PRIORITY 2: If API failed, try local image paths
+      // PRIORITY 2: Try local image paths (both new and legacy formats)
       const localImagePaths = generateLocalImagePaths(cardId, baseElement)
       for (const path of localImagePaths) {
         try {
@@ -114,9 +113,12 @@ export function EnhancedCardImage({
             testImage.src = path
           })
           successfulPath = await imageLoadPromise
-          if (successfulPath) break // Found a working local path
+          if (successfulPath) {
+            console.log(`✅ Found image at: ${successfulPath}`)
+            break
+          }
         } catch (localError) {
-          console.log(`Failed to load local image: ${localError.message}`)
+          // Continue to next path
         }
       }
 

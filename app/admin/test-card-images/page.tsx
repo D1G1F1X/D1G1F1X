@@ -45,7 +45,7 @@ export default function TestCardImagesPage() {
     return "spirit"
   }
 
-  // Helper function to construct image path
+  // Helper function to construct image path with zero-padded numbers
   function getCardImagePath(cardId, element) {
     if (!cardId) return null
 
@@ -54,8 +54,9 @@ export default function TestCardImagesPage() {
       if (!match) return null
 
       const [_, cardNumber, cardSuit] = match
+      // Always use zero-padded format: 01-cauldron-fire.jpg
       const formattedNumber = cardNumber.padStart(2, "0")
-      return `/cards/${formattedNumber}${cardSuit}-${element}.jpg`
+      return `/cards/${formattedNumber}-${cardSuit.toLowerCase()}-${element.toLowerCase()}.jpg`
     } catch (error) {
       return null
     }

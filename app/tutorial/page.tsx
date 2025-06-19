@@ -147,6 +147,7 @@ const NumoTutorialPage: React.FC = () => {
       { id: "lesson6", title: "Deeper Mysteries & Lore", icon: BookMarked, category: "Exploration" },
       { id: "lesson7", title: "Your First Steps & Practice", icon: Rocket, category: "Application" },
       { id: "conclusion", title: "Next Steps & Resources", icon: GraduationCap, category: "Conclusion" },
+      { id: "glossary", title: "Glossary of Terms", icon: BookMarked, category: "Conclusion" },
     ],
     [],
   )
@@ -524,7 +525,7 @@ const NumoTutorialPage: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="tutorial-title">Welcome, Seeker of Wisdom!</CardTitle>
                 </CardHeader>
-                <CardContent className="tutorial-content space-y-4">
+                <CardContent className="tutorial-content space-y-6">
                   <p>
                     You stand at the threshold of the NUMO Oracle, a unique system of divination and self-discovery
                     crafted by Raziel Ali. This interactive tutorial is your comprehensive guide to unlocking its

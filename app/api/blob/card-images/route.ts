@@ -1,76 +1,179 @@
 import { type NextRequest, NextResponse } from "next/server"
-
-export const dynamic = "force-dynamic" // Added to force dynamic rendering
+import { list } from "@vercel/blob"
+import { generateCardImagePath, generateCardImagePathVariants } from "@/lib/card-image-blob-handler"
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const cardId = searchParams.get("cardId") // e.g., "0-Cauldron", "10-Cauldron"
-    const element = searchParams.get("element") // e.g., "Spirit", "Fire"
+    const cardId = searchParams.get("cardId")
+    const element = searchParams.get("element") || "spirit"
 
-    if (!cardId || !element) {
-      return NextResponse.json({ success: false, error: "Missing cardId or element parameter" }, { status: 400 })
+    if (!cardId) {
+      return NextResponse.json({ success: false, message: "Card ID is required" }, { status: 400 })
     }
 
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      return NextResponse.json({ success: false, error: "Blob storage not configured" }, { status: 503 })
-    }
+    // Generate primary path using zero-padded format
+    const primaryImagePath = generateCardImagePath(cardId, element)
+
+    // Generate all possible variants for fallback
+    const imagePathVariants = generateCardImagePathVariants(cardId, element)
 
     try {
-      const { list } = await import("@vercel/blob")
-
-      const response = await list({
-        prefix: "cards/", // List only blobs within the 'cards/' directory
-        token: process.env.BLOB_READ_WRITE_TOKEN,
+      // List all blobs in the cards directory
+      const { blobs } = await list({
+        prefix: "cards/",
+        limit: 1000,
       })
 
-      if (!response || !response.blobs) {
-        return NextResponse.json({ success: false, error: "Invalid blob storage response" }, { status: 500 })
-      }
+      // Try to find the image using variants (prioritizing the new format)
+      let matchingBlob = null
 
-      // Parse cardId and element to generate expected filename components
-      const [numberPart, suitPart] = cardId.split("-")
-      const paddedNumber = String(numberPart).padStart(2, "0") // Ensure two digits (e.g., "0" -> "00")
-      const lowerSuit = suitPart?.toLowerCase() || ""
-      const lowerElement = element.toLowerCase()
+      for (const variant of imagePathVariants) {
+        matchingBlob = blobs.find((blob) => {
+          if (!blob.pathname) return false
+          const filename = blob.pathname.split("/").pop() || ""
+          return filename === variant || blob.pathname.endsWith(variant)
+        })
 
-      // Generate all plausible filename prefixes based on common naming conventions
-      // This accounts for variations in how files might have been uploaded (with/without hyphen between number and suit)
-      const possiblePrefixes = [
-        `${paddedNumber}-${lowerSuit}-${lowerElement}`, // Primary: e.g., "00-cauldron-spirit"
-        `${paddedNumber}${lowerSuit}-${lowerElement}`, // Alternative: e.g., "00cauldron-spirit"
-      ]
-
-      const validExtensions = [".jpg", ".jpeg", ".png", ".webp"] // Include common image types
-
-      // Iterate through all blobs to find a match
-      for (const blob of response.blobs) {
-        const filename = blob.pathname.split("/").pop() // Get just the filename from the full path
-
-        if (filename) {
-          for (const prefix of possiblePrefixes) {
-            // Check if the filename starts with the expected prefix
-            // AND ends with a valid image extension (case-insensitive)
-            // This allows for the unique hash that Vercel Blob appends in the middle of the filename
-            if (filename.startsWith(prefix) && validExtensions.some((ext) => filename.toLowerCase().endsWith(ext))) {
-              return NextResponse.json({
-                success: true,
-                imageUrl: blob.url, // Return the full blob URL
-                filename: filename,
-              })
-            }
-          }
+        if (matchingBlob) {
+          console.log(`✅ Found card image: ${variant} -> ${matchingBlob.url}`)
+          break
         }
       }
 
-      // If no matching image is found after checking all possibilities
-      return NextResponse.json({ success: false, error: "Image not found in blob storage" }, { status: 404 })
+      if (matchingBlob) {
+        return NextResponse.json({
+          success: true,
+          imageUrl: matchingBlob.url,
+          filename: matchingBlob.pathname.split("/").pop(),
+          format: "blob",
+          cardId,
+          element,
+        })
+      }
+
+      // If not found in blob storage, return local path with primary format
+      const localImageUrl = `/cards/${primaryImagePath}`
+
+      return NextResponse.json({
+        success: true,
+        imageUrl: localImageUrl,
+        filename: primaryImagePath,
+        format: "local",
+        cardId,
+        element,
+        message: "Using local fallback with standardized naming",
+      })
     } catch (blobError) {
-      console.error("Blob storage error:", blobError)
-      return NextResponse.json({ success: false, error: "Blob storage access failed" }, { status: 500 })
+      console.warn("Error accessing blob storage:", blobError)
+
+      // Fallback to local path
+      const localImageUrl = `/cards/${primaryImagePath}`
+
+      return NextResponse.json({
+        success: true,
+        imageUrl: localImageUrl,
+        filename: primaryImagePath,
+        format: "local-fallback",
+        cardId,
+        element,
+        message: "Blob storage unavailable, using local fallback",
+      })
     }
   } catch (error) {
-    console.error("API error:", error)
-    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 })
+    console.error("Error in card-images API:", error)
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
+  }
+}
+
+// POST endpoint to validate multiple card images
+export async function POST(request: NextRequest) {
+  try {
+    const { cards } = await request.json()
+
+    if (!Array.isArray(cards)) {
+      return NextResponse.json({ success: false, message: "Cards array is required" }, { status: 400 })
+    }
+
+    const results = await Promise.allSettled(
+      cards.map(async ({ cardId, element = "spirit" }) => {
+        const primaryPath = generateCardImagePath(cardId, element)
+        const variants = generateCardImagePathVariants(cardId, element)
+
+        try {
+          const { blobs } = await list({
+            prefix: "cards/",
+            limit: 1000,
+          })
+
+          let found = false
+          let foundPath = ""
+
+          for (const variant of variants) {
+            const matchingBlob = blobs.find((blob) => {
+              if (!blob.pathname) return false
+              const filename = blob.pathname.split("/").pop() || ""
+              return filename === variant
+            })
+
+            if (matchingBlob) {
+              found = true
+              foundPath = matchingBlob.url
+              break
+            }
+          }
+
+          return {
+            cardId,
+            element,
+            found,
+            path: found ? foundPath : `/cards/${primaryPath}`,
+            format: found ? "blob" : "local",
+            primaryPath,
+          }
+        } catch (error) {
+          return {
+            cardId,
+            element,
+            found: false,
+            path: `/cards/${primaryPath}`,
+            format: "local-fallback",
+            primaryPath,
+            error: error instanceof Error ? error.message : "Unknown error",
+          }
+        }
+      }),
+    )
+
+    const validationResults = results
+      .filter((result): result is PromiseFulfilledResult<any> => result.status === "fulfilled")
+      .map((result) => result.value)
+
+    return NextResponse.json({
+      success: true,
+      results: validationResults,
+      total: validationResults.length,
+      found: validationResults.filter((r) => r.found).length,
+      missing: validationResults.filter((r) => !r.found).length,
+    })
+  } catch (error) {
+    console.error("Error in card-images validation:", error)
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Validation failed",
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   }
 }
