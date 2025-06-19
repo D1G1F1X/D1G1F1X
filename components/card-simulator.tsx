@@ -667,19 +667,23 @@ export function CardSimulator() {
       // Call the complete reading API
       const response = await fetch("/api/generateCompleteReading", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({
           fullName: fullName,
           dateOfBirth: birthDate,
           timeOfBirth: birthTime,
           birthPlace: birthPlace,
-          question: question,
+          question: question || "Please provide guidance for my current situation",
           selectedCards: cards,
           spreadType: spreadType,
         }),
       })
 
       if (!response.ok) {
+        console.warn(`API response not ok: ${response.status} ${response.statusText}`)
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
@@ -692,16 +696,20 @@ export function CardSimulator() {
           setAssistantReading(data.content)
           setReading(data.content)
         } else {
-          // Fallback to original reading generation
+          console.warn("AI reading returned empty content, using fallback")
           generateFallbackReading(cards)
         }
       } else {
         console.warn("AI reading generation failed:", data.error)
+        // Check if this is a fallback scenario
+        if (data.fallback) {
+          console.log("Using fallback reading generation")
+        }
         generateFallbackReading(cards)
       }
     } catch (error) {
       console.error("Error generating AI reading:", error)
-      // Fallback to the original reading generation
+      // Always fallback to the original reading generation on any error
       generateFallbackReading(cards)
     } finally {
       setIsGeneratingReading(false)

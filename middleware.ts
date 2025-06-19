@@ -3,6 +3,15 @@ import type { NextRequest } from "next/server"
 
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
+  const response = NextResponse.next()
+
+  // Add CSP headers for pages that might need YouTube embeds
+  if (path.includes("/blog/") || path.includes("/guidebook/") || path.includes("/about")) {
+    response.headers.set(
+      "Content-Security-Policy",
+      "frame-src 'self' https://www.youtube.com https://youtube.com; frame-ancestors 'self';",
+    )
+  }
 
   // Only protect user routes, admin routes are protected client-side
   if (
@@ -18,10 +27,10 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next()
+  return response
 }
 
 // Configure the middleware to run on specific paths
 export const config = {
-  matcher: ["/dashboard/:path*", "/readings/:path*", "/user/:path*"],
+  matcher: ["/dashboard/:path*", "/readings/:path*", "/user/:path*", "/blog/:path*", "/guidebook/:path*", "/about"],
 }
