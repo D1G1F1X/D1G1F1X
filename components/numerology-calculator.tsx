@@ -28,7 +28,6 @@ import { MembershipBadge } from "@/components/membership-badge"
 import { type MembershipStatus, hasPremiumAccess } from "@/lib/membership-types"
 import { userDataService, type UserProfile } from "@/lib/services/user-data-service"
 import { toast } from "@/components/ui/use-toast"
-import { format } from "date-fns"
 import { numberData } from "@/data/number-meanings"
 import { NumberChart } from "./numerology-calculator/number-chart"
 import { LifePathChart } from "./numerology-calculator/life-path-chart"
@@ -129,6 +128,22 @@ export default function NumerologyCalculator({
     return () => clearTimeout(timeoutId)
   }, [birthName, birthDate, currentName, hasPrivacyConsent, isClient])
 
+  // Helper function to create a date from YYYY-MM-DD string without timezone issues
+  const createDateFromString = (dateString: string): Date => {
+    const [year, month, day] = dateString.split("-").map(Number)
+    // Create date in local timezone to avoid UTC conversion issues
+    return new Date(year, month - 1, day)
+  }
+
+  // Helper function to format date for display
+  const formatDateForDisplay = (date: Date): string => {
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  }
+
   // Helper function to reduce a number to a single digit (except master numbers)
   const reduceToSingleDigit = (num: number): number => {
     if (num === 11 || num === 22 || num === 33) return num
@@ -176,8 +191,9 @@ export default function NumerologyCalculator({
 
   // Calculate Life Path Number
   const calculateLifePath = (birthDate: Date): number => {
-    const dateString = birthDate.toISOString().split("T")[0]
-    const [year, month, day] = dateString.split("-").map(Number)
+    const year = birthDate.getFullYear()
+    const month = birthDate.getMonth() + 1 // getMonth() returns 0-11
+    const day = birthDate.getDate()
 
     const yearSum = reduceToSingleDigit(year)
     const monthSum = reduceToSingleDigit(month)
@@ -368,7 +384,8 @@ export default function NumerologyCalculator({
     setIsGenerating(true)
 
     try {
-      const dateObj = new Date(birthDate)
+      // Create date object from the input string without timezone conversion
+      const dateObj = createDateFromString(birthDate)
 
       if (isNaN(dateObj.getTime())) {
         setError("Please enter a valid birth date")
@@ -627,7 +644,7 @@ export default function NumerologyCalculator({
     try {
       const [year, month, day] = birthDate.split("-").map(Number)
       const currentDate = new Date()
-      const selectedDate = new Date(year, month - 1, day)
+      const selectedDate = createDateFromString(birthDate)
 
       if (selectedDate > currentDate) {
         return "Birthdate cannot be in the future"
@@ -825,7 +842,7 @@ export default function NumerologyCalculator({
                   <div className="flex justify-between items-center">
                     <div>
                       <CardTitle className="text-xl">Numerology Report for {profile.birthName}</CardTitle>
-                      <p className="text-sm text-gray-400">Born on {format(profile.birthDate, "MMMM d, yyyy")}</p>
+                      <p className="text-sm text-gray-400">Born on {formatDateForDisplay(profile.birthDate)}</p>
                       {profile.currentName && (
                         <p className="text-sm text-gray-400">Current name: {profile.currentName}</p>
                       )}
@@ -1371,7 +1388,7 @@ export default function NumerologyCalculator({
                             purpose.
                           </p>
                           <NumerologyTimeline
-                            birthdate={format(profile.birthDate, "yyyy-MM-dd")}
+                            birthdate={profile.birthDate.toISOString().split("T")[0]}
                             challengeNumbers={profile.challengeNumbers || []}
                             pinnacleNumbers={profile.pinnacleNumbers || []}
                           />
