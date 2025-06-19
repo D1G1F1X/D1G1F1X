@@ -4,17 +4,20 @@ import "./globals.css"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
-import { Mona_Sans as FontSans } from "next/font/google"
+import { Roboto } from "next/font/google"
 import { Toaster } from "@/components/ui/toaster"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { AuthProvider } from "@/contexts/auth-context"
 import { ManualCartProvider } from "@/contexts/manual-cart-context"
+import BugReport from "@/components/bug-report"
+import SiteAssistant from "@/components/site-assistant"
+import DeepOceanWaves from "@/components/deep-ocean-waves"
+import StarfieldBackground from "@/components/starfield-background"
+import ConstellationBackground from "@/components/constellation-background" // Import ConstellationBackground
+import GeometricOverlay from "@/components/geometric-overlay" // Import GeometricOverlay
 
-const fontSans = FontSans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-})
+const fontSans = Roboto({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-sans" })
 
 export const metadata: Metadata = {
   title: "v0 App",
@@ -34,10 +37,17 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
             <AuthProvider>
               <ManualCartProvider>
+                {/* Animated Backgrounds */}
+                <DeepOceanWaves />
+                <StarfieldBackground />
+                <ConstellationBackground /> {/* Render ConstellationBackground */}
+                <GeometricOverlay /> {/* Render GeometricOverlay */}
                 <div className="relative flex min-h-screen flex-col">
                   <Navbar />
                   <main className="flex-1">{children}</main>
                   <Footer />
+                  <BugReport />
+                  <SiteAssistant />
                 </div>
                 <Toaster />
               </ManualCartProvider>

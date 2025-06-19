@@ -29,7 +29,12 @@ export default function AboutPageContent() {
           <ConstellationBackground />
           <div className="absolute inset-0 bg-gradient-to-b from-purple-900/30 via-indigo-900/40 to-black/50 z-10"></div>
           <div className="absolute inset-0 flex items-center justify-center z-20">
-            <div className="w-[600px] h-[600px] rounded-full bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-indigo-500/10 blur-3xl"></div>
+            <Image
+              src="/numerology-diagram-hero.png"
+              alt="Numerology Diagram with Circles and Numbers"
+              fill
+              className="object-contain"
+            />
           </div>
         </div>
         <div className="container relative z-30 text-center px-4">
@@ -83,7 +88,12 @@ export default function AboutPageContent() {
               className="object-cover z-0"
             />
             <div className="absolute inset-0 flex items-center justify-center z-20">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 blur-xl"></div>
+              <Image
+                src="/numerology-diagram.png"
+                alt="Numerology Diagram with Circles and Numbers"
+                fill
+                className="object-contain"
+              />
             </div>
           </div>
           <div>
@@ -225,7 +235,12 @@ export default function AboutPageContent() {
               fill
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+            <Image
+              src="/images/about/goddess-danu-art.png"
+              alt="Artistic representation of Goddess Danu"
+              fill
+              className="object-cover"
+            />
           </div>
           <div>
             <h4 className="text-xl font-semibold mb-4 text-purple-200">The Wisdom of Goddess Danu</h4>
@@ -454,12 +469,12 @@ export default function AboutPageContent() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center max-w-lg px-4">
-              <h3 className="text-2xl md:text-3xl font-semibold mb-6 text-white">Begin Your Initiation</h3>
-              <p className="text-gray-300 text-lg mb-8">
-                The cards await. The numbers call. Wisdom is ready to speak through you.
-              </p>
-            </div>
+            <Image
+              src="/images/numo-oracle-artistic-vision.png"
+              alt="Artistic representation of the NUMO Oracle, symbolizing guidance and future insight with ethereal light and futuristic interfaces"
+              fill
+              className="object-cover"
+            />
           </div>
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
