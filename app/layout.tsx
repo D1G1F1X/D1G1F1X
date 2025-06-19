@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     images: ["/numoracle-full-logo.png"],
     creator: "@NUMOOracle",
   },
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 // Removed PAYPAL_CLIENT_ID constant as it's no longer used here
@@ -61,20 +61,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Preload critical images */}
-        <link rel="preload" href="/back.jpg" as="image" />
-        <link rel="preload" href="/cards/01cauldron-fire.jpg" as="image" />
-        {/* ... other preloads ... */}
-        {/* Removed manual PayPal SDK script tag */}
-      </head>
       <body className={`${inter.className} min-h-screen bg-gradient-to-b from-black to-purple-950`}>
         {/* Removed PayPalScriptProvider wrapper */}
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
           <AuthProvider>
             <ManualCartProvider>
               <ErrorBoundary>
-                <Suspense fallback={null}>
+                <Suspense fallback={<div className="fixed inset-0 bg-black" />}>
                   <StarfieldBackground />
                   <ConstellationBackground />
                   <GeometricOverlay />

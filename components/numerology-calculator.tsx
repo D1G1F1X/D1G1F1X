@@ -2,20 +2,16 @@
 
 import { Badge } from "@/components/ui/badge"
 import type React from "react"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calculator, Info, User, Clock, FileText, Check, Sparkles } from "lucide-react"
+import { Calculator, Info, User, Clock } from "lucide-react"
 import { MembershipBadge } from "@/components/membership-badge"
 import { type MembershipStatus, hasPremiumAccess } from "@/lib/membership-types"
 import { userDataService, type UserProfile } from "@/lib/services/user-data-service"
-import { NumerologyTimeline } from "@/components/numerology-calculator/numerology-timeline"
-import { ComprehensiveNumerologyReport } from "@/components/comprehensive-numerology-report"
-import { toast } from "@/components/ui/use-toast"
-
 interface NumerologyResult {
   lifePathNumber: number
   destinyNumber: number
@@ -24,23 +20,9 @@ interface NumerologyResult {
   birthDayNumber: number
   expressionNumber: number
   maturityNumber: number
-  challengeNumbers: number[]
-  pinnacleNumbers: number[]
   compoundNumbers?: Record<string, number>
   compatibility?: Record<string, number | string>
   detailedReport?: string
-}
-
-interface CalculationSession {
-  userData: {
-    fullName: string
-    currentName: string | undefined
-    nicknames: string | undefined
-    birthDate: string
-  }
-  results: NumerologyResult
-  timestamp: string
-  isComplete: boolean
 }
 
 interface NumerologyCalculatorProps {
@@ -58,193 +40,55 @@ export default function NumerologyCalculator({
 }: NumerologyCalculatorProps) {
   const hasPremium = hasPremiumAccess(membershipStatus.type)
 
-  // Form state
   const [name, setName] = useState("")
   const [birthdate, setBirthdate] = useState("")
-  const [currentName, setCurrentName] = useState("")
-  const [nicknames, setNicknames] = useState("")
-
-  // Calculation state
   const [result, setResult] = useState<NumerologyResult | null>(null)
   const [error, setError] = useState("")
-  const [activeTab, setActiveTab] = useState("calculator")
-
-  // Session management
-  const [currentSession, setCurrentSession] = useState<CalculationSession | null>(null)
+  const [activeTab, setActiveTab] = useState("lifePath")
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
-  const [isRestoringData, setIsRestoringData] = useState(false)
-  const [dataRestored, setDataRestored] = useState(false)
+  const [isClient, setIsClient] = useState(false)
 
-  // Report generation
-  const [showComprehensiveReport, setShowComprehensiveReport] = useState(false)
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false)
-  const [reportData, setReportData] = useState<any>(null)
-
-  // Auto-save session data
-  const saveCurrentSession = useCallback(
-    (userData: any, results: NumerologyResult) => {
-      if (!hasPrivacyConsent) return
-
-      const session: CalculationSession = {
-        userData,
-        results,
-        timestamp: new Date().toISOString(),
-        isComplete: true,
-      }
-
-      setCurrentSession(session)
-
-      // Save to user data service
-      try {
-        userDataService.saveNumerologyCalculation({
-          ...results,
-          calculatedAt: session.timestamp,
-        })
-
-        userDataService.saveUserProfile({
-          fullName: userData.fullName,
-          currentName: userData.currentName,
-          nicknames: userData.nicknames,
-          birthDate: userData.birthDate,
-        })
-      } catch (e) {
-        console.error("Error saving user data:", e)
-        toast({
-          title: "Error Saving Data",
-          description: "There was an error saving your data. Please try again.",
-          variant: "destructive",
-        })
-      }
-    },
-    [hasPrivacyConsent],
-  )
-
-  // Load user data on component mount and consent change
+  // Ensure we're on the client before accessing localStorage or other browser APIs
   useEffect(() => {
-    if (hasPrivacyConsent) {
-      setIsRestoringData(true)
+    setIsClient(true)
+  }, [])
 
-      try {
-        const profile = userDataService.getUserProfile()
-        const lastCalculation = userDataService.getLastCalculation()
+  // Load user data only on client side
+  useEffect(() => {
+    if (!isClient || !hasPrivacyConsent) return
 
-        if (profile) {
-          setUserProfile(profile)
-          setName(profile.fullName || "")
-          setCurrentName(profile.currentName || "")
-          setNicknames(profile.nicknames || "")
-          setBirthdate(profile.birthDate || "")
-
-          // Restore complete session if available
-          if (lastCalculation && profile.fullName && profile.birthDate) {
-            const restoredResult: NumerologyResult = {
-              lifePathNumber: lastCalculation.lifePathNumber || 0,
-              destinyNumber: lastCalculation.destinyNumber || 0,
-              soulNumber: lastCalculation.soulNumber || 0,
-              personalityNumber: lastCalculation.personalityNumber || 0,
-              birthDayNumber: lastCalculation.birthDayNumber || 0,
-              expressionNumber: lastCalculation.expressionNumber || 0,
-              maturityNumber: lastCalculation.maturityNumber || 0,
-              challengeNumbers: lastCalculation.challengeNumbers || [],
-              pinnacleNumbers: lastCalculation.pinnacleNumbers || [],
-            }
-
-            if (restoredResult.lifePathNumber > 0) {
-              setResult(restoredResult)
-
-              // Restore complete session
-              const restoredSession: CalculationSession = {
-                userData: {
-                  fullName: profile.fullName,
-                  currentName: profile.currentName,
-                  nicknames: profile.nicknames,
-                  birthDate: profile.birthDate,
-                },
-                results: restoredResult,
-                timestamp: lastCalculation.calculatedAt || new Date().toISOString(),
-                isComplete: true,
-              }
-
-              setCurrentSession(restoredSession)
-              setDataRestored(true)
-
-              // Auto-generate report data for seamless experience
-              const autoReportData = {
-                birthName: profile.fullName,
-                currentName: profile.currentName || undefined,
-                nickname: profile.nicknames || undefined,
-                birthDate: new Date(profile.birthDate),
-                lifePath: restoredResult.lifePathNumber,
-                expression: restoredResult.expressionNumber,
-                soulUrge: restoredResult.soulNumber,
-                personality: restoredResult.personalityNumber,
-              }
-
-              setReportData(autoReportData)
-
-              if (onReportCalculated) {
-                onReportCalculated(autoReportData)
-              }
-
-              toast({
-                title: "Welcome Back!",
-                description: `Your calculation from ${new Date(lastCalculation.calculatedAt || "").toLocaleDateString()} has been restored. Ready to generate your comprehensive report!`,
-              })
-            }
-          }
-        }
-      } catch (e) {
-        console.error("Error restoring user data:", e)
-        toast({
-          title: "Error Restoring Data",
-          description: "There was an error restoring your data. Please try again.",
-          variant: "destructive",
-        })
+    try {
+      const profile = userDataService.getUserProfile()
+      if (profile) {
+        setUserProfile(profile)
+        setName(profile.fullName || "")
+        setBirthdate(profile.birthDate || "")
       }
-
-      setIsRestoringData(false)
-    } else {
-      // Clear all data when consent is withdrawn
-      setUserProfile(null)
-      setCurrentSession(null)
-      setName("")
-      setCurrentName("")
-      setNicknames("")
-      setBirthdate("")
-      setResult(null)
-      setDataRestored(false)
-      setReportData(null)
-      setShowComprehensiveReport(false)
+    } catch (error) {
+      console.error("Error loading user profile:", error)
     }
-  }, [hasPrivacyConsent, onReportCalculated])
+  }, [isClient, hasPrivacyConsent])
 
-  // Auto-save form data as user types (with debouncing)
+  // Auto-save form data with client-side check
   useEffect(() => {
-    if (!hasPrivacyConsent) return
+    if (!isClient || !hasPrivacyConsent) return
 
     const timeoutId = setTimeout(() => {
-      if (name || currentName || nicknames || birthdate) {
+      if (name || birthdate) {
         const profileData: Partial<UserProfile> = {}
         if (name) profileData.fullName = name
-        if (currentName) profileData.currentName = currentName
-        if (nicknames) profileData.nicknames = nicknames
         if (birthdate) profileData.birthDate = birthdate
 
         try {
           userDataService.saveUserProfile(profileData)
-        } catch (e) {
-          console.error("Error auto-saving user profile:", e)
-          toast({
-            title: "Error Saving Profile",
-            description: "There was an error saving your profile data. Please try again.",
-            variant: "destructive",
-          })
+        } catch (error) {
+          console.error("Error saving user profile:", error)
         }
       }
-    }, 1000) // Debounce for 1 second
+    }, 1000)
 
     return () => clearTimeout(timeoutId)
-  }, [name, currentName, nicknames, birthdate, hasPrivacyConsent])
+  }, [name, birthdate, hasPrivacyConsent, isClient])
 
   // Numerology calculation functions
   const letterToNumber = (letter: string): number => {
@@ -291,11 +135,9 @@ export default function NumerologyCalculator({
   }
 
   const calculateLifePathNumber = (date: string): number => {
-    if (!date) return 0 // Handle empty date
-
+    if (!date) return 0
     const [year, month, day] = date.split("-").map(Number)
-
-    if (isNaN(year) || isNaN(month) || isNaN(day)) return 0 // Handle invalid date
+    if (isNaN(year) || isNaN(month) || isNaN(day)) return 0
 
     const dayNum = reduceToSingleDigit(day)
     const monthNum = reduceToSingleDigit(month)
@@ -304,8 +146,7 @@ export default function NumerologyCalculator({
   }
 
   const calculateDestinyNumber = (fullName: string): number => {
-    if (!fullName) return 0 // Handle empty name
-
+    if (!fullName) return 0
     const nameSum = fullName
       .toLowerCase()
       .replace(/[^a-z]/g, "")
@@ -315,8 +156,7 @@ export default function NumerologyCalculator({
   }
 
   const calculateSoulNumber = (fullName: string): number => {
-    if (!fullName) return 0 // Handle empty name
-
+    if (!fullName) return 0
     const vowels = "aeiou"
     const vowelSum = fullName
       .toLowerCase()
@@ -332,8 +172,7 @@ export default function NumerologyCalculator({
   }
 
   const calculatePersonalityNumber = (fullName: string): number => {
-    if (!fullName) return 0 // Handle empty name
-
+    if (!fullName) return 0
     const vowels = "aeiou"
     const consonantSum = fullName
       .toLowerCase()
@@ -349,10 +188,9 @@ export default function NumerologyCalculator({
   }
 
   const calculateBirthDayNumber = (date: string): number => {
-    if (!date) return 0 // Handle empty date
-
+    if (!date) return 0
     const day = Number.parseInt(date.split("-")[2])
-    if (isNaN(day)) return 0 // Handle invalid day
+    if (isNaN(day)) return 0
     return reduceToSingleDigit(day)
   }
 
@@ -432,7 +270,6 @@ export default function NumerologyCalculator({
     return null
   }
 
-  // Handle form submission with automatic session management
   const handleCalculate = (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
@@ -460,76 +297,35 @@ export default function NumerologyCalculator({
         birthDayNumber,
         expressionNumber,
         maturityNumber,
-        challengeNumbers: calculateChallengeNumbers(birthdate),
-        pinnacleNumbers: calculatePinnacleNumbers(birthdate),
       }
 
       setResult(newResult)
 
-      // Prepare user data
-      const userData = {
-        fullName: name,
-        currentName: currentName || undefined,
-        nicknames: nicknames || undefined,
-        birthDate: birthdate,
-      }
-
-      // Auto-save session
-      saveCurrentSession(userData, newResult)
-
-      // Prepare report data automatically
-      const autoReportData = {
-        birthName: name,
-        currentName: currentName || undefined,
-        nickname: nicknames || undefined,
-        birthDate: new Date(birthdate),
-        lifePath: lifePathNumber,
-        expression: expressionNumber,
-        soulUrge: soulNumber,
-        personality: personalityNumber,
-      }
-
-      setReportData(autoReportData)
-
       if (onReportCalculated) {
-        onReportCalculated(autoReportData)
+        const reportData = {
+          birthName: name,
+          birthDate: new Date(birthdate),
+          lifePath: lifePathNumber,
+          expression: expressionNumber,
+          soulUrge: soulNumber,
+          personality: personalityNumber,
+        }
+        onReportCalculated(reportData)
       }
 
-      toast({
-        title: "Calculation Complete",
-        description: "Your numerology profile is ready! You can now generate your comprehensive report instantly.",
-      })
+      // Update last used timestamp if client-side and consent given
+      if (isClient && hasPrivacyConsent) {
+        try {
+          userDataService.updateLastUsed()
+        } catch (error) {
+          console.error("Error updating last used:", error)
+        }
+      }
     } catch (err) {
       setError("An error occurred during calculation. Please check your inputs.")
     }
   }
 
-  // Streamlined comprehensive report generation
-  const handleGenerateComprehensiveReport = () => {
-    if (!currentSession?.isComplete) {
-      toast({
-        title: "Calculate First",
-        description: "Please calculate your basic numerology profile first.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsGeneratingReport(true)
-
-    // Use existing session data - no need to re-enter information
-    setShowComprehensiveReport(true)
-    setActiveTab("comprehensive")
-
-    toast({
-      title: "Report Generated Instantly!",
-      description: "Your comprehensive numerology report is ready using your saved data.",
-    })
-
-    setIsGeneratingReport(false)
-  }
-
-  // Get number meaning
   const getNumberMeaning = (number: number): string => {
     const meanings: { [key: number]: string } = {
       1: "Leadership, independence, originality, and self-confidence. You are a pioneer and innovator.",
@@ -548,20 +344,30 @@ export default function NumerologyCalculator({
     return meanings[number] || "This number represents a unique combination of energies in your life."
   }
 
+  // Don't render until client-side to prevent hydration issues
+  if (!isClient) {
+    return (
+      <div className="w-full max-w-4xl mx-auto bg-black text-white p-6 rounded-lg">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-800 rounded mb-4"></div>
+          <div className="h-4 bg-gray-800 rounded mb-8"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="h-96 bg-gray-800 rounded"></div>
+            <div className="h-96 bg-gray-800 rounded"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="w-full max-w-6xl mx-auto bg-black text-white p-6 rounded-lg">
+    <div className="w-full max-w-4xl mx-auto bg-black text-white p-6 rounded-lg">
       <div className="mb-8">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold mb-2">
             <span className="text-purple-500">NUMO</span> Numerology Calculator
           </h2>
-          <div className="flex items-center space-x-2">
-            {currentSession?.isComplete && (
-              <Badge variant="outline" className="text-green-400 border-green-400">
-                <Check className="h-3 w-3 mr-1" />
-                Session Active
-              </Badge>
-            )}
+          <div className="flex items-center">
             <MembershipBadge type={membershipStatus.type} productType={membershipStatus.purchaseInfo?.productType} />
           </div>
         </div>
@@ -570,274 +376,149 @@ export default function NumerologyCalculator({
         </p>
       </div>
 
-      <Tabs defaultValue="calculator" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="calculator">Calculator</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          <TabsTrigger value="comprehensive">
-            Comprehensive Report
-            {currentSession?.isComplete && <Sparkles className="h-3 w-3 ml-1" />}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="calculator">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <Card className="bg-gray-900/50 border-purple-500/30">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <User className="h-5 w-5 mr-2" />
-                    Your Information
-                    {userProfile?.lastUsed && hasPrivacyConsent && (
-                      <Badge variant="outline" className="ml-auto text-xs">
-                        <Clock className="h-3 w-3 mr-1" />
-                        Last used: {new Date(userProfile.lastUsed).toLocaleDateString()}
-                      </Badge>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <form onSubmit={handleCalculate}>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="name">Full Birth Name (as on birth certificate)</Label>
-                        <Input
-                          id="name"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          className="bg-gray-800 border-gray-700"
-                          placeholder="Enter your full birth name"
-                        />
-                        {hasPrivacyConsent && name && (
-                          <p className="text-xs text-green-400 mt-1">✓ Auto-saved for seamless report generation</p>
-                        )}
-                      </div>
-
-                      <div>
-                        <Label htmlFor="currentName">Current Name (if different)</Label>
-                        <Input
-                          id="currentName"
-                          value={currentName}
-                          onChange={(e) => setCurrentName(e.target.value)}
-                          className="bg-gray-800 border-gray-700"
-                          placeholder="Enter your current name if different"
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="nicknames">Nicknames or Aliases (optional)</Label>
-                        <Input
-                          id="nicknames"
-                          value={nicknames}
-                          onChange={(e) => setNicknames(e.target.value)}
-                          className="bg-gray-800 border-gray-700"
-                          placeholder="Enter any nicknames or aliases"
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="birthdate">Date of Birth</Label>
-                        <Input
-                          id="birthdate"
-                          type="date"
-                          value={birthdate}
-                          onChange={(e) => setBirthdate(e.target.value)}
-                          className="bg-gray-800 border-gray-700"
-                        />
-                        {hasPrivacyConsent && birthdate && (
-                          <p className="text-xs text-green-400 mt-1">✓ Auto-saved for seamless report generation</p>
-                        )}
-                      </div>
-
-                      {isRestoringData && (
-                        <div className="flex items-center space-x-2 text-blue-400 text-sm">
-                          <div className="w-4 h-4 border-2 border-t-blue-400 border-blue-200 rounded-full animate-spin"></div>
-                          <span>Restoring your saved data...</span>
-                        </div>
-                      )}
-
-                      {dataRestored && (
-                        <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-3">
-                          <p className="text-green-400 text-sm flex items-center">
-                            <Check className="h-4 w-4 mr-2" />
-                            Welcome back! Your data and calculations are ready. Generate your comprehensive report
-                            instantly!
-                          </p>
-                        </div>
-                      )}
-
-                      {error && <p className="text-red-400 text-sm">{error}</p>}
-
-                      <Button
-                        type="submit"
-                        className="w-full bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600"
-                      >
-                        <Calculator className="mr-2 h-5 w-5" />
-                        {result ? "Recalculate Your Numbers" : "Calculate Your Numbers"}
-                      </Button>
-
-                      {currentSession?.isComplete && (
-                        <Button
-                          type="button"
-                          onClick={handleGenerateComprehensiveReport}
-                          disabled={isGeneratingReport}
-                          className="w-full bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-700 hover:to-purple-600"
-                        >
-                          <Sparkles className="mr-2 h-5 w-5" />
-                          {isGeneratingReport ? "Generating..." : "Generate Comprehensive Report Instantly"}
-                        </Button>
-                      )}
-                    </div>
-                  </form>
-                </CardContent>
-              </Card>
-
-              <div className="mt-6 bg-purple-900/20 p-4 rounded-lg border border-purple-500/30">
-                <h3 className="flex items-center text-lg font-medium mb-2">
-                  <Info className="mr-2 h-5 w-5 text-purple-400" />
-                  Streamlined Experience
-                </h3>
-                <p className="text-gray-300 text-sm">
-                  Your data is automatically saved as you type (with your consent). Once calculated, you can generate
-                  comprehensive reports instantly without re-entering information. All data is stored securely in your
-                  browser and never shared.
-                </p>
-              </div>
-            </div>
-
-            <div>
-              {result ? (
-                <Card className="bg-gray-900/50 border-purple-500/30 h-full">
-                  <CardHeader className="pb-0">
-                    <div className="flex justify-between items-center">
-                      <CardTitle>Your Numerology Profile</CardTitle>
-                      {currentSession?.isComplete && (
-                        <Badge variant="outline" className="text-purple-400 border-purple-400">
-                          <Sparkles className="h-3 w-3 mr-1" />
-                          Ready for Report
-                        </Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <Tabs defaultValue="lifePath">
-                      <TabsList className="grid w-full grid-cols-2 mb-4">
-                        <TabsTrigger value="lifePath">Core Numbers</TabsTrigger>
-                        <TabsTrigger value="personality">Personality</TabsTrigger>
-                      </TabsList>
-
-                      <TabsContent value="lifePath" className="space-y-4">
-                        <div>
-                          <h4 className="font-medium text-purple-300 flex items-center">
-                            Life Path Number: {result.lifePathNumber}
-                          </h4>
-                          <p className="text-gray-300 text-sm mt-1">{getNumberMeaning(result.lifePathNumber)}</p>
-                        </div>
-
-                        <div>
-                          <h4 className="font-medium text-purple-300 flex items-center">
-                            Destiny Number: {result.destinyNumber}
-                          </h4>
-                          <p className="text-gray-300 text-sm mt-1">{getNumberMeaning(result.destinyNumber)}</p>
-                        </div>
-
-                        <div>
-                          <h4 className="font-medium text-purple-300 flex items-center">
-                            Soul Number: {result.soulNumber}
-                          </h4>
-                          <p className="text-gray-300 text-sm mt-1">{getNumberMeaning(result.soulNumber)}</p>
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="personality" className="space-y-4">
-                        <div>
-                          <h4 className="font-medium text-purple-300 flex items-center">
-                            Personality Number: {result.personalityNumber}
-                          </h4>
-                          <p className="text-gray-300 text-sm mt-1">{getNumberMeaning(result.personalityNumber)}</p>
-                        </div>
-
-                        <div>
-                          <h4 className="font-medium text-purple-300 flex items-center">
-                            Birthday Number: {result.birthDayNumber}
-                          </h4>
-                          <p className="text-gray-300 text-sm mt-1">{getNumberMeaning(result.birthDayNumber)}</p>
-                        </div>
-
-                        <div>
-                          <h4 className="font-medium text-purple-300 flex items-center">
-                            Maturity Number: {result.maturityNumber}
-                          </h4>
-                          <p className="text-gray-300 text-sm mt-1">{getNumberMeaning(result.maturityNumber)}</p>
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="h-full flex items-center justify-center text-center text-gray-400 p-8 border border-dashed border-gray-700 rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <Card className="bg-gray-900/50 border-purple-500/30">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center">
+                <User className="h-5 w-5 mr-2" />
+                Your Information
+                {userProfile?.lastUsed && hasPrivacyConsent && (
+                  <Badge variant="outline" className="ml-auto text-xs">
+                    <Clock className="h-3 w-3 mr-1" />
+                    Last used: {new Date(userProfile.lastUsed).toLocaleDateString()}
+                  </Badge>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <form onSubmit={handleCalculate}>
+                <div className="space-y-4">
                   <div>
-                    <Calculator className="h-12 w-12 mx-auto mb-4 text-purple-500/50" />
-                    <p>Enter your details and calculate your numerology profile</p>
-                    <p className="text-sm mt-2">Your results will appear here</p>
+                    <Label htmlFor="name">Full Name (as on birth certificate)</Label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="bg-gray-800 border-gray-700"
+                      placeholder="Enter your full name"
+                    />
+                    {hasPrivacyConsent && name && (
+                      <p className="text-xs text-green-400 mt-1">✓ Name will be remembered for future calculations</p>
+                    )}
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </TabsContent>
 
-        <TabsContent value="timeline">
+                  <div>
+                    <Label htmlFor="birthdate">Date of Birth</Label>
+                    <Input
+                      id="birthdate"
+                      type="date"
+                      value={birthdate}
+                      onChange={(e) => setBirthdate(e.target.value)}
+                      className="bg-gray-800 border-gray-700"
+                    />
+                    {hasPrivacyConsent && birthdate && (
+                      <p className="text-xs text-green-400 mt-1">
+                        ✓ Birth date will be remembered for future calculations
+                      </p>
+                    )}
+                  </div>
+
+                  {error && <p className="text-red-400 text-sm">{error}</p>}
+
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600"
+                  >
+                    <Calculator className="mr-2 h-5 w-5" />
+                    Calculate Your Numbers
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+
+          <div className="mt-6 bg-purple-900/20 p-4 rounded-lg border border-purple-500/30">
+            <h3 className="flex items-center text-lg font-medium mb-2">
+              <Info className="mr-2 h-5 w-5 text-purple-400" />
+              About Numerology
+            </h3>
+            <p className="text-gray-300 text-sm">
+              Numerology is the study of numbers and their energetic influence on our lives. Each number carries a
+              unique vibration that can reveal insights about your personality, life path, and potential. By calculating
+              your core numbers based on your name and birthdate, you can gain a deeper understanding of your life's
+              purpose and challenges.
+            </p>
+          </div>
+        </div>
+
+        <div>
           {result ? (
-            <Card className="bg-gray-900/50 border-purple-500/30">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <Clock className="h-5 w-5 mr-2" />
-                  Numerology Timeline
-                </CardTitle>
+            <Card className="bg-gray-900/50 border-purple-500/30 h-full">
+              <CardHeader className="pb-0">
+                <div className="flex justify-between items-center">
+                  <CardTitle>Your Numerology Profile</CardTitle>
+                </div>
               </CardHeader>
               <CardContent className="p-6">
-                <p className="text-gray-300 text-sm mb-4">
-                  Explore the major periods, challenges, and pinnacles in your life's numerological journey.
-                </p>
-                <NumerologyTimeline
-                  birthdate={birthdate}
-                  challengeNumbers={result.challengeNumbers}
-                  pinnacleNumbers={result.pinnacleNumbers}
-                />
+                <Tabs defaultValue="lifePath" value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="grid w-full grid-cols-2 mb-4">
+                    <TabsTrigger value="lifePath">Core Numbers</TabsTrigger>
+                    <TabsTrigger value="personality">Personality</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="lifePath" className="space-y-4">
+                    <div>
+                      <h4 className="font-medium text-purple-300 flex items-center">
+                        Life Path Number: {result.lifePathNumber}
+                      </h4>
+                      <p className="text-gray-300 text-sm mt-1">{getNumberMeaning(result.lifePathNumber)}</p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium text-purple-300 flex items-center">
+                        Destiny Number: {result.destinyNumber}
+                      </h4>
+                      <p className="text-gray-300 text-sm mt-1">{getNumberMeaning(result.destinyNumber)}</p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium text-purple-300 flex items-center">
+                        Soul Number: {result.soulNumber}
+                      </h4>
+                      <p className="text-gray-300 text-sm mt-1">{getNumberMeaning(result.soulNumber)}</p>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="personality" className="space-y-4">
+                    <div>
+                      <h4 className="font-medium text-purple-300 flex items-center">
+                        Personality Number: {result.personalityNumber}
+                      </h4>
+                      <p className="text-gray-300 text-sm mt-1">{getNumberMeaning(result.personalityNumber)}</p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium text-purple-300 flex items-center">
+                        Birthday Number: {result.birthDayNumber}
+                      </h4>
+                      <p className="text-gray-300 text-sm mt-1">{getNumberMeaning(result.birthDayNumber)}</p>
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           ) : (
-            <div className="text-center text-gray-400 p-8">
-              <Clock className="h-12 w-12 mx-auto mb-4 text-purple-500/50" />
-              <p>Calculate your numerology profile first to view your timeline</p>
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="comprehensive">
-          {showComprehensiveReport && currentSession?.isComplete ? (
-            <div className="space-y-6">
-              <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
-                <p className="text-green-400 text-sm flex items-center">
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Report generated using your saved data from {new Date(currentSession.timestamp).toLocaleDateString()}.
-                  No need to re-enter information!
-                </p>
+            <div className="h-full flex items-center justify-center text-center text-gray-400 p-8 border border-dashed border-gray-700 rounded-lg">
+              <div>
+                <Calculator className="h-12 w-12 mx-auto mb-4 text-purple-500/50" />
+                <p>Enter your details and calculate your numerology profile</p>
+                <p className="text-sm mt-2">Your results will appear here</p>
               </div>
-              <ComprehensiveNumerologyReport />
-            </div>
-          ) : (
-            <div className="text-center text-gray-400 p-8">
-              <FileText className="h-12 w-12 mx-auto mb-4 text-purple-500/50" />
-              <p>Calculate your numerology profile first to generate your comprehensive report</p>
-              <p className="text-sm mt-2">
-                Once calculated, your report will be generated instantly using your saved data
-              </p>
             </div>
           )}
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
     </div>
   )
 }
