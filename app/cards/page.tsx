@@ -1,22 +1,27 @@
-import { CardLibrary } from "@/components/card-library"
+import { Suspense } from "react"
 import type { Metadata } from "next"
+import CardCatalog from "@/components/card-catalog" // Assuming this component exists
+import HeroSection from "@/components/hero-section" // Import HeroSection
 
 export const metadata: Metadata = {
-  title: "NUMO Oracle Cards | Card Directory",
-  description:
-    "Explore the complete collection of NUMO Oracle cards, featuring the five sacred treasures: Cauldron, Sword, Cord, Spear, and Stone.",
+  title: "NUMO Oracle Cards | Explore the Deck",
+  description: "Browse the complete NUMO Oracle card deck, learn about each card's meaning and symbolism.",
 }
 
 export default function CardsPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl md:text-4xl font-bold text-center mb-8">NUMO Oracle Card Directory</h1>
-      <p className="text-lg text-center mb-8 max-w-3xl mx-auto">
-        Explore our complete collection of oracle cards, organized by suit and element. Each card represents a unique
-        combination of numerical energy and elemental influence.
-      </p>
-
-      <CardLibrary />
+    <div className="relative min-h-screen bg-black">
+      <HeroSection
+        title="Explore the Oracle Deck"
+        description="Dive into the symbolism and meanings of each NUMO Oracle card."
+        backgroundImage="/mystical-oracle-cards.png"
+      />
+      <div className="container mx-auto py-8">
+        <Suspense fallback={<div className="text-center py-20 text-white">Loading card catalog...</div>}>
+          {/* Assuming CardCatalog component exists and displays cards */}
+          <CardCatalog />
+        </Suspense>
+      </div>
     </div>
   )
 }

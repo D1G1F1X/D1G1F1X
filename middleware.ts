@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
   if (path.includes("/blog/") || path.includes("/guidebook/") || path.includes("/about")) {
     response.headers.set(
       "Content-Security-Policy",
-      "frame-src 'self' https://www.youtube.com https://youtube.com; frame-ancestors 'self';",
+      "img-src 'self' blob: data: https://blob.vercel-storage.com https://blob.v0.dev; frame-src 'self' https://www.youtube.com https://youtube.com https://tally.so https://formsubmit.co; frame-ancestors 'self';",
     )
   }
 

@@ -907,6 +907,173 @@ const pages: Page[] = [
     createdAt: "2023-01-11T10:00:00Z",
     updatedAt: "2023-01-11T10:00:00Z",
   },
+  {
+    id: "privacy-policy",
+    title: "Privacy Policy",
+    slug: "privacy-policy",
+    content: `
+# Privacy Policy
+
+**Last Updated: June 19, 2025**
+
+Welcome to Numoracle.com. This Privacy Policy describes how Numoracle ("we," "us," or "our") collects, uses, and shares your personal information when you visit or make a purchase from our website (the "Site").
+
+## 1. Information We Collect
+
+We collect information to provide and improve our services to you.
+
+### Information You Provide to Us
+
+*   **Account Information:** When you create an account, we collect your name, email address, and password.
+*   **Order Information:** When you make a purchase, we collect your name, billing address, shipping address, email address, phone number, and payment information (e.g., credit card details). Please note that payment information is processed securely by our third-party payment processors (e.g., Stripe, PayPal) and we do not store sensitive payment card data on our servers.
+*   **Numerology Report Data:** When you use our numerology calculator or generate a report, we collect the name and birth date you provide. This data is used solely to generate your report and is not linked to your personal identity unless you choose to save the report to your account.
+*   **Communications:** When you communicate with us via email, chat, or contact forms, we collect the content of your communications and any information you choose to provide.
+*   **Reviews and Testimonials:** If you submit a review or testimonial, we may collect your name, email, and the content of your submission.
+
+### Information We Collect Automatically
+
+*   **Usage Data:** We automatically collect information about your interactions with our Site, such as the pages you visit, the features you use, the time and date of your visit, and your referring URL.
+*   **Device Information:** We collect information about the device you use to access our Site, including IP address, browser type, operating system, and unique device identifiers.
+*   **Cookies and Tracking Technologies:** We use cookies and similar tracking technologies (like web beacons and pixels) to track activity on our Site and hold certain information. Cookies are small data files stored on your device. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our Service.
+
+## 2. How We Use Your Information
+
+We use the information we collect for various purposes, including:
+
+*   **To Provide and Maintain Our Service:** To operate and deliver the services you request, including processing transactions, fulfilling orders, and generating numerology reports.
+*   **To Improve and Personalize Our Service:** To understand how you use our Site, to develop new features, and to tailor your experience.
+*   **To Communicate with You:** To send you order confirmations, shipping updates, password reset links, and respond to your inquiries. With your consent, we may also send you marketing communications about our products, services, and promotions.
+*   **For Security and Fraud Prevention:** To protect our Site and users from fraudulent activities and unauthorized access.
+*   **For Analytics and Research:** To analyze trends, track user activity, and gather demographic information for aggregate use. This helps us understand our audience and improve our offerings.
+*   **To Comply with Legal Obligations:** To meet our legal and regulatory requirements.
+
+## 3. How We Share Your Information
+
+We may share your information with third parties in the following circumstances:
+
+*   **Service Providers:** We share information with third-party vendors and service providers who perform services on our behalf, such as payment processing, order fulfillment, website hosting, data analysis, email delivery, and customer support. These providers are obligated to protect your information and use it only for the purposes for which it was disclosed.
+*   **Payment Processors:** Your payment information is shared directly with our secure payment gateways (e.g., Stripe, PayPal) to process your purchases.
+*   **Legal Requirements:** We may disclose your information if required to do so by law or in response to valid requests by public authorities (e.g., a court order or government agency request).
+*   **Business Transfers:** In connection with a merger, acquisition, or sale of all or a portion of our assets, your information may be transferred as part of that transaction.
+*   **With Your Consent:** We may share your information with other third parties when we have your explicit consent to do so.
+*   **Aggregated or Anonymized Data:** We may share aggregated or anonymized data that cannot reasonably be used to identify you with third parties for various purposes, including analytics, research, and marketing.
+
+## 4. Your Choices and Rights
+
+You have certain rights regarding your personal information:
+
+*   **Access and Correction:** You have the right to access and update your personal information held by us. You can usually do this through your account settings.
+*   **Opt-Out of Marketing Communications:** You can opt out of receiving marketing emails from us by following the unsubscribe instructions in those emails or by contacting us directly.
+*   **Cookies:** You can set your browser to refuse all or some browser cookies, or to alert you when websites set or access cookies. If you disable or refuse cookies, please note that some parts of the Site may become inaccessible or not function properly.
+*   **Do Not Track:** We do not currently respond to "Do Not Track" signals.
+*   **Data Deletion:** You may request the deletion of your personal data. Please note that we may be required to retain certain information by law or for legitimate business purposes.
+
+## 5. Data Security
+
+We implement reasonable security measures to protect your personal information from unauthorized access, use, alteration, and disclosure. However, no method of transmission over the Internet or electronic storage is 100% secure. Therefore, while we strive to use commercially acceptable means to protect your personal information, we cannot guarantee its absolute security.
+
+## 6. Children's Privacy
+
+Our Site is not intended for children under the age of 13. We do not knowingly collect personally identifiable information from children under 13. If you are a parent or guardian and you are aware that your child has provided us with personal information, please contact us. If we become aware that we have collected personal information from a child under age 13 without verification of parental consent, we take steps to remove that information from our servers.
+
+## 7. Changes to This Privacy Policy
+
+We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date at the top. You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.
+
+## 8. Contact Us
+
+If you have any questions about this Privacy Policy, please contact us:
+
+*   By email: support@numoracle.com
+*   By visiting this page on our website: [numoracle.com/contact](/contact)
+`,
+    isPublished: true,
+    createdAt: "2023-01-12T10:00:00Z",
+    updatedAt: "2025-06-19T10:00:00Z",
+  },
+  {
+    id: "terms-of-service",
+    title: "Terms of Service",
+    slug: "terms-of-service",
+    content: `
+# Terms of Service
+
+**Last Updated: June 19, 2025**
+
+Welcome to Numoracle.com. These Terms of Service ("Terms") govern your access to and use of the Numoracle website (the "Site") and any products or services offered by Numoracle ("we," or "our"). By accessing or using the Site, you agree to be bound by these Terms and our Privacy Policy. If you do not agree to these Terms, please do not use our Site.
+
+## 1. Acceptance of Terms
+
+By creating an account, making a purchase, or otherwise using the Site, you affirm that you are at least 18 years of age or the age of majority in your jurisdiction, and that you are legally capable of entering into a binding agreement.
+
+## 2. Changes to Terms
+
+We reserve the right to modify or update these Terms at any time. We will notify you of any changes by posting the new Terms on this page and updating the "Last Updated" date. Your continued use of the Site after any such changes constitutes your acceptance of the new Terms.
+
+## 3. Account Registration and Security
+
+*   You may need to register for an account to access certain features of the Site.
+*   You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current, and complete.
+*   You are responsible for maintaining the confidentiality of your account password and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use of your account.
+*   We are not liable for any loss or damage arising from your failure to comply with these obligations.
+
+## 4. Products and Services
+
+*   **Product Descriptions:** We strive to be as accurate as possible in our product descriptions. However, we do not warrant that product descriptions or other content on the Site are accurate, complete, reliable, current, or error-free.
+*   **Pricing:** All prices are subject to change without notice. We reserve the right to correct any errors in pricing or product descriptions.
+*   **Availability:** All products and services are subject to availability. We reserve the right to discontinue any product at any time.
+*   **Numerology Reports:** Our numerology reports are provided for entertainment and informational purposes only. They are not intended to be a substitute for professional advice (e.g., medical, psychological, financial, legal). We make no guarantees regarding the accuracy or applicability of the insights provided.
+*   **Oracle Cards:** Our oracle cards are tools for self-reflection and spiritual guidance. Their interpretations are subjective and should be used as a guide, not as definitive predictions.
+
+## 5. Payment and Billing
+
+*   You agree to pay all charges incurred by you or on your behalf through the Site, at the prices in effect when such charges are incurred.
+*   You are responsible for any applicable taxes relating to your purchases.
+*   We use third-party payment processors (e.g., Stripe, PayPal). By making a purchase, you agree to their terms and conditions. We are not responsible for any issues arising from their services.
+
+## 6. Intellectual Property
+
+*   All content on the Site, including text, graphics, logos, images, audio clips, video clips, data compilations, and software, is the property of Numoracle or its content suppliers and protected by international copyright laws.
+*   The compilation of all content on this Site is the exclusive property of Numoracle and protected by international copyright laws.
+*   You may not reproduce, duplicate, copy, sell, resell, visit, or otherwise exploit for any commercial purpose any portion of the Site without our express written consent.
+
+## 7. User Conduct
+
+You agree not to use the Site to:
+
+*   Engage in any unlawful, fraudulent, or harmful activity.
+*   Transmit any material that is defamatory, obscene, offensive, or otherwise objectionable.
+*   Impersonate any person or entity, or falsely state or otherwise misrepresent your affiliation with a person or entity.
+*   Interfere with or disrupt the operation of the Site or the servers or networks connected to the Site.
+*   Attempt to gain unauthorized access to any portion of the Site, other accounts, computer systems, or networks connected to the Site.
+
+## 8. Disclaimer of Warranties
+
+THE SITE AND ALL PRODUCTS AND SERVICES OFFERED ON THE SITE ARE PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS, WITHOUT ANY WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, OR COURSE OF PERFORMANCE. WE DO NOT WARRANT THAT THE SITE WILL BE UNINTERRUPTED, SECURE, OR ERROR-FREE.
+
+## 9. Limitation of Liability
+
+IN NO EVENT SHALL NUMORACLE, ITS DIRECTORS, EMPLOYEES, PARTNERS, AGENTS, SUPPLIERS, OR AFFILIATES, BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING WITHOUT LIMITATION, LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM (I) YOUR ACCESS TO OR USE OF OR INABILITY TO ACCESS OR USE THE SITE; (II) ANY CONDUCT OR CONTENT OF ANY THIRD PARTY ON THE SITE; (III) ANY CONTENT OBTAINED FROM THE SITE; AND (IV) UNAUTHORIZED ACCESS, USE, OR ALTERATION OF YOUR TRANSMISSIONS OR CONTENT, WHETHER BASED ON WARRANTY, CONTRACT, TORT (INCLUDING NEGLIGENCE), OR ANY OTHER LEGAL THEORY, WHETHER OR NOT WE HAVE BEEN INFORMED OF THE POSSIBILITY OF SUCH DAMAGE, AND EVEN IF A REMEDY SET FORTH HEREIN IS FOUND TO HAVE FAILED OF ITS ESSENTIAL PURPOSE.
+
+## 10. Indemnification
+
+You agree to defend, indemnify, and hold harmless Numoracle and its licensees and licensors, and their employees, contractors, agents, officers, and directors, from and against any and all claims, damages, obligations, losses, liabilities, costs or debt, and expenses (including but not limited to attorney's fees), resulting from or arising out of (a) your use and access of the Site, by you or any person using your account and password; (b) a breach of these Terms; or (c) content posted on the Site.
+
+## 11. Governing Law
+
+These Terms shall be governed and construed in accordance with the laws of [Your State/Country], without regard to its conflict of law provisions.
+
+## 12. Contact Us
+
+If you have any questions about these Terms, please contact us:
+
+*   By email: support@numoracle.com
+*   By visiting this page on our website: [numoracle.com/contact](/contact)
+`,
+    isPublished: true,
+    createdAt: "2023-01-13T10:00:00Z",
+    updatedAt: "2025-06-19T10:00:00Z",
+  },
 ]
 
 export async function getAllPosts(): Promise<Post[]> {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react" // Import useRef
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -17,6 +17,8 @@ export function ElementalDiceRoller() {
   const { diceResults, isRolling, rollDice, totalValue, elementalBalance } = useElementalDiceRoll()
   const [showInterpretation, setShowInterpretation] = useState(false)
   const [activeTab, setActiveTab] = useState("numerology")
+  const interpretationRef = useRef<HTMLDivElement>(null) // Create a ref for the interpretation section
+  const [fullInterpretationHtml, setFullInterpretationHtml] = useState<string | undefined>(undefined)
 
   // Handle dice rolling
   const handleRollDice = () => {
@@ -27,11 +29,16 @@ export function ElementalDiceRoller() {
     if (!isRolling && diceResults.some((die) => die.value !== null)) {
       const timer = setTimeout(() => {
         setShowInterpretation(true)
+        // Capture the HTML content after interpretation is shown
+        if (interpretationRef.current) {
+          setFullInterpretationHtml(interpretationRef.current.innerHTML)
+        }
       }, 1000)
 
       return () => clearTimeout(timer)
     } else {
       setShowInterpretation(false)
+      setFullInterpretationHtml(undefined) // Clear HTML when not showing interpretation
     }
   }, [isRolling, diceResults])
 
@@ -75,7 +82,8 @@ export function ElementalDiceRoller() {
           </div>
 
           {showInterpretation && (
-            <div className="mt-8 space-y-4 animate-fade-in">
+            // Attach the ref to the div containing the interpretation
+            <div ref={interpretationRef} className="mt-8 space-y-4 animate-fade-in">
               <Tabs defaultValue="numerology" value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid grid-cols-3 mb-4">
                   <TabsTrigger value="numerology">Numerology</TabsTrigger>
@@ -328,6 +336,7 @@ export function ElementalDiceRoller() {
                   Object.entries(elementalBalance).sort((a, b) => b[1] - a[1])[0][0],
                 ]}
                 className="mt-6 border-t pt-6"
+                fullHtmlContent={fullInterpretationHtml} // Pass the captured HTML content
               />
             </div>
           )}

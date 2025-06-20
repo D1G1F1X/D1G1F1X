@@ -1,12 +1,24 @@
-import type { Metadata } from "next"
+import { Suspense } from "react"
 import BuyPageClient from "./BuyPageClient"
+import type { Metadata } from "next"
+import HeroSection from "@/components/hero-section" // Import HeroSection
 
 export const metadata: Metadata = {
-  title: "The NUMO Oracle Card Deck | Shop & Inquire",
-  description:
-    "Purchase the NUMO Oracle Card Deck and accessories by Kraftwerk Numerology, or submit an inquiry for custom orders.",
+  title: "Buy NUMO Oracle | Purchase Your Deck",
+  description: "Purchase the official NUMO Oracle Deck and companion products.",
 }
 
 export default function BuyPage() {
-  return <BuyPageClient />
+  return (
+    <div className="relative min-h-screen bg-black">
+      <HeroSection
+        title="Purchase Your NUMO Oracle Deck"
+        description="Begin your journey with the NUMO Oracle. Explore our products and find the perfect fit for your spiritual path."
+        backgroundImage="/images/hero/mystical-shop-background.png"
+      />
+      <Suspense fallback={<div className="text-center py-20 text-white">Loading purchase options...</div>}>
+        <BuyPageClient />
+      </Suspense>
+    </div>
+  )
 }
