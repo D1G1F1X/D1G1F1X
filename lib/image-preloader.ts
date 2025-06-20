@@ -12,13 +12,17 @@ const preloadedImages = new Set<string>()
  */
 export function preloadImage(src: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    // If the image is already preloaded, resolve immediately
+    if (typeof window === "undefined" || typeof window.Image === "undefined") {
+      reject(new Error("Image constructor not available in this environment."))
+      return
+    }
+
     if (preloadedImages.has(src)) {
       resolve(src)
       return
     }
 
-    const img = new Image()
+    const img = new window.Image()
 
     img.onload = () => {
       preloadedImages.add(src)

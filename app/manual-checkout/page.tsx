@@ -1,26 +1,40 @@
 import { Suspense } from "react"
 import type { Metadata } from "next"
-import HeroSection from "@/components/hero-section" // Import HeroSection
+import HeroSection from "@/components/hero-section"
+import ManualCheckoutForm from "@/components/manual-checkout-form"
+import { ManualCartProvider } from "@/contexts/manual-cart-context"
 
 export const metadata: Metadata = {
   title: "Manual Checkout | NUMO Oracle",
-  description: "Process manual orders for NUMO Oracle products.",
+  description: "Process manual orders for NUMO Oracle products with comprehensive order management.",
 }
 
 export default function ManualCheckoutPage() {
   return (
-    <div className="relative min-h-screen bg-black">
-      <HeroSection
-        title="Manual Order Checkout"
-        description="Process manual orders for NUMO Oracle products."
-        backgroundImage="/manual-checkout-background.png"
-      />
-      <Suspense fallback={<div className="text-center py-20 text-white">Loading manual checkout...</div>}>
-        <div className="container mx-auto py-8">
-          <h1 className="text-3xl font-bold mb-6 text-center text-white">Manual Checkout</h1>
-          <p className="text-center text-gray-300">Manual checkout content goes here.</p>
+    <ManualCartProvider>
+      <div className="relative min-h-screen bg-black">
+        <HeroSection
+          title="Manual Order Checkout"
+          description="Create and process manual orders for NUMO Oracle products with full customer and shipping information."
+          backgroundImage="/manual-checkout-background.png"
+        />
+        <div className="relative z-10 bg-black/80 backdrop-blur-sm">
+          <div className="container mx-auto py-12">
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center py-20">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                    <p className="text-white">Loading manual checkout...</p>
+                  </div>
+                </div>
+              }
+            >
+              <ManualCheckoutForm />
+            </Suspense>
+          </div>
         </div>
-      </Suspense>
-    </div>
+      </div>
+    </ManualCartProvider>
   )
 }

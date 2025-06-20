@@ -74,15 +74,21 @@ export function UnifiedImage({
   // Handle progressive loading strategy
   useEffect(() => {
     if ((loadingStrategy === "progressive" || loadingStrategy === "blur") && hasIntersected && !loaded && !error) {
-      const img = new Image()
-      img.src = src
-      img.onload = () => {
-        setImageSrc(src)
-        setLoaded(true)
-      }
-      img.onerror = () => {
+      if (typeof window !== "undefined" && typeof window.Image !== "undefined") {
+        const img = new window.Image()
+        img.src = src
+        img.onload = () => {
+          setImageSrc(src)
+          setLoaded(true)
+        }
+        img.onerror = () => {
+          setError(true)
+          setImageSrc(fallbackSrc)
+        }
+      } else {
         setError(true)
         setImageSrc(fallbackSrc)
+        console.warn("window.Image is not available, progressive/blur loading skipped.")
       }
     }
   }, [hasIntersected, loadingStrategy, loaded, error, src, fallbackSrc])

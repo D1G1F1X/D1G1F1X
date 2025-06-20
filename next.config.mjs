@@ -38,7 +38,7 @@ const ContentSecurityPolicy = `
   base-uri 'self';
   form-action 'self' https://formsubmit.co;
   frame-ancestors 'none';
-  frame-src 'self' https://tally.so https://formsubmit.co;
+  frame-src 'self' https://tally.so https://formsubmit.co https://www.youtube.com https://youtube.com;
   connect-src 'self' https://vitals.vercel-insights.com;
 `;
 

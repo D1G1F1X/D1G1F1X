@@ -11,7 +11,7 @@ export default function BuyPage() {
   return (
     <div className="relative min-h-screen bg-black">
       {/* Unique Buy/Shop Hero Section */}
-      <div className="relative h-screen flex items-center justify-center overflow-hidden">
+      <div className="relative h-[500px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/20 via-teal-900/20 to-black"></div>
         <div
           className="absolute inset-0 bg-cover bg-center opacity-20"

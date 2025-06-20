@@ -1,10 +1,29 @@
+import type React from "react"
 import { Suspense } from "react"
-import BlogPosts from "@/components/blog-posts" // Assuming this component exists
+import BlogPosts from "@/components/blog-posts"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "NUMO Oracle Blog | Insights & Wisdom",
   description: "Explore articles on numerology, oracle readings, spiritual tools, and ancient wisdom.",
+}
+
+// Error Boundary Component
+function BlogErrorBoundary({ children }: { children: React.ReactNode }) {
+  return <div className="container mx-auto px-4">{children}</div>
+}
+
+// Loading Component
+function BlogLoadingFallback() {
+  return (
+    <div className="container mx-auto px-4">
+      <div className="text-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
+        <p className="text-white/60">Loading blog posts...</p>
+        <p className="text-white/40 text-sm mt-2">Fetching the latest insights and wisdom</p>
+      </div>
+    </div>
+  )
 }
 
 export default async function BlogPage() {
@@ -14,8 +33,8 @@ export default async function BlogPage() {
       <div className="relative h-96 flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-900/30 via-purple-900/30 to-pink-900/30"></div>
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-25"
-          style={{ backgroundImage: "url('/images/hero/mystical-blog-background-v2.png')" }}
+          className="absolute inset-0 bg-cover bg-center opacity-50"
+          style={{ backgroundImage: "url('/images/hero/mystical-blog-background-new.png')" }}
         ></div>
         <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
           <div className="mb-4">
@@ -32,11 +51,14 @@ export default async function BlogPage() {
           </p>
         </div>
       </div>
-      <div className="container mx-auto py-8">
-        <Suspense fallback={<div className="text-center py-20 text-white">Loading blog posts...</div>}>
-          {/* Assuming BlogPosts component exists and fetches/displays posts */}
-          <BlogPosts />
-        </Suspense>
+
+      {/* Blog Posts Content with Error Boundary */}
+      <div className="py-16">
+        <BlogErrorBoundary>
+          <Suspense fallback={<BlogLoadingFallback />}>
+            <BlogPosts />
+          </Suspense>
+        </BlogErrorBoundary>
       </div>
     </div>
   )

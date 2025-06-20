@@ -9,7 +9,11 @@ export default function NumerologyCalculatorPage() {
         description="Calculate your life path number and discover your numerological insights."
         backgroundImage="/numerology-diagram.png"
       />
-      <NumerologyCalculatorPageClient />
+      <div className="container mx-auto px-4 py-8">
+        {" "}
+        {/* Added container for centering */}
+        <NumerologyCalculatorPageClient />
+      </div>
     </div>
   )
 }

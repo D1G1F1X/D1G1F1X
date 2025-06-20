@@ -1,0 +1,97 @@
+\`\`\`typescript
+// components/enhanced-card-image-handler.tsx
+import NextImage from "next/image"
+
+// ... rest of the component code using NextImage instead of Image
+// Example:
+const EnhancedCardImageHandler = ({ src, alt }: { src: string; alt: string }) => {
+  const testImage = new window.Image()
+  testImage.src = src;
+
+  return (
+    <NextImage
+      src={src}
+      alt={alt}
+      width={500} // Example width
+      height={300} // Example height
+    />
+  );
+};
+
+export default EnhancedCardImageHandler;
+
+// components/lazy-image.tsx
+import NextImage from "next/image"
+import { useState, useEffect } from 'react';
+
+const LazyImage = ({ src, alt }: { src: string; alt: string }) => {
+  const [imageSrc, setImageSrc] = useState('/placeholder.jpg'); // Replace with your placeholder
+
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = src;
+    img.onload = () => {
+      setImageSrc(src);
+    };
+  }, [src]);
+
+  return (
+    <NextImage
+      src={imageSrc}
+      alt={alt}
+      width={500} // Example width
+      height={300} // Example height
+    />
+  );
+};
+
+export default LazyImage;
+
+// components/unified-image.tsx
+import NextImage from "next/image"
+import { useState, useEffect } from 'react';
+
+const UnifiedImage = ({ src, alt }: { src: string; alt: string }) => {
+  const [imageSrc, setImageSrc] = useState('/placeholder.jpg'); // Replace with your placeholder
+
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = src;
+    img.onload = () => {
+      setImageSrc(src);
+    };
+  }, [src]);
+
+  return (
+    <NextImage
+      src={imageSrc}
+      alt={alt}
+      width={500} // Example width
+      height={300} // Example height
+    />
+  );
+};
+
+export default UnifiedImage;
+
+// lib/image-preloader.ts
+export const preloadImage = (src: string) => {
+  const img = new window.Image();
+  img.src = src;
+};
+
+export const preloadImages = (srcs: string[]) => {
+  srcs.forEach(src => {
+    const img = new window.Image();
+    img.src = src;
+  });
+};
+
+// lib/card-image-optimization.ts
+export const preloadCardImages = (imageUrls: string[]) => {
+  imageUrls.forEach(url => {
+    const img = new window.Image();
+    img.src = url;
+  });
+};
+\`\`\`

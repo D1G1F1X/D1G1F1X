@@ -9,7 +9,11 @@ export default function CardSimulatorPage() {
         description="Draw oracle cards and receive detailed interpretations based on ancient Celtic wisdom."
         backgroundImage="/mystical-oracle.png"
       />
-      <CardSimulatorPageClient />
+      <div className="container mx-auto px-4 py-8">
+        {" "}
+        {/* Added container for centering */}
+        <CardSimulatorPageClient />
+      </div>
     </div>
   )
 }

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -59,7 +58,7 @@ export default function CardImageVerifier() {
           // Create a promise that resolves when the image loads or rejects when it fails
           const checkImage = (src: string): Promise<boolean> => {
             return new Promise((resolve) => {
-              const img = new Image()
+              const img = new window.Image()
               img.onload = () => resolve(true)
               img.onerror = () => resolve(false)
               img.src = src

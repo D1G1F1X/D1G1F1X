@@ -12,16 +12,14 @@ export default function AboutPage() {
   return (
     <div className="relative min-h-screen bg-black">
       {/* Unique About Hero Section */}
-      <div className="relative h-screen flex items-center justify-center overflow-hidden">
+      <div className="relative h-[500px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-black"></div>
         <div
           className="absolute inset-0 bg-cover bg-center opacity-30"
-          style={{ backgroundImage: "url('/images/about/goddess-danu-art.png')" }}
+          style={{ backgroundImage: "url('/images/hero/about-hero-background.png')" }}
         ></div>
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight">
-            About <span className="text-purple-400">NUMO Oracle</span>
-          </h1>
+          <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight">About NUMO</h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
             Discover the ancient wisdom and modern vision behind our unique divination system
           </p>
