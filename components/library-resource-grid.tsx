@@ -155,3 +155,5 @@ export function LibraryResourceGrid({ category }: LibraryResourceGridProps) {
     </div>
   )
 }
+
+export default LibraryResourceGrid
