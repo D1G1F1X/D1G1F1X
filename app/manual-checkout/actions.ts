@@ -2,56 +2,89 @@
 
 import { z } from "zod"
 import { createServerClient } from "@/lib/supabase-server"
+import { brevoEmailService } from "@/lib/services/brevo-email-service"
 
 // Define the schema for a single item in the order
 const OrderItemSchema = z.object({
   id: z.string().uuid(), // For client-side keying, can be generated on client
   productId: z.string().optional(), // ID of the selected product from predefined list
-  name: z.string().min(1, "Item name cannot be empty."),
-  quantity: z.coerce.number().int().positive("Quantity must be a positive integer."),
-  price: z.coerce.number().nonnegative("Price must be a non-negative number."), // Allow 0 for free items if needed
+  name: z.string().min(1, "Item name cannot be empty.").max(100, "Item name too long."),
+  quantity: z.coerce.number().int().positive("Quantity must be a positive integer.").max(99, "Quantity too high."),
+  price: z.coerce.number().nonnegative("Price must be a non-negative number.").max(9999.99, "Price too high."), // Allow 0 for free items if needed
+  description: z.string().optional(),
 })
 
 // Define the main schema for the manual order
 const ManualOrderSchema = z.object({
-  customerName: z.string().min(2, "Full name must be at least 2 characters."),
-  customerEmail: z.string().email("Invalid email address."),
-  customerPhone: z.string().optional(),
-  shippingAddressStreet: z.string().min(3, "Street address is required."),
-  shippingAddressCity: z.string().min(2, "City is required."),
-  shippingAddressState: z.string().min(2, "State/Province is required."),
-  shippingAddressZip: z.string().min(3, "ZIP/Postal code is required."),
-  shippingAddressCountry: z.string().min(2, "Country is required."),
+  customerName: z.string().min(2, "Full name must be at least 2 characters.").max(100, "Name too long."),
+  customerEmail: z.string().email("Invalid email address.").max(255, "Email too long."),
+  customerPhone: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || /^[+]?[1-9][\d]{0,15}$/.test(val.replace(/[\s\-$$$$]/g, "")),
+      "Invalid phone number format",
+    ),
+  shippingAddressStreet: z.string().min(3, "Street address is required.").max(200, "Address too long."),
+  shippingAddressCity: z.string().min(2, "City is required.").max(100, "City name too long."),
+  shippingAddressState: z.string().min(2, "State/Province is required.").max(100, "State name too long."),
+  shippingAddressZip: z.string().min(3, "ZIP/Postal code is required.").max(20, "ZIP code too long."),
+  shippingAddressCountry: z.string().min(2, "Country is required.").max(100, "Country name too long."),
   orderItems: z.string().refine(
     (val) => {
       try {
         const parsed = JSON.parse(val)
         return (
-          Array.isArray(parsed) && parsed.length > 0 && parsed.every((item) => OrderItemSchema.safeParse(item).success)
+          Array.isArray(parsed) &&
+          parsed.length > 0 &&
+          parsed.length <= 20 && // Limit number of items
+          parsed.every((item) => OrderItemSchema.safeParse(item).success)
         )
       } catch {
         return false
       }
     },
-    { message: "Order items are invalid or empty. Please add at least one item." },
+    { message: "Order items are invalid, empty, or exceed maximum limit (20 items)." },
   ),
-  notes: z.string().optional(),
+  notes: z.string().max(1000, "Notes too long.").optional(),
+  // Add honeypot field for spam protection
+  website: z.string().max(0, "Spam detected.").optional(),
 })
 
 export type OrderItem = z.infer<typeof OrderItemSchema>
 
+interface OrderSubmissionResult {
+  message: string
+  success: boolean
+  errors?: Record<string, string[] | undefined> | null
+  fieldErrors?: Record<string, string[] | undefined> | null
+  itemErrors?: { index: number; field: keyof OrderItem; message: string }[] | null
+  orderId?: string | null
+  emailStatus?: {
+    customerEmailSent: boolean
+    adminEmailSent: boolean
+    emailErrors?: string[]
+  }
+}
+
 export async function submitManualOrder(
-  prevState: {
-    message: string
-    success: boolean
-    errors?: Record<string, string[] | undefined> | null
-    fieldErrors?: Record<string, string[] | undefined> | null
-    itemErrors?: { index: number; field: keyof OrderItem; message: string }[] | null
-    orderId?: string | null
-  },
+  prevState: OrderSubmissionResult,
   formData: FormData,
-) {
+): Promise<OrderSubmissionResult> {
   const supabase = createServerClient()
+
+  // Check honeypot field for spam protection
+  const honeypot = formData.get("website") as string
+  if (honeypot && honeypot.length > 0) {
+    return {
+      message: "Submission rejected. Please try again.",
+      success: false,
+      errors: { general: ["Invalid submission detected."] },
+      fieldErrors: null,
+      itemErrors: null,
+      orderId: null,
+    }
+  }
 
   const rawOrderItems = formData.get("orderItems") as string
   let parsedOrderItems: OrderItem[] = []
@@ -61,6 +94,8 @@ export async function submitManualOrder(
     if (!Array.isArray(parsedOrderItems) || parsedOrderItems.length === 0) {
       throw new Error("No items in order.")
     }
+
+    // Validate each item
     const itemValidationResults = parsedOrderItems.map((item, index) => ({
       index,
       result: OrderItemSchema.safeParse(item),
@@ -113,6 +148,7 @@ export async function submitManualOrder(
     shippingAddressCountry: formData.get("shippingAddressCountry"),
     orderItems: rawOrderItems,
     notes: formData.get("notes"),
+    website: formData.get("website"), // Honeypot field
   })
 
   if (!validatedFields.success) {
@@ -139,11 +175,14 @@ export async function submitManualOrder(
   } = validatedFields.data
 
   const totalAmount = parsedOrderItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
 
+  // Insert order into database
   const { data: orderData, error: supabaseError } = await supabase
     .from("manual_orders")
     .insert([
       {
+        order_number: orderNumber,
         customer_name: customerName,
         customer_email: customerEmail,
         customer_phone: customerPhone,
@@ -156,15 +195,16 @@ export async function submitManualOrder(
         total_amount: totalAmount,
         notes: notes,
         status: "pending_payment",
+        created_at: new Date().toISOString(),
       },
     ])
-    .select("id")
+    .select("id, order_number")
     .single()
 
   if (supabaseError) {
     console.error("Supabase error inserting manual order:", supabaseError)
     return {
-      message: `Failed to submit order: ${supabaseError.message}`,
+      message: `Failed to submit order: Database error occurred. Please try again.`,
       success: false,
       fieldErrors: null,
       itemErrors: null,
@@ -172,12 +212,103 @@ export async function submitManualOrder(
     }
   }
 
-  console.log("Manual order submitted successfully, Order ID:", orderData?.id)
+  // Prepare order data for emails
+  const orderDetails = {
+    orderNumber: orderData.order_number,
+    orderId: orderData.id,
+    customerName,
+    customerEmail,
+    customerPhone,
+    shippingAddress: {
+      street: shippingAddressStreet,
+      city: shippingAddressCity,
+      state: shippingAddressState,
+      zip: shippingAddressZip,
+      country: shippingAddressCountry,
+    },
+    items: parsedOrderItems,
+    totalAmount,
+    notes,
+    submittedAt: new Date(),
+  }
+
+  // Send emails
+  const emailResults = await sendOrderEmails(orderDetails)
+
+  console.log("Manual order submitted successfully, Order ID:", orderData?.id, "Email Status:", emailResults)
+
   return {
-    message: "Order submitted successfully! We will contact you shortly.",
+    message: emailResults.bothSent
+      ? "Order submitted successfully! Confirmation emails have been sent."
+      : emailResults.customerSent
+        ? "Order submitted successfully! Confirmation email sent to you. Admin notification may be delayed."
+        : "Order submitted successfully! Email notifications may be delayed, but we have received your order.",
     success: true,
     fieldErrors: null,
     itemErrors: null,
     orderId: orderData?.id,
+    emailStatus: {
+      customerEmailSent: emailResults.customerSent,
+      adminEmailSent: emailResults.adminSent,
+      emailErrors: emailResults.errors.length > 0 ? emailResults.errors : undefined,
+    },
   }
+}
+
+async function sendOrderEmails(orderDetails: {
+  orderNumber: string
+  orderId: string
+  customerName: string
+  customerEmail: string
+  customerPhone?: string
+  shippingAddress: {
+    street: string
+    city: string
+    state: string
+    zip: string
+    country: string
+  }
+  items: OrderItem[]
+  totalAmount: number
+  notes?: string
+  submittedAt: Date
+}) {
+  const results = {
+    customerSent: false,
+    adminSent: false,
+    bothSent: false,
+    errors: [] as string[],
+  }
+
+  try {
+    // Send customer confirmation email
+    const customerEmailResult = await brevoEmailService.sendOrderConfirmationEmail(
+      orderDetails.customerEmail,
+      orderDetails.customerName,
+      orderDetails,
+    )
+
+    if (customerEmailResult.success) {
+      results.customerSent = true
+    } else {
+      results.errors.push(`Customer email failed: ${customerEmailResult.error}`)
+    }
+
+    // Send admin notification email
+    const adminEmailResult = await brevoEmailService.sendOrderNotificationEmail(orderDetails)
+
+    if (adminEmailResult.success) {
+      results.adminSent = true
+    } else {
+      results.errors.push(`Admin email failed: ${adminEmailResult.error}`)
+    }
+
+    results.bothSent = results.customerSent && results.adminSent
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown email error"
+    results.errors.push(`Email service error: ${errorMessage}`)
+    console.error("Email sending error:", error)
+  }
+
+  return results
 }

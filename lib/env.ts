@@ -23,6 +23,11 @@ const envConfig: Record<string, EnvVar> = {
   // Vercel Blob
   BLOB_READ_WRITE_TOKEN: { value: process.env.BLOB_READ_WRITE_TOKEN, required: false },
 
+  // Brevo Email Service
+  BREVO_API_KEY: { value: process.env.BREVO_API_KEY, required: false },
+  BREVO_SENDER_EMAIL: { value: process.env.BREVO_SENDER_EMAIL, required: false, default: "noreply@numoracle.com" },
+  BREVO_SENDER_NAME: { value: process.env.BREVO_SENDER_NAME, required: false, default: "Numoracle" },
+
   // App URL
   NEXT_PUBLIC_APP_URL: {
     value: process.env.NEXT_PUBLIC_APP_URL,

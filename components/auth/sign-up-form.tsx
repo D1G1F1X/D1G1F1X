@@ -38,6 +38,24 @@ export default function SignUpForm() {
         setError(error.message)
       } else {
         setSuccess(true)
+
+        // Send welcome email
+        try {
+          await fetch("/api/email/send", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              type: "welcome",
+              email: email,
+              userName: fullName || email.split("@")[0],
+            }),
+          })
+        } catch (emailError) {
+          console.error("Failed to send welcome email:", emailError)
+          // Don't show error to user as registration was successful
+        }
       }
     } catch (err) {
       setError("An unexpected error occurred")
