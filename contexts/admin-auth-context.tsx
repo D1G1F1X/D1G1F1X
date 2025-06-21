@@ -98,6 +98,9 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (username: string, password: string) => {
     try {
+      console.log("=== ADMIN AUTH CONTEXT LOGIN ===")
+      console.log("Attempting login for:", username)
+
       const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: {
@@ -107,14 +110,22 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
         credentials: "include",
       })
 
-      if (response.ok) {
+      console.log("Login response status:", response.status)
+
+      const data = await response.json()
+      console.log("Login response data:", data)
+
+      if (response.ok && data.success) {
         localStorage.setItem("adminAuth", "true")
         setIsAuthenticated(true)
+        console.log("Login successful, auth state updated")
         return true
+      } else {
+        console.log("Login failed:", data.message)
+        return false
       }
-      return false
     } catch (error) {
-      console.error("Login error:", error)
+      console.error("Login error in context:", error)
       return false
     }
   }

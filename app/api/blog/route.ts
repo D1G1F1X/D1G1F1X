@@ -1,82 +1,59 @@
-import { NextResponse } from "next/server"
-import { posts, type Post } from "@/lib/content"
+import { type NextRequest, NextResponse } from "next/server"
+import { getBlogPosts } from "@/lib/content"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    console.log("API: Starting blog posts fetch")
-    console.log("API: Total posts available:", posts?.length || 0)
+    console.log("=== BLOG API ROUTE START ===")
+    console.log("Blog API: Request received at", new Date().toISOString())
 
-    // Ensure posts is an array
-    if (!Array.isArray(posts)) {
-      console.error("API: Posts is not an array:", typeof posts)
-      return NextResponse.json({ posts: [] })
-    }
-
-    // Filter out unpublished posts
-    const publishedPosts = posts.filter((post) => {
-      const isPublished = post.isPublished === true
-      console.log(`API: Post "${post.title}" - Published: ${isPublished}`)
-      return isPublished
-    })
-
-    console.log("API: Published posts count:", publishedPosts.length)
-
-    // Sort posts by creation date, newest first
-    publishedPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-
+    const posts = await getBlogPosts()
+    console.log("Blog API: Retrieved posts count:", posts.length)
     console.log(
-      "API: Returning posts:",
-      publishedPosts.map((p) => ({ id: p.id, title: p.title, isPublished: p.isPublished })),
+      "Blog API: First few post titles:",
+      posts.slice(0, 3).map((p) => p.title),
     )
 
-    return NextResponse.json({ posts: publishedPosts })
-  } catch (error) {
-    console.error("API: Error fetching blog posts:", error)
-    return NextResponse.json(
-      { message: "Failed to fetch blog posts", error: (error as Error).message, posts: [] },
-      { status: 500 },
-    )
-  }
-}
-
-export async function POST(request: Request) {
-  try {
-    const data = await request.json()
-
-    if (!data.title || !data.content) {
-      return NextResponse.json({ error: "Title and content are required" }, { status: 400 })
+    const response = {
+      posts,
+      total: posts.length,
+      timestamp: new Date().toISOString(),
+      cache: "no-cache",
     }
 
-    const newPost: Post = {
-      id: Date.now().toString(),
-      title: data.title,
-      slug:
-        data.slug ||
-        data.title
-          .toLowerCase()
-          .replace(/[^\w ]+/g, "")
-          .replace(/ +/g, "-"),
-      content: data.content,
-      excerpt: data.excerpt || data.content.substring(0, 150) + "...",
-      author: data.author || "Admin",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      isPublished: data.isPublished !== undefined ? data.isPublished : false,
-      featuredImage: data.featuredImage || undefined,
-      categories: data.categories || [],
-      tags: data.tags || [],
-    }
+    console.log("Blog API: Sending response with", response.posts.length, "posts")
+    console.log("=== BLOG API ROUTE END ===")
 
-    // Note: This will only persist for the current server instance
-    // For production, you'd want to use a database
-    posts.unshift(newPost)
-
-    return NextResponse.json(newPost, { status: 201 })
+    return NextResponse.json(response, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+        Pragma: "no-cache",
+        Expires: "0",
+        "X-Timestamp": new Date().toISOString(),
+        "X-Posts-Count": posts.length.toString(),
+      },
+    })
   } catch (error) {
-    console.error("API: Error creating blog post:", error)
+    console.error("=== BLOG API ERROR ===")
+    console.error("Blog API: Error occurred:", error)
+    console.error("Blog API: Error stack:", error instanceof Error ? error.stack : "No stack")
+
     return NextResponse.json(
-      { message: "Failed to create blog post", error: (error as Error).message },
-      { status: 500 },
+      {
+        error: "Failed to fetch blog posts",
+        posts: [],
+        total: 0,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        status: 500,
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      },
     )
   }
 }

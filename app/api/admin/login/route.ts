@@ -1,41 +1,48 @@
-import { NextResponse } from "next/server"
-import { cookies } from "next/headers"
+import { type NextRequest, NextResponse } from "next/server"
+import { login } from "@/lib/auth"
 
-// Admin credentials - in a real app, these would be in a database
-const ADMIN_USERNAME = "admin"
-const ADMIN_EMAIL = "admin@numoracle.com"
-const ADMIN_PASSWORD = "numoracle"
-
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    console.log("=== ADMIN LOGIN API ===")
     const body = await request.json()
     const { identifier, password } = body
 
-    // Validate credentials
-    const isValidCredentials =
-      password === ADMIN_PASSWORD && (identifier === ADMIN_USERNAME || identifier === ADMIN_EMAIL)
+    console.log("Login request received for:", identifier)
 
-    if (!isValidCredentials) {
-      return NextResponse.json({ success: false, message: "Invalid credentials" }, { status: 401 })
+    // Create FormData to match the login function signature
+    const formData = new FormData()
+    formData.append("identifier", identifier || "")
+    formData.append("password", password || "")
+
+    const result = await login(null, formData)
+
+    console.log("Login result:", { success: result.success, message: result.message })
+
+    if (result.success) {
+      return NextResponse.json({
+        success: true,
+        message: "Login successful",
+        user: { username: identifier },
+      })
+    } else {
+      return NextResponse.json(
+        {
+          success: false,
+          message: result.message || "Invalid credentials",
+          errors: result.errors,
+        },
+        { status: 401 },
+      )
     }
-
-    // Set HTTP-only cookie with secure settings
-    cookies().set({
-      name: "admin_session",
-      value: "logged_in",
-      httpOnly: true,
-      path: "/",
-      maxAge: 60 * 60 * 24, // 1 day
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    })
-
-    return NextResponse.json({
-      success: true,
-      message: "Login successful",
-    })
   } catch (error) {
-    console.error("Login error:", error)
-    return NextResponse.json({ success: false, message: "An error occurred during login" }, { status: 500 })
+    console.error("Admin login API error:", error)
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Internal server error during login",
+        error: process.env.NODE_ENV === "development" ? (error as Error).message : undefined,
+      },
+      { status: 500 },
+    )
   }
 }

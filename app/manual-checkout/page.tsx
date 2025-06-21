@@ -1,29 +1,34 @@
 import { Suspense } from "react"
 import type { Metadata } from "next"
-import HeroSection from "@/components/hero-section" // Import HeroSection
+import HeroSection from "@/components/hero-section"
+import ManualCheckoutForm from "@/components/manual-checkout-form"
+import { ManualCartProvider } from "@/contexts/manual-cart-context"
 
 export const metadata: Metadata = {
   title: "Manual Checkout | NUMO Oracle",
-  description: "Process manual orders for NUMO Oracle products.",
+  description: "Complete your NUMO Oracle order with our secure manual checkout process.",
 }
 
 export default function ManualCheckoutPage() {
   return (
-    <div className="relative min-h-screen bg-black">
-      <HeroSection
-        title="Manual Order Checkout"
-        description="Process manual orders for NUMO Oracle products."
-        backgroundImage="/manual-checkout-background.png"
-      />
-      <Suspense fallback={<div className="text-center py-20 text-white">Loading manual checkout...</div>}>
-        <div className="container mx-auto py-8">
-          <h1 className="text-3xl font-bold mb-6 text-center text-white">Manual Checkout</h1>
-          <div className="max-w-2xl mx-auto bg-gray-900/50 backdrop-blur-sm rounded-lg p-8">
-            <p className="text-center text-gray-300 mb-4">Manual checkout functionality is currently being updated.</p>
-            <p className="text-center text-gray-400">Please contact support for manual orders.</p>
-          </div>
-        </div>
-      </Suspense>
-    </div>
+    <ManualCartProvider>
+      <div className="relative min-h-screen bg-black">
+        <HeroSection
+          title="Secure Checkout"
+          description="Complete your order with confidence using our secure checkout process"
+          backgroundImage="/manual-checkout-background.png"
+        />
+        <Suspense
+          fallback={
+            <div className="text-center py-20 text-white">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4" />
+              Loading secure checkout...
+            </div>
+          }
+        >
+          <ManualCheckoutForm />
+        </Suspense>
+      </div>
+    </ManualCartProvider>
   )
 }

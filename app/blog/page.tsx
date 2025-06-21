@@ -1,11 +1,16 @@
 import { Suspense } from "react"
-import BlogPosts from "@/components/blog-posts" // Assuming this component exists
+import BlogPosts, { BlogPostsLoading } from "@/components/blog-posts"
+import { CacheClearButton } from "@/components/cache-clear-button"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "NUMO Oracle Blog | Insights & Wisdom",
   description: "Explore articles on numerology, oracle readings, spiritual tools, and ancient wisdom.",
 }
+
+// Disable caching for this page
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 
 export default async function BlogPage() {
   return (
@@ -30,11 +35,18 @@ export default async function BlogPage() {
           <p className="text-lg md:text-xl text-gray-300 leading-relaxed">
             Explore articles on numerology, oracle readings, spiritual tools, and ancient wisdom
           </p>
+
+          {/* Debug cache clear button - only show in development */}
+          {process.env.NODE_ENV === "development" && (
+            <div className="mt-4">
+              <CacheClearButton />
+            </div>
+          )}
         </div>
       </div>
-      <div className="container mx-auto py-8">
-        <Suspense fallback={<div className="text-center py-20 text-white">Loading blog posts...</div>}>
-          {/* Assuming BlogPosts component exists and fetches/displays posts */}
+
+      <div className="container mx-auto py-8 px-4">
+        <Suspense fallback={<BlogPostsLoading />}>
           <BlogPosts />
         </Suspense>
       </div>

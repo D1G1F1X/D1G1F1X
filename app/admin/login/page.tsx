@@ -34,17 +34,23 @@ export default function AdminLoginPage() {
     setIsLoading(true)
     setError(null)
 
+    console.log("=== LOGIN FORM SUBMISSION ===")
+    console.log("Username/Email:", username)
+    console.log("Password length:", password.length)
+
     try {
       const success = await login(username, password)
 
       if (success) {
+        console.log("Login successful, redirecting...")
         router.push("/admin/dashboard")
       } else {
-        setError("Invalid credentials")
+        console.log("Login failed")
+        setError("Invalid credentials. Please verify:\n• Username: admin or admin@numoracle.com\n• Password: numoracle")
       }
     } catch (err) {
       console.error("Login error:", err)
-      setError("An error occurred during login")
+      setError("An error occurred during login. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -91,9 +97,19 @@ export default function AdminLoginPage() {
           </Button>
         </form>
         <div className="text-center text-sm text-gray-500">
-          <p>Use the following credentials:</p>
-          <p>Username: admin or admin@numoracle.com</p>
-          <p>Password: numoracle</p>
+          <p className="font-semibold mb-2">Test Credentials:</p>
+          <div className="bg-gray-50 p-3 rounded border">
+            <p>
+              <strong>Username:</strong> admin
+            </p>
+            <p>
+              <strong>Email:</strong> admin@numoracle.com
+            </p>
+            <p>
+              <strong>Password:</strong> numoracle
+            </p>
+          </div>
+          <p className="mt-2 text-xs">Use either username or email with the password above</p>
         </div>
       </div>
     </div>
