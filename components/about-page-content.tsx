@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ChevronRight, Sparkles, Moon, Sun, HelpCircle, BookOpen, Users, Video } from "lucide-react" // Added BookOpen, Users, Video
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import ConstellationBackground from "./constellation-background"
 import ShootingStar from "./shooting-star"
 import YouTubeVideo from "@/components/youtube-video" // Import YouTubeVideo component
 
@@ -21,7 +23,58 @@ export default function AboutPageContent() {
     <div className="relative min-h-screen bg-black text-white space-y-24 pb-20">
       {isMounted && <ShootingStar />}
 
-      {/* Hero Section - Removed */}
+      {/* Hero Section */}
+      <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <ConstellationBackground />
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/30 via-indigo-900/40 to-black/50 z-10"></div>
+          <div className="absolute inset-0 flex items-center justify-center z-20">
+            <Image
+              src="/numerology-diagram-hero.png"
+              alt="Numerology Diagram with Circles and Numbers"
+              fill
+              className="object-contain"
+            />
+          </div>
+        </div>
+        <div className="container relative z-30 text-center px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="mb-6"
+          >
+            <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-300 via-pink-200 to-indigo-300">
+              The NUMO Oracle
+            </h1>
+            <p className="text-xl md:text-2xl font-light text-gray-200 mb-8 max-w-3xl mx-auto">
+              Ancient Wisdom. Modern Vision. Cosmic Clarity.
+            </p>
+            <p className="text-lg md:text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
+              Welcome to a sacred system of divination by{" "}
+              <a
+                href="https://www.kraftwerked.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-purple-300 hover:underline"
+              >
+                Kraftwerk Numerology
+              </a>
+              , fusing numerology, myth, and the wisdom of dualism into a transformative spiritual tool.
+            </p>
+          </motion.div>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }}>
+            <Link href="/tools/card-simulator">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-6 text-lg rounded-full"
+              >
+                Begin Your Reading <ChevronRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
 
       {/* Origin Story */}
       <section className="container mx-auto px-4">

@@ -1,59 +1,32 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { getBlogPosts } from "@/lib/content"
+import { NextResponse } from "next/server"
+import { blogSystem } from "@/lib/enhanced-blog-system"
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   try {
-    console.log("=== BLOG API ROUTE START ===")
-    console.log("Blog API: Request received at", new Date().toISOString())
+    const { searchParams } = new URL(request.url)
+    const limit = Number.parseInt(searchParams.get("limit") || "10")
+    const offset = Number.parseInt(searchParams.get("offset") || "0")
+    const category = searchParams.get("category") || undefined
+    const tag = searchParams.get("tag") || undefined
+    const published = searchParams.get("published") !== "false"
 
-    const posts = await getBlogPosts()
-    console.log("Blog API: Retrieved posts count:", posts.length)
-    console.log(
-      "Blog API: First few post titles:",
-      posts.slice(0, 3).map((p) => p.title),
-    )
+    const result = await blogSystem.fetchPosts({
+      limit,
+      offset,
+      category,
+      tag,
+      published,
+    })
 
-    const response = {
-      posts,
-      total: posts.length,
-      timestamp: new Date().toISOString(),
-      cache: "no-cache",
-    }
-
-    console.log("Blog API: Sending response with", response.posts.length, "posts")
-    console.log("=== BLOG API ROUTE END ===")
-
-    return NextResponse.json(response, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
-        Pragma: "no-cache",
-        Expires: "0",
-        "X-Timestamp": new Date().toISOString(),
-        "X-Posts-Count": posts.length.toString(),
-      },
+    return NextResponse.json({
+      posts: result.posts,
+      total: result.total,
+      hasMore: result.hasMore,
+      currentPage: Math.floor(offset / limit) + 1,
+      totalPages: Math.ceil(result.total / limit),
     })
   } catch (error) {
-    console.error("=== BLOG API ERROR ===")
-    console.error("Blog API: Error occurred:", error)
-    console.error("Blog API: Error stack:", error instanceof Error ? error.stack : "No stack")
-
-    return NextResponse.json(
-      {
-        error: "Failed to fetch blog posts",
-        posts: [],
-        total: 0,
-        timestamp: new Date().toISOString(),
-      },
-      {
-        status: 500,
-        headers: {
-          "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
-          Pragma: "no-cache",
-          Expires: "0",
-        },
-      },
-    )
+    console.error("Blog API error:", error)
+    return NextResponse.json({ error: "Failed to fetch blog posts" }, { status: 500 })
   }
 }

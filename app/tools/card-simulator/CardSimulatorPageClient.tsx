@@ -39,7 +39,7 @@ export default function CardSimulatorPageClient() {
   }
 
   return (
-    <div className="container py-10 max-w-screen-lg mx-auto">
+    <div className="container py-10">
       <CardSimulator />
     </div>
   )

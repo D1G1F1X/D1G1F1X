@@ -7,7 +7,7 @@ export default function CardSimulatorPage() {
       <HeroSection
         title="NUMO Oracle Card Dealer"
         description="Draw oracle cards and receive detailed interpretations based on ancient Celtic wisdom."
-        backgroundImage="/mystical-oracle-new.png" // Updated image path
+        backgroundImage="/mystical-oracle.png"
       />
       <CardSimulatorPageClient />
     </div>

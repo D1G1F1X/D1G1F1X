@@ -16,8 +16,6 @@ import DeepOceanWaves from "@/components/deep-ocean-waves"
 import StarfieldBackground from "@/components/starfield-background"
 import ConstellationBackground from "@/components/constellation-background" // Import ConstellationBackground
 import GeometricOverlay from "@/components/geometric-overlay" // Import GeometricOverlay
-import { Analytics } from "@vercel/analytics/next"
-import { Suspense } from "react"
 
 const fontSans = Roboto({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-sans" })
 
@@ -40,25 +38,22 @@ export default function RootLayout({
             <AuthProvider>
               <ManualCartProvider>
                 {/* Animated Backgrounds */}
-                <Suspense fallback={null}>
-                  <DeepOceanWaves />
-                  <StarfieldBackground />
-                  <ConstellationBackground /> {/* Render ConstellationBackground */}
-                  <GeometricOverlay /> {/* Render GeometricOverlay */}
-                  <div className="relative flex min-h-screen flex-col">
-                    <Navbar />
-                    <main className="flex-1">{children}</main>
-                    <Footer />
-                    <BugReport />
-                    <SiteAssistant />
-                  </div>
-                  <Toaster />
-                </Suspense>
+                <DeepOceanWaves />
+                <StarfieldBackground />
+                <ConstellationBackground /> {/* Render ConstellationBackground */}
+                <GeometricOverlay /> {/* Render GeometricOverlay */}
+                <div className="relative flex min-h-screen flex-col">
+                  <Navbar />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                  <BugReport />
+                  <SiteAssistant />
+                </div>
+                <Toaster />
               </ManualCartProvider>
             </AuthProvider>
           </ThemeProvider>
         </ErrorBoundary>
-        <Analytics />
       </body>
     </html>
   )

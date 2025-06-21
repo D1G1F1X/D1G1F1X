@@ -20,7 +20,7 @@ export default function AboutPage() {
         ></div>
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight">
-            About <span className="text-purple-400">NUMO</span>
+            About <span className="text-purple-400">NUMO Oracle</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
             Discover the ancient wisdom and modern vision behind our unique divination system

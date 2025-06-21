@@ -1,41 +1,22 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { getCurrentUser } from "@/lib/auth"
+import { NextResponse } from "next/server"
+import { cookies } from "next/headers"
 
-export async function GET(request: NextRequest) {
+// Force dynamic rendering for this route
+export const dynamic = "force-dynamic"
+
+export async function GET() {
   try {
-    console.log("=== ADMIN VERIFY API ===")
-    const user = await getCurrentUser()
+    // Check for admin session cookie
+    const cookieStore = cookies()
+    const adminSession = cookieStore.get("admin_session")
 
-    console.log("Verification result:", user ? "authenticated" : "not authenticated")
-
-    if (user && user.role === "admin") {
-      return NextResponse.json({
-        authenticated: true,
-        user: {
-          id: user.id,
-          username: user.username || user.name,
-          email: user.email,
-          role: user.role,
-        },
-      })
-    } else {
-      return NextResponse.json(
-        {
-          authenticated: false,
-          message: "Not authenticated or insufficient permissions",
-        },
-        { status: 401 },
-      )
+    if (adminSession && adminSession.value === "logged_in") {
+      return NextResponse.json({ authenticated: true })
     }
+
+    return NextResponse.json({ authenticated: false })
   } catch (error) {
-    console.error("Admin verify API error:", error)
-    return NextResponse.json(
-      {
-        authenticated: false,
-        message: "Verification failed",
-        error: process.env.NODE_ENV === "development" ? (error as Error).message : undefined,
-      },
-      { status: 500 },
-    )
+    console.error("Auth verification error:", error)
+    return NextResponse.json({ authenticated: false, error: "Authentication verification failed" }, { status: 500 })
   }
 }
