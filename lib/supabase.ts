@@ -1,56 +1,66 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
-import { SUPABASE_CONFIG, validateDigifixIntegration } from "./supabase/config"
 
-// DIGIFIX Supabase Configuration - Validated
-const supabaseUrl = SUPABASE_CONFIG.url
-const supabaseAnonKey = SUPABASE_CONFIG.anonKey
-const supabaseServiceRoleKey = SUPABASE_CONFIG.serviceRoleKey
+// Environment variables - only access what's safe for each context
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-// Validate DIGIFIX integration on initialization
-if (typeof window === "undefined") {
-  validateDigifixIntegration()
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Missing required Supabase environment variables")
 }
 
 // ----------  SINGLETON (CLIENT-SIDE) ----------
 let supabaseClient: SupabaseClient | undefined
 
 /**
- * DIGIFIX Supabase Client - Browser Only
- * Ensures exclusive use of DIGIFIX project configuration
+ * Supabase Client - Browser Only
+ * Singleton pattern to prevent multiple client instances
  */
 export function getClientSide(): SupabaseClient {
   if (typeof window === "undefined") {
     throw new Error("getClientSide should only be called in the browser")
   }
+
   if (!supabaseClient) {
-    supabaseClient = createClient(supabaseUrl, supabaseAnonKey)
+    supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storageKey: "numoracle-supabase-auth", // Unique storage key
+        flowType: "pkce",
+      },
+    })
   }
   return supabaseClient
 }
 
-// Export the singleton client instance for non-auth features
-export const supabase = typeof window !== "undefined" ? getClientSide() : ({} as SupabaseClient)
-
 // ----------  SERVER-SIDE ADMIN (SERVICE ROLE) ----------
-
 let _supabaseAdmin: SupabaseClient | undefined
 
 /**
- * DIGIFIX Supabase Admin Client - Server Only
- * Uses DIGIFIX service role key for admin operations
+ * Supabase Admin Client - Server Only
  */
 export function getAdminClient(): SupabaseClient {
   if (typeof window !== "undefined") {
     throw new Error("getAdminClient should only be used on the server")
   }
+
   if (!_supabaseAdmin) {
-    if (!supabaseServiceRoleKey) {
-      throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY env var")
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!serviceRoleKey) {
+      throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY environment variable")
     }
-    _supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey)
+
+    _supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
   }
   return _supabaseAdmin
 }
 
-/** Re-usable, singleton Supabase Admin client (server-only) */
-export const supabaseAdmin = typeof window === "undefined" ? getAdminClient() : ({} as SupabaseClient)
+// Export safe client references
+export const supabase = typeof window !== "undefined" ? getClientSide() : null
+export const supabaseAdmin = typeof window === "undefined" ? getAdminClient() : null

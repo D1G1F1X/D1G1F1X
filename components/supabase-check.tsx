@@ -2,30 +2,30 @@
 
 import { useEffect, useState } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, CheckCircle } from "lucide-react"
 
 export function SupabaseCheck() {
-  const [status, setStatus] = useState<{
-    url: boolean
-    anonKey: boolean
-    serviceKey: boolean
-  }>({
-    url: false,
-    anonKey: false,
-    serviceKey: false,
-  })
+  const [isConfigured, setIsConfigured] = useState<boolean | null>(null)
 
   useEffect(() => {
-    // Only check on client side
-    setStatus({
-      url: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-      anonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      serviceKey: false, // We can't check server-side env vars from client
-    })
+    // Check if required environment variables are present
+    const hasUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL
+    const hasKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    setIsConfigured(hasUrl && hasKey)
   }, [])
 
-  if (status.url && status.anonKey) {
-    return null
+  if (isConfigured === null) {
+    return null // Still checking
+  }
+
+  if (isConfigured) {
+    return (
+      <Alert className="mb-4 border-green-200 bg-green-50">
+        <CheckCircle className="h-4 w-4 text-green-600" />
+        <AlertTitle className="text-green-800">Supabase Connected</AlertTitle>
+        <AlertDescription className="text-green-700">Supabase integration is properly configured.</AlertDescription>
+      </Alert>
+    )
   }
 
   return (
@@ -33,12 +33,7 @@ export function SupabaseCheck() {
       <AlertCircle className="h-4 w-4" />
       <AlertTitle>Supabase Configuration Issue</AlertTitle>
       <AlertDescription>
-        <p>The following Supabase environment variables are missing:</p>
-        <ul className="list-disc pl-5 mt-2">
-          {!status.url && <li>NEXT_PUBLIC_SUPABASE_URL</li>}
-          {!status.anonKey && <li>NEXT_PUBLIC_SUPABASE_ANON_KEY</li>}
-        </ul>
-        <p className="mt-2">Some features may not work correctly. Please check your environment configuration.</p>
+        Missing required Supabase environment variables. Please check your configuration.
       </AlertDescription>
     </Alert>
   )

@@ -1,43 +1,47 @@
 /**
- * DIGIFIX Supabase Configuration
- * This file ensures all Supabase operations use the DIGIFIX project exclusively
+ * Centralised Supabase configuration.
+ *
+ * • Client components / browser code should ONLY ever use the
+ *   NEXT_PUBLIC variables (they are injected at build-time).
+ * • Server code can also access the Service-Role key directly
+ *   via `process.env.SUPABASE_SERVICE_ROLE_KEY`.
+ *
+ * Keeping everything here prevents “file-not-found” errors while
+ * ensuring the secret key is never shipped to the browser.
  */
 
-// Validate DIGIFIX environment variables
-const DIGIFIX_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-const DIGIFIX_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-const DIGIFIX_SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""
 
-if (!DIGIFIX_SUPABASE_URL) {
-  throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL for DIGIFIX project")
-}
-
-if (!DIGIFIX_SUPABASE_ANON_KEY) {
-  throw new Error("Missing NEXT_PUBLIC_SUPABASE_ANON_KEY for DIGIFIX project")
-}
-
-// Validate that we're using DIGIFIX project
-if (!DIGIFIX_SUPABASE_URL.includes("digifix") && !DIGIFIX_SUPABASE_URL.includes("your-digifix-project-id")) {
-  console.warn("⚠️  Warning: Supabase URL does not appear to be from DIGIFIX project")
-}
+// Never expose the service-role key from a module that might be bundled
+// for the browser.  Instead, server files should read it directly from
+// process.env.  We keep a typed property here so server code that
+// `import { SUPABASE_CONFIG }` still works, but the value will be
+// `undefined` in any client bundle.
+const serviceRoleKey: string | undefined =
+  typeof window === "undefined" ? process.env.SUPABASE_SERVICE_ROLE_KEY : undefined
 
 export const SUPABASE_CONFIG = {
-  url: DIGIFIX_SUPABASE_URL,
-  anonKey: DIGIFIX_SUPABASE_ANON_KEY,
-  serviceRoleKey: DIGIFIX_SUPABASE_SERVICE_ROLE_KEY,
-  project: "DIGIFIX",
-  validated: true,
+  url,
+  anonKey,
+  serviceRoleKey,
 } as const
 
-// Export validation function
+// Guard against mis-configuration early so we fail loudly in dev.
+if (process.env.NODE_ENV !== "production" && (!url || !anonKey)) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    "[Supabase] Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. " +
+      "Check your environment variables.",
+  )
+}
+
+/**
+ * Legacy helper kept for backward-compatibility with older code that still
+ * imports { validateDigifixIntegration } from "lib/supabase/config".
+ * The new configuration is project-agnostic, so this simply returns true.
+ */
 export function validateDigifixIntegration(): boolean {
-  const isValid = !!(SUPABASE_CONFIG.url && SUPABASE_CONFIG.anonKey)
-
-  if (!isValid) {
-    console.error("❌ DIGIFIX Supabase integration validation failed")
-    return false
-  }
-
-  console.log("✅ DIGIFIX Supabase integration validated")
+  // We no longer couple to a specific Supabase project; always succeed.
   return true
 }
