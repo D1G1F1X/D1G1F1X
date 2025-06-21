@@ -135,18 +135,11 @@ export default function NumerologyCalculatorPageClient() {
   }
 
   return (
-    <div className="container py-10">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">Numerology Calculator</h1>
-        <p className="mt-4 text-muted-foreground">
-          Calculate your life path number, destiny number, and other important numerological values to understand your
-          spiritual journey.
-        </p>
-      </div>
-
+    <div className="container py-10 flex flex-col items-center">
+      {" "}
+      {/* This container already centers its children */}
       {/* Inline Privacy Notice */}
       <InlinePrivacyNotice context="numerology-calculator" onConsentChange={handlePrivacyConsentChange} />
-
       {dataRestorationStatus === "loading" && (
         <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/30 rounded-lg">
           <div className="flex items-center space-x-3">
@@ -155,7 +148,6 @@ export default function NumerologyCalculatorPageClient() {
           </div>
         </div>
       )}
-
       {dataRestorationStatus === "restored" && privacyAccepted && (
         <div className="mb-6 p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30 rounded-lg">
           <div className="flex items-center space-x-3">
@@ -166,14 +158,12 @@ export default function NumerologyCalculatorPageClient() {
           </div>
         </div>
       )}
-
       <NumerologyCalculator
         membershipStatus={membershipStatus}
         onVerifyPurchase={handleVerifyPurchase}
         onReportCalculated={handleReportCalculated}
         hasPrivacyConsent={privacyAccepted}
       />
-
       {calculatedReportData && privacyAccepted && (
         <EnhanceExperienceSection
           reportData={calculatedReportData}

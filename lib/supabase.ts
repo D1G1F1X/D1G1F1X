@@ -1,53 +1,46 @@
-// lib/supabase.ts
-import { createBrowserClient, type SupabaseClient } from "@supabase/ssr"
-import { createSupabaseAdminClient as createAdminClient, createMockSupabaseClient } from "./supabase-server" // Import createMockSupabaseClient
+import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 
-// Declare a global variable to hold the client instance.
-// This helps in reusing the client across the application in a browser context.
-declare global {
-  var supabaseBrowserClientInstance: SupabaseClient | undefined
-}
+// These env vars must exist in your Vercel project settings
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-// Renamed to getClientSide and exported as named export
+// ----------  SINGLETON (CLIENT-SIDE) ----------
+let supabaseClient: SupabaseClient | undefined
+
+/**
+ * getClientSide()
+ * Always returns the same Supabase instance in the browser.
+ * Only use this for non-auth features like blob storage.
+ */
 export function getClientSide(): SupabaseClient {
-  // Check if the client is already initialized in the global scope
-  if (globalThis.supabaseBrowserClientInstance) {
-    return globalThis.supabaseBrowserClientInstance
+  if (typeof window === "undefined") {
+    throw new Error("getClientSide should only be called in the browser")
   }
-
-  // Check if environment variables are available
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    console.warn("Supabase client-side configuration is incomplete. Using mock client.")
-    return createMockSupabaseClient() as SupabaseClient // Cast to SupabaseClient for type compatibility
+  if (!supabaseClient) {
+    supabaseClient = createClient(supabaseUrl, supabaseAnonKey)
   }
-
-  // If not initialized, create a new client
-  const client = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
-
-  // Store the newly created client in the global scope for reuse
-  globalThis.supabaseBrowserClientInstance = client
-
-  return client
+  return supabaseClient
 }
 
-// Export a singleton client instance
-export const supabase: SupabaseClient = getClientSide()
+// Export the singleton client instance for non-auth features
+export const supabase = typeof window !== "undefined" ? getClientSide() : ({} as SupabaseClient)
 
-// Export the admin client creator function
-// This function, when called, will return a new admin client instance.
-// If you need a singleton admin client, you would call it once and store the result.
-// For typical use (e.g. in server actions/route handlers), creating it on demand is fine.
-export const supabaseAdmin = createAdminClient
+// ----------  SERVER-SIDE ADMIN (SERVICE ROLE) ----------
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-// Note: The original default export is removed as we are now using named exports
-// for getClientSide, supabase, and supabaseAdmin.
-// If a default export is still needed elsewhere for getSupabaseBrowserClient,
-// we can add: export default getClientSide;
-// However, the error message specifically asks for named exports.
+let _supabaseAdmin: SupabaseClient | undefined
+export function getAdminClient(): SupabaseClient {
+  if (typeof window !== "undefined") {
+    throw new Error("getAdminClient should only be used on the server")
+  }
+  if (!_supabaseAdmin) {
+    if (!supabaseServiceRoleKey) {
+      throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY env var")
+    }
+    _supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey)
+  }
+  return _supabaseAdmin
+}
 
-// Note: For server-side operations (Server Components, Route Handlers, Server Actions),
-// you should use a different way to create Supabase clients, typically involving
-// createServerClient or createRouteHandlerClient from '@supabase/ssr'
-// and passing cookie handling functions. This is usually handled in a separate
-// file like 'lib/supabase-server.ts' or directly where needed.
-// The "Multiple GoTrueClient instances" warning specifically refers to the browser context.
+/** Re-usable, singleton Supabase Admin client (server-only) */
+export const supabaseAdmin = typeof window === "undefined" ? getAdminClient() : ({} as SupabaseClient)

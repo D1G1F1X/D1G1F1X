@@ -40,6 +40,8 @@ export default function CardSimulatorPageClient() {
 
   return (
     <div className="container py-10">
+      {" "}
+      {/* Removed flex centering here, parent now handles it */}
       <CardSimulator />
     </div>
   )

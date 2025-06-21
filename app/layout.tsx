@@ -14,14 +14,14 @@ import BugReport from "@/components/bug-report"
 import SiteAssistant from "@/components/site-assistant"
 import DeepOceanWaves from "@/components/deep-ocean-waves"
 import StarfieldBackground from "@/components/starfield-background"
-import ConstellationBackground from "@/components/constellation-background" // Import ConstellationBackground
-import GeometricOverlay from "@/components/geometric-overlay" // Import GeometricOverlay
+import ConstellationBackground from "@/components/constellation-background"
+import GeometricOverlay from "@/components/geometric-overlay"
 
 const fontSans = Roboto({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-sans" })
 
 export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
+  title: "Numoracle - Oracle Cards & Numerology",
+  description: "Discover your path with Numoracle oracle cards and numerology tools",
   generator: "v0.dev",
 }
 
@@ -40,8 +40,8 @@ export default function RootLayout({
                 {/* Animated Backgrounds */}
                 <DeepOceanWaves />
                 <StarfieldBackground />
-                <ConstellationBackground /> {/* Render ConstellationBackground */}
-                <GeometricOverlay /> {/* Render GeometricOverlay */}
+                <ConstellationBackground />
+                <GeometricOverlay />
                 <div className="relative flex min-h-screen flex-col">
                   <Navbar />
                   <main className="flex-1">{children}</main>

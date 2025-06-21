@@ -22,6 +22,23 @@ export class EnhancedBlogSystem {
     this.config = config
   }
 
+  /**
+   * Safely load all posts from the content module.
+   * Works whether the module exports `getAllPosts()` or a `posts` array.
+   */
+  private async loadAllPosts(): Promise<Post[]> {
+    const mod = await import("@/lib/content")
+    if (typeof mod.getAllPosts === "function") {
+      return await mod.getAllPosts()
+    }
+    // Fallback: static array export
+    if (Array.isArray(mod.posts)) {
+      return mod.posts
+    }
+    console.error("Content module did not provide posts.")
+    return []
+  }
+
   setCurrentUser(user: BlogUser | null) {
     this.currentUser = user
   }
@@ -106,8 +123,7 @@ export class EnhancedBlogSystem {
     } = {},
   ): Promise<{ posts: Post[]; total: number; hasMore: boolean }> {
     try {
-      const { getAllPosts } = await import("@/lib/content")
-      let posts = await getAllPosts()
+      let posts = await this.loadAllPosts()
 
       // Apply filters
       if (options.category) {
@@ -173,8 +189,7 @@ export class EnhancedBlogSystem {
 
   async getRelatedPosts(currentPost: Post, count = 3): Promise<Post[]> {
     try {
-      const { getAllPosts } = await import("@/lib/content")
-      const allPosts = await getAllPosts()
+      const allPosts = await this.loadAllPosts()
 
       const relatedPosts = allPosts
         .filter((post) => post.id !== currentPost.id && post.isPublished && this.canViewPost(post))

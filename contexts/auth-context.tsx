@@ -1,113 +1,172 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import type React from "react"
 
-// Define user types and roles
-export type UserRole = "admin" | "member"
+import { createContext, useContext, useEffect, useState } from "react"
+import type { User, Session } from "@supabase/supabase-js"
+import { createClient } from "@/lib/supabase/client"
+import type { UserProfile } from "@/lib/supabase/types"
 
-export interface User {
-  id: string
-  name: string
-  email: string
-  role: UserRole
-}
-
-type AuthContextType = {
+interface AuthContextType {
   user: User | null
-  isLoading: boolean
-  login: (email: string, password: string) => Promise<boolean>
-  logout: () => void
-  isAuthenticated: boolean
+  profile: UserProfile | null
+  session: Session | null
+  loading: boolean
+  signUp: (email: string, password: string, metadata?: any) => Promise<{ error: any }>
+  signIn: (email: string, password: string) => Promise<{ error: any }>
+  signOut: () => Promise<void>
   isAdmin: boolean
   isMember: boolean
+  isAuthenticated: boolean
 }
-
-// Mock user database for demo purposes
-const MOCK_USERS = [
-  {
-    id: "1",
-    name: "Admin User",
-    email: "admin@numoracle.com",
-    password: "numoracle",
-    role: "admin" as UserRole,
-  },
-  {
-    id: "2",
-    name: "Member User",
-    email: "member@numoracle.com",
-    password: "numoracle",
-    role: "member" as UserRole,
-  },
-]
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  // Check localStorage on initial load (client-side only)
+  const supabase = createClient()
+
   useEffect(() => {
-    // Only run on client side
-    if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem("numoracleUser")
-      if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser))
-        } catch (error) {
-          console.error("Failed to parse stored user:", error)
-          localStorage.removeItem("numoracleUser")
+    // Get initial session
+    const getInitialSession = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession()
+
+      if (error) {
+        console.error("Error getting session:", error)
+      } else {
+        setSession(session)
+        setUser(session?.user ?? null)
+
+        if (session?.user) {
+          await fetchUserProfile(session.user.id)
         }
       }
+
+      setLoading(false)
     }
-    setIsLoading(false)
+
+    getInitialSession()
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, session?.user?.email)
+
+      setSession(session)
+      setUser(session?.user ?? null)
+
+      if (session?.user) {
+        await fetchUserProfile(session.user.id)
+      } else {
+        setProfile(null)
+      }
+
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
-  const login = async (email: string, password: string) => {
-    // Find user by email
-    const foundUser = MOCK_USERS.find((u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password)
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single()
 
-    if (foundUser) {
-      // Create a safe user object without the password
-      const { password: _, ...safeUser } = foundUser
-
-      // Store in state and localStorage (client-side only)
-      setUser(safeUser)
-      if (typeof window !== "undefined") {
-        localStorage.setItem("numoracleUser", JSON.stringify(safeUser))
+      if (error) {
+        console.error("Error fetching profile:", error)
+        // Create default profile if it doesn't exist
+        if (error.code === "PGRST116") {
+          await createUserProfile(userId)
+        }
+      } else {
+        setProfile(data)
       }
-      return true
-    }
-    return false
-  }
-
-  const logout = () => {
-    setUser(null)
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("numoracleUser")
+    } catch (error) {
+      console.error("Error in fetchUserProfile:", error)
     }
   }
 
-  // Computed properties for role checks
-  const isAuthenticated = user !== null
-  const isAdmin = user?.role === "admin"
-  const isMember = user?.role === "member"
+  const createUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .insert({
+          id: userId,
+          email: user?.email || "",
+          role: "member",
+          is_premium: false,
+        })
+        .select()
+        .single()
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoading,
-        login,
-        logout,
-        isAuthenticated,
-        isAdmin,
-        isMember,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  )
+      if (error) {
+        console.error("Error creating profile:", error)
+      } else {
+        setProfile(data)
+      }
+    } catch (error) {
+      console.error("Error in createUserProfile:", error)
+    }
+  }
+
+  const signUp = async (email: string, password: string, metadata?: any) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: metadata,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+
+    if (!error && data.user) {
+      // Profile will be created via the auth state change listener
+    }
+
+    return { error }
+  }
+
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    return { error }
+  }
+
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error("Error signing out:", error)
+    }
+  }
+
+  const isAdmin = profile?.role === "admin"
+  const isMember = profile?.role === "member"
+  const isAuthenticated = !!user
+
+  const value = {
+    user,
+    profile,
+    session,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+    isAdmin,
+    isMember,
+    isAuthenticated,
+  }
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

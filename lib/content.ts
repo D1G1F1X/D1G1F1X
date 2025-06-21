@@ -391,7 +391,7 @@ We can't wait for you to experience the transformative power of your numbers!
 `
 
 // Changed 'let posts' to 'export let posts'
-export let posts: Post[] = [
+export const posts: Post[] = [
   {
     id: "7",
     title: "Unlock Your Destiny: Introducing Our FREE Comprehensive Numerology Report!",
@@ -430,7 +430,7 @@ The cauldron, an ancient vessel steeped in myth and magic, stands as one of the 
 Historically, the cauldron was a practical tool for cooking and brewing, essential for survival. This utilitarian function naturally evolved into symbolic significance. It became associated with:
 
 *   **Nourishment and Abundance:** The cauldron provides sustenance, representing not just physical food but also spiritual and emotional nourishment. It speaks to the universe's generosity and the promise of fulfillment.
-*   **Transformation and Rebirth:** Like ingredients transformed by heat and blending, the cauldron symbolizes the alchemical process of change. It's a place where old forms die and new ones are born, representing cycles of death and rebirth, healing, and regeneration. Think of the mythical cauldrons that could restore life or grant wisdom.
+*   **Transformation and Rebirth:** Like ingredients transformed by heat and blending, the cauldron symbolizes the alchemical process of change. It's a place where old forms die and new ones are born, representing cycles of death and rebirth, healing, and regeneration. Think of the mythical cauldrons that could restore life or grant wisdom. It suggests that true wisdom often brews in the depths of introspection and experience.
 *   **The Divine Feminine and Creation:** The rounded, receptive shape of the cauldron often links it to the womb, the Great Mother, and the feminine principle of creation. It is the source from which life emerges, a container of potential and mystery.
 *   **Wisdom and Inspiration:** Many legends tell of cauldrons that grant poetic inspiration (like the Cauldron of Awen in Welsh mythology) or divine knowledge. It suggests that true wisdom often brews in the depths of introspection and experience.
 *   **Magic and Ritual:** In witchcraft and pagan traditions, the cauldron is a central ritual tool, used for scrying, brewing potions, burning incense, or holding offerings. It acts as a focal point for magical workings and a connection to the elemental forces.
@@ -624,7 +624,7 @@ The calculation is straightforward and involves reducing your birth month, day, 
 *   Reduce your birth day to a single digit. For example, if born on the 23rd, 2+3=5. If born on the 11th or 22nd, these are Master Numbers and are kept as 11 or 22.
 
 3.  **Reduce the Year:**
-*   Add all the digits of your birth year together and reduce them to a single digit. For example, for 1987: 1+9+8+7 = 25. Then, 2+5 = 7. If the sum is 11 or 22 before the final single-digit reduction, note it as it might indicate Master Number influence.
+*   Add all the digits of your birth year together and reduce them to a single digit. For example, for 1975: 1+9+7+5 = 22. Then, 2+2 = 4. If the sum is 11 or 22 before the final single-digit reduction, note it as it might indicate Master Number influence.
 
 4.  **Sum and Reduce the Totals:**
 *   Add the reduced numbers for the month, day, and year.
@@ -768,367 +768,90 @@ The historical and mythological tapestry is rich with swords of significance. Fr
     content: `
 # The Sacred Cord: Unraveling the Symbolism of Connection and Unity
 
-The cord, in its elegant simplicity, is a universal symbol of connection, weaving through the spiritual and cultural fabric of humanity. It represents the invisible threads that bind us—to each other, to our ancestors, to nature, and to the divine. From the life-giving umbilical cord to the intricate knots of a sailor's rope, the cord speaks of linkage, continuity, and the strength found in unity. Its flexibility allows it to represent both gentle ties and unbreakable bonds, adapting to the nature of the connection it symbolizes.
+The cord, in its elegant simplicity, is a universal symbol of connection, weaving through the spiritual and cultural fabric of humanity. It represents the invisible threads that bind us together, symbolizing unity, partnership, and the intricate web of relationships that shape our lives. The cord is often associated with the element of Air in many spiritual traditions, embodying the qualities of communication, intellect, and connection. In the NUMO Oracle system, the Cord suit is linked to the element of Air, further emphasizing its role in facilitating communication, networking, and mental agility.
 
-In sacred rituals, the cord often plays a central role. Handfasting ceremonies, for example, use a cord to physically and symbolically unite two individuals, signifying their intertwined paths and shared commitments. Prayer beads, such as malas or rosaries, are essentially sacred cords punctuated by knots or beads, each marking a prayer or mantra, guiding the devotee into a state of focused meditation and connection with the divine. These practices highlight the cord's ability to create tangible links to intangible realities, fostering a sense of belonging and shared spiritual purpose. It can also represent a lineage, a thread of wisdom passed down through generations.
+## The Cord in NUMO Oracle: Embracing Air's Wisdom
 
-The symbolism of the cord extends to grand cosmic concepts like fate and destiny. The Moirai, or Fates, of Greek mythology spun, measured, and cut the thread of life for every mortal and god, illustrating the profound belief in an interconnected destiny. Similarly, the East Asian 'Red Thread of Fate' is said to invisibly tie together those who are destined to meet and help one another. These narratives emphasize that no individual is an island; our lives are interwoven in a vast, intricate tapestry. The cord reminds us that every action creates ripples, affecting the whole. In spiritual development, the cord can symbolize the pathway of energy, like the Sushumna Nadi in yogic philosophy, or the 'silver cord' connecting the soul to the body. It invites us to explore our connections, to nurture them, and to recognize the profound unity underlying all existence.
-  `,
-    excerpt:
-      "Uncover the profound symbolism of the cord, representing connection, unity, and binding forces across spiritual practices. Explore its role in rituals, fate, and interconnectedness.",
-    author: "NUMO Oracle Team",
-    isPublished: true,
-    createdAt: "2025-06-05T10:00:00Z",
-    updatedAt: "2025-06-05T10:00:00Z",
-    featuredImage: "/images/blog/generated/sacred-cord-connection-unity.png",
-    categories: ["Symbolism", "Mysticism", "Spiritual Practices"],
-    tags: ["cord", "connection", "unity", "fate", "destiny", "interconnectedness", "rituals"],
-  },
-  {
-    id: "15",
-    title: "The Spear: Symbol of Focus, Protection, and Divine Energy",
-    slug: "spear-symbol-focus-protection-divine-energy",
-    content: `
-# The Spear: Symbol of Focus, Protection, and Divine Energy
+In the NUMO Oracle, the Cord suit is aligned with the element of **Air**. This connection highlights themes of:
 
-The spear, with its direct and piercing form, stands as a powerful emblem of focused intention, unwavering protection, and the channeling of potent, often divine, energy. Unlike the broad sweep of a sword, the spear signifies a singular, concentrated point of power, a direct line of force aimed with precision and purpose. This makes it a compelling symbol for achieving specific goals, overcoming targeted obstacles, and maintaining a clear, undeviated path towards one's aspirations. Its length often implies reach, the ability to project influence or defense from a strategic distance.
+*   **Communication and Clarity:** Air governs our thoughts, ideas, and the exchange of information. The Cord cards encourage open dialogue, clear expression, and the sharing of knowledge.
+*   **Intellect and Strategy:** Like the wind that carries seeds, the Cord teaches us to be strategic, to think critically, and to use our intellect to navigate challenges.
+*   **Connection and Networking:** The cord symbolizes the threads that connect us to others, emphasizing the importance of social interaction, collaboration, and building meaningful relationships.
+*   **Change and Adaptability:** Air is ever-changing, and the Cord reflects this adaptability, showing us how to flow with life's shifts and embrace new opportunities.
 
-Throughout mythology and history, the spear is the chosen implement of formidable warriors, wise hunters, and authoritative deities. Odin's Gungnir, which never missed its mark and was bound by sacred oaths, or Athena's spear, representing strategic wisdom in conflict, highlight its association with not just might, but also with skill, foresight, and righteous power. The spear demands accuracy and a deep understanding of one's objective, symbolizing the importance of clear vision and decisive action. It is the tool of the guardian, the sentinel, and the leader who must protect their charge with unwavering resolve.
+## Working with Cord Energy
 
-In ritualistic contexts, the spear can serve as an axis mundi, a symbolic connection between the earthly and celestial realms, channeling energies and intentions. Shamans and spiritual leaders might use spear-like implements to direct healing, banish negativity, or invoke protective forces. Its association with elements like air (for its swiftness) or lightning (for its striking power) further enhances its dynamic symbolism. The spear encourages a focused mind, a 'spearheading' of one's efforts towards enlightenment or truth, cutting through distractions and illusions. It is a call to align oneself with a higher purpose, to stand firm in one's convictions, and to project one's energy with clarity and integrity. The spear reminds us that true strength lies in focused will and the courage to aim directly for what is right and true.
-  `,
-    excerpt:
-      "Examine the spear's symbolism as an emblem of focus, protection, and divine energy. Investigate its association with warriors, deities, and the pursuit of higher consciousness.",
-    author: "NUMO Oracle Team",
-    isPublished: true,
-    createdAt: "2025-06-05T10:00:00Z",
-    updatedAt: "2025-06-05T10:00:00Z",
-    featuredImage: "/images/blog/generated/spear-focus-protection-energy.png",
-    categories: ["Symbolism", "Mysticism", "Spiritual Tools"],
-    tags: ["spear", "focus", "protection", "divine energy", "strength", "courage", "warriors"],
-  },
-  {
-    id: "16",
-    title: "The Sacred Stone: Exploring the Symbolism of Stability, Grounding, and Timelessness",
-    slug: "sacred-stone-symbolism-stability-grounding",
-    content: `
-# The Sacred Stone: Exploring the Symbolism of Stability, Grounding, and Timelessness
+To connect with the symbolism of the cord in your own life:
 
-The stone, in its silent, unyielding presence, is one of the most ancient and universal symbols of stability, grounding, and timelessness. From the smallest pebble shaped by eons of flowing water to the colossal mountains that pierce the sky, stones embody the enduring strength and primordial wisdom of the Earth itself. They are the very bones of our planet, offering a tangible connection to the vastness of geological time and the slow, cyclical rhythms of nature. Holding a stone can feel like holding a piece of history, a silent witness to the unfolding of ages.
+*   **Engage in Communication:** Practice active listening and clear expression to deepen your connections with others.
+*   **Think Strategically:** Use your intellect to plan and execute your goals, navigating challenges with wisdom and foresight.
+*   **Build Relationships:** Focus on nurturing your social connections, forming partnerships that support your growth and aspirations.
+*   **Embrace Change:** Be open to new experiences and opportunities, adapting to life's changes with grace and resilience.
 
-Across diverse cultures, stones are revered for their inherent qualities. Their weight and solidity make them natural symbols of grounding, helping to anchor our energy, calm a scattered mind, and connect us firmly to the physical realm, especially during periods of uncertainty. In sacred practices, stones often delineate holy spaces, form the foundations of temples, or stand as altars for offerings and prayer. Ancient stone circles like Stonehenge or the Carnac stones, their exact purposes shrouded in mystery, nonetheless speak to humanity's long-standing use of stone to mark significant sites, observe celestial events, and create enduring places of communal gathering and spiritual focus.
-
-The stone's connection to ancestry and the passage of time is profound. Megaliths, cairns, and gravestones serve as lasting memorials, linking the present to the past and honoring the lineage of those who came before. They represent the enduring fabric of existence, a comforting constant against the backdrop of transient human lives. This timeless quality makes stones powerful aids in meditation, fostering inner peace and a sense of connection to something larger and more ancient than oneself. In many healing traditions, specific stones and crystals are believed to possess unique energetic vibrations capable of promoting physical, emotional, and spiritual well-being, absorbing negativity and radiating stabilizing frequencies. The simple act of choosing and keeping a stone can be a deeply personal practice, a reminder of resilience, patience, and the quiet, unshakeable strength that resides both in the Earth and within ourselves.
-  `,
-    excerpt:
-      "Delve into the stone's symbolism, representing stability, grounding, and timelessness. Explore its connection to nature, history, meditation, and inner peace.",
-    author: "NUMO Oracle Team",
-    isPublished: true,
-    createdAt: "2025-06-05T10:00:00Z",
-    updatedAt: "2025-06-05T10:00:00Z",
-    featuredImage: "/images/blog/generated/sacred-stone-stability-grounding.png",
-    categories: ["Symbolism", "Mysticism", "Nature Spirituality"],
-    tags: ["stone", "stability", "grounding", "timelessness", "earth", "nature", "healing"],
-  },
-  {
-    id: "1", // Duplicate ID, but content is different. Assuming this is intentional for the example.
-    title: "Understanding Numerology",
-    slug: "understanding-numerology", // Duplicate slug
-    content: `
-# Understanding Numerology: The Ancient Science of Numbers (Content Version 1)
-
-Numerology is the study of numbers and their energetic influence on our lives. This ancient practice reveals how numerical patterns can illuminate our path, purpose, and potential.
-... (rest of the content for this version) ...
-`,
-    excerpt: "Learn the basics of numerology and how it can transform your understanding of life.",
-    author: "Raziel Ali",
-    isPublished: true,
-    createdAt: "2024-08-15T10:30:00Z",
-    updatedAt: "2024-08-15T10:30:00Z",
-    featuredImage: "/numerology-oracle-spread.png",
-    categories: ["Numerology", "Ancient Wisdom"],
-    tags: ["numerology basics", "life path number", "pythagoras", "number meanings"],
-  },
-  {
-    id: "2", // Duplicate ID
-    title: "The Sacred Geometry of Numerology: How Numbers Shape Your Destiny",
-    slug: "sacred-geometry-numerology-destiny", // Duplicate slug
-    content: `
-# The Sacred Geometry of Numerology: How Numbers Shape Your Destiny (Content Version 1)
-... (rest of the content for this version) ...
+The cord reminds us that within the web of relationships, we find our greatest strength and potential for growth. By embracing its wisdom, we can navigate our lives with greater clarity, purpose, and connection to others.
 `,
     excerpt:
-      "Discover how the ancient science of numerology reveals the hidden patterns that shape your destiny. Learn about Life Path Numbers, elemental associations, and the sacred geometry that connects numbers to your life purpose.",
-    author: "Raziel Ali",
+      "Explore the deep spiritual meanings and symbolism associated with the cord in various mystical traditions, and its connection to the NUMO Oracle's Air element.",
+    author: "NUMO Oracle Team",
     isPublished: true,
-    createdAt: "2024-09-20T14:30:00Z",
-    updatedAt: "2024-09-20T14:30:00Z",
-    featuredImage: "/images/blog/generated/sacred-geometry-destiny-blog.png",
-    categories: ["Numerology", "Sacred Geometry", "Life Path"],
-    tags: ["life path number", "sacred geometry", "destiny", "goddess danu", "elemental numerology"],
-  },
-  {
-    id: "3", // Duplicate ID
-    title: "Astrological Houses and Numerology: The Cosmic Blueprint of Your Life",
-    slug: "astrological-houses-numerology-cosmic-blueprint", // Duplicate slug
-    content: `
-# Astrological Houses and Numerology: The Cosmic Blueprint of Your Life (Content Version 1)
-... (rest of the content for this version) ...
-`,
-    excerpt:
-      "Explore the profound connections between astrology and numerology to gain a deeper understanding of your life's blueprint.",
-    author: "Raziel Ali",
-    isPublished: true,
-    createdAt: "2024-10-05T09:00:00Z",
-    updatedAt: "2024-10-05T09:00:00Z",
-    featuredImage: "/images/blog/generated/astrology-numerology-blueprint-blog.png",
-    categories: ["Numerology", "Astrology", "Cosmic Blueprint"],
-    tags: ["astrology", "numerology", "life path", "cosmic connections", "holistic understanding"],
+    createdAt: "2025-06-06T10:00:00Z",
+    updatedAt: "2025-06-07T10:00:00Z",
+    featuredImage: "/images/blog/generated/sacred-cord-symbolism.png",
+    categories: ["Symbolism", "Mysticism", "Oracle Wisdom", "Elemental Wisdom"],
+    tags: ["cord", "spiritual symbolism", "connection", "air element", "unity", "NUMO Oracle"],
   },
 ]
 
-const pages: Page[] = [
+export const pages: Page[] = [
   {
-    id: "about-page",
-    title: "About NUMO Oracle",
-    slug: "about",
-    content: "<h1>About Us</h1><p>Welcome to NUMO Oracle, your guide to numerology and self-discovery.</p>",
+    id: "1",
+    title: "Home",
+    slug: "home",
+    content: "Welcome to the home page!",
     isPublished: true,
-    createdAt: "2023-01-10T10:00:00Z",
-    updatedAt: "2023-01-10T10:00:00Z",
-    featuredImage: "/images/about/goddess-danu.png",
-  },
-  {
-    id: "contact-page",
-    title: "Contact Us",
-    slug: "contact",
-    content: "<h1>Contact Us</h1><p>Get in touch with the NUMO Oracle team.</p>",
-    isPublished: true,
-    createdAt: "2023-01-11T10:00:00Z",
-    updatedAt: "2023-01-11T10:00:00Z",
-  },
-  {
-    id: "privacy-policy",
-    title: "Privacy Policy",
-    slug: "privacy-policy",
-    content: `
-# Privacy Policy
-
-**Last Updated: June 19, 2025**
-
-Welcome to Numoracle.com. This Privacy Policy describes how Numoracle ("we," "us," or "our") collects, uses, and shares your personal information when you visit or make a purchase from our website (the "Site").
-
-## 1. Information We Collect
-
-We collect information to provide and improve our services to you.
-
-### Information You Provide to Us
-
-*   **Account Information:** When you create an account, we collect your name, email address, and password.
-*   **Order Information:** When you make a purchase, we collect your name, billing address, shipping address, email address, phone number, and payment information (e.g., credit card details). Please note that payment information is processed securely by our third-party payment processors (e.g., Stripe, PayPal) and we do not store sensitive payment card data on our servers.
-*   **Numerology Report Data:** When you use our numerology calculator or generate a report, we collect the name and birth date you provide. This data is used solely to generate your report and is not linked to your personal identity unless you choose to save the report to your account.
-*   **Communications:** When you communicate with us via email, chat, or contact forms, we collect the content of your communications and any information you choose to provide.
-*   **Reviews and Testimonials:** If you submit a review or testimonial, we may collect your name, email, and the content of your submission.
-
-### Information We Collect Automatically
-
-*   **Usage Data:** We automatically collect information about your interactions with our Site, such as the pages you visit, the features you use, the time and date of your visit, and your referring URL.
-*   **Device Information:** We collect information about the device you use to access our Site, including IP address, browser type, operating system, and unique device identifiers.
-*   **Cookies and Tracking Technologies:** We use cookies and similar tracking technologies (like web beacons and pixels) to track activity on our Site and hold certain information. Cookies are small data files stored on your device. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our Service.
-
-## 2. How We Use Your Information
-
-We use the information we collect for various purposes, including:
-
-*   **To Provide and Maintain Our Service:** To operate and deliver the services you request, including processing transactions, fulfilling orders, and generating numerology reports.
-*   **To Improve and Personalize Our Service:** To understand how you use our Site, to develop new features, and to tailor your experience.
-*   **To Communicate with You:** To send you order confirmations, shipping updates, password reset links, and respond to your inquiries. With your consent, we may also send you marketing communications about our products, services, and promotions.
-*   **For Security and Fraud Prevention:** To protect our Site and users from fraudulent activities and unauthorized access.
-*   **For Analytics and Research:** To analyze trends, track user activity, and gather demographic information for aggregate use. This helps us understand our audience and improve our offerings.
-*   **To Comply with Legal Obligations:** To meet our legal and regulatory requirements.
-
-## 3. How We Share Your Information
-
-We may share your information with third parties in the following circumstances:
-
-*   **Service Providers:** We share information with third-party vendors and service providers who perform services on our behalf, such as payment processing, order fulfillment, website hosting, data analysis, email delivery, and customer support. These providers are obligated to protect your information and use it only for the purposes for which it was disclosed.
-*   **Payment Processors:** Your payment information is shared directly with our secure payment gateways (e.g., Stripe, PayPal) to process your purchases.
-*   **Legal Requirements:** We may disclose your information if required to do so by law or in response to valid requests by public authorities (e.g., a court order or government agency request).
-*   **Business Transfers:** In connection with a merger, acquisition, or sale of all or a portion of our assets, your information may be transferred as part of that transaction.
-*   **With Your Consent:** We may share your information with other third parties when we have your explicit consent to do so.
-*   **Aggregated or Anonymized Data:** We may share aggregated or anonymized data that cannot reasonably be used to identify you with third parties for various purposes, including analytics, research, and marketing.
-
-## 4. Your Choices and Rights
-
-You have certain rights regarding your personal information:
-
-*   **Access and Correction:** You have the right to access and update your personal information held by us. You can usually do this through your account settings.
-*   **Opt-Out of Marketing Communications:** You can opt out of receiving marketing emails from us by following the unsubscribe instructions in those emails or by contacting us directly.
-*   **Cookies:** You can set your browser to refuse all or some browser cookies, or to alert you when websites set or access cookies. If you disable or refuse cookies, please note that some parts of the Site may become inaccessible or not function properly.
-*   **Do Not Track:** We do not currently respond to "Do Not Track" signals.
-*   **Data Deletion:** You may request the deletion of your personal data. Please note that we may be required to retain certain information by law or for legitimate business purposes.
-
-## 5. Data Security
-
-We implement reasonable security measures to protect your personal information from unauthorized access, use, alteration, and disclosure. However, no method of transmission over the Internet or electronic storage is 100% secure. Therefore, while we strive to use commercially acceptable means to protect your personal information, we cannot guarantee its absolute security.
-
-## 6. Children's Privacy
-
-Our Site is not intended for children under the age of 13. We do not knowingly collect personally identifiable information from children under 13. If you are a parent or guardian and you are aware that your child has provided us with personal information, please contact us. If we become aware that we have collected personal information from a child under age 13 without verification of parental consent, we take steps to remove that information from our servers.
-
-## 7. Changes to This Privacy Policy
-
-We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date at the top. You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.
-
-## 8. Contact Us
-
-If you have any questions about this Privacy Policy, please contact us:
-
-*   By email: support@numoracle.com
-*   By visiting this page on our website: [numoracle.com/contact](/contact)
-`,
-    isPublished: true,
-    createdAt: "2023-01-12T10:00:00Z",
-    updatedAt: "2025-06-19T10:00:00Z",
-  },
-  {
-    id: "terms-of-service",
-    title: "Terms of Service",
-    slug: "terms-of-service",
-    content: `
-# Terms of Service
-
-**Last Updated: June 19, 2025**
-
-Welcome to Numoracle.com. These Terms of Service ("Terms") govern your access to and use of the Numoracle website (the "Site") and any products or services offered by Numoracle ("we," or "our"). By accessing or using the Site, you agree to be bound by these Terms and our Privacy Policy. If you do not agree to these Terms, please do not use our Site.
-
-## 1. Acceptance of Terms
-
-By creating an account, making a purchase, or otherwise using the Site, you affirm that you are at least 18 years of age or the age of majority in your jurisdiction, and that you are legally capable of entering into a binding agreement.
-
-## 2. Changes to Terms
-
-We reserve the right to modify or update these Terms at any time. We will notify you of any changes by posting the new Terms on this page and updating the "Last Updated" date. Your continued use of the Site after any such changes constitutes your acceptance of the new Terms.
-
-## 3. Account Registration and Security
-
-*   You may need to register for an account to access certain features of the Site.
-*   You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current, and complete.
-*   You are responsible for maintaining the confidentiality of your account password and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use of your account.
-*   We are not liable for any loss or damage arising from your failure to comply with these obligations.
-
-## 4. Products and Services
-
-*   **Product Descriptions:** We strive to be as accurate as possible in our product descriptions. However, we do not warrant that product descriptions or other content on the Site are accurate, complete, reliable, current, or error-free.
-*   **Pricing:** All prices are subject to change without notice. We reserve the right to correct any errors in pricing or product descriptions.
-*   **Availability:** All products and services are subject to availability. We reserve the right to discontinue any product at any time.
-*   **Numerology Reports:** Our numerology reports are provided for entertainment and informational purposes only. They are not intended to be a substitute for professional advice (e.g., medical, psychological, financial, legal). We make no guarantees regarding the accuracy or applicability of the insights provided.
-*   **Oracle Cards:** Our oracle cards are tools for self-reflection and spiritual guidance. Their interpretations are subjective and should be used as a guide, not as definitive predictions.
-
-## 5. Payment and Billing
-
-*   You agree to pay all charges incurred by you or on your behalf through the Site, at the prices in effect when such charges are incurred.
-*   You are responsible for any applicable taxes relating to your purchases.
-*   We use third-party payment processors (e.g., Stripe, PayPal). By making a purchase, you agree to their terms and conditions. We are not responsible for any issues arising from their services.
-
-## 6. Intellectual Property
-
-*   All content on the Site, including text, graphics, logos, images, audio clips, video clips, data compilations, and software, is the property of Numoracle or its content suppliers and protected by international copyright laws.
-*   The compilation of all content on this Site is the exclusive property of Numoracle and protected by international copyright laws.
-*   You may not reproduce, duplicate, copy, sell, resell, visit, or otherwise exploit for any commercial purpose any portion of the Site without our express written consent.
-
-## 7. User Conduct
-
-You agree not to use the Site to:
-
-*   Engage in any unlawful, fraudulent, or harmful activity.
-*   Transmit any material that is defamatory, obscene, offensive, or otherwise objectionable.
-*   Impersonate any person or entity, or falsely state or otherwise misrepresent your affiliation with a person or entity.
-*   Interfere with or disrupt the operation of the Site or the servers or networks connected to the Site.
-*   Attempt to gain unauthorized access to any portion of the Site, other accounts, computer systems, or networks connected to the Site.
-
-## 8. Disclaimer of Warranties
-
-THE SITE AND ALL PRODUCTS AND SERVICES OFFERED ON THE SITE ARE PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS, WITHOUT ANY WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, OR COURSE OF PERFORMANCE. WE DO NOT WARRANT THAT THE SITE WILL BE UNINTERRUPTED, SECURE, OR ERROR-FREE.
-
-## 9. Limitation of Liability
-
-IN NO EVENT SHALL NUMORACLE, ITS DIRECTORS, EMPLOYEES, PARTNERS, AGENTS, SUPPLIERS, OR AFFILIATES, BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING WITHOUT LIMITATION, LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM (I) YOUR ACCESS TO OR USE OF OR INABILITY TO ACCESS OR USE THE SITE; (II) ANY CONDUCT OR CONTENT OF ANY THIRD PARTY ON THE SITE; (III) ANY CONTENT OBTAINED FROM THE SITE; AND (IV) UNAUTHORIZED ACCESS, USE, OR ALTERATION OF YOUR TRANSMISSIONS OR CONTENT, WHETHER BASED ON WARRANTY, CONTRACT, TORT (INCLUDING NEGLIGENCE), OR ANY OTHER LEGAL THEORY, WHETHER OR NOT WE HAVE BEEN INFORMED OF THE POSSIBILITY OF SUCH DAMAGE, AND EVEN IF A REMEDY SET FORTH HEREIN IS FOUND TO HAVE FAILED OF ITS ESSENTIAL PURPOSE.
-
-## 10. Indemnification
-
-You agree to defend, indemnify, and hold harmless Numoracle and its licensees and licensors, and their employees, contractors, agents, officers, and directors, from and against any and all claims, damages, obligations, losses, liabilities, costs or debt, and expenses (including but not limited to attorney's fees), resulting from or arising out of (a) your use and access of the Site, by you or any person using your account and password; (b) a breach of these Terms; or (c) content posted on the Site.
-
-## 11. Governing Law
-
-These Terms shall be governed and construed in accordance with the laws of [Your State/Country], without regard to its conflict of law provisions.
-
-## 12. Contact Us
-
-If you have any questions about these Terms, please contact us:
-
-*   By email: support@numoracle.com
-*   By visiting this page on our website: [numoracle.com/contact](/contact)
-`,
-    isPublished: true,
-    createdAt: "2023-01-13T10:00:00Z",
-    updatedAt: "2025-06-19T10:00:00Z",
+    createdAt: "2023-01-01T00:00:00Z",
+    updatedAt: "2023-01-01T00:00:00Z",
   },
 ]
 
-export async function getAllPosts(): Promise<Post[]> {
-  return Promise.resolve(
-    posts
-      .filter((post) => post.isPublished)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
-  )
+/* ---------- Simple in-memory helpers – good enough for build-time ---------- */
+export function getPages() {
+  return pages
 }
 
-export async function getPosts(limit?: number, offset?: number): Promise<Post[]> {
-  const publishedPosts = posts
-    .filter((post) => post.isPublished)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  const start = offset || 0
-  const end = limit ? start + limit : undefined
-  return Promise.resolve(publishedPosts.slice(start, end))
+export function getPageById(id: string) {
+  return pages.find((p) => p.id === id) ?? null
 }
 
-export async function getPostBySlug(slug: string): Promise<Post | undefined> {
-  return Promise.resolve(posts.find((post) => post.slug === slug && post.isPublished))
+export function updatePage(id: string, data: Partial<Page>) {
+  const page = getPageById(id)
+  if (page) Object.assign(page, data, { updatedAt: new Date().toISOString() })
+  return page
 }
 
-export async function getPost(id: string): Promise<Post | undefined> {
-  return Promise.resolve(posts.find((post) => post.id === id))
+export function getPosts() {
+  return posts.filter((p) => p.isPublished)
 }
 
-export async function updatePost(id: string, updatedData: Partial<Post>): Promise<Post | undefined> {
-  const postIndex = posts.findIndex((post) => post.id === id)
-  if (postIndex === -1) {
-    return Promise.resolve(undefined)
-  }
-  posts[postIndex] = { ...posts[postIndex], ...updatedData, updatedAt: new Date().toISOString() }
-  return Promise.resolve(posts[postIndex])
+export function getAllPosts() {
+  return posts
 }
 
-export async function deletePost(id: string): Promise<boolean> {
-  const initialLength = posts.length
-  posts = posts.filter((post) => post.id !== id)
-  return Promise.resolve(posts.length < initialLength)
+export function getPost(id: string) {
+  return posts.find((p) => p.id === id) ?? null
 }
 
-export async function getPages(): Promise<Page[]> {
-  return Promise.resolve(pages.filter((page) => page.isPublished).sort((a, b) => a.title.localeCompare(b.title)))
+export function getPostBySlug(slug: string) {
+  return posts.find((p) => p.slug === slug) ?? null
 }
 
-export async function getPageById(id: string): Promise<Page | undefined> {
-  return Promise.resolve(pages.find((page) => page.id === id))
+export function updatePost(id: string, data: Partial<Post>) {
+  const post = getPost(id)
+  if (post) Object.assign(post, data, { updatedAt: new Date().toISOString() })
+  return post
 }
 
-export async function updatePage(id: string, updatedData: Partial<Page>): Promise<Page | undefined> {
-  const pageIndex = pages.findIndex((page) => page.id === id)
-  if (pageIndex === -1) {
-    return Promise.resolve(undefined)
-  }
-  pages[pageIndex] = { ...pages[pageIndex], ...updatedData, updatedAt: new Date().toISOString() }
-  return Promise.resolve(pages[pageIndex])
+export function deletePost(id: string) {
+  const idx = posts.findIndex((p) => p.id === id)
+  if (idx !== -1) posts.splice(idx, 1)
 }

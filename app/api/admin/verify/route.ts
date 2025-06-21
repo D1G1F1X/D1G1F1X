@@ -1,22 +1,20 @@
 import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 
-// Force dynamic rendering for this route
-export const dynamic = "force-dynamic"
-
 export async function GET() {
   try {
-    // Check for admin session cookie
-    const cookieStore = cookies()
-    const adminSession = cookieStore.get("admin_session")
+    const adminSession = cookies().get("admin_session")
 
     if (adminSession && adminSession.value === "logged_in") {
-      return NextResponse.json({ authenticated: true })
+      return NextResponse.json({ authenticated: true }, { status: 200 })
+    } else {
+      return NextResponse.json({ authenticated: false }, { status: 401 })
     }
-
-    return NextResponse.json({ authenticated: false })
   } catch (error) {
-    console.error("Auth verification error:", error)
-    return NextResponse.json({ authenticated: false, error: "Authentication verification failed" }, { status: 500 })
+    console.error("Verification error:", error)
+    return NextResponse.json(
+      { authenticated: false, message: "An error occurred during verification" },
+      { status: 500 },
+    )
   }
 }
