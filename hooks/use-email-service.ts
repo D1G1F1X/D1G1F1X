@@ -1,66 +1,113 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 
-interface EmailRequest {
-  type: "welcome" | "password-reset" | "contact-form"
-  [key: string]: any
-}
-
-interface EmailResponse {
+interface EmailServiceResponse {
   success: boolean
+  message?: string
   error?: string
+  details?: any
 }
+
+interface WelcomeEmailPayload {
+  type: "welcome"
+  email: string
+  userName: string
+}
+
+interface PasswordResetEmailPayload {
+  type: "password-reset"
+  email: string
+  userName: string
+  resetToken: string
+}
+
+interface ContactFormEmailPayload {
+  type: "contact-form"
+  name: string
+  email: string
+  subject: string
+  message: string
+}
+
+type EmailPayload = WelcomeEmailPayload | PasswordResetEmailPayload | ContactFormEmailPayload
 
 export function useEmailService() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const sendEmail = async (emailData: EmailRequest): Promise<EmailResponse> => {
+  const sendEmail = useCallback(async (payload: EmailPayload): Promise<EmailServiceResponse> => {
     setIsLoading(true)
     setError(null)
 
     try {
       const response = await fetch("/api/email/send", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(emailData),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       })
 
-      const result = await response.json()
+      const responseClone = response.clone()
 
-      if (!response.ok) {
-        const errorMessage = result.error || "Failed to send email"
-        setError(errorMessage)
-        return { success: false, error: errorMessage }
+      let data: any = null
+      try {
+        data = await response.json()
+      } catch (jsonError) {
+        const rawText = await responseClone.text()
+        console.error("Server returned non-JSON response:", rawText)
+        setError("Server returned an unexpected response format. Please check server logs for details.")
+        return {
+          success: false,
+          error: "Server returned an unexpected response format. Please check server logs for details.",
+          details: rawText.slice(0, 200) + "...",
+        }
       }
 
-      return { success: true }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Network error"
+      if (!response.ok) {
+        const errorMessage = data?.error || "Failed to send email."
+        setError(errorMessage)
+        return {
+          success: false,
+          error: errorMessage,
+          details: data,
+        }
+      }
+
+      return {
+        success: true,
+        message: data?.message || "Email sent successfully!",
+        details: data,
+      }
+    } catch (err: any) {
+      console.error("Network or unexpected error during email send:", err)
+      const errorMessage = err.message || "A network error occurred."
       setError(errorMessage)
       return { success: false, error: errorMessage }
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
-  const sendWelcomeEmail = (email: string, userName: string) => sendEmail({ type: "welcome", email, userName })
+  const sendWelcomeEmail = useCallback(
+    (email: string, userName: string) => {
+      return sendEmail({ type: "welcome", email, userName })
+    },
+    [sendEmail],
+  )
 
-  const sendPasswordResetEmail = (email: string, userName: string, resetToken: string) =>
-    sendEmail({ type: "password-reset", email, userName, resetToken })
+  const sendPasswordResetEmail = useCallback(
+    (email: string, userName: string, resetToken: string) => {
+      return sendEmail({ type: "password-reset", email, userName, resetToken })
+    },
+    [sendEmail],
+  )
 
-  const sendContactFormEmail = (formData: { name: string; email: string; subject: string; message: string }) =>
-    sendEmail({ type: "contact-form", ...formData })
+  const sendContactFormEmail = useCallback(
+    (formData: { name: string; email: string; subject: string; message: string }) => {
+      return sendEmail({ type: "contact-form", ...formData })
+    },
+    [sendEmail],
+  )
 
-  return {
-    sendEmail,
-    sendWelcomeEmail,
-    sendPasswordResetEmail,
-    sendContactFormEmail,
-    isLoading,
-    error,
-  }
+  return { sendWelcomeEmail, sendPasswordResetEmail, sendContactFormEmail, isLoading, error }
 }

@@ -19,9 +19,19 @@ const envConfig: Record<string, EnvVar> = {
   KV_REST_API_TOKEN: { value: process.env.KV_REST_API_TOKEN, required: false },
   GOOGLE_AI_API_KEY: { value: process.env.GOOGLE_AI_API_KEY, required: false },
   BLOB_READ_WRITE_TOKEN: { value: process.env.BLOB_READ_WRITE_TOKEN, required: false },
-  BREVO_API_KEY: { value: process.env.BREVO_API_KEY, required: false },
+  BREVO_API_KEY: { value: process.env.BREVO_API_KEY, required: true }, // Made required
   BREVO_SENDER_EMAIL: { value: process.env.BREVO_SENDER_EMAIL, required: false, default: "noreply@numoracle.com" },
   BREVO_SENDER_NAME: { value: process.env.BREVO_SENDER_NAME, required: false, default: "Numoracle" },
+  ADMIN_EMAIL_FOR_NOTIFICATIONS: {
+    value: process.env.ADMIN_EMAIL_FOR_NOTIFICATIONS,
+    required: true,
+    default: "admin@numoracle.com",
+  }, // Made required
+
+  // Admin Credentials (Server-only) - Re-adding these as they might have been lost
+  ADMIN_USERNAME: { value: process.env.ADMIN_USERNAME, required: true, default: "admin" },
+  ADMIN_EMAIL: { value: process.env.ADMIN_EMAIL, required: true, default: "admin@numoracle.com" },
+  ADMIN_PASSWORD: { value: process.env.ADMIN_PASSWORD, required: true, default: "numoracle" },
 
   // App URL (client-safe)
   NEXT_PUBLIC_APP_URL: {
@@ -30,6 +40,8 @@ const envConfig: Record<string, EnvVar> = {
     default: "http://localhost:3000",
     clientSafe: true,
   },
+  // Explicitly mark NODE_ENV as client-safe if accessed via getEnv
+  NODE_ENV: { value: process.env.NODE_ENV, required: true, clientSafe: true },
 }
 
 // Validate all required environment variables on startup
