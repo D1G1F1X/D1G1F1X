@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import { ClientImage } from "@/components/client-image"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 
 interface BlogPost {
   id: string
@@ -74,50 +75,61 @@ export function BlogPreview() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {posts.map((post) => (
-            <Card key={post.id} className="bg-black/50 border-purple-800/30 overflow-hidden flex flex-col">
-              {post.featuredImage && (
-                <div className="h-48 relative">
-                  <ClientImage
-                    src={post.featuredImage}
-                    alt={post.title}
-                    fallbackSrc="/gifts-of-danu.png"
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              )}
-              <CardHeader>
-                <CardTitle className="text-white">
-                  <Link href={`/blog/${post.slug}`} className="hover:text-purple-400 transition">
-                    {post.title}
-                  </Link>
-                </CardTitle>
-                {/* Fix: Replace CardDescription (which uses <p>) with a custom div */}
-                <div className="text-gray-400 text-sm">
-                  <div className="flex items-center gap-2 mt-1">
-                    <span>By {post.author}</span>
-                    <span>•</span>
-                    <time dateTime={post.createdAt}>{new Date(post.createdAt).toLocaleDateString()}</time>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="text-gray-300 flex-grow">
-                <p className="line-clamp-3">{post.excerpt}</p>
-              </CardContent>
-              <CardFooter>
-                <Link href={`/blog/${post.slug}`} className="w-full">
-                  <Button
-                    variant="outline"
-                    className="w-full border-purple-800/50 hover:bg-purple-800/20 text-purple-400"
-                  >
-                    Read More <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        <Carousel
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+          className="w-full"
+        >
+          <CarouselContent className="-ml-4">
+            {posts.map((post) => (
+              <CarouselItem key={post.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                <Card className="bg-black/50 border-purple-800/30 overflow-hidden flex flex-col h-full">
+                  {post.featuredImage && (
+                    <div className="h-48 relative">
+                      <ClientImage
+                        src={post.featuredImage}
+                        alt={post.title}
+                        fallbackSrc="/gifts-of-danu.png"
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                  )}
+                  <CardHeader>
+                    <CardTitle className="text-white">
+                      <Link href={`/blog/${post.slug}`} className="hover:text-purple-400 transition">
+                        {post.title}
+                      </Link>
+                    </CardTitle>
+                    <div className="text-gray-400 text-sm">
+                      <div className="flex items-center gap-2 mt-1">
+                        <span>By {post.author}</span>
+                        <span>•</span>
+                        <time dateTime={post.createdAt}>{new Date(post.createdAt).toLocaleDateString()}</time>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="text-gray-300 flex-grow">
+                    <p className="line-clamp-3">{post.excerpt}</p>
+                  </CardContent>
+                  <CardFooter>
+                    <Link href={`/blog/${post.slug}`} className="w-full">
+                      <Button
+                        variant="outline"
+                        className="w-full border-purple-800/50 hover:bg-purple-800/20 text-purple-400"
+                      >
+                        Read More <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </CardFooter>
+                </Card>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 z-10" />
+          <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 z-10" />
+        </Carousel>
 
         <div className="text-center mt-12">
           <Link href="/blog">

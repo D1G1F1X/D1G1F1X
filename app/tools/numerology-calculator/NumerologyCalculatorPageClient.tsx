@@ -135,15 +135,7 @@ export default function NumerologyCalculatorPageClient() {
   }
 
   return (
-    <div className="container py-10">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">Numerology Calculator</h1>
-        <p className="mt-4 text-muted-foreground">
-          Calculate your life path number, destiny number, and other important numerological values to understand your
-          spiritual journey.
-        </p>
-      </div>
-
+    <div className="container py-10 max-w-screen-lg mx-auto">
       {/* Inline Privacy Notice */}
       <InlinePrivacyNotice context="numerology-calculator" onConsentChange={handlePrivacyConsentChange} />
 

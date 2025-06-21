@@ -37,18 +37,15 @@ export function getOptimizedImageUrl(originalUrl: string, options: ImageOptimiza
   }
 }
 
+/**
+ * Preloads images for better performance
+ */
 export async function preloadCardImages(imageUrls: string[]): Promise<void> {
   const preloadPromises = imageUrls.map((url) => {
     return new Promise<void>((resolve) => {
-      if (typeof window === "undefined" || typeof window.Image === "undefined") {
-        console.warn("window.Image is not available, skipping image preload for:", url)
-        resolve()
-        return
-      }
-
-      const img = new window.Image()
+      const img = new Image()
       img.onload = () => resolve()
-      img.onerror = () => resolve()
+      img.onerror = () => resolve() // Resolve even on error to not block other images
       img.src = getOptimizedImageUrl(url, { width: 270, height: 420 })
     })
   })

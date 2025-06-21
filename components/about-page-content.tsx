@@ -21,6 +21,8 @@ export default function AboutPageContent() {
     <div className="relative min-h-screen bg-black text-white space-y-24 pb-20">
       {isMounted && <ShootingStar />}
 
+      {/* Hero Section - Removed */}
+
       {/* Origin Story */}
       <section className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">

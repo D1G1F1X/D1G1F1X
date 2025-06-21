@@ -1,16 +1,31 @@
 "use client"
 
-import { useEffect } from "react"
-
 import type React from "react"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import BlogCarousel from "@/components/blog-carousel"
-import { ArrowRightIcon, SparklesIcon, BookOpenIcon, CalculatorIcon } from "lucide-react"
-import { useRef, useState } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import {
+  Sparkles,
+  Calculator,
+  Library,
+  Compass,
+  Dice1Icon as Dice,
+  PauseIcon,
+  PlayIcon,
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
+  BookOpen,
+  Info,
+} from "lucide-react"
+import Image from "next/image"
+import NumoEmblemLogo from "@/components/numo-emblem-logo"
+import { useEffect, useRef, useState } from "react"
+import ElementalParticles from "@/components/elemental-particles"
 import { cn } from "@/lib/utils"
 import YouTubeVideo from "@/components/youtube-video"
+import FloatingTutorialCTA from "@/components/floating-tutorial-cta"
 
 // Define the tool interface
 interface OracleTool {
@@ -57,7 +72,7 @@ export default function HomeContent() {
     {
       id: "card-dealer",
       name: "NUMO Card Dealer & Oracle",
-      icon: <CalculatorIcon className="h-7 w-7 text-purple-300" />,
+      icon: <Compass className="h-7 w-7 text-purple-300" />,
       description: "Draw cards and receive personalized oracle readings based on your questions and energy.",
       link: "/tools/card-simulator",
       action: "Try Now",
@@ -67,7 +82,7 @@ export default function HomeContent() {
     {
       id: "numerology",
       name: "FREE Numerology Report",
-      icon: <CalculatorIcon className="h-7 w-7 text-purple-300" />,
+      icon: <Calculator className="h-7 w-7 text-purple-300" />,
       description: "Discover your life path, destiny number, and personal numerology profile.",
       link: "/tools/numerology-calculator",
       action: "Try Now",
@@ -77,7 +92,7 @@ export default function HomeContent() {
     {
       id: "card-directory",
       name: "Card Directory",
-      icon: <CalculatorIcon className="h-7 w-7 text-purple-300" />,
+      icon: <Library className="h-7 w-7 text-purple-300" />,
       description: "Explore the complete collection of NUMO Oracle cards, their meanings, and symbolism.",
       link: "/tools/card-directory",
       action: "Explore",
@@ -87,7 +102,7 @@ export default function HomeContent() {
     {
       id: "elemental-dice",
       name: "Elemental Dice Oracle",
-      icon: <CalculatorIcon className="h-7 w-7 text-purple-300" />,
+      icon: <Dice className="h-7 w-7 text-purple-300" />,
       description: "Roll the five elemental dice to receive numerological guidance through the elements.",
       link: "/tools/elemental-dice",
       action: "Try Now",
@@ -449,122 +464,161 @@ export default function HomeContent() {
   const aboutSummarySection = pageData?.sections?.find((s: any) => s.id === "about-summary" && s.isActive)
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Hero Section */}
-      <section className="relative py-20 px-4">
-        <div className="container mx-auto text-center">
-          <div className="mb-6">
-            <SparklesIcon className="h-16 w-16 mx-auto text-purple-400 mb-4" />
+    <>
+      <FloatingTutorialCTA />
+      <section className="pt-32 pb-24 relative overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row items-center">
+            <div className="lg:w-1/2 mb-12 lg:mb-0">
+              <div className="mb-8">
+                <div className="text-sm uppercase tracking-wider text-purple-400 mb-2">{pageData?.subtitle}</div>
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6">{pageData?.title}</h1>
+                <button
+                  onClick={restartCardAnimation}
+                  className="transition-opacity hover:opacity-80 focus:outline-none"
+                  aria-label="Restart card animation"
+                >
+                  <Image src="/numoracle-full-logo.png" alt="NUMO ORACLE" width={300} height={60} className="mb-2" />
+                </button>
+                <p className="text-lg text-gray-300 mb-6">{pageData?.description}</p>
+              </div>
+              <div className="flex flex-wrap gap-4">
+                <Button size="lg" className="bg-purple-600 hover:bg-purple-700" asChild>
+                  <Link href="/buy">Get Your Deck</Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-purple-500 text-purple-400 hover:bg-purple-950"
+                  asChild
+                >
+                  <Link href="/tools/card-simulator">Try NUMO Card Dealer & Oracle</Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-yellow-500 text-yellow-400 hover:bg-yellow-950/50 hover:border-yellow-400"
+                  asChild
+                >
+                  <Link href="/tutorial" className="flex items-center">
+                    <BookOpen className="mr-2 h-5 w-5" />
+                    Learn with the Tutorial
+                  </Link>
+                </Button>
+              </div>
+            </div>
+            <div className="lg:w-1/2 relative">
+              <div className="absolute top-[-30px] right-[-20px] md:top-[-50px] md:right-[-30px] opacity-80">
+                <button
+                  onClick={restartCardAnimation}
+                  className="transition-opacity hover:opacity-80 focus:outline-none"
+                  aria-label="Restart card animation"
+                >
+                  <Image
+                    src="/numero-logo-500x500.png"
+                    alt="NUMO Oracle Logo"
+                    width={120}
+                    height={120}
+                    className="animate-pulse"
+                    style={{ animationDuration: "4s" }}
+                  />
+                </button>
+              </div>
+              <div
+                ref={cardsContainerRef}
+                className="relative h-[500px] w-full"
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+                key={animationKey}
+              >
+                {randomizedCards.map((card) => (
+                  <div
+                    key={card.id}
+                    className="absolute top-1/2 left-1/2 transition-all duration-700"
+                    style={{
+                      zIndex: card.zIndex,
+                      transform: `translate(calc(${card.translateX}% + ${card.offsetX}px), calc(${card.translateY}% + ${card.offsetY}px)) rotate(${card.initialRotate}deg) ${getParallaxStyle(card.parallaxSpeed).transform}`,
+                      ...(isHovering && {
+                        transform: `translate(calc(${card.translateX}% + ${card.offsetX}px), calc(${card.translateY - card.hoverTranslateY}% + ${card.offsetY}px)) rotate(${card.hoverRotate}deg) scale(${card.hoverScale})`,
+                        transitionDelay: `${card.delay}s`,
+                      }),
+                    }}
+                  >
+                    <div
+                      className="w-[240px] h-[360px] rounded-lg overflow-hidden transition-all duration-700"
+                      style={{
+                        boxShadow: `0 0 30px ${card.glowColor}`,
+                        ...(isHovering && { boxShadow: `0 0 40px ${card.glowColor}` }),
+                      }}
+                    >
+                      <div
+                        className="w-full h-full transition-all duration-700"
+                        style={{
+                          transform: `rotate(${card.imageRotation}deg)`,
+                          ...(isHovering && { transform: `rotate(${card.imageRotation * 0.5}deg)` }),
+                        }}
+                      >
+                        <Image
+                          src={card.src || "/placeholder.svg"}
+                          alt={card.alt}
+                          width={240}
+                          height={360}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+                    <ElementalParticles
+                      element={card.element as "fire" | "water" | "earth" | "air" | "spirit"}
+                      isActive={isHovering}
+                      x={card.particlePositionX}
+                      y={card.particlePositionY}
+                    />
+                  </div>
+                ))}
+                <div className="absolute inset-0 pointer-events-none">
+                  {isHovering && (
+                    <>
+                      <div
+                        className="absolute top-[15%] left-[20%] text-purple-300 opacity-0 animate-fadeIn"
+                        style={{ animationDelay: "0.3s" }}
+                      >
+                        ✧
+                      </div>
+                      <div
+                        className="absolute top-[30%] right-[25%] text-blue-300 opacity-0 animate-fadeIn"
+                        style={{ animationDelay: "0.5s" }}
+                      >
+                        ○
+                      </div>
+                      <div
+                        className="absolute bottom-[25%] left-[30%] text-amber-300 opacity-0 animate-fadeIn"
+                        style={{ animationDelay: "0.7s" }}
+                      >
+                        ⚹
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
-            NUMO{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Oracle</span>
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Unlock the ancient wisdom of numerology and discover the profound insights hidden within your numbers
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="bg-purple-600 hover:bg-purple-700">
-              <Link href="/tools/numerology-calculator">
-                <CalculatorIcon className="h-5 w-5 mr-2" />
-                Free Numerology Report
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="border-purple-500 text-purple-300 hover:bg-purple-600/10"
-            >
-              <Link href="/tools/card-simulator">
-                Explore Oracle Cards
-                <ArrowRightIcon className="h-5 w-5 ml-2" />
-              </Link>
-            </Button>
-          </div>
+        </div>
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+          <div
+            className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/10 rounded-full filter blur-3xl"
+            style={getParallaxStyle(0.02)}
+          ></div>
+          <div
+            className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-blue-500/10 rounded-full filter blur-3xl"
+            style={getParallaxStyle(-0.01)}
+          ></div>
+          <div
+            className="absolute top-1/2 right-1/4 w-80 h-80 bg-purple-600/5 rounded-full filter blur-3xl animate-pulse"
+            style={{ animationDuration: "8s" }}
+          ></div>
         </div>
       </section>
 
-      {/* Featured Blog Posts Carousel */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Latest Insights & Wisdom</h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Explore our featured articles on numerology, Celtic wisdom, and spiritual practices
-            </p>
-          </div>
-
-          <BlogCarousel maxPosts={5} autoPlay={true} autoPlayInterval={6000} />
-
-          <div className="text-center mt-8">
-            <Button asChild variant="outline" className="border-purple-500 text-purple-300 hover:bg-purple-600/10">
-              <Link href="/blog">
-                <BookOpenIcon className="h-5 w-5 mr-2" />
-                View All Articles
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Tools Section */}
-      <section className="py-16 px-4 bg-gray-900/50">
-        <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Spiritual Tools & Resources</h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Discover powerful tools to enhance your spiritual journey and unlock deeper insights
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="bg-gray-800 border-gray-700 hover:border-purple-500 transition-colors">
-              <CardHeader>
-                <CardTitle className="text-white">Numerology Calculator</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-400 mb-4">
-                  Generate your comprehensive numerology report with life path, destiny, and soul urge numbers.
-                </p>
-                <Button asChild className="w-full bg-purple-600 hover:bg-purple-700">
-                  <Link href="/tools/numerology-calculator">Explore Tool</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-800 border-gray-700 hover:border-purple-500 transition-colors">
-              <CardHeader>
-                <CardTitle className="text-white">Oracle Card Reading</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-400 mb-4">
-                  Draw cards from our NUMO Oracle deck for daily guidance and spiritual insights.
-                </p>
-                <Button asChild className="w-full bg-purple-600 hover:bg-purple-700">
-                  <Link href="/tools/card-simulator">Draw Cards</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-800 border-gray-700 hover:border-purple-500 transition-colors">
-              <CardHeader>
-                <CardTitle className="text-white">Card Directory</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-400 mb-4">
-                  Explore the complete collection of NUMO Oracle cards and their meanings.
-                </p>
-                <Button asChild className="w-full bg-purple-600 hover:bg-purple-700">
-                  <Link href="/tools/card-directory">Browse Cards</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
       {featuresSection && (
         <section className="py-16 bg-black/30">
           <div className="container mx-auto px-4">
@@ -577,7 +631,7 @@ export default function HomeContent() {
                 className="rounded-full border-purple-500/30 text-purple-400 hover:bg-purple-900/30"
                 aria-label="Previous tool"
               >
-                {/* ChevronLeft Icon */}
+                <ChevronLeft className="h-5 w-5" />
               </Button>
               <div className="flex items-center space-x-3">
                 {totalPages > 0 &&
@@ -601,7 +655,7 @@ export default function HomeContent() {
                   className="rounded-full border-purple-500/30 text-purple-400 hover:bg-purple-900/30 w-7 h-7"
                   aria-label={isToolCarouselPaused ? "Play tools carousel" : "Pause tools carousel"}
                 >
-                  {/* PlayIcon or PauseIcon */}
+                  {isToolCarouselPaused ? <PlayIcon className="h-4 w-4" /> : <PauseIcon className="h-4 w-4" />}
                 </Button>
               </div>
               <Button
@@ -611,7 +665,7 @@ export default function HomeContent() {
                 className="rounded-full border-purple-500/30 text-purple-400 hover:bg-purple-900/30"
                 aria-label="Next tool"
               >
-                {/* ChevronRight Icon */}
+                <ChevronRight className="h-5 w-5" />
               </Button>
             </div>
             <div className="relative overflow-hidden hidden md:block">
@@ -713,7 +767,6 @@ export default function HomeContent() {
         </section>
       )}
 
-      {/* About Summary Section */}
       {aboutSummarySection && (
         <section className="py-20 bg-gradient-to-b from-black/20 to-black/40 relative overflow-hidden">
           <div className="container mx-auto px-4">
@@ -755,7 +808,7 @@ export default function HomeContent() {
                     asChild
                   >
                     <Link href="/about" className="flex items-center">
-                      <CalculatorIcon className="mr-2 h-5 w-5" />
+                      <Info className="mr-2 h-5 w-5" />
                       Learn More About NUMO
                     </Link>
                   </Button>
@@ -783,15 +836,14 @@ export default function HomeContent() {
         </section>
       )}
 
-      {/* Blog Section */}
       {blogSection && (
-        <section className="py-20 px-4">
-          <div className="container mx-auto">
+        <section className="py-20 bg-gradient-to-b from-black/40 to-black/20">
+          <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-10">
               <h2 className="text-3xl font-bold">{blogSection.title}</h2>
-              <Button variant="outline" className="border-purple-500/50 text-purple-300 hover:bg-purple-900/30" asChild>
+              <Button variant="outline" className="border-purple-500/50 text-purple-400 hover:bg-purple-900/30" asChild>
                 <Link href="/blog" className="flex items-center">
-                  View All Posts <ArrowRightIcon className="ml-2 h-4 w-4" />
+                  View All Posts <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
@@ -803,7 +855,7 @@ export default function HomeContent() {
                 className="rounded-full border-purple-500/30 text-purple-400 hover:bg-purple-900/30"
                 aria-label="Previous blog post"
               >
-                {/* ChevronLeft Icon */}
+                <ChevronLeft className="h-5 w-5" />
               </Button>
               <div className="flex items-center space-x-3">
                 {totalBlogPages > 0 &&
@@ -827,7 +879,7 @@ export default function HomeContent() {
                   className="rounded-full border-purple-500/30 text-purple-400 hover:bg-purple-900/30 w-7 h-7"
                   aria-label={isBlogCarouselPaused ? "Play blog carousel" : "Pause blog carousel"}
                 >
-                  {/* PlayIcon or PauseIcon */}
+                  {isBlogCarouselPaused ? <PlayIcon className="h-4 w-4" /> : <PauseIcon className="h-4 w-4" />}
                 </Button>
               </div>
               <Button
@@ -837,7 +889,7 @@ export default function HomeContent() {
                 className="rounded-full border-purple-500/30 text-purple-400 hover:bg-purple-900/30"
                 aria-label="Next blog post"
               >
-                {/* ChevronRight Icon */}
+                <ChevronRight className="h-5 w-5" />
               </Button>
             </div>
             <div className="relative overflow-hidden hidden md:block">
@@ -957,7 +1009,6 @@ export default function HomeContent() {
         </section>
       )}
 
-      {/* Testimonials Section */}
       {testimonialsSection && (
         <section className="py-20">
           <div className="container mx-auto px-4">
@@ -1010,10 +1061,11 @@ export default function HomeContent() {
         </section>
       )}
 
-      {/* Begin Your Journey Section */}
       <section className="py-16 bg-gradient-to-br from-purple-900/30 to-black">
         <div className="container mx-auto px-4 text-center">
-          <div className="flex justify-center mb-6">{/* NumoEmblemLogo Component */}</div>
+          <div className="flex justify-center mb-6">
+            <NumoEmblemLogo variant="with-text" size="lg" asLink={false} />
+          </div>
           <h2 className="text-3xl font-bold mb-8">Begin Your Journey Today</h2>
           <Button
             size="lg"
@@ -1021,12 +1073,12 @@ export default function HomeContent() {
             asChild
           >
             <Link href="/tools/card-simulator">
-              <SparklesIcon className="mr-2 h-5 w-5" />
+              <Sparkles className="mr-2 h-5 w-5" />
               Try NUMO Card Dealer & Oracle
             </Link>
           </Button>
         </div>
       </section>
-    </div>
+    </>
   )
 }
