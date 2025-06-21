@@ -1,16 +1,22 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
+import { SUPABASE_CONFIG, validateDigifixIntegration } from "./supabase/config"
 
-// These env vars must exist in your Vercel project settings
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// DIGIFIX Supabase Configuration - Validated
+const supabaseUrl = SUPABASE_CONFIG.url
+const supabaseAnonKey = SUPABASE_CONFIG.anonKey
+const supabaseServiceRoleKey = SUPABASE_CONFIG.serviceRoleKey
+
+// Validate DIGIFIX integration on initialization
+if (typeof window === "undefined") {
+  validateDigifixIntegration()
+}
 
 // ----------  SINGLETON (CLIENT-SIDE) ----------
 let supabaseClient: SupabaseClient | undefined
 
 /**
- * getClientSide()
- * Always returns the same Supabase instance in the browser.
- * Only use this for non-auth features like blob storage.
+ * DIGIFIX Supabase Client - Browser Only
+ * Ensures exclusive use of DIGIFIX project configuration
  */
 export function getClientSide(): SupabaseClient {
   if (typeof window === "undefined") {
@@ -26,9 +32,13 @@ export function getClientSide(): SupabaseClient {
 export const supabase = typeof window !== "undefined" ? getClientSide() : ({} as SupabaseClient)
 
 // ----------  SERVER-SIDE ADMIN (SERVICE ROLE) ----------
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 let _supabaseAdmin: SupabaseClient | undefined
+
+/**
+ * DIGIFIX Supabase Admin Client - Server Only
+ * Uses DIGIFIX service role key for admin operations
+ */
 export function getAdminClient(): SupabaseClient {
   if (typeof window !== "undefined") {
     throw new Error("getAdminClient should only be used on the server")
