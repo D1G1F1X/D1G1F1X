@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function GuidebookPage() {
   // Teaser content for non-members
   const guidebookTeaser = (
-    <div className="space-y-4">
+    <div className="space-y-4 font-body">
       <p className="text-gray-300">
         The NUMO Oracle Guidebook is your essential companion to understanding and working with the NUMO Oracle Card
         Deck. This comprehensive guide includes:
@@ -35,13 +35,13 @@ export default function GuidebookPage() {
   )
 
   return (
-    <main className="container mx-auto px-4 py-12">
+    <main className="container mx-auto px-4 py-12 font-body">
       <div className="text-center mb-12">
         <div className="flex justify-center items-center mb-2">
           <span className="text-sm text-gray-400">by</span>
           <span className="ml-1 text-sm font-semibold tracking-wider text-white">KRAFTWERK NUMEROLOGY</span>
         </div>
-        <h1 className="text-4xl font-bold mb-4">
+        <h1 className="text-4xl font-bold mb-4 font-heading">
           <span className="text-white">NUMO Oracle </span>
           <span className="text-purple-400">Guidebook</span>
         </h1>
@@ -60,7 +60,9 @@ export default function GuidebookPage() {
         <div className="md:col-span-2">
           <MembershipVerification teaser={guidebookTeaser}>
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-purple-400">Welcome to the Complete NUMO Oracle Guidebook</h2>
+              <h2 className="text-2xl font-bold text-purple-400 font-heading">
+                Welcome to the Complete NUMO Oracle Guidebook
+              </h2>
 
               <p className="text-gray-300">
                 This comprehensive guide will help you unlock the full potential of your NUMO Oracle Card Deck. Whether
@@ -69,56 +71,56 @@ export default function GuidebookPage() {
               </p>
 
               <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
-                <h3 className="text-xl font-semibold text-white mb-4">Table of Contents</h3>
-                <ul className="space-y-3">
+                <h3 className="text-xl font-semibold text-white mb-4 font-heading">Table of Contents</h3>
+                <ol className="space-y-3 list-decimal pl-6">
                   <li>
                     <Link
                       href="/guidebook/introduction"
                       className="text-purple-400 hover:text-purple-300 flex items-center"
                     >
                       <ChevronRight className="h-4 w-4 mr-2" />
-                      Introduction to the NUMO Oracle System
+                      Introduction to the NUMO Oracle
                     </Link>
                   </li>
                   <li>
                     <Link
-                      href="/guidebook/numerology"
+                      href="/guidebook/philosophy"
                       className="text-purple-400 hover:text-purple-300 flex items-center"
                     >
                       <ChevronRight className="h-4 w-4 mr-2" />
-                      Understanding Numerology in the NUMO System
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/guidebook/suits" className="text-purple-400 hover:text-purple-300 flex items-center">
-                      <ChevronRight className="h-4 w-4 mr-2" />
-                      The Five Sacred Suits
+                      The NUMO System Philosophy
                     </Link>
                   </li>
                   <li>
                     <Link
-                      href="/guidebook/elements"
+                      href="/guidebook/card-meanings"
                       className="text-purple-400 hover:text-purple-300 flex items-center"
                     >
                       <ChevronRight className="h-4 w-4 mr-2" />
-                      Elemental Associations
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/guidebook/cards" className="text-purple-400 hover:text-purple-300 flex items-center">
-                      <ChevronRight className="h-4 w-4 mr-2" />
-                      Card Meanings & Interpretations
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/guidebook/spreads" className="text-purple-400 hover:text-purple-300 flex items-center">
-                      <ChevronRight className="h-4 w-4 mr-2" />
-                      Spreads & Layouts
+                      The Cards & Their Meanings
                     </Link>
                   </li>
                   <li>
                     <Link
-                      href="/guidebook/techniques"
+                      href="/guidebook/elemental-layers"
+                      className="text-purple-400 hover:text-purple-300 flex items-center"
+                    >
+                      <ChevronRight className="h-4 w-4 mr-2" />
+                      Interpreting Elemental Layers
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/guidebook/personalizing-readings"
+                      className="text-purple-400 hover:text-purple-300 flex items-center"
+                    >
+                      <ChevronRight className="h-4 w-4 mr-2" />
+                      Personalizing Readings with Numerology
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/guidebook/advanced-techniques"
                       className="text-purple-400 hover:text-purple-300 flex items-center"
                     >
                       <ChevronRight className="h-4 w-4 mr-2" />
@@ -127,14 +129,20 @@ export default function GuidebookPage() {
                   </li>
                   <li>
                     <Link
-                      href="/guidebook/practice"
+                      href="/guidebook/compound-numbers"
                       className="text-purple-400 hover:text-purple-300 flex items-center"
                     >
                       <ChevronRight className="h-4 w-4 mr-2" />
-                      Practice Readings & Case Studies
+                      Interpreting Compound Numbers
                     </Link>
                   </li>
-                </ul>
+                  <li>
+                    <Link href="/guidebook/ethics" className="text-purple-400 hover:text-purple-300 flex items-center">
+                      <ChevronRight className="h-4 w-4 mr-2" />
+                      The Ethical Responsibilities of a Reader
+                    </Link>
+                  </li>
+                </ol>
               </div>
 
               <div className="flex justify-center mt-6">
@@ -149,16 +157,16 @@ export default function GuidebookPage() {
 
       <Tabs defaultValue="introduction" className="w-full mb-12">
         <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-8">
-          <TabsTrigger value="introduction" className="data-[state=active]:bg-purple-600">
+          <TabsTrigger value="introduction" className="data-[state=active]:bg-purple-600 font-heading">
             Introduction
           </TabsTrigger>
-          <TabsTrigger value="preview" className="data-[state=active]:bg-purple-600">
+          <TabsTrigger value="preview" className="data-[state=active]:bg-purple-600 font-heading">
             Chapter Preview
           </TabsTrigger>
-          <TabsTrigger value="sample" className="data-[state=active]:bg-purple-600">
+          <TabsTrigger value="sample" className="data-[state=active]:bg-purple-600 font-heading">
             Sample Spreads
           </TabsTrigger>
-          <TabsTrigger value="download" className="data-[state=active]:bg-purple-600">
+          <TabsTrigger value="download" className="data-[state=active]:bg-purple-600 font-heading">
             Download Options
           </TabsTrigger>
         </TabsList>
@@ -166,10 +174,10 @@ export default function GuidebookPage() {
         <TabsContent value="introduction" className="mt-0">
           <Card className="bg-gray-800/50 border-gray-700">
             <CardHeader>
-              <CardTitle className="text-2xl text-purple-400">Introduction to the NUMO Oracle</CardTitle>
-              <CardDescription>A brief overview of the NUMO Oracle system</CardDescription>
+              <CardTitle className="text-2xl text-purple-400 font-heading">Introduction to the NUMO Oracle</CardTitle>
+              <CardDescription className="text-text-main">A brief overview of the NUMO Oracle system</CardDescription>
             </CardHeader>
-            <CardContent className="prose prose-invert max-w-none">
+            <CardContent className="prose prose-invert max-w-none text-text-main">
               <p>
                 Welcome to the world of the NUMO Oracle Card Deck, a unique divination system that bridges ancient
                 numerological wisdom with contemporary spiritual practice. This guidebook serves as your companion on a
@@ -191,21 +199,23 @@ export default function GuidebookPage() {
 
                 <p>The five suits are:</p>
 
-                <ul>
+                <ul className="list-disc pl-6">
                   <li>
-                    <strong>The Cauldron (0/1)</strong> - The vessel of creation and intuition
+                    <strong className="text-text-heading">The Cauldron (0/1)</strong> - The vessel of creation and
+                    intuition
                   </li>
                   <li>
-                    <strong>The Sword (2/5)</strong> - The blade of clarity and decision
+                    <strong className="text-text-heading">The Sword (2/5)</strong> - The blade of clarity and decision
                   </li>
                   <li>
-                    <strong>The Cord (3/8)</strong> - The thread of connection and destiny
+                    <strong className="text-text-heading">The Cord (3/8)</strong> - The thread of connection and destiny
                   </li>
                   <li>
-                    <strong>The Spear (4/7)</strong> - The tool of action and protection
+                    <strong className="text-text-heading">The Spear (4/7)</strong> - The tool of action and protection
                   </li>
                   <li>
-                    <strong>The Stone (6/9)</strong> - The foundation of stability and abundance
+                    <strong className="text-text-heading">The Stone (6/9)</strong> - The foundation of stability and
+                    abundance
                   </li>
                 </ul>
 
@@ -223,11 +233,15 @@ export default function GuidebookPage() {
           <MembershipVerification>
             <Card className="bg-gray-800/50 border-gray-700">
               <CardHeader>
-                <CardTitle className="text-2xl text-purple-400">Chapter Preview: The Cauldron Suit</CardTitle>
-                <CardDescription>Excerpt from Chapter 3: The Five Sacred Suits</CardDescription>
+                <CardTitle className="text-2xl text-purple-400 font-heading">
+                  Chapter Preview: The Cauldron Suit
+                </CardTitle>
+                <CardDescription className="text-text-main">
+                  Excerpt from Chapter 3: The Five Sacred Suits
+                </CardDescription>
               </CardHeader>
-              <CardContent className="prose prose-invert max-w-none">
-                <h3>The Cauldron (0/1): Vessel of Creation</h3>
+              <CardContent className="prose prose-invert max-w-none text-text-main">
+                <h3 className="font-heading text-text-heading text-xl">The Cauldron (0/1): Vessel of Creation</h3>
 
                 <p>
                   The Cauldron represents the dynamic between infinite potential (0) and manifestation (1). As the first
@@ -235,7 +249,7 @@ export default function GuidebookPage() {
                   is associated with intuition, emotions, creativity, and the subconscious mind.
                 </p>
 
-                <h4>Numerological Significance</h4>
+                <h4 className="font-heading text-text-heading text-lg">Numerological Significance</h4>
 
                 <p>
                   The pairing of 0 and 1 represents the most fundamental duality in existence: nothingness and
@@ -244,37 +258,41 @@ export default function GuidebookPage() {
                   the individual self emerging from the collective unconscious.
                 </p>
 
-                <h4>Elemental Associations</h4>
+                <h4 className="font-heading text-text-heading text-lg">Elemental Associations</h4>
 
                 <p>
                   The Cauldron cards appear in all five elemental variations, each emphasizing different aspects of this
                   suit's energy:
                 </p>
 
-                <ul>
+                <ul className="list-disc pl-6">
                   <li>
-                    <strong>Cauldron of Earth:</strong> Manifesting physical abundance, grounding intuition into
-                    practical action
+                    <strong className="text-text-heading">Cauldron of Earth:</strong> Manifesting physical abundance,
+                    grounding intuition into practical action
                   </li>
                   <li>
-                    <strong>Cauldron of Air:</strong> Intellectual creativity, communicating intuitive insights
+                    <strong className="text-text-heading">Cauldron of Air:</strong> Intellectual creativity,
+                    communicating intuitive insights
                   </li>
                   <li>
-                    <strong>Cauldron of Fire:</strong> Passionate creation, transformative emotional experiences
+                    <strong className="text-text-heading">Cauldron of Fire:</strong> Passionate creation, transformative
+                    emotional experiences
                   </li>
                   <li>
-                    <strong>Cauldron of Water:</strong> Deep emotional wisdom, psychic receptivity, healing
+                    <strong className="text-text-heading">Cauldron of Water:</strong> Deep emotional wisdom, psychic
+                    receptivity, healing
                   </li>
                   <li>
-                    <strong>Cauldron of Spirit:</strong> Connection to divine inspiration, spiritual rebirth
+                    <strong className="text-text-heading">Cauldron of Spirit:</strong> Connection to divine inspiration,
+                    spiritual rebirth
                   </li>
                 </ul>
 
-                <h4>Reading with Cauldron Cards</h4>
+                <h4 className="font-heading text-text-heading text-lg">Reading with Cauldron Cards</h4>
 
                 <p>When Cauldron cards appear in a reading, they often point to:</p>
 
-                <ul>
+                <ul className="list-disc pl-6">
                   <li>Areas where intuition should be trusted over logic</li>
                   <li>Creative opportunities or projects</li>
                   <li>Emotional situations requiring attention</li>
@@ -295,13 +313,15 @@ export default function GuidebookPage() {
         <TabsContent value="sample" className="mt-0">
           <Card className="bg-gray-800/50 border-gray-700">
             <CardHeader>
-              <CardTitle className="text-2xl text-purple-400">Sample Spreads</CardTitle>
-              <CardDescription>Preview of spreads included in the guidebook</CardDescription>
+              <CardTitle className="text-2xl text-purple-400 font-heading">Sample Spreads</CardTitle>
+              <CardDescription className="text-text-main">Preview of spreads included in the guidebook</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-gray-700/50 p-4 rounded-lg">
-                  <h3 className="text-xl font-semibold text-purple-300 mb-3">Three-Card Elemental Insight</h3>
+                  <h3 className="text-xl font-semibold text-purple-300 mb-3 font-heading">
+                    Three-Card Elemental Insight
+                  </h3>
                   <p className="text-gray-300 mb-4">
                     A simple but powerful spread that reveals the elemental influences affecting your situation.
                   </p>
@@ -328,7 +348,7 @@ export default function GuidebookPage() {
                 </div>
 
                 <div className="bg-gray-700/50 p-4 rounded-lg">
-                  <h3 className="text-xl font-semibold text-purple-300 mb-3">Sacred Treasures Spread</h3>
+                  <h3 className="text-xl font-semibold text-purple-300 mb-3 font-heading">Sacred Treasures Spread</h3>
                   <p className="text-gray-300 mb-4">
                     A five-card spread based on the sacred treasures of the Goddess Danu.
                   </p>
@@ -368,14 +388,16 @@ export default function GuidebookPage() {
           <MembershipVerification>
             <Card className="bg-gray-800/50 border-gray-700">
               <CardHeader>
-                <CardTitle className="text-2xl text-purple-400">Download Options</CardTitle>
-                <CardDescription>Available formats for the NUMO Oracle Guidebook</CardDescription>
+                <CardTitle className="text-2xl text-purple-400 font-heading">Download Options</CardTitle>
+                <CardDescription className="text-text-main">
+                  Available formats for the NUMO Oracle Guidebook
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <Card className="bg-gray-700/50 border-gray-600">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-lg">PDF Format</CardTitle>
+                      <CardTitle className="text-lg font-heading">PDF Format</CardTitle>
                     </CardHeader>
                     <CardContent className="text-sm text-gray-300">
                       High-quality PDF optimized for both screen reading and printing. Includes bookmarks and hyperlinks
@@ -390,7 +412,7 @@ export default function GuidebookPage() {
 
                   <Card className="bg-gray-700/50 border-gray-600">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-lg">EPUB Format</CardTitle>
+                      <CardTitle className="text-lg font-heading">EPUB Format</CardTitle>
                     </CardHeader>
                     <CardContent className="text-sm text-gray-300">
                       Optimized for e-readers and mobile devices. Reflowable text adapts to your screen size for
@@ -405,7 +427,7 @@ export default function GuidebookPage() {
 
                   <Card className="bg-gray-700/50 border-gray-600">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-lg">MOBI Format</CardTitle>
+                      <CardTitle className="text-lg font-heading">MOBI Format</CardTitle>
                     </CardHeader>
                     <CardContent className="text-sm text-gray-300">
                       Compatible with Kindle devices and apps. Includes all images and formatting optimized for Kindle
