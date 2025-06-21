@@ -1,122 +1,513 @@
 "use client"
 
-import type React from "react"
 import { useState } from "react"
-
-interface State {
-  success: boolean
-  message: string
+import { Plus, Trash2, ShoppingCart, User, MapPin, FileText } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Separator } from "@/components/ui/separator"
+// Local mirror of the Zod schema ― **type-only**, so it won’t reach the browser bundle
+export interface OrderItem {
+  id: string
+  productId?: string
+  name: string
+  quantity: number
+  price: number
+  description?: string
 }
 
-interface Props {
-  priceId: string
+const initialState = {
+  message: "",
+  success: false,
+  errors: null,
+  fieldErrors: null,
+  itemErrors: null,
+  orderId: null,
+  emailStatus: undefined,
 }
 
-export default function ManualCheckoutForm({ priceId }: Props) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [state, setState] = useState<{ success: boolean; message: string } | null>(null)
+// Predefined products for easy selection
+const PREDEFINED_PRODUCTS = [
+  { id: "novice-deck", name: "Novice Deck", price: 29.99, description: "Perfect for beginners" },
+  { id: "standard-deck", name: "Standard Deck", price: 49.99, description: "Complete oracle card set" },
+  { id: "deluxe-deck", name: "Deluxe Deck", price: 79.99, description: "Premium edition with extras" },
+  { id: "adept-deck", name: "Adept Deck", price: 99.99, description: "Advanced practitioner set" },
+  { id: "guidebook", name: "Guidebook", price: 19.99, description: "Comprehensive guide" },
+  { id: "reading-cloth", name: "Reading Cloth", price: 24.99, description: "Sacred reading surface" },
+  { id: "crystal-set", name: "Crystal Set", price: 34.99, description: "Complementary crystals" },
+  { id: "custom-item", name: "Custom Item", price: 0, description: "Specify custom product" },
+]
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    setIsSubmitting(true)
-    try {
-      const res = await fetch("/api/manual-checkout", {
-        method: "POST",
-        body: formData,
-      })
-      const json = await res.json()
-      setState(json)
-    } catch (err) {
-      setState({ success: false, message: "Something went wrong. Please try again." })
-    } finally {
-      setIsSubmitting(false)
+export default function ManualCheckoutForm() {
+  const [state, setState] = useState(initialState)
+  const [isPending, setIsPending] = useState(false)
+
+  // Form state
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([
+    {
+      id: crypto.randomUUID(),
+      productId: "",
+      name: "",
+      quantity: 1,
+      price: 0,
+      description: "",
+    },
+  ])
+
+  // Add new order item
+  const addOrderItem = () => {
+    setOrderItems([
+      ...orderItems,
+      {
+        id: crypto.randomUUID(),
+        productId: "",
+        name: "",
+        quantity: 1,
+        price: 0,
+        description: "",
+      },
+    ])
+  }
+
+  // Remove order item
+  const removeOrderItem = (id: string) => {
+    if (orderItems.length > 1) {
+      setOrderItems(orderItems.filter((item) => item.id !== id))
     }
   }
 
+  // Update order item
+  const updateOrderItem = (id: string, field: keyof OrderItem, value: string | number) => {
+    setOrderItems(
+      orderItems.map((item) => {
+        if (item.id === id) {
+          const updatedItem = { ...item, [field]: value }
+
+          // Auto-fill from predefined products
+          if (field === "productId" && value) {
+            const product = PREDEFINED_PRODUCTS.find((p) => p.id === value)
+            if (product) {
+              updatedItem.name = product.name
+              updatedItem.price = product.price
+              updatedItem.description = product.description
+            }
+          }
+
+          return updatedItem
+        }
+        return item
+      }),
+    )
+  }
+
+  // Calculate total
+  const calculateTotal = () => {
+    return orderItems.reduce((total, item) => total + item.price * item.quantity, 0)
+  }
+
+  // Get field error
+  const getFieldError = (fieldName: string) => {
+    return state.fieldErrors?.[fieldName]?.[0]
+  }
+
+  // Get item error
+  const getItemError = (itemIndex: number, field: keyof OrderItem) => {
+    return state.itemErrors?.find((error) => error.index === itemIndex && error.field === field)?.message
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-y-4">
-      <input type="hidden" name="priceId" value={priceId} />
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-          Name
-        </label>
-        <div className="mt-1">
-          <input
-            type="text"
-            name="name"
-            id="name"
-            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-            required
-          />
-        </div>
-      </div>
+    <div className="max-w-4xl mx-auto space-y-8">
+      {/* Success Message */}
+      {state.success && (
+        <Alert className="border-green-500 bg-green-50 text-green-800">
+          <ShoppingCart className="h-4 w-4" />
+          <AlertDescription className="font-medium">
+            {state.message}
+            {state.orderId && (
+              <div className="mt-2 text-sm">
+                Order ID: <span className="font-mono">{state.orderId}</span>
+              </div>
+            )}
+            {state.emailStatus && (
+              <div className="mt-2 text-sm space-y-1">
+                <div>✅ Customer email: {state.emailStatus.customerEmailSent ? "Sent" : "Failed"}</div>
+                <div>✅ Admin notification: {state.emailStatus.adminEmailSent ? "Sent" : "Failed"}</div>
+              </div>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
 
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          Email
-        </label>
-        <div className="mt-1">
-          <input
-            type="email"
-            name="email"
-            id="email"
-            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-            required
-          />
-        </div>
-      </div>
+      {/* Error Messages */}
+      {!state.success && state.message && (
+        <Alert className="border-red-500 bg-red-50 text-red-800">
+          <AlertDescription>{state.message}</AlertDescription>
+        </Alert>
+      )}
 
-      <div>
-        <label htmlFor="country" className="block text-sm font-medium text-gray-700">
-          Country
-        </label>
-        <div className="mt-1">
-          <select
-            id="country"
-            name="country"
-            autoComplete="country-name"
-            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-            required
-          >
-            <option>United States</option>
-            <option>Canada</option>
-            <option>Mexico</option>
-          </select>
-        </div>
-      </div>
-
-      <button
-        type="submit"
-        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        disabled={isSubmitting}
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
+          setIsPending(true)
+          setState(initialState)
+          try {
+            const fd = new FormData(e.currentTarget as HTMLFormElement)
+            // inject the orderItems payload
+            fd.set("orderItems", JSON.stringify(orderItems))
+            const res = await fetch("/api/submit-manual-order", { method: "POST", body: fd })
+            const json = await res.json()
+            setState(json)
+          } catch {
+            setState({ ...initialState, success: false, message: "Something went wrong. Please try again." })
+          } finally {
+            setIsPending(false)
+          }
+        }}
+        className="space-y-8"
       >
-        {isSubmitting ? "Submitting..." : "Submit"}
-      </button>
+        {/* Honeypot field for spam protection */}
+        <input type="text" name="website" style={{ display: "none" }} tabIndex={-1} autoComplete="off" />
 
-      {state?.success === true ? (
-        <div className="rounded-md bg-green-50 p-4">
-          <div className="flex">
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-green-800">Order placed successfully</h3>
-              <div className="mt-2 text-sm text-green-700">
-                <p>{state?.message}</p>
+        {/* Customer Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Customer Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="customerName">Full Name *</Label>
+                <Input
+                  id="customerName"
+                  name="customerName"
+                  type="text"
+                  required
+                  placeholder="Enter your full name"
+                  className={getFieldError("customerName") ? "border-red-500" : ""}
+                />
+                {getFieldError("customerName") && (
+                  <p className="text-sm text-red-600">{getFieldError("customerName")}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="customerEmail">Email Address *</Label>
+                <Input
+                  id="customerEmail"
+                  name="customerEmail"
+                  type="email"
+                  required
+                  placeholder="your.email@example.com"
+                  className={getFieldError("customerEmail") ? "border-red-500" : ""}
+                />
+                {getFieldError("customerEmail") && (
+                  <p className="text-sm text-red-600">{getFieldError("customerEmail")}</p>
+                )}
               </div>
             </div>
-          </div>
-        </div>
-      ) : state?.success === false ? (
-        <div className="rounded-md bg-red-50 p-4">
-          <div className="flex">
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">There was an error placing your order</h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p>{state?.message}</p>
+
+            <div className="space-y-2">
+              <Label htmlFor="customerPhone">Phone Number (Optional)</Label>
+              <Input
+                id="customerPhone"
+                name="customerPhone"
+                type="tel"
+                placeholder="+1 (555) 123-4567"
+                className={getFieldError("customerPhone") ? "border-red-500" : ""}
+              />
+              {getFieldError("customerPhone") && (
+                <p className="text-sm text-red-600">{getFieldError("customerPhone")}</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Shipping Address */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              Shipping Address
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="shippingAddressStreet">Street Address *</Label>
+              <Input
+                id="shippingAddressStreet"
+                name="shippingAddressStreet"
+                type="text"
+                required
+                placeholder="123 Main Street, Apt 4B"
+                className={getFieldError("shippingAddressStreet") ? "border-red-500" : ""}
+              />
+              {getFieldError("shippingAddressStreet") && (
+                <p className="text-sm text-red-600">{getFieldError("shippingAddressStreet")}</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="shippingAddressCity">City *</Label>
+                <Input
+                  id="shippingAddressCity"
+                  name="shippingAddressCity"
+                  type="text"
+                  required
+                  placeholder="New York"
+                  className={getFieldError("shippingAddressCity") ? "border-red-500" : ""}
+                />
+                {getFieldError("shippingAddressCity") && (
+                  <p className="text-sm text-red-600">{getFieldError("shippingAddressCity")}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="shippingAddressState">State/Province *</Label>
+                <Input
+                  id="shippingAddressState"
+                  name="shippingAddressState"
+                  type="text"
+                  required
+                  placeholder="NY"
+                  className={getFieldError("shippingAddressState") ? "border-red-500" : ""}
+                />
+                {getFieldError("shippingAddressState") && (
+                  <p className="text-sm text-red-600">{getFieldError("shippingAddressState")}</p>
+                )}
               </div>
             </div>
-          </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="shippingAddressZip">ZIP/Postal Code *</Label>
+                <Input
+                  id="shippingAddressZip"
+                  name="shippingAddressZip"
+                  type="text"
+                  required
+                  placeholder="10001"
+                  className={getFieldError("shippingAddressZip") ? "border-red-500" : ""}
+                />
+                {getFieldError("shippingAddressZip") && (
+                  <p className="text-sm text-red-600">{getFieldError("shippingAddressZip")}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="shippingAddressCountry">Country *</Label>
+                <select
+                  id="shippingAddressCountry"
+                  name="shippingAddressCountry"
+                  required
+                  className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                    getFieldError("shippingAddressCountry") ? "border-red-500" : ""
+                  }`}
+                >
+                  <option value="">Select Country</option>
+                  <option value="United States">United States</option>
+                  <option value="Canada">Canada</option>
+                  <option value="United Kingdom">United Kingdom</option>
+                  <option value="Australia">Australia</option>
+                  <option value="Germany">Germany</option>
+                  <option value="France">France</option>
+                  <option value="Other">Other</option>
+                </select>
+                {getFieldError("shippingAddressCountry") && (
+                  <p className="text-sm text-red-600">{getFieldError("shippingAddressCountry")}</p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Order Items */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ShoppingCart className="h-5 w-5" />
+              Order Items
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {orderItems.map((item, index) => (
+              <div key={item.id} className="border rounded-lg p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium">Item {index + 1}</h4>
+                  {orderItems.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeOrderItem(item.id)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Product Selection</Label>
+                    <select
+                      value={item.productId || ""}
+                      onChange={(e) => updateOrderItem(item.id, "productId", e.target.value)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="">Select a product or choose custom</option>
+                      {PREDEFINED_PRODUCTS.map((product) => (
+                        <option key={product.id} value={product.id}>
+                          {product.name} - ${product.price}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Product Name *</Label>
+                    <Input
+                      type="text"
+                      value={item.name}
+                      onChange={(e) => updateOrderItem(item.id, "name", e.target.value)}
+                      placeholder="Enter product name"
+                      required
+                      className={getItemError(index, "name") ? "border-red-500" : ""}
+                    />
+                    {getItemError(index, "name") && (
+                      <p className="text-sm text-red-600">{getItemError(index, "name")}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Quantity *</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="99"
+                      value={item.quantity}
+                      onChange={(e) => updateOrderItem(item.id, "quantity", Number.parseInt(e.target.value) || 1)}
+                      required
+                      className={getItemError(index, "quantity") ? "border-red-500" : ""}
+                    />
+                    {getItemError(index, "quantity") && (
+                      <p className="text-sm text-red-600">{getItemError(index, "quantity")}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Price (USD) *</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      max="9999.99"
+                      value={item.price}
+                      onChange={(e) => updateOrderItem(item.id, "price", Number.parseFloat(e.target.value) || 0)}
+                      required
+                      className={getItemError(index, "price") ? "border-red-500" : ""}
+                    />
+                    {getItemError(index, "price") && (
+                      <p className="text-sm text-red-600">{getItemError(index, "price")}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Description (Optional)</Label>
+                  <Textarea
+                    value={item.description || ""}
+                    onChange={(e) => updateOrderItem(item.id, "description", e.target.value)}
+                    placeholder="Additional details about this item"
+                    rows={2}
+                  />
+                </div>
+
+                <div className="text-right">
+                  <p className="text-sm text-muted-foreground">
+                    Subtotal: <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                  </p>
+                </div>
+              </div>
+            ))}
+
+            <div className="flex justify-between items-center">
+              <Button type="button" variant="outline" onClick={addOrderItem} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Add Another Item
+              </Button>
+
+              <div className="text-right">
+                <p className="text-lg font-semibold">
+                  Total: <span className="text-purple-600">${calculateTotal().toFixed(2)}</span>
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Additional Notes */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Additional Notes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label htmlFor="notes">Special Instructions (Optional)</Label>
+              <Textarea
+                id="notes"
+                name="notes"
+                placeholder="Any special instructions, gift messages, or additional information..."
+                rows={4}
+                maxLength={1000}
+                className={getFieldError("notes") ? "border-red-500" : ""}
+              />
+              {getFieldError("notes") && <p className="text-sm text-red-600">{getFieldError("notes")}</p>}
+              <p className="text-sm text-muted-foreground">Maximum 1000 characters</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Separator />
+
+        {/* Submit Button */}
+        <div className="flex flex-col items-center space-y-4">
+          <Button
+            type="submit"
+            size="lg"
+            disabled={isPending || orderItems.length === 0}
+            className="w-full md:w-auto px-8 py-3 text-lg"
+          >
+            {isPending ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Processing Order...
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                Submit Order (${calculateTotal().toFixed(2)})
+              </>
+            )}
+          </Button>
+
+          <p className="text-sm text-muted-foreground text-center max-w-md">
+            By submitting this order, you agree to our terms of service. We'll contact you within 24 hours with payment
+            instructions and shipping details.
+          </p>
         </div>
-      ) : null}
-    </form>
+      </form>
+    </div>
   )
 }

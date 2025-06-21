@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function ManualCheckoutPage() {
   return (
-    <div className="relative min-h-screen bg-black">
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <HeroSection
         title="Secure Manual Checkout"
         description="Complete your order and we'll contact you with payment instructions within 24 hours"
@@ -34,7 +34,16 @@ export default function ManualCheckoutPage() {
         }
       >
         <div className="container mx-auto py-12 px-4">
-          <ManualCheckoutForm />
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-white mb-2">Complete Your Order</h2>
+              <p className="text-gray-300">
+                Fill out the form below with your details and product selections. We'll process your order and contact
+                you with payment instructions.
+              </p>
+            </div>
+            <ManualCheckoutForm />
+          </div>
         </div>
       </Suspense>
     </div>
