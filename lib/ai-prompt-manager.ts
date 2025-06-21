@@ -1,138 +1,110 @@
 "use server"
 
 // Types for the card data
-type Card = {
-  id: string
-  name: string
-  element: string
-  number: number
-  keywords: string[]
-  description: string
-  isReversed?: boolean
+import type { OracleCard } from "@/components/card-simulator" // Use OracleCard from CardSimulator
+import { masterPromptTemplate } from "./prompt-templates"
+import { getCardPromptTemplate, getFollowUpPromptTemplate } from "@/lib/prompt-templates"
+import { calculateLifePath } from "@/lib/numerology" // Import the actual numerology function
+
+// Helper function to calculate Sun Sign
+function calculateSunSign(birthDate: Date): string {
+  const month = birthDate.getMonth() + 1 // getMonth() is 0-indexed
+  const day = birthDate.getDate()
+
+  if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return "Aries"
+  if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return "Taurus"
+  if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) return "Gemini"
+  if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) return "Cancer"
+  if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return "Leo"
+  if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return "Virgo"
+  if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) return "Libra"
+  if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) return "Scorpio"
+  if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) return "Sagittarius"
+  if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) return "Capricorn"
+  if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return "Aquarius"
+  if ((month === 2 && day >= 19) || (month === 3 && day <= 20)) return "Pisces"
+  return "Unknown"
 }
 
-type SpreadType = "single" | "three-card" | "five-card" | "celtic-cross"
-
-// Update the generateReadingPrompt function to use the masterPromptTemplate
-
-import { masterPromptTemplate } from "./prompt-templates"
-import type { CardData } from "@/types/cards"
-import { getCardPromptTemplate, getFollowUpPromptTemplate } from "@/lib/prompt-templates"
-
 export async function generateReadingPrompt(
-  cards: any[],
+  selectedCards: OracleCard[], // Use OracleCard type
   question: string,
-  userName: string,
+  fullName: string,
   birthDate?: string,
   birthPlace?: string,
   spreadType?: string,
   isMember?: boolean,
 ): Promise<string> {
-  // Start with the master prompt template
+  // Start with the master prompt template (system instructions)
   let prompt = masterPromptTemplate + "\n\n"
 
   // Add user information
   prompt += `## Seeker Information\n`
-  prompt += `Name: ${userName || "Seeker"}\n`
+  prompt += `Name: ${fullName || "Seeker"}\n`
   if (birthDate) {
-    prompt += `Birth Date: ${new Date(birthDate).toLocaleDateString()}\n`
+    const birthDateObj = new Date(birthDate)
+    prompt += `Birth Date: ${birthDateObj.toLocaleDateString()}\n`
+    // Numerology Engine
+    const lifePathNumber = calculateLifePath(birthDateObj)
+    prompt += `Life Path Number: ${lifePathNumber}\n`
+    // Astrology Engine (Sun Sign)
+    const sunSign = calculateSunSign(birthDateObj)
+    prompt += `Sun Sign: ${sunSign}\n`
   }
   if (birthPlace) {
     prompt += `Birth Place: ${birthPlace}\n`
   }
   prompt += `Question: ${question || "General guidance"}\n\n`
 
-  // Add numerology information if birth date is provided
-  if (birthDate) {
-    const birthDateObj = new Date(birthDate)
-    const lifePathNumber = await calculateLifePathNumber(birthDateObj)
-    prompt += `Life Path Number: ${lifePathNumber}\n`
-
-    // Add card number analysis
-    if (cards && cards.length > 0) {
-      const cardNumbers = cards.map((card) => card.number || card.cardEnd?.number).filter(Boolean)
-      prompt += `Card Numbers: ${cardNumbers.join(", ")}\n`
-
-      // Calculate numerology connections
-      prompt += `\n## Numerology Connections\n`
-      prompt += `Please analyze the connection between the seeker's Life Path Number (${lifePathNumber}) and the card numbers drawn (${cardNumbers.join(", ")}).\n`
-      prompt += `Include insights about number patterns, resonances, and how these numbers interact with the seeker's personal numerology.\n\n`
-    }
-  }
-
   // Add spread type
   prompt += `## Reading Type\n`
-  prompt += `${await getSpreadTypeName(spreadType || "")}\n\n`
+  prompt += `${await getSpreadTypeName(spreadType || "single")}\n\n`
 
-  // Add cards information
-  prompt += `## Cards Drawn\n`
-  if (cards && cards.length > 0) {
-    for (let index = 0; index < cards.length; index++) {
-      const card = cards[index]
-      const position = await getPositionName(index, spreadType || "")
-      const cardName = card.name || card.card?.name || "Unknown Card"
-      const element = card.element || card.card?.element || "Unknown Element"
-      const number = card.number || card.cardEnd?.number || "Unknown Number"
-      const keywords = card.keywords || card.cardEnd?.keywords || []
+  // Add cards information (drawing on "vector store" knowledge by providing full card data)
+  prompt += `## Cards Drawn and Their Full Data (Act as your vector store knowledge)\n`
+  if (selectedCards && selectedCards.length > 0) {
+    for (let index = 0; index < selectedCards.length; index++) {
+      const card = selectedCards[index]
+      const position = await getPositionName(index, spreadType || "single")
 
-      prompt += `Card ${index + 1} (${position}): ${cardName} (${element}, Number: ${number})\n`
-      prompt += `Keywords: ${keywords.join(", ") || "Not provided"}\n`
-      if (card.orientation || card.endUp) {
-        prompt += `Orientation: ${card.orientation || card.endUp}\n`
-      }
+      prompt += `--- Card ${index + 1} (${position}) ---\n`
+      prompt += `ID: ${card.id}\n`
+      prompt += `Full Title: ${card.fullTitle}\n`
+      prompt += `Number: ${card.number}\n`
+      prompt += `Suit: ${card.suit}\n`
+      prompt += `Base Element: ${card.baseElement}\n`
+      prompt += `Synergistic Element: ${card.synergisticElement}\n`
+      prompt += `Icon Symbol: ${card.iconSymbol}\n`
+      prompt += `Orientation: ${card.orientation}\n`
+      prompt += `Sacred Geometry: ${card.sacredGeometry}\n`
+      prompt += `Planet (Internal Influence): ${card.planetInternalInfluence}\n`
+      prompt += `Astrology (External Domain): ${card.astrologyExternalDomain}\n`
+      prompt += `Key Meanings: ${card.keyMeanings.join("; ")}\n`
+      prompt += `Symbolism Breakdown:\n`
+      card.symbolismBreakdown.forEach((item) => {
+        prompt += `- ${item}\n`
+      })
       prompt += `\n`
     }
   } else {
-    prompt += `No cards provided\n\n`
+    prompt += `No cards provided.\n\n`
   }
 
   // Add membership level specific instructions
   if (isMember) {
     prompt += `## Premium Reading Instructions\n`
-    prompt += `This is a premium reading for a member. Please provide a more detailed and in-depth analysis with additional insights and personalized guidance.\n\n`
+    prompt += `This is a premium reading for a member. Please provide a more detailed and in-depth analysis with additional insights and personalized guidance. Focus on deeper connections between numerology, astrology, and card symbolism.\n\n`
   }
 
-  return prompt
-}
-
-// Function to generate a follow-up question prompt
-export async function generateFollowUpPromptOld(
-  originalReading: string,
-  cards: Card[],
-  followUpQuestion: string,
-  userName: string,
-  birthDate?: string,
-  birthPlace?: string,
-): Promise<string> {
-  // Format the cards for the prompt
-  const formattedCards = cards
-    .map((card) => {
-      const position = card.isReversed ? "reversed" : "upright"
-      return `${card.name} (${position}) - Element: ${card.element}, Number: ${card.number}, Keywords: ${card.keywords.join(", ")}`
-    })
-    .join("\n")
-
-  // Add birth information if available
-  const birthInfo =
-    birthDate || birthPlace
-      ? `\nBirth Date: ${birthDate ? new Date(birthDate).toLocaleDateString() : "Not provided"}\nBirth Place: ${birthPlace || "Not provided"}`
-      : ""
-
-  const prompt = `You are NUMO ORACLE, a mystical AI oracle reader with deep knowledge of numerology, elements, and spiritual symbolism.
-
-You previously provided this reading for ${userName}:${birthInfo}
-"""
-${originalReading}
-"""
-
-The cards drawn in the original spread were:
-${formattedCards}
-
-${userName} has a follow-up question: "${followUpQuestion}"
-
-Provide a thoughtful response to this follow-up question, maintaining consistency with your original reading. Reference specific cards from the original spread where relevant. Keep the same mystical and insightful tone as the original reading.
-
-Format your response with clear paragraphs and end with a concise piece of advice related to the follow-up question.`
+  // Explicit instruction for output format
+  prompt += `## Output Format Instructions\n`
+  prompt += `Please structure your reading as follows, using Markdown for clear formatting:\n`
+  prompt += `\n✨ **Summary Insight**\n[A concise overview of the reading's core message.]\n`
+  prompt += `\n🔢 **Numerology Interpretation**\n[Insights based on the seeker's Life Path Number and any significant card numbers.]\n`
+  prompt += `\n♈ **Astrology Influence**\n[Interpretation based on the seeker's Sun Sign and any relevant planetary/astrological influences from the cards.]\n`
+  prompt += `\n🃏 **Card Spread with Elemental Meanings**\n[Detailed interpretation of each drawn card in its position, emphasizing elemental tone, symbol meaning, and number patterns. Integrate the full card data provided above.]\n`
+  prompt += `\n🌱 **Personalized Recommendation**\n[Clear, actionable guidance including practices, mindset shifts, and suggested timing. Optionally suggest further reading, affirmations, or elemental associations.]\n`
+  prompt += `\nAlways invite follow-up for deeper inquiry or clarity at the end of your response.`
 
   return prompt
 }
@@ -183,38 +155,13 @@ export async function getPositionName(index: number, spreadType: string): Promis
   return index < spreadPositions.length ? spreadPositions[index] : `Position ${index + 1}`
 }
 
-// Dummy function for calculating life path number. Replace with actual implementation or import.
-async function calculateLifePath(birthDate: Date): Promise<number> {
-  // Replace this with your actual life path calculation logic
-  const day = birthDate.getDate()
-  const month = birthDate.getMonth() + 1
-  const year = birthDate.getFullYear()
-
-  let sum = (await sumDigits(day)) + (await sumDigits(month)) + (await sumDigits(year))
-  while (sum > 9 && sum !== 11 && sum !== 22 && sum !== 33) {
-    sum = await sumDigits(sum)
-  }
-  return sum
-}
-
-async function calculateLifePathNumber(birthDate: Date): Promise<number> {
-  return await calculateLifePath(birthDate)
-}
-
-async function sumDigits(num: number): Promise<number> {
-  return num
-    .toString()
-    .split("")
-    .reduce((sum, digit) => sum + Number.parseInt(digit, 10), 0)
-}
-
-export async function generateCardReadingPrompt(cards: CardData[], question = ""): Promise<string> {
+export async function generateCardReadingPrompt(cards: any[], question = ""): Promise<string> {
   const template = getCardPromptTemplate()
 
   // Format card information
   const cardDetails = cards
     .map((card, index) => {
-      return `Card ${index + 1}: ${card.name} (${card.element} - ${card.archetype})`
+      return `Card ${index + 1}: ${card.fullTitle} (${card.baseElement} - ${card.suit})`
     })
     .join("\n")
 

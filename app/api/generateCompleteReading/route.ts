@@ -1,62 +1,111 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generateOracleReading, type ReadingRequest } from "@/lib/openai-assistant"
+import { generateOracleReading } from "@/lib/openai-assistant"
 
-/**
- * POST /api/generateCompleteReading
- * Generates a full NUMO Oracle reading with the OpenAI Assistant.
- * Expects JSON body matching the ReadingRequest interface.
- */
+// ---------- helper: simple fallback -----------------
+function generateFallbackReading(cards: any[], question: string, fullName: string, spreadType: string): string {
+  const personalizedGreeting = fullName ? `Dear ${fullName.split(" ")[0]}, your` : "Your"
+  let readingText = `${personalizedGreeting} reading reveals:\n\n`
+
+  cards.forEach((card: any, index: number) => {
+    readingText += `Card ${index + 1}: ${card.fullTitle}\n`
+    readingText += `Elements: ${card.baseElement} ⚡ ${card.synergisticElement}\n`
+    readingText += `Sacred Geometry: ${card.sacredGeometry} | Icon: ${card.iconSymbol}\n`
+    readingText += `Orientation: ${card.orientation}\n\n`
+    const randomMeaning = card.keyMeanings[Math.floor(Math.random() * card.keyMeanings.length)] ?? "Insight awaits."
+    readingText += `${randomMeaning}\n\n`
+    readingText += `Internal Influence: ${card.planetInternalInfluence}\n`
+    readingText += `External Domain: ${card.astrologyExternalDomain}\n`
+    if (index < cards.length - 1) readingText += "\n---\n\n"
+  })
+
+  readingText += `\n\nElemental Analysis: Fire, Water, Air, Earth and Spirit interplay within your spread.`
+
+  if (spreadType === "single") {
+    readingText += "\n\nThis single card highlights the core energy of your situation. Meditate on its lesson."
+  } else if (spreadType === "three") {
+    readingText += "\n\nThese three cards show your past, present and potential future. Observe their flow."
+  } else {
+    readingText += "\n\nThis elemental spread reveals the spectrum of forces guiding you. Balance is key."
+  }
+  return readingText
+}
+// -----------------------------------------------------
+
 export async function POST(req: NextRequest) {
   try {
-    // Add request validation
-    const contentType = req.headers.get("content-type")
-    if (!contentType || !contentType.includes("application/json")) {
-      return NextResponse.json({ success: false, error: "Content-Type must be application/json" }, { status: 400 })
-    }
+    const body = await req.json()
+    const {
+      fullName = "",
+      dateOfBirth = "",
+      timeOfBirth = "",
+      birthPlace = "",
+      question = "",
+      selectedCards = [],
+      spreadType = "single",
+    } = body
 
-    let body: ReadingRequest
     try {
-      body = await req.json()
-    } catch (parseError) {
-      return NextResponse.json({ success: false, error: "Invalid JSON in request body" }, { status: 400 })
-    }
+      const ai = await generateOracleReading({
+        fullName,
+        dateOfBirth,
+        timeOfBirth,
+        birthPlace,
+        question,
+        selectedCards,
+        spreadType,
+      })
 
-    // Enhanced validation
-    if (!body.selectedCards || !Array.isArray(body.selectedCards) || body.selectedCards.length === 0) {
-      return NextResponse.json({ success: false, error: "selectedCards must be a non-empty array" }, { status: 400 })
-    }
+      // If the AI responded successfully, forward it
+      if (ai.success && ai.reading) {
+        return NextResponse.json({ success: true, content: ai.reading, threadId: ai.threadId ?? null }, { status: 200 })
+      }
 
-    if (!body.question || typeof body.question !== "string" || body.question.trim().length === 0) {
+      // AI unavailable or failed – produce fallback and indicate failure
+      const fallback = generateFallbackReading(selectedCards, question, fullName, spreadType)
       return NextResponse.json(
-        { success: false, error: "question is required and must be a non-empty string" },
-        { status: 400 },
+        {
+          success: false, // <--- Changed to false when AI fails
+          content: fallback,
+          fallback: true,
+          error: ai.error ?? "AI service unavailable or failed to generate reading", // <--- More specific fallback
+        },
+        { status: 200 },
+      )
+    } catch (err) {
+      console.error("generateCompleteReading fatal error:", err)
+      // Any unhandled error → fallback
+      const fallbackReading = generateFallbackReading(selectedCards, question, fullName, spreadType)
+      return NextResponse.json(
+        {
+          success: false, // <--- Changed to false on error
+          content: fallbackReading,
+          fallback: true,
+          error: err instanceof Error && err.message ? err.message : "Unknown AI generation error",
+        },
+        { status: 200 }, // ← always return 200 so the client doesn't throw
       )
     }
-
-    // Call helper that wraps the Assistant flow with timeout
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error("Request timeout")), 30000) // 30 second timeout
-    })
-
-    const aiResponse = (await Promise.race([generateOracleReading(body), timeoutPromise])) as any
-
-    // Always return a well-formed JSON object
-    return NextResponse.json(aiResponse, {
-      status: aiResponse.success ? 200 : 500,
-    })
   } catch (err) {
-    console.error("generateCompleteReading error:", err)
+    console.error("generateCompleteReading fatal:", err)
 
-    // Return a more specific error message
-    const errorMessage = err instanceof Error ? err.message : "Unknown server error occurred"
+    // ---- fallback text (minimal so it always works) ----
+    const {
+      selectedCards = [],
+      question = "",
+      fullName = "",
+      spreadType = "single",
+    } = typeof err === "object" && err && "body" in err ? ((err as any).body ?? {}) : {}
+
+    const fallback = generateFallbackReading(selectedCards, question, fullName, spreadType)
 
     return NextResponse.json(
       {
-        success: false,
-        error: errorMessage,
-        fallback: true, // Indicate this should trigger fallback behavior
+        success: false, // <--- Changed to false on fatal error
+        content: fallback,
+        fallback: true,
+        error: String(err || "Unknown fatal error during request processing"),
       },
-      { status: 500 },
+      { status: 200 },
     )
   }
 }

@@ -1,43 +1,36 @@
 /**
- * DIGIFIX Supabase Configuration
- * This file ensures all Supabase operations use the DIGIFIX project exclusively
+ * Numoracle Supabase Configuration
+ * This file provides public (client-side) Supabase configuration.
+ * Server-side configuration, including sensitive keys, is handled directly in server-side files.
  */
 
-// Validate DIGIFIX environment variables
-const DIGIFIX_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-const DIGIFIX_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-const DIGIFIX_SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+// Public (client-side safe) environment variables
+const NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const NEXT_PUBLIC_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-if (!DIGIFIX_SUPABASE_URL) {
-  throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL for DIGIFIX project")
+if (!NEXT_PUBLIC_SUPABASE_URL) {
+  throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL environment variable.")
 }
 
-if (!DIGIFIX_SUPABASE_ANON_KEY) {
-  throw new Error("Missing NEXT_PUBLIC_SUPABASE_ANON_KEY for DIGIFIX project")
+if (!NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  throw new Error("Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable.")
 }
 
-// Validate that we're using DIGIFIX project
-if (!DIGIFIX_SUPABASE_URL.includes("digifix") && !DIGIFIX_SUPABASE_URL.includes("your-digifix-project-id")) {
-  console.warn("⚠️  Warning: Supabase URL does not appear to be from DIGIFIX project")
-}
-
-export const SUPABASE_CONFIG = {
-  url: DIGIFIX_SUPABASE_URL,
-  anonKey: DIGIFIX_SUPABASE_ANON_KEY,
-  serviceRoleKey: DIGIFIX_SUPABASE_SERVICE_ROLE_KEY,
-  project: "DIGIFIX",
-  validated: true,
+// Configuration for client-side Supabase instance
+export const publicSupabaseConfig = {
+  url: NEXT_PUBLIC_SUPABASE_URL,
+  anonKey: NEXT_PUBLIC_SUPABASE_ANON_KEY,
 } as const
 
-// Export validation function
-export function validateDigifixIntegration(): boolean {
-  const isValid = !!(SUPABASE_CONFIG.url && SUPABASE_CONFIG.anonKey)
+// Optional: A simple validation function for general Supabase setup
+export function validateSupabaseIntegration(): boolean {
+  const isValid = !!(NEXT_PUBLIC_SUPABASE_URL && NEXT_PUBLIC_SUPABASE_ANON_KEY)
 
   if (!isValid) {
-    console.error("❌ DIGIFIX Supabase integration validation failed")
+    console.error("❌ Supabase integration validation failed: Missing URL or Anon Key.")
     return false
   }
 
-  console.log("✅ DIGIFIX Supabase integration validated")
+  console.log("✅ Numoracle Supabase integration validated.")
   return true
 }

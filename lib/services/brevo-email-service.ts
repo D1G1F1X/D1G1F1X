@@ -59,6 +59,16 @@ interface OrderDetails {
   submittedAt: Date
 }
 
+// Bug Report types for email templates
+interface BugReportDetails {
+  description: string
+  pageUrl: string
+  email?: string
+  type: "bug" | "typo"
+  screenshotUrl?: string | null
+  createdAt: string
+}
+
 // Rate limiting configuration
 interface RateLimitConfig {
   maxRequests: number
@@ -667,6 +677,43 @@ This is an automated notification from the Numoracle order system.
     }
   }
 
+  async sendBugReportNotification(report: BugReportDetails): Promise<{ success: boolean; error?: string }> {
+    const adminEmailValidation = validateAdminEmail()
+    if (!adminEmailValidation.isValid) {
+      const error = `Invalid admin email format: ${this.adminEmail}. Please set ADMIN_EMAIL_FOR_NOTIFICATIONS to admin@numoracle.com`
+      console.error(error)
+      return { success: false, error }
+    }
+
+    const emailData: BrevoEmailRequest = {
+      sender: { name: this.senderName, email: this.senderEmail },
+      to: [{ email: this.adminEmail, name: "Numoracle Admin" }],
+      subject: `New ${report.type === "bug" ? "Bug" : "Typo/Content"} Report: ${report.pageUrl}`,
+      htmlContent: this.getBugReportNotificationTemplate(report),
+      textContent: this.getBugReportNotificationTextTemplate(report),
+      tags: ["bug-report", "admin-notification", report.type],
+    }
+
+    return this.sendTransactionalEmail(emailData)
+  }
+
+  async sendBugReportConfirmation(report: BugReportDetails): Promise<{ success: boolean; error?: string }> {
+    if (!report.email) {
+      return { success: false, error: "No recipient email provided for confirmation." }
+    }
+
+    const emailData: BrevoEmailRequest = {
+      sender: { name: this.senderName, email: this.senderEmail },
+      to: [{ email: report.email, name: report.email.split("@")[0] }], // Basic name from email
+      subject: `Thank you for your ${report.type === "bug" ? "Bug" : "Typo/Content"} Report to Numoracle`,
+      htmlContent: this.getBugReportConfirmationTemplate(report),
+      textContent: this.getBugReportConfirmationTextTemplate(report),
+      tags: ["bug-report", "user-confirmation", report.type],
+    }
+
+    return this.sendTransactionalEmail(emailData)
+  }
+
   // Email Templates
   private getWelcomeEmailTemplate(userName: string): string {
     return `
@@ -985,6 +1032,158 @@ In the meantime, feel free to explore our mystical tools and resources:
 Explore Numoracle: ${getEnv("NEXT_PUBLIC_APP_URL")}
 
 We appreciate your interest in Numoracle and look forward to assisting you on your mystical journey.
+
+Blessed be,
+The Numoracle Team
+
+© 2024 Numoracle. All rights reserved.
+Visit us at ${getEnv("NEXT_PUBLIC_APP_URL")}
+    `
+  }
+
+  private getBugReportNotificationTemplate(report: BugReportDetails): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>New ${report.type === "bug" ? "Bug" : "Typo/Content"} Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: ${report.type === "bug" ? "#dc3545" : "#ffc107"}; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+          .info-box { background: white; border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin: 15px 0; }
+          .screenshot-img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px; margin-top: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🚨 New ${report.type === "bug" ? "Bug" : "Typo/Content"} Report</h1>
+            <p>From Numoracle User</p>
+          </div>
+          <div class="content">
+            <div class="info-box">
+              <h3>Report Details</h3>
+              <p><strong>Type:</strong> ${report.type === "bug" ? "Bug" : "Typo/Content Error"}</p>
+              <p><strong>Page URL:</strong> <a href="${report.pageUrl}">${report.pageUrl}</a></p>
+              <p><strong>Submitted At:</strong> ${new Date(report.createdAt).toLocaleString()}</p>
+              ${report.email ? `<p><strong>User Email:</strong> ${report.email}</p>` : ""}
+            </div>
+
+            <div class="info-box">
+              <h3>Description</h3>
+              <p>${report.description.replace(/\n/g, "<br>")}</p>
+            </div>
+
+            ${
+              report.screenshotUrl
+                ? `
+            <div class="info-box">
+              <h3>Screenshot</h3>
+              <p>View screenshot: <a href="${report.screenshotUrl}">${report.screenshotUrl}</a></p>
+              <img src="${report.screenshotUrl}" alt="Screenshot" class="screenshot-img">
+            </div>
+            `
+                : ""
+            }
+
+            <p>Please investigate this report promptly.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  }
+
+  private getBugReportNotificationTextTemplate(report: BugReportDetails): string {
+    return `
+NEW ${report.type === "bug" ? "BUG" : "TYPO/CONTENT"} REPORT - Numoracle Admin
+
+Report Details:
+Type: ${report.type === "bug" ? "Bug" : "Typo/Content Error"}
+Page URL: ${report.pageUrl}
+Submitted At: ${new Date(report.createdAt).toLocaleString()}
+${report.email ? `User Email: ${report.email}\n` : ""}
+
+Description:
+${report.description}
+
+${report.screenshotUrl ? `Screenshot URL: ${report.screenshotUrl}\n` : ""}
+
+Please investigate this report promptly.
+    `
+  }
+
+  private getBugReportConfirmationTemplate(report: BugReportDetails): string {
+    const userName = report.email ? report.email.split("@")[0] : "Valued User"
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Thank You for Your Report - Numoracle</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Thank You for Your Report!</h1>
+            <p>We appreciate your help in improving Numoracle</p>
+          </div>
+          <div class="content">
+            <h2>Hello ${userName}!</h2>
+            <p>Thank you for submitting a ${report.type === "bug" ? "bug" : "typo/content"} report to Numoracle. We have received your feedback and will review it shortly.</p>
+            
+            <p>Your report details:</p>
+            <ul>
+              <li><strong>Type:</strong> ${report.type === "bug" ? "Bug" : "Typo/Content Error"}</li>
+              <li><strong>Description:</strong> ${report.description.substring(0, 100)}...</li>
+              <li><strong>Page:</strong> ${report.pageUrl}</li>
+            </ul>
+            
+            <p>We are committed to providing the best experience possible, and your input is invaluable. We may reach out to you if we need further information.</p>
+            
+            <p>Thank you again for your contribution!</p>
+            
+            <p>Blessed be,<br>The Numoracle Team</p>
+          </div>
+          <div class="footer">
+            <p>© 2024 Numoracle. All rights reserved.</p>
+            <p>Visit us at <a href="${getEnv("NEXT_PUBLIC_APP_URL")}">${getEnv("NEXT_PUBLIC_APP_URL")}</a></p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  }
+
+  private getBugReportConfirmationTextTemplate(report: BugReportDetails): string {
+    const userName = report.email ? report.email.split("@")[0] : "Valued User"
+    return `
+Thank You for Your Report - Numoracle
+
+Hello ${userName},
+
+Thank you for submitting a ${report.type === "bug" ? "bug" : "typo/content"} report to Numoracle. We have received your feedback and will review it shortly.
+
+Your report details:
+- Type: ${report.type === "bug" ? "Bug" : "Typo/Content Error"}
+- Description: ${report.description.substring(0, 100)}...
+- Page: ${report.pageUrl}
+
+We are committed to providing the best experience possible, and your input is invaluable. We may reach out to you if we need further information.
+
+Thank you again for your contribution!
 
 Blessed be,
 The Numoracle Team

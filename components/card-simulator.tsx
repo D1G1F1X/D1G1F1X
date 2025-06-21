@@ -19,6 +19,7 @@ import {
   WifiOff,
   MessageCircle,
   Loader2,
+  Sparkles,
 } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
@@ -33,12 +34,12 @@ import { Progress } from "@/components/ui/progress"
 import { AssistantChat } from "@/components/assistant-chat"
 
 // Complete NUMO Oracle Card Data Structure
-interface Symbol {
+export interface Symbol {
   key: string
   value: string
 }
 
-interface OracleCard {
+export interface OracleCard {
   id: string
   number: string
   suit: string
@@ -505,6 +506,7 @@ export function CardSimulator() {
   const [birthDate, setBirthDate] = useState("")
   const [birthTime, setBirthTime] = useState("")
   const [birthPlace, setBirthPlace] = useState("")
+  const [hasGeneratedAIReading, setHasGeneratedAIReading] = useState(false) // New state to track AI reading generation
 
   // Load card images from blob storage
   useEffect(() => {
@@ -513,33 +515,22 @@ export function CardSimulator() {
       setImageLoadingStats({ loaded: 0, total: masterCardData.length, failed: 0, isLoading: true })
 
       try {
-        // Check network status
         const startTime = Date.now()
 
         const cardsWithBlobImages = await Promise.all(
           masterCardData.map(async (card, index) => {
             try {
-              // Try to get image for base element first, then synergistic element
               let imagePath = await getCardImageUrl(card.id, card.baseElement)
-
-              // If base element image not found, try synergistic element
               if (imagePath.includes("placeholder.svg")) {
                 imagePath = await getCardImageUrl(card.id, card.synergisticElement)
               }
-
-              // Update progress
               const loaded = index + 1
               setImageLoadingProgress((loaded / masterCardData.length) * 100)
               setImageLoadingStats((prev) => ({ ...prev, loaded }))
-
-              return {
-                ...card,
-                imagePath,
-              }
+              return { ...card, imagePath }
             } catch (error) {
               console.error(`Error loading image for card ${card.id}:`, error)
               setImageLoadingStats((prev) => ({ ...prev, failed: prev.failed + 1 }))
-
               return {
                 ...card,
                 imagePath: `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(card.fullTitle)}`,
@@ -550,7 +541,6 @@ export function CardSimulator() {
 
         setCardsWithImages(cardsWithBlobImages)
 
-        // Enhanced preloading with progress tracking
         const cardIds = masterCardData.map((card) => card.id)
         const elements = [...new Set(masterCardData.flatMap((card) => [card.baseElement, card.synergisticElement]))]
 
@@ -558,7 +548,6 @@ export function CardSimulator() {
           setImageLoadingProgress((loaded / total) * 100)
         })
 
-        // Determine network status based on load time
         const totalTime = Date.now() - startTime
         if (totalTime > 10000) {
           setNetworkStatus("slow")
@@ -574,7 +563,6 @@ export function CardSimulator() {
       } catch (error) {
         console.error("Error loading card images:", error)
         setNetworkStatus("offline")
-        // Fallback to original data with placeholder paths
         setCardsWithImages(
           masterCardData.map((card) => ({
             ...card,
@@ -590,6 +578,19 @@ export function CardSimulator() {
     loadCardImages()
   }, [])
 
+  // Initial card draw on mount, after images are loaded
+  useEffect(() => {
+    if (cardsWithImages.length > 0 && selectedCards.length === 0 && !isLoadingImages) {
+      const numCards = spreadType === "single" ? 1 : spreadType === "three" ? 3 : 5
+      const shuffled = [...cardsWithImages].sort(() => Math.random() - 0.5)
+      const initialDraw = shuffled.slice(0, numCards)
+      setSelectedCards(initialDraw)
+      setReading("") // Ensure no AI reading is present initially
+      setAssistantReading("")
+      setHasGeneratedAIReading(false)
+    }
+  }, [cardsWithImages, selectedCards.length, isLoadingImages, spreadType])
+
   // Load user data on component mount
   useEffect(() => {
     const consent = userDataService.hasConsent()
@@ -601,22 +602,27 @@ export function CardSimulator() {
         setUserProfile(profile)
         setFullName(profile.fullName || "")
         setSpreadType(profile.preferredSpread || "single")
+        setBirthDate(profile.birthDate || "")
+        setBirthTime(profile.birthTime || "")
+        setBirthPlace(profile.birthPlace || "")
       }
     }
   }, [])
 
   // Save user data when form changes
   useEffect(() => {
-    if (hasConsent && (fullName || spreadType !== "single" || birthPlace)) {
+    if (hasConsent && (fullName || spreadType !== "single" || birthPlace || birthDate || birthTime)) {
       const profileData: Partial<UserProfile> = {}
 
       if (fullName) profileData.fullName = fullName
       if (spreadType !== "single") profileData.preferredSpread = spreadType
-      // Note: birthPlace would need to be added to UserProfile interface if you want to persist it
+      if (birthDate) profileData.birthDate = birthDate
+      if (birthTime) profileData.birthTime = birthTime
+      if (birthPlace) profileData.birthPlace = birthPlace
 
       userDataService.saveUserProfile(profileData)
     }
-  }, [fullName, spreadType, birthPlace, hasConsent])
+  }, [fullName, spreadType, birthPlace, birthDate, birthTime, hasConsent])
 
   // Memoize handleConsentChange
   const handleConsentChange = useCallback((consent: boolean) => {
@@ -629,25 +635,32 @@ export function CardSimulator() {
         setUserProfile(profile)
         setFullName(profile.fullName || "")
         setSpreadType(profile.preferredSpread || "single")
+        setBirthDate(profile.birthDate || "")
+        setBirthTime(profile.birthTime || "")
+        setBirthPlace(profile.birthPlace || "")
       }
     } else {
       // Clear form data when consent is withdrawn
+      userDataService.clearAllData() // Clear all user data
       setUserProfile(null)
       setFullName("")
       setSpreadType("single")
+      setBirthDate("")
+      setBirthTime("")
       setBirthPlace("")
     }
-  }, []) // Empty dependency array means this function is created once
+  }, [])
 
   const shuffleCards = async () => {
     setIsShuffling(true)
+    setReading("") // Clear previous reading
+    setAssistantReading("") // Clear previous assistant reading
+    setHasGeneratedAIReading(false) // Reset AI reading flag
 
-    // Update last used timestamp
     if (hasConsent) {
       userDataService.updateLastUsed()
     }
 
-    // Simulate shuffling animation
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
     const numCards = spreadType === "single" ? 1 : spreadType === "three" ? 3 : 5
@@ -655,16 +668,19 @@ export function CardSimulator() {
     const selected = shuffled.slice(0, numCards)
 
     setSelectedCards(selected)
-    generateReading(selected)
     setIsShuffling(false)
   }
 
   // Enhanced reading generation using ChatGPT Assistant
-  const generateReading = async (cards: OracleCard[]) => {
+  const generateAIReading = async () => {
+    if (selectedCards.length === 0) {
+      alert("Please draw cards first before generating an AI reading.")
+      return
+    }
     setIsGeneratingReading(true)
+    setHasGeneratedAIReading(true) // Set flag that AI reading is being generated
 
     try {
-      // Call the complete reading API
       const response = await fetch("/api/generateCompleteReading", {
         method: "POST",
         headers: {
@@ -677,123 +693,37 @@ export function CardSimulator() {
           timeOfBirth: birthTime,
           birthPlace: birthPlace,
           question: question || "Please provide guidance for my current situation",
-          selectedCards: cards,
+          selectedCards: selectedCards,
           spreadType: spreadType,
         }),
       })
 
-      if (!response.ok) {
-        console.warn(`API response not ok: ${response.status} ${response.statusText}`)
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const data = await response.json()
+      const data = await response.json().catch(() => ({})) // Always try to parse JSON, fallback to empty object
 
       if (data.success) {
         setConversationThreadId(data.threadId)
-
-        if (data.content && data.content.trim()) {
-          setAssistantReading(data.content)
-          setReading(data.content)
-        } else {
-          console.warn("AI reading returned empty content, using fallback")
-          generateFallbackReading(cards)
-        }
+        setAssistantReading(data.content || "")
+        setReading(data.content || "No detailed AI reading available. Please try again or ask a follow-up question.")
       } else {
         console.warn("AI reading generation failed:", data.error)
-        // Check if this is a fallback scenario
-        if (data.fallback) {
-          console.log("Using fallback reading generation")
-        }
-        generateFallbackReading(cards)
+        setAssistantReading(data.content || "")
+        setReading(data.content || "Failed to generate an advanced AI reading. Please try again later.")
       }
     } catch (error) {
       console.error("Error generating AI reading:", error)
-      // Always fallback to the original reading generation on any error
-      generateFallbackReading(cards)
+      setReading("Failed to generate an advanced reading due to a network error. Please try again later.")
     } finally {
       setIsGeneratingReading(false)
     }
   }
 
-  // Fallback reading generation (original method)
-  const generateFallbackReading = (cards: OracleCard[]) => {
-    // ... (keep the existing generateReading logic as fallback)
-    const personalizedGreeting = fullName ? `Dear ${fullName.split(" ")[0]}, your` : "Your"
-
-    let readingText = `${personalizedGreeting} reading reveals:\n\n`
-
-    cards.forEach((card, index) => {
-      readingText += `Card ${index + 1}: ${card.fullTitle}\n`
-      readingText += `Elements: ${card.baseElement} ⚡ ${card.synergisticElement}\n`
-      readingText += `Sacred Geometry: ${card.sacredGeometry} | Icon: ${card.iconSymbol}\n`
-      readingText += `Orientation: ${card.orientation}\n\n`
-
-      // Add a random key meaning for variety
-      const randomMeaning = card.keyMeanings[Math.floor(Math.random() * card.keyMeanings.length)]
-      readingText += `${randomMeaning}\n\n`
-
-      // Add planetary and astrological influences
-      readingText += `Internal Influence: ${card.planetInternalInfluence}\n`
-      readingText += `External Domain: ${card.astrologyExternalDomain}\n`
-
-      if (index < cards.length - 1) {
-        readingText += "\n---\n\n"
-      }
-    })
-
-    // Enhanced conclusion based on elemental analysis
-    const elements = cards.flatMap((card) => [card.baseElement, card.synergisticElement])
-    const elementCounts = elements.reduce(
-      (acc, element) => {
-        acc[element] = (acc[element] || 0) + 1
-        return acc
-      },
-      {} as Record<string, number>,
-    )
-
-    const dominantElement = Object.entries(elementCounts).sort(([, a], [, b]) => b - a)[0]?.[0]
-
-    readingText += `\n\nElemental Analysis: Your reading is strongly influenced by ${dominantElement}, suggesting themes of `
-
-    switch (dominantElement) {
-      case "Fire":
-        readingText += "passion, action, and creative manifestation."
-        break
-      case "Water":
-        readingText += "emotion, intuition, and flowing adaptation."
-        break
-      case "Air":
-        readingText += "thought, communication, and mental clarity."
-        break
-      case "Earth":
-        readingText += "stability, grounding, and practical manifestation."
-        break
-      case "Spirit":
-        readingText += "transcendence, divine connection, and spiritual awakening."
-        break
-      default:
-        readingText += "balanced elemental energies working in harmony."
-    }
-
-    // Add spread-specific guidance
-    if (spreadType === "single") {
-      readingText +=
-        "\n\nThis single card illuminates the core energy present in your situation. Meditate on its sacred geometry and orientation to understand how to work with this energy."
-    } else if (spreadType === "three") {
-      readingText +=
-        "\n\nThese three cards form a trinity of guidance: past influences, present moment, and emerging future. Notice how their orientations and elements interact to tell your story."
-    } else {
-      readingText +=
-        "\n\nThis five-card elemental spread reveals the full spectrum of forces at work. Each card's orientation and sacred geometry offers specific guidance for navigating your path."
-    }
-
-    setReading(readingText)
-  }
-
   const saveReading = () => {
     if (!question.trim()) {
       alert("Please enter a question before saving your reading.")
+      return
+    }
+    if (!reading.trim()) {
+      alert("Please generate a reading first before saving.")
       return
     }
 
@@ -823,6 +753,10 @@ export function CardSimulator() {
   }
 
   const shareReading = () => {
+    if (!reading.trim()) {
+      alert("Please generate a reading first before sharing.")
+      return
+    }
     if (typeof navigator !== "undefined" && navigator.share) {
       navigator
         .share({
@@ -905,8 +839,8 @@ export function CardSimulator() {
           <div>
             <h3 className="text-lg font-semibold mb-3">Key Meanings</h3>
             <div className="space-y-3">
-              {card.keyMeanings.map((meaning, index) => (
-                <div key={index} className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+              {card.keyMeanings.map((meaning, i) => (
+                <div key={i} className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
                   <p className="text-sm">{meaning}</p>
                 </div>
               ))}
@@ -1093,7 +1027,7 @@ export function CardSimulator() {
           ) : (
             <>
               <Shuffle className="mr-2 h-5 w-5" />
-              Draw Your Cards
+              Draw New Cards
             </>
           )}
         </Button>
@@ -1158,8 +1092,35 @@ export function CardSimulator() {
         </Card>
       )}
 
-      {/* Reading Display */}
-      {(reading || isGeneratingReading) && (
+      {/* AI Reading Trigger Button */}
+      {selectedCards.length > 0 && !hasGeneratedAIReading && (
+        <div className="text-center">
+          <Button
+            onClick={generateAIReading}
+            disabled={isGeneratingReading || !question.trim()}
+            size="lg"
+            className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700"
+          >
+            {isGeneratingReading ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Generating AI Reading...
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-5 w-5" />
+                Get Advanced AI Reading
+              </>
+            )}
+          </Button>
+          {!question.trim() && (
+            <p className="text-sm text-red-500 mt-2">Please enter a question to enable AI reading.</p>
+          )}
+        </div>
+      )}
+
+      {/* Reading Display (only shows after AI reading is initiated) */}
+      {(reading || isGeneratingReading || hasGeneratedAIReading) && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
