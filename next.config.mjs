@@ -7,39 +7,56 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    domains: [
+      'localhost',
+      'numoracle.com',
+      'blob.v0.dev',
+      'hebbkx1anhila5yf.public.blob.vercel-storage.com'
+    ],
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60,
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  transpilePackages: ['@emotion/is-prop-valid'], // <-- THIS IS THE CRUCIAL LINE
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
+  // Ensure static files are properly served
+  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
+  trailingSlash: false,
+  // Add headers for better caching
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: '/(.*)',
         headers: [
           {
-            key: 'Content-Security-Policy',
-            value: ContentSecurityPolicy.replace(/\n/g, ''),
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
           },
         ],
       },
-    ];
+      {
+        source: '/images/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ]
   },
 }
-
-// IMPORTANT: This CSP is more secure than the debugging one.
-// Adjust 'connect-src' and other directives as needed for your specific external services.
-const ContentSecurityPolicy = `
-  default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://tally.so https://formsubmit.co;
-  style-src 'self' 'unsafe-inline';
-  img-src 'self' blob: data: https://blob.v0.dev;
-  media-src 'self';
-  font-src 'self';
-  object-src 'none';
-  base-uri 'self';
-  form-action 'self' https://formsubmit.co;
-  frame-ancestors 'none';
-  frame-src 'self' https://tally.so https://formsubmit.co;
-  connect-src 'self' https://vitals.vercel-insights.com;
-`;
 
 export default nextConfig
