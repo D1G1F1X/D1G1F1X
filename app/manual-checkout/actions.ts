@@ -6,11 +6,11 @@ import { brevoEmailService } from "@/lib/services/brevo-email-service"
 
 // Define the schema for a single item in the order
 const OrderItemSchema = z.object({
-  id: z.string().uuid(), // For client-side keying, can be generated on client
-  productId: z.string().optional(), // ID of the selected product from predefined list
+  id: z.string().uuid(),
+  productId: z.string().optional(),
   name: z.string().min(1, "Item name cannot be empty.").max(100, "Item name too long."),
   quantity: z.coerce.number().int().positive("Quantity must be a positive integer.").max(99, "Quantity too high."),
-  price: z.coerce.number().nonnegative("Price must be a non-negative number.").max(9999.99, "Price too high."), // Allow 0 for free items if needed
+  price: z.coerce.number().nonnegative("Price must be a non-negative number.").max(9999.99, "Price too high."),
   description: z.string().optional(),
 })
 
@@ -22,7 +22,7 @@ const ManualOrderSchema = z.object({
     .string()
     .optional()
     .refine(
-      (val) => !val || /^[+]?[1-9][\d]{0,15}$/.test(val.replace(/[\s\-$$$$]/g, "")),
+      (val) => !val || /^[+]?[1-9][\d\s\-()]{7,15}$/.test(val.replace(/[\s\-()]/g, "")),
       "Invalid phone number format",
     ),
   shippingAddressStreet: z.string().min(3, "Street address is required.").max(200, "Address too long."),
@@ -37,7 +37,7 @@ const ManualOrderSchema = z.object({
         return (
           Array.isArray(parsed) &&
           parsed.length > 0 &&
-          parsed.length <= 20 && // Limit number of items
+          parsed.length <= 20 &&
           parsed.every((item) => OrderItemSchema.safeParse(item).success)
         )
       } catch {
@@ -47,7 +47,6 @@ const ManualOrderSchema = z.object({
     { message: "Order items are invalid, empty, or exceed maximum limit (20 items)." },
   ),
   notes: z.string().max(1000, "Notes too long.").optional(),
-  // Add honeypot field for spam protection
   website: z.string().max(0, "Spam detected.").optional(),
 })
 
@@ -148,7 +147,7 @@ export async function submitManualOrder(
     shippingAddressCountry: formData.get("shippingAddressCountry"),
     orderItems: rawOrderItems,
     notes: formData.get("notes"),
-    website: formData.get("website"), // Honeypot field
+    website: formData.get("website"),
   })
 
   if (!validatedFields.success) {
@@ -182,7 +181,6 @@ export async function submitManualOrder(
     .from("manual_orders")
     .insert([
       {
-        order_number: orderNumber,
         customer_name: customerName,
         customer_email: customerEmail,
         customer_phone: customerPhone,
@@ -198,7 +196,7 @@ export async function submitManualOrder(
         created_at: new Date().toISOString(),
       },
     ])
-    .select("id, order_number")
+    .select("id")
     .single()
 
   if (supabaseError) {
@@ -214,7 +212,7 @@ export async function submitManualOrder(
 
   // Prepare order data for emails
   const orderDetails = {
-    orderNumber: orderData.order_number,
+    orderNumber,
     orderId: orderData.id,
     customerName,
     customerEmail,
@@ -232,7 +230,7 @@ export async function submitManualOrder(
     submittedAt: new Date(),
   }
 
-  // Send emails
+  // Send emails using Brevo
   const emailResults = await sendOrderEmails(orderDetails)
 
   console.log("Manual order submitted successfully, Order ID:", orderData?.id, "Email Status:", emailResults)
@@ -246,7 +244,7 @@ export async function submitManualOrder(
     success: true,
     fieldErrors: null,
     itemErrors: null,
-    orderId: orderData?.id,
+    orderId: orderNumber,
     emailStatus: {
       customerEmailSent: emailResults.customerSent,
       adminEmailSent: emailResults.adminSent,
@@ -280,30 +278,51 @@ async function sendOrderEmails(orderDetails: {
     errors: [] as string[],
   }
 
+  console.log("Starting email sending process for order:", orderDetails.orderNumber)
+
   try {
     // Send customer confirmation email
+    console.log("Sending customer confirmation email to:", orderDetails.customerEmail)
     const customerEmailResult = await brevoEmailService.sendOrderConfirmationEmail(
       orderDetails.customerEmail,
       orderDetails.customerName,
       orderDetails,
     )
 
+    console.log("Customer email result:", customerEmailResult)
+
     if (customerEmailResult.success) {
       results.customerSent = true
+      console.log("✅ Customer email sent successfully")
     } else {
-      results.errors.push(`Customer email failed: ${customerEmailResult.error}`)
+      const errorMsg = `Customer email failed: ${customerEmailResult.error}`
+      results.errors.push(errorMsg)
+      console.error("❌ Customer email failed:", customerEmailResult.error)
     }
 
     // Send admin notification email
+    console.log("Sending admin notification email...")
     const adminEmailResult = await brevoEmailService.sendOrderNotificationEmail(orderDetails)
+
+    console.log("Admin email result:", adminEmailResult)
 
     if (adminEmailResult.success) {
       results.adminSent = true
+      console.log("✅ Admin email sent successfully")
     } else {
-      results.errors.push(`Admin email failed: ${adminEmailResult.error}`)
+      const errorMsg = `Admin email failed: ${adminEmailResult.error}`
+      results.errors.push(errorMsg)
+      console.error("❌ Admin email failed:", adminEmailResult.error)
     }
 
     results.bothSent = results.customerSent && results.adminSent
+
+    console.log("Email sending summary:", {
+      customerSent: results.customerSent,
+      adminSent: results.adminSent,
+      bothSent: results.bothSent,
+      errors: results.errors,
+    })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown email error"
     results.errors.push(`Email service error: ${errorMessage}`)

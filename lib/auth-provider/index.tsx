@@ -1,8 +1,8 @@
 "use client"
 
 import { createContext, useContext, type ReactNode, useEffect, useState, useCallback } from "react"
-import type { Session, User as SupabaseUser, SupabaseClient } from "@supabase/supabase-js"
-import { createClient } from "@supabase/supabase-js"
+import type { Session, User as SupabaseUser } from "@supabase/supabase-js"
+import { getClientSide } from "@/lib/supabase"
 
 /* ----------  Types ---------- */
 
@@ -38,38 +38,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 /* ----------  Provider ---------- */
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const supabase = getClientSide() // singleton client
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [supabase, setSupabase] = useState<SupabaseClient | null>(null)
-
-  // Initialize Supabase client once on mount
-  useEffect(() => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.error("Missing Supabase environment variables")
-      setIsLoading(false)
-      return
-    }
-
-    const client = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-        storageKey: "numoracle-auth-session",
-        flowType: "pkce",
-      },
-    })
-
-    setSupabase(client)
-  }, [])
 
   // Map Supabase user → local User type
-  const mapUser = useCallback((u: SupabaseUser | null): User | null => {
-    return u
+  const mapUser = (u: SupabaseUser | null): User | null =>
+    u
       ? {
           id: u.id,
           email: u.email ?? "",
@@ -78,57 +54,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           isPremium: u.user_metadata?.isPremium ?? false,
         }
       : null
-  }, [])
 
-  // Fetch initial session
   const fetchSession = useCallback(async () => {
-    if (!supabase) return
+    setIsLoading(true)
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession()
 
-    try {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession()
-
-      if (error) {
-        console.error("Error fetching session:", error.message)
-        setSession(null)
-        setUser(null)
-      } else {
-        setSession(session)
-        setUser(mapUser(session?.user ?? null))
-      }
-    } catch (error) {
-      console.error("Error in fetchSession:", error)
+    if (error) {
+      console.error("Supabase getSession error:", error.message)
       setSession(null)
       setUser(null)
-    } finally {
-      setIsLoading(false)
+    } else {
+      setSession(session)
+      setUser(mapUser(session?.user ?? null))
     }
-  }, [supabase, mapUser])
+    setIsLoading(false)
+  }, [supabase])
 
-  // Set up auth state listener
+  // Initial load + auth-change listener
   useEffect(() => {
-    if (!supabase) return
-
     fetchSession()
-
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, sess) => {
+    } = supabase.auth.onAuthStateChange((_evt, sess) => {
       setSession(sess)
       setUser(mapUser(sess?.user ?? null))
-      setIsLoading(false)
     })
-
     return () => subscription.unsubscribe()
-  }, [supabase, fetchSession, mapUser])
+  }, [fetchSession, supabase])
 
   /* ----------  Auth helpers ---------- */
 
   const signIn = async (email: string, password: string) => {
-    if (!supabase) return { error: "Authentication service not available" }
-
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     return { error: error?.message ?? null }
   }
@@ -138,8 +97,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     metadata?: { fullName?: string; role?: UserRole; isPremium?: boolean },
   ) => {
-    if (!supabase) return { error: "Authentication service not available" }
-
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -155,7 +112,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signOut = async () => {
-    if (!supabase) return
     await supabase.auth.signOut()
   }
 

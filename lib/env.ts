@@ -4,44 +4,44 @@ type EnvVar = {
   value: string | undefined
   required: boolean
   default?: string
-  clientSafe?: boolean // Whether this can be accessed on client side
 }
 
 // Environment variable configuration
 const envConfig: Record<string, EnvVar> = {
-  // Supabase (client-safe)
-  NEXT_PUBLIC_SUPABASE_URL: { value: process.env.NEXT_PUBLIC_SUPABASE_URL, required: true, clientSafe: true },
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: { value: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, required: true, clientSafe: true },
-
-  // Server-only variables
+  // Supabase
+  NEXT_PUBLIC_SUPABASE_URL: { value: process.env.NEXT_PUBLIC_SUPABASE_URL, required: true },
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: { value: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, required: true },
   SUPABASE_SERVICE_ROLE_KEY: { value: process.env.SUPABASE_SERVICE_ROLE_KEY, required: false },
+
+  // Vercel KV
   KV_URL: { value: process.env.KV_URL, required: false },
   KV_REST_API_TOKEN: { value: process.env.KV_REST_API_TOKEN, required: false },
+
+  // Google AI
   GOOGLE_AI_API_KEY: { value: process.env.GOOGLE_AI_API_KEY, required: false },
+
+  // Vercel Blob
   BLOB_READ_WRITE_TOKEN: { value: process.env.BLOB_READ_WRITE_TOKEN, required: false },
-  BREVO_API_KEY: { value: process.env.BREVO_API_KEY, required: true }, // Made required
+
+  // Brevo Email Service
+  BREVO_API_KEY: { value: process.env.BREVO_API_KEY, required: false },
   BREVO_SENDER_EMAIL: { value: process.env.BREVO_SENDER_EMAIL, required: false, default: "noreply@numoracle.com" },
   BREVO_SENDER_NAME: { value: process.env.BREVO_SENDER_NAME, required: false, default: "Numoracle" },
+
+  // Admin Email Configuration
   ADMIN_EMAIL_FOR_NOTIFICATIONS: {
     value: process.env.ADMIN_EMAIL_FOR_NOTIFICATIONS,
-    required: true,
+    required: false,
     default: "admin@numoracle.com",
-  }, // Made required
+  },
+  ADMIN_EMAIL: { value: process.env.ADMIN_EMAIL, required: false, default: "admin@numoracle.com" },
 
-  // Admin Credentials (Server-only) - Re-adding these as they might have been lost
-  ADMIN_USERNAME: { value: process.env.ADMIN_USERNAME, required: true, default: "admin" },
-  ADMIN_EMAIL: { value: process.env.ADMIN_EMAIL, required: true, default: "admin@numoracle.com" },
-  ADMIN_PASSWORD: { value: process.env.ADMIN_PASSWORD, required: true, default: "numoracle" },
-
-  // App URL (client-safe)
+  // App URL
   NEXT_PUBLIC_APP_URL: {
     value: process.env.NEXT_PUBLIC_APP_URL,
     required: false,
     default: "http://localhost:3000",
-    clientSafe: true,
   },
-  // Explicitly mark NODE_ENV as client-safe if accessed via getEnv
-  NODE_ENV: { value: process.env.NODE_ENV, required: true, clientSafe: true },
 }
 
 // Validate all required environment variables on startup
@@ -65,11 +65,6 @@ export function getEnv(key: keyof typeof envConfig): string {
     throw new Error(`Environment variable ${key} is not configured`)
   }
 
-  // Check if trying to access server-only variable on client
-  if (typeof window !== "undefined" && !config.clientSafe) {
-    throw new Error(`${key} cannot be accessed on the client.`)
-  }
-
   if (!config.value) {
     if (config.required) {
       throw new Error(`Required environment variable ${key} is not set`)
@@ -78,6 +73,31 @@ export function getEnv(key: keyof typeof envConfig): string {
   }
 
   return config.value
+}
+
+// Get the admin email with proper fallback logic
+export function getAdminEmail(): string {
+  // Priority: ADMIN_EMAIL_FOR_NOTIFICATIONS > ADMIN_EMAIL > default
+  return process.env.ADMIN_EMAIL_FOR_NOTIFICATIONS || process.env.ADMIN_EMAIL || "admin@numoracle.com"
+}
+
+// Validate admin email format
+export function validateAdminEmail(): { isValid: boolean; email: string; source: string } {
+  const email = getAdminEmail()
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  let source = "default (admin@numoracle.com)"
+  if (process.env.ADMIN_EMAIL_FOR_NOTIFICATIONS) {
+    source = "ADMIN_EMAIL_FOR_NOTIFICATIONS"
+  } else if (process.env.ADMIN_EMAIL) {
+    source = "ADMIN_EMAIL"
+  }
+
+  return {
+    isValid: emailRegex.test(email),
+    email,
+    source,
+  }
 }
 
 // Check if we're running on the client side
@@ -101,10 +121,15 @@ export const isDev = process.env.NODE_ENV === "development"
 // Check if we're in production mode
 export const isProd = process.env.NODE_ENV === "production"
 
-// Initialize and validate environment on startup (server-side only)
-if (typeof window === "undefined") {
-  const missingVars = validateEnv()
-  if (missingVars.length > 0) {
-    console.warn(`Missing required environment variables: ${missingVars.join(", ")}`)
-  }
+// Initialize and validate environment on startup
+const missingVars = validateEnv()
+if (missingVars.length > 0) {
+  console.warn(`Missing required environment variables: ${missingVars.join(", ")}`)
+}
+
+// Log admin email configuration on startup
+const adminEmailConfig = validateAdminEmail()
+console.log(`Admin email configured: ${adminEmailConfig.email} (from ${adminEmailConfig.source})`)
+if (!adminEmailConfig.isValid) {
+  console.warn(`⚠️  Invalid admin email format: ${adminEmailConfig.email}`)
 }

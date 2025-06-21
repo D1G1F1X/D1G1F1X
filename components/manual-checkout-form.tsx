@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { Plus, Trash2, ShoppingCart, User, MapPin, FileText } from "lucide-react"
+import type React from "react"
+import { useState, useTransition } from "react"
+import { Plus, Trash2, ShoppingCart, User, MapPin, FileText, AlertCircle, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -9,7 +10,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
-// Local mirror of the Zod schema ― **type-only**, so it won’t reach the browser bundle
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { submitManualOrder } from "@/app/manual-checkout/actions"
+
 export interface OrderItem {
   id: string
   productId?: string
@@ -17,16 +20,6 @@ export interface OrderItem {
   quantity: number
   price: number
   description?: string
-}
-
-const initialState = {
-  message: "",
-  success: false,
-  errors: null,
-  fieldErrors: null,
-  itemErrors: null,
-  orderId: null,
-  emailStatus: undefined,
 }
 
 // Predefined products for easy selection
@@ -41,9 +34,42 @@ const PREDEFINED_PRODUCTS = [
   { id: "custom-item", name: "Custom Item", price: 0, description: "Specify custom product" },
 ]
 
-export default function ManualCheckoutForm() {
+const COUNTRIES = [
+  "United States",
+  "Canada",
+  "United Kingdom",
+  "Australia",
+  "Germany",
+  "France",
+  "Italy",
+  "Spain",
+  "Netherlands",
+  "Belgium",
+  "Switzerland",
+  "Austria",
+  "Sweden",
+  "Norway",
+  "Denmark",
+  "Finland",
+  "Ireland",
+  "Portugal",
+  "Other",
+]
+
+const initialState = {
+  message: "",
+  success: false,
+  errors: null,
+  fieldErrors: null,
+  itemErrors: null,
+  orderId: null,
+  emailStatus: undefined,
+}
+
+const ManualCheckoutForm: React.FC = () => {
   const [state, setState] = useState(initialState)
-  const [isPending, setIsPending] = useState(false)
+  const [isPending, startTransition] = useTransition()
+  const [isSubmitted, setIsSubmitted] = useState(false)
 
   // Form state
   const [orderItems, setOrderItems] = useState<OrderItem[]>([
@@ -89,10 +115,14 @@ export default function ManualCheckoutForm() {
           // Auto-fill from predefined products
           if (field === "productId" && value) {
             const product = PREDEFINED_PRODUCTS.find((p) => p.id === value)
-            if (product) {
+            if (product && product.id !== "custom-item") {
               updatedItem.name = product.name
               updatedItem.price = product.price
               updatedItem.description = product.description
+            } else if (product?.id === "custom-item") {
+              updatedItem.name = ""
+              updatedItem.price = 0
+              updatedItem.description = ""
             }
           }
 
@@ -118,56 +148,150 @@ export default function ManualCheckoutForm() {
     return state.itemErrors?.find((error) => error.index === itemIndex && error.field === field)?.message
   }
 
+  // Validate form before submission
+  const validateForm = () => {
+    const errors: string[] = []
+
+    // Validate order items
+    if (orderItems.length === 0) {
+      errors.push("At least one order item is required")
+    }
+
+    orderItems.forEach((item, index) => {
+      if (!item.name.trim()) {
+        errors.push(`Item ${index + 1}: Product name is required`)
+      }
+      if (item.quantity <= 0) {
+        errors.push(`Item ${index + 1}: Quantity must be greater than 0`)
+      }
+      if (item.price < 0) {
+        errors.push(`Item ${index + 1}: Price cannot be negative`)
+      }
+    })
+
+    return errors
+  }
+
+  const handleSubmit = async (formData: FormData) => {
+    // Reset state
+    setState(initialState)
+    setIsSubmitted(false)
+
+    // Validate form
+    const validationErrors = validateForm()
+    if (validationErrors.length > 0) {
+      setState({
+        ...initialState,
+        success: false,
+        message: "Please fix the following errors:",
+        errors: { validation: validationErrors },
+      })
+      return
+    }
+
+    startTransition(async () => {
+      try {
+        // Add order items to form data
+        formData.set("orderItems", JSON.stringify(orderItems))
+
+        // Add honeypot field check
+        const honeypot = formData.get("website") as string
+        if (honeypot && honeypot.length > 0) {
+          setState({
+            ...initialState,
+            success: false,
+            message: "Submission rejected. Please try again.",
+          })
+          return
+        }
+
+        const result = await submitManualOrder(state, formData)
+        setState(result)
+
+        if (result.success) {
+          setIsSubmitted(true)
+          // Reset form on success
+          setOrderItems([
+            {
+              id: crypto.randomUUID(),
+              productId: "",
+              name: "",
+              quantity: 1,
+              price: 0,
+              description: "",
+            },
+          ])
+        }
+      } catch (error) {
+        console.error("Form submission error:", error)
+        setState({
+          ...initialState,
+          success: false,
+          message: "An unexpected error occurred. Please try again.",
+        })
+      }
+    })
+  }
+
+  if (isSubmitted && state.success) {
+    return (
+      <div className="max-w-2xl mx-auto text-center py-12">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-8">
+          <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-green-800 mb-4">Order Submitted Successfully!</h2>
+          <p className="text-green-700 mb-6">{state.message}</p>
+
+          {state.orderId && (
+            <div className="bg-white rounded-lg p-4 mb-6">
+              <p className="text-sm text-gray-600">Order Reference:</p>
+              <p className="font-mono text-lg font-semibold text-gray-800">{state.orderId}</p>
+            </div>
+          )}
+
+          {state.emailStatus && (
+            <div className="text-sm text-gray-600 mb-6">
+              <p>✅ Customer confirmation: {state.emailStatus.customerEmailSent ? "Sent" : "Failed"}</p>
+              <p>✅ Admin notification: {state.emailStatus.adminEmailSent ? "Sent" : "Failed"}</p>
+              {state.emailStatus.emailErrors && state.emailStatus.emailErrors.length > 0 && (
+                <p className="text-orange-600 mt-2">Note: Some email notifications may be delayed</p>
+              )}
+            </div>
+          )}
+
+          <Button
+            onClick={() => {
+              setIsSubmitted(false)
+              setState(initialState)
+            }}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            Submit Another Order
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Success Message */}
-      {state.success && (
-        <Alert className="border-green-500 bg-green-50 text-green-800">
-          <ShoppingCart className="h-4 w-4" />
-          <AlertDescription className="font-medium">
-            {state.message}
-            {state.orderId && (
-              <div className="mt-2 text-sm">
-                Order ID: <span className="font-mono">{state.orderId}</span>
-              </div>
-            )}
-            {state.emailStatus && (
-              <div className="mt-2 text-sm space-y-1">
-                <div>✅ Customer email: {state.emailStatus.customerEmailSent ? "Sent" : "Failed"}</div>
-                <div>✅ Admin notification: {state.emailStatus.adminEmailSent ? "Sent" : "Failed"}</div>
-              </div>
+      {/* Error Messages */}
+      {!state.success && state.message && (
+        <Alert className="border-red-500 bg-red-50 text-red-800">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <div className="font-medium">{state.message}</div>
+            {state.errors?.validation && (
+              <ul className="mt-2 list-disc list-inside text-sm">
+                {state.errors.validation.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
             )}
           </AlertDescription>
         </Alert>
       )}
 
-      {/* Error Messages */}
-      {!state.success && state.message && (
-        <Alert className="border-red-500 bg-red-50 text-red-800">
-          <AlertDescription>{state.message}</AlertDescription>
-        </Alert>
-      )}
-
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-          setIsPending(true)
-          setState(initialState)
-          try {
-            const fd = new FormData(e.currentTarget as HTMLFormElement)
-            // inject the orderItems payload
-            fd.set("orderItems", JSON.stringify(orderItems))
-            const res = await fetch("/api/submit-manual-order", { method: "POST", body: fd })
-            const json = await res.json()
-            setState(json)
-          } catch {
-            setState({ ...initialState, success: false, message: "Something went wrong. Please try again." })
-          } finally {
-            setIsPending(false)
-          }
-        }}
-        className="space-y-8"
-      >
+      <form action={handleSubmit} className="space-y-8">
         {/* Honeypot field for spam protection */}
         <input type="text" name="website" style={{ display: "none" }} tabIndex={-1} autoComplete="off" />
 
@@ -302,23 +426,18 @@ export default function ManualCheckoutForm() {
 
               <div className="space-y-2">
                 <Label htmlFor="shippingAddressCountry">Country *</Label>
-                <select
-                  id="shippingAddressCountry"
-                  name="shippingAddressCountry"
-                  required
-                  className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-                    getFieldError("shippingAddressCountry") ? "border-red-500" : ""
-                  }`}
-                >
-                  <option value="">Select Country</option>
-                  <option value="United States">United States</option>
-                  <option value="Canada">Canada</option>
-                  <option value="United Kingdom">United Kingdom</option>
-                  <option value="Australia">Australia</option>
-                  <option value="Germany">Germany</option>
-                  <option value="France">France</option>
-                  <option value="Other">Other</option>
-                </select>
+                <Select name="shippingAddressCountry" required>
+                  <SelectTrigger className={getFieldError("shippingAddressCountry") ? "border-red-500" : ""}>
+                    <SelectValue placeholder="Select Country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COUNTRIES.map((country) => (
+                      <SelectItem key={country} value={country}>
+                        {country}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {getFieldError("shippingAddressCountry") && (
                   <p className="text-sm text-red-600">{getFieldError("shippingAddressCountry")}</p>
                 )}
@@ -337,18 +456,19 @@ export default function ManualCheckoutForm() {
           </CardHeader>
           <CardContent className="space-y-6">
             {orderItems.map((item, index) => (
-              <div key={item.id} className="border rounded-lg p-4 space-y-4">
+              <div key={item.id} className="border rounded-lg p-4 space-y-4 bg-gray-50">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Item {index + 1}</h4>
+                  <h4 className="font-medium text-lg">Item {index + 1}</h4>
                   {orderItems.length > 1 && (
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => removeOrderItem(item.id)}
-                      className="text-red-600 hover:text-red-700"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                       <Trash2 className="h-4 w-4" />
+                      Remove
                     </Button>
                   )}
                 </div>
@@ -356,18 +476,21 @@ export default function ManualCheckoutForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Product Selection</Label>
-                    <select
+                    <Select
                       value={item.productId || ""}
-                      onChange={(e) => updateOrderItem(item.id, "productId", e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      onValueChange={(value) => updateOrderItem(item.id, "productId", value)}
                     >
-                      <option value="">Select a product or choose custom</option>
-                      {PREDEFINED_PRODUCTS.map((product) => (
-                        <option key={product.id} value={product.id}>
-                          {product.name} - ${product.price}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a product or choose custom" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PREDEFINED_PRODUCTS.map((product) => (
+                          <SelectItem key={product.id} value={product.id}>
+                            {product.name} {product.price > 0 && `- $${product.price}`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="space-y-2">
@@ -431,22 +554,22 @@ export default function ManualCheckoutForm() {
                   />
                 </div>
 
-                <div className="text-right">
+                <div className="text-right bg-white rounded p-3">
                   <p className="text-sm text-muted-foreground">
-                    Subtotal: <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                    Subtotal: <span className="font-medium text-lg">${(item.price * item.quantity).toFixed(2)}</span>
                   </p>
                 </div>
               </div>
             ))}
 
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center pt-4">
               <Button type="button" variant="outline" onClick={addOrderItem} className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
                 Add Another Item
               </Button>
 
               <div className="text-right">
-                <p className="text-lg font-semibold">
+                <p className="text-xl font-bold">
                   Total: <span className="text-purple-600">${calculateTotal().toFixed(2)}</span>
                 </p>
               </div>
@@ -486,8 +609,8 @@ export default function ManualCheckoutForm() {
           <Button
             type="submit"
             size="lg"
-            disabled={isPending || orderItems.length === 0}
-            className="w-full md:w-auto px-8 py-3 text-lg"
+            disabled={isPending || orderItems.length === 0 || calculateTotal() === 0}
+            className="w-full md:w-auto px-8 py-3 text-lg bg-purple-600 hover:bg-purple-700"
           >
             {isPending ? (
               <>
@@ -511,3 +634,5 @@ export default function ManualCheckoutForm() {
     </div>
   )
 }
+
+export default ManualCheckoutForm
