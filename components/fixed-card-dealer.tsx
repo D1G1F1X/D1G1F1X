@@ -46,17 +46,8 @@ export default function FixedCardDealer() {
   }
 
   const getCardImagePath = (card: OracleCard, endUp: "first" | "second"): string => {
-    if (!card) return "/placeholder.svg"
-
-    // Use the direct number field from the card data
-    const number = card.number?.toString().padStart(2, "0") || "00"
-    const suit = card.suit?.toLowerCase() || "unknown"
-    const element =
-      endUp === "first"
-        ? card.baseElement?.toLowerCase() || "spirit"
-        : card.synergisticElement?.toLowerCase() || "spirit"
-
-    return `/cards/${number}-${suit}-${element}.jpg` // Updated path
+    // Use the imagePath directly from the card object
+    return card.imagePath || "/placeholder.svg"
   }
 
   const getElementColor = (element: string) => {

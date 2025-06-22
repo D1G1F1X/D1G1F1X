@@ -73,24 +73,6 @@ export function CardDirectory() {
     }
   }
 
-  // Function to ensure card ID is always padded for image fetching
-  const getPaddedCardId = (card: typeof selectedCard) => {
-    if (!card) return null
-    // Extract the number part from the card's original ID
-    const numberMatch = card.id.match(/^(\d+)/)
-    const numberPart = numberMatch ? numberMatch[1] : String(card.number) // Fallback to card.number if regex fails
-
-    const paddedNumber = String(numberPart).padStart(2, "0")
-
-    // Reconstruct the ID with the padded number, keeping the rest of the ID intact
-    // This handles cases like "0-cauldron-spirit" -> "00-cauldron-spirit"
-    // and "10-cauldron-spirit" -> "10-cauldron-spirit" (no change)
-    const restOfId = card.id.substring(numberMatch ? numberMatch[0].length : 0)
-    return `${paddedNumber}${restOfId}`
-  }
-
-  const paddedSelectedCardId = selectedCard ? getPaddedCardId(selectedCard) : null
-
   return (
     <div className="container mx-auto py-8 px-4 md:px-6 min-h-[calc(100vh-64px)]">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -234,7 +216,7 @@ export function CardDirectory() {
               <CardContent className="grid md:grid-cols-2 gap-6 p-6">
                 <div className="flex flex-col items-center">
                   <EnhancedCardImage
-                    cardId={paddedSelectedCardId || selectedCard.id} // Use padded ID here
+                    cardId={selectedCard.id} // Use selectedCard.id directly
                     cardTitle={selectedCard.fullTitle}
                     baseElement={selectedCard.baseElement}
                     synergisticElement={selectedCard.synergisticElement}

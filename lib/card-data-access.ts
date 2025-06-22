@@ -19,6 +19,10 @@ const allCards: OracleCard[] = Array.isArray(masterCardData)
       symbolismBreakdown: Array.isArray(card.symbolismBreakdown) ? card.symbolismBreakdown : [],
       planetInternalInfluence: card.planetInternalInfluence || "Universal guidance",
       astrologyExternalDomain: card.astrologyExternalDomain || "All signs",
+      imageFileName: card.imageFileName || null, // Map the new field
+      imagePath: card.imageFileName
+        ? `/cards/${card.imageFileName}`
+        : `/cards/${String(card.number).padStart(2, "0")}-${(card.suit || "unknown").toLowerCase()}-${(card.baseElement || "spirit").toLowerCase()}.jpg`, // Use imageFileName for imagePath
     }))
   : [] // Fallback to an empty array if masterCardData is not an array
 
@@ -146,39 +150,27 @@ export function getSymbolValue(card: OracleCard, key: string): string | undefine
  * Enhanced card image path generation with fallback support
  */
 export function getCardImagePath(card: OracleCard): string {
-  // Generate image path based on card properties with zero-padded numbers
-  const cardNumber = String(card.number).padStart(2, "0")
-  const suit = card.suit.toLowerCase()
-  const element = card.baseElement.toLowerCase()
-
-  // Primary path with zero-padded format
-  const primaryPath = `/cards/${cardNumber}-${suit}-${element}.jpg`
-
-  // Fallback paths for backward compatibility
-  const fallbackPaths = [
-    `/cards/${card.number}-${suit}-${element}.jpg`, // Original single-digit format
-    `/cards/${cardNumber}${suit}-${element}.jpg`, // No hyphen format
-    `/cards/${card.id.toLowerCase()}-${element}.jpg`,
-    `/cards/${card.id.toLowerCase()}.jpg`,
-  ]
-
-  // Return the primary path (component will handle fallbacks)
-  return primaryPath
+  // Directly use the imagePath property which is now derived from imageFileName
+  return card.imagePath || "/placeholder.svg"
 }
 
 /**
  * Get all possible image paths for a card (for validation/checking)
  */
 export function getAllPossibleImagePaths(card: OracleCard): string[] {
+  // If imagePath is available, it's the primary path
+  if (card.imagePath) {
+    return [card.imagePath]
+  }
+
+  // Fallback to old logic if imagePath is not set (shouldn't happen with new data)
   const cardNumber = String(card.number).padStart(2, "0")
   const suit = card.suit.toLowerCase()
   const baseElement = card.baseElement.toLowerCase()
   const synergisticElement = card.synergisticElement.toLowerCase()
 
-  const paths: string[] = [][
-    // For both base and synergistic elements
-    (baseElement, synergisticElement)
-  ].forEach((element) => {
+  const paths: string[] = []
+  ;[baseElement, synergisticElement].forEach((element) => {
     if (element) {
       paths.push(
         `/cards/${cardNumber}-${suit}-${element}.jpg`, // Zero-padded format

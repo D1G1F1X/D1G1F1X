@@ -42,6 +42,10 @@ const envConfig: Record<string, EnvVar> = {
     required: false,
     default: "http://localhost:3000",
   },
+
+  // OpenAI
+  OPENAI_API_KEY: { value: process.env.OPENAI_API_KEY, required: true }, // Marked as required
+  OPENAI_ASSISTANT_ID: { value: process.env.OPENAI_ASSISTANT_ID, required: true }, // Marked as required
 }
 
 // Validate all required environment variables on startup

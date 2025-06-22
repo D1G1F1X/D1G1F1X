@@ -19,4 +19,5 @@ export interface OracleCard {
   sacredGeometry: string
   synergisticElement: string
   imagePath?: string // For storing the resolved image URL
+  imageFileName?: string // Add this line
 }

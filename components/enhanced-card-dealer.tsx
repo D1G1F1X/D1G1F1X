@@ -15,7 +15,6 @@ import { generateReading } from "@/lib/actions/generate-reading"
 import { useToast } from "@/components/ui/use-toast"
 import type { ReadingData } from "@/types/readings"
 import { cn } from "@/lib/utils"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getSymbolValue, getCardData } from "@/lib/card-data-access" // Import getCardData
 import { Badge } from "@/components/ui/badge"
 import { calculateLifePath } from "@/lib/numerology"
@@ -877,7 +876,7 @@ Remember that you have the power to shape your path forward. These cards offer g
             <>
               {!hasImageError ? (
                 <EnhancedCardImage
-                  cardId={`${card.number}-${card.suit}`}
+                  cardId={card.id} // Use card.id, which now correctly maps to imagePath
                   cardTitle={card.fullTitle}
                   baseElement={card.baseElement}
                   synergisticElement={card.synergisticElement}
@@ -926,7 +925,7 @@ Remember that you have the power to shape your path forward. These cards offer g
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <EnhancedCardImage
-                  cardId={`${card.number}-${card.suit}`}
+                  cardId={card.id} // Use card.id, which now correctly maps to imagePath
                   cardTitle={card.fullTitle}
                   baseElement={card.baseElement}
                   synergisticElement={card.synergisticElement}
@@ -1039,7 +1038,7 @@ Remember that you have the power to shape your path forward. These cards offer g
 
               <div className="absolute w-full h-full backface-hidden rotate-y-180">
                 <Image
-                  src={`/cards/${card.number.padStart(2, "0")}-${card.suit.toLowerCase()}-${card.baseElement.toLowerCase()}.jpg`} // Updated path
+                  src={card.imagePath || "/placeholder.svg"} // Use card.imagePath directly
                   alt={card.fullTitle}
                   width={300}
                   height={450}
@@ -1095,82 +1094,40 @@ Remember that you have the power to shape your path forward. These cards offer g
 
       {drawnCards.length > 0 && (
         <div className="space-y-8">
-          {drawnCards.map((drawnCard, index) => {
-            const { card } = drawnCard
-            const cardNumber = card.number || "0"
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-purple-300 mb-4">Reading Interpretation</h3>
+            <p className="text-gray-300 mb-6">Your cards have been drawn. Here's what they reveal:</p>
+          </div>
 
-            return (
-              <Card key={index} className="overflow-hidden">
-                <div className="flex flex-col md:flex-row">
-                  <div className="w-full md:w-1/3 p-4 flex justify-center items-center">
-                    {renderCard(drawnCard, index)}
-                  </div>
-                  <div className="w-full md:w-2/3 p-4">
-                    <h2 className="text-2xl font-bold mb-2">{card.fullTitle}</h2>
-                    <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap justify-center gap-6 mb-8">
+            {drawnCards.map((drawnCard, index) => renderCard(drawnCard, index))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {drawnCards.map((drawnCard, index) => {
+              const { card } = drawnCard
+              // Use the direct number field from the card data
+              const cardNumber = card.number || "0"
+
+              return (
+                <Card key={index} className="bg-gray-800/50 border-purple-500/30">
+                  <CardContent className="p-4">
+                    <h4 className="text-lg font-semibold text-purple-300 mb-2">
+                      Card {index + 1}: {card.fullTitle}
+                    </h4>
+                    <div className="flex flex-wrap gap-2 mb-3">
                       <Badge variant="secondary">{card.suit}</Badge>
-                      <Badge>Number: {cardNumber}</Badge>
-                      <Badge variant="outline">Synergistic Element: {card.synergisticElement}</Badge>
-                      <Badge variant="destructive">Base Element: {card.baseElement}</Badge>
+                      <Badge variant="outline">Number: {cardNumber}</Badge>
+                      <Badge variant="destructive">{card.baseElement}</Badge>
                     </div>
-                    <Tabs defaultValue="overview">
-                      <TabsList className="w-full">
-                        <TabsTrigger value="overview" className="flex-1">
-                          Overview
-                        </TabsTrigger>
-                        <TabsTrigger value="element" className="flex-1">
-                          Elemental Influence
-                        </TabsTrigger>
-                        <TabsTrigger value="symbolism" className="flex-1">
-                          Symbolism
-                        </TabsTrigger>
-                      </TabsList>
-
-                      <TabsContent value="overview" className="space-y-4">
-                        <div>
-                          <h3 className="text-lg font-semibold">Key Meanings</h3>
-                          <ul className="list-disc pl-5">
-                            {card.keyMeanings.map((meaning, i) => (
-                              <li key={i}>{meaning}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold">Description</h3>
-                          <p>{(card.symbolismBreakdown || []).join(" ")}</p>
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="element" className="space-y-4">
-                        <div className="border rounded-lg p-3">
-                          <h3 className="text-lg font-semibold flex items-center gap-2">Elemental Influence</h3>
-                          <div className="mt-2 space-y-2">
-                            {card.symbolismBreakdown
-                              .filter((s) => s.includes("Element"))
-                              .map((line, i) => (
-                                <p key={i} className="text-sm text-gray-300">
-                                  {line}
-                                </p>
-                              ))}
-                          </div>
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="symbolism" className="space-y-4">
-                        <div className="space-y-2">
-                          {card.symbolismBreakdown.map((item, i) => (
-                            <div key={i}>
-                              <p className="text-gray-300">{item.replace(/^Number: \d+ – /, "")}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                  </div>
-                </div>
-              </Card>
-            )
-          })}
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      {card.keyMeanings?.[0] || "This card brings wisdom and guidance for your journey."}
+                    </p>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
         </div>
       )}
 

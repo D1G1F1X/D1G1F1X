@@ -32,6 +32,7 @@ import { userDataService, type UserProfile } from "@/lib/services/user-data-serv
 import { getCardImageUrl, preloadCardImages } from "@/lib/card-image-blob-handler"
 import { Progress } from "@/components/ui/progress"
 import { AssistantChat } from "@/components/assistant-chat"
+import { useToast } from "@/components/ui/use-toast" // Import useToast
 
 // Complete NUMO Oracle Card Data Structure
 export interface Symbol {
@@ -333,7 +334,7 @@ const masterCardData: OracleCard[] = [
     ],
     keyMeanings: [
       "Rituals of Becoming: Establish patterns that shape who you're becoming. This highlights the power of consistent practices and routines to build character, reinforce values, and create a supportive structure for personal growth.",
-      "Sacred Groundwork: Root in what nourishes and sustains you. Identify and connect with the core elements – be they values, relationships, or practices – that provide fundamental support, stability, and a sense of belonging.",
+      "Sacred Groundwork: Root in what nourishes and sustains you. Identify and connect with the core elements – be it values, relationships, or practices – that provide fundamental support, stability, and a sense of belonging.",
       "Embodied Cycles: Growth takes time—trust organic rhythms. Recognize that true development unfolds naturally and often cyclically. Patience and trust in these inherent life patterns are key to sustainable progress.",
       "Earth as Teacher: The path of grounded wisdom begins in the body. Pay attention to physical sensations and the wisdom of the material world. Practical experience and connection to nature offer profound lessons.",
     ],
@@ -508,6 +509,8 @@ export function CardSimulator() {
   const [birthPlace, setBirthPlace] = useState("")
   const [hasGeneratedAIReading, setHasGeneratedAIReading] = useState(false) // New state to track AI reading generation
 
+  const { toast } = useToast() // Initialize useToast
+
   // Load card images from blob storage
   useEffect(() => {
     const loadCardImages = async () => {
@@ -674,9 +677,22 @@ export function CardSimulator() {
   // Enhanced reading generation using ChatGPT Assistant
   const generateAIReading = async () => {
     if (selectedCards.length === 0) {
-      alert("Please draw cards first before generating an AI reading.")
+      toast({
+        title: "No Cards Drawn",
+        description: "Please draw cards first before generating an AI reading.",
+        variant: "destructive",
+      })
       return
     }
+    if (!question.trim()) {
+      toast({
+        title: "Question Required",
+        description: "Please enter a question to enable AI reading.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsGeneratingReading(true)
     setHasGeneratedAIReading(true) // Set flag that AI reading is being generated
 
@@ -692,26 +708,57 @@ export function CardSimulator() {
           dateOfBirth: birthDate,
           timeOfBirth: birthTime,
           birthPlace: birthPlace,
-          question: question || "Please provide guidance for my current situation",
+          question: question,
           selectedCards: selectedCards,
           spreadType: spreadType,
         }),
       })
 
-      const data = await response.json().catch(() => ({})) // Always try to parse JSON, fallback to empty object
+      // --- old code ---
+      // const data = await response.json()
+      // if (data.success) { … }
 
-      if (data.success) {
-        setConversationThreadId(data.threadId)
-        setAssistantReading(data.content || "")
-        setReading(data.content || "No detailed AI reading available. Please try again or ask a follow-up question.")
-      } else {
-        console.warn("AI reading generation failed:", data.error)
-        setAssistantReading(data.content || "")
-        setReading(data.content || "Failed to generate an advanced AI reading. Please try again later.")
+      // --- new code ---
+      let data: any
+      try {
+        // Try to parse as JSON first
+        data = await response.clone().json()
+      } catch (_err) {
+        // Not JSON – read the raw text
+        const rawText = await response.text()
+        data = {
+          success: false,
+          error: rawText || "Unknown server response",
+          fallback: true,
+        }
       }
-    } catch (error) {
+
+      if (response.ok && data.success) {
+        setConversationThreadId(data.threadId)
+        setAssistantReading(data.reading ?? "")
+        setReading(data.reading ?? "No detailed AI reading available. Please try again or ask a follow-up question.")
+        toast({
+          title: "Reading Generated!",
+          description: "Your personalized oracle reading is ready.",
+        })
+      } else {
+        console.error("AI reading generation failed:", data.error ?? data)
+        setAssistantReading(data.reading ?? "")
+        setReading(data.reading ?? `Failed to generate an advanced AI reading: ${data.error ?? "Unknown error"}.`)
+        toast({
+          title: "Reading Failed",
+          description: `Could not generate AI reading: ${data.error ?? "Unknown error"}.`,
+          variant: "destructive",
+        })
+      }
+    } catch (error: any) {
       console.error("Error generating AI reading:", error)
-      setReading("Failed to generate an advanced reading due to a network error. Please try again later.")
+      setReading("Failed to generate an advanced reading due to a network or server error. Please try again later.")
+      toast({
+        title: "Network Error",
+        description: `Failed to connect to AI service: ${error.message}. Please check your internet connection or try again later.`,
+        variant: "destructive",
+      })
     } finally {
       setIsGeneratingReading(false)
     }
@@ -719,11 +766,19 @@ export function CardSimulator() {
 
   const saveReading = () => {
     if (!question.trim()) {
-      alert("Please enter a question before saving your reading.")
+      toast({
+        title: "Question Missing",
+        description: "Please enter a question before saving your reading.",
+        variant: "destructive",
+      })
       return
     }
     if (!reading.trim()) {
-      alert("Please generate a reading first before saving.")
+      toast({
+        title: "No Reading to Save",
+        description: "Please generate a reading first before saving.",
+        variant: "destructive",
+      })
       return
     }
 
@@ -744,17 +799,29 @@ export function CardSimulator() {
         const existingReadings = JSON.parse(localStorage.getItem("numoReadings") || "[]")
         existingReadings.push(readingData)
         localStorage.setItem("numoReadings", JSON.stringify(existingReadings))
-        alert("Reading saved successfully!")
+        toast({
+          title: "Reading Saved!",
+          description: "Your reading has been successfully saved.",
+          variant: "default",
+        })
       }
     } catch (error) {
       console.error("Error saving reading:", error)
-      alert("Failed to save reading. Please try again.")
+      toast({
+        title: "Save Failed",
+        description: "Failed to save reading. Please try again.",
+        variant: "destructive",
+      })
     }
   }
 
   const shareReading = () => {
     if (!reading.trim()) {
-      alert("Please generate a reading first before sharing.")
+      toast({
+        title: "No Reading to Share",
+        description: "Please generate a reading first before sharing.",
+        variant: "destructive",
+      })
       return
     }
     if (typeof navigator !== "undefined" && navigator.share) {
@@ -764,13 +831,37 @@ export function CardSimulator() {
           text: `Question: ${question}\n\n${reading}`,
           url: window.location.href,
         })
-        .catch(console.error)
+        .then(() => {
+          toast({
+            title: "Reading Shared!",
+            description: "Your reading has been shared successfully.",
+            variant: "default",
+          })
+        })
+        .catch((error) => {
+          console.error("Error sharing reading:", error)
+          toast({
+            title: "Share Failed",
+            description: `Could not share reading: ${error.message}.`,
+            variant: "destructive",
+          })
+        })
     } else {
       // Fallback to clipboard
       const shareText = `My NUMO Oracle Reading\n\nQuestion: ${question}\n\n${reading}`
       if (navigator.clipboard) {
         navigator.clipboard.writeText(shareText)
-        alert("Reading copied to clipboard!")
+        toast({
+          title: "Copied to Clipboard!",
+          description: "The reading has been copied to your clipboard.",
+          variant: "default",
+        })
+      } else {
+        toast({
+          title: "Share Not Supported",
+          description: "Your browser does not support sharing or clipboard copy.",
+          variant: "destructive",
+        })
       }
     }
   }

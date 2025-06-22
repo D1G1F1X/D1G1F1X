@@ -4,6 +4,7 @@ import {
   continueConversation,
   getConversationHistory,
   type ReadingRequest,
+  type ReadingResponse,
 } from "@/lib/openai-assistant"
 
 export async function POST(request: NextRequest) {
@@ -11,7 +12,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { action, ...data } = body
 
-    console.log(`Assistant API called with action: ${action}`)
+    console.log(`[API/Assistant] Received request with action: ${action}`)
 
     switch (action) {
       case "generateReading":
@@ -24,12 +25,18 @@ export async function POST(request: NextRequest) {
           spreadType: data.spreadType,
         }
 
-        console.log("Generating reading with request:", readingRequest)
-        const reading = await generateOracleReading(readingRequest)
+        console.log("[API/Assistant] Calling generateOracleReading with request:", readingRequest)
+        const reading: ReadingResponse = await generateOracleReading(readingRequest)
+        console.log(
+          "[API/Assistant] generateOracleReading response:",
+          reading.success ? "Success" : "Failure",
+          reading.error || reading.details,
+        )
         return NextResponse.json(reading)
 
       case "continueConversation":
         if (!data.threadId || !data.message) {
+          console.error("[API/Assistant] Error: Thread ID and message are required for continueConversation.")
           return NextResponse.json(
             {
               error: "Thread ID and message are required",
@@ -39,12 +46,18 @@ export async function POST(request: NextRequest) {
           )
         }
 
-        console.log(`Continuing conversation in thread: ${data.threadId}`)
-        const response = await continueConversation(data.threadId, data.message)
+        console.log(`[API/Assistant] Calling continueConversation for thread: ${data.threadId}`)
+        const response: ReadingResponse = await continueConversation(data.threadId, data.message)
+        console.log(
+          "[API/Assistant] continueConversation response:",
+          response.success ? "Success" : "Failure",
+          response.error || response.details,
+        )
         return NextResponse.json(response)
 
       case "getHistory":
         if (!data.threadId) {
+          console.error("[API/Assistant] Error: Thread ID is required for getHistory.")
           return NextResponse.json(
             {
               error: "Thread ID is required",
@@ -54,11 +67,13 @@ export async function POST(request: NextRequest) {
           )
         }
 
-        console.log(`Getting history for thread: ${data.threadId}`)
+        console.log(`[API/Assistant] Calling getConversationHistory for thread: ${data.threadId}`)
         const history = await getConversationHistory(data.threadId)
+        console.log(`[API/Assistant] getConversationHistory retrieved ${history.length} messages.`)
         return NextResponse.json({ history, success: true })
 
       default:
+        console.error(`[API/Assistant] Error: Invalid action received: ${action}`)
         return NextResponse.json(
           {
             error: "Invalid action",
@@ -67,12 +82,12 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         )
     }
-  } catch (error) {
-    console.error("Assistant API error:", error)
+  } catch (error: any) {
+    console.error("[API/Assistant] CRITICAL ERROR in Assistant API route:", error)
     return NextResponse.json(
       {
         error: "Internal server error",
-        details: error instanceof Error ? error.message : "Unknown error",
+        details: error.message || "Unknown error",
         success: false,
       },
       { status: 500 },
