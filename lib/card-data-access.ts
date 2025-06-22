@@ -1,4 +1,4 @@
-import masterCardData from "@/data/master-card-data.json"
+import masterCardData from "../data/master-card-data.json"
 import type { OracleCard } from "@/types/cards"
 
 // Convert the imported array to properly typed OracleCard objects
