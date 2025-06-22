@@ -63,3 +63,14 @@ const TableCell = React.forwardRef<HTMLTableCellElement, React.TdHTMLAttributes<
 TableCell.displayName = "TableCell"
 
 export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell }
+
+// Alias exports – keeps older / shorthand imports working
+export { TableBody as Tbody }
+
+// ------------------------------------------------------------------
+//  Legacy / alias exports – keep older imports working seamlessly
+// ------------------------------------------------------------------
+export { TableHeader as Thead }
+export { TableRow as Tr }
+export { TableHead as Th }
+export { TableCell as Td }

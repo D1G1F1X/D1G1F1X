@@ -22,6 +22,14 @@ export const publicSupabaseConfig = {
   anonKey: NEXT_PUBLIC_SUPABASE_ANON_KEY,
 } as const
 
+// ------------------------------------------------------------------
+//  Unified config expected by other helpers (server & client safe)
+// ------------------------------------------------------------------
+export const SUPABASE_CONFIG = {
+  url: NEXT_PUBLIC_SUPABASE_URL,
+  anonKey: NEXT_PUBLIC_SUPABASE_ANON_KEY,
+} as const
+
 // Optional: A simple validation function for general Supabase setup
 export function validateSupabaseIntegration(): boolean {
   const isValid = !!(NEXT_PUBLIC_SUPABASE_URL && NEXT_PUBLIC_SUPABASE_ANON_KEY)
@@ -34,3 +42,8 @@ export function validateSupabaseIntegration(): boolean {
   console.log("✅ Numoracle Supabase integration validated.")
   return true
 }
+
+// ------------------------------------------------------------------
+//  Alias kept for backward-compatibility with older helpers
+// ------------------------------------------------------------------
+export const validateDigifixIntegration = validateSupabaseIntegration

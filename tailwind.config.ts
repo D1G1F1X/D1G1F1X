@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss"
+import { fontFamily } from "tailwindcss/defaultTheme"
 
 const config = {
   darkMode: ["class"],
@@ -53,13 +54,6 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Custom colors from HTML guidebook
-        "accent-gold": "#f0c420",
-        "bg-dark": "#1a1a1a",
-        "container-bg": "#2c2c2c",
-        "text-main": "#e0e0e0",
-        "text-heading": "#ffffff",
-        "border-color": "#444",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -81,9 +75,9 @@ const config = {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
       fontFamily: {
-        // Custom fonts from HTML guidebook
-        heading: ["Cinzel", "serif"],
-        body: ["Montserrat", "sans-serif"],
+        sans: ["var(--font-sans)", ...fontFamily.sans],
+        serif: ["var(--font-serif)", ...fontFamily.serif],
+        body: ["var(--font-body)", ...fontFamily.sans],
       },
     },
   },

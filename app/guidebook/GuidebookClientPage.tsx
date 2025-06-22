@@ -1,11 +1,10 @@
 "use client" // Added 'use client' directive
 
 import { useState, useCallback } from "react" // Added useCallback
-import type { Metadata } from "next" // Keep Metadata for server rendering of initial page, although most content is client
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Download, Lock } from "lucide-react"
 import { MembershipVerification } from "@/components/membership-verification"
@@ -13,17 +12,8 @@ import { useAuth } from "@/contexts/auth-context" // Added useAuth hook
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion" // Added Accordion components
 import { Label } from "@/components/ui/label" // Added Label component
 import { Input } from "@/components/ui/input" // Added Input component
-import { Table, Thead, Tbody, Tr, Th, Td } from "@/components/ui/table" // Added Table components
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table" // Added Table components
 import { cn } from "@/lib/utils"
-
-// Note: Metadata will only apply if this page is rendered on the server, which is the default for Next.js App Router.
-// Since we are adding 'use client', if this component contains all dynamic content, metadata might not be fully utilized
-// as expected. For client components, metadata should ideally be defined in a layout or a server component that wraps this.
-export const metadata: Metadata = {
-  title: "NUMO Oracle Guidebook | Complete Guide to the NUMO Oracle Card Deck",
-  description:
-    "Access the comprehensive guidebook for the NUMO Oracle Card Deck, including detailed card meanings, spreads, and numerological concepts.",
-}
 
 // Numerology values for calculators
 const pythagoreanValues: { [key: string]: number } = {
@@ -85,7 +75,7 @@ const chaldeanValues: { [key: string]: number } = {
   P: 8,
 }
 
-export default function GuidebookPage() {
+export default function GuidebookClientPage() {
   const { isAuthenticated, isMember } = useAuth() // Using useAuth for membership check
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
 
@@ -1895,54 +1885,54 @@ export default function GuidebookPage() {
                           appears on your birth certificate.
                         </p>
                         <Table className={tableClasses}>
-                          <Thead>
-                            <Tr>
-                              <Th className={thClasses}>1</Th>
-                              <Th className={thClasses}>2</Th>
-                              <Th className={thClasses}>3</Th>
-                              <Th className={thClasses}>4</Th>
-                              <Th className={thClasses}>5</Th>
-                              <Th className={thClasses}>6</Th>
-                              <Th className={thClasses}>7</Th>
-                              <Th className={thClasses}>8</Th>
-                              <Th className={thClasses}>9</Th>
-                            </Tr>
-                          </Thead>
-                          <Tbody>
-                            <Tr>
-                              <Td className={tdClasses}>A</Td>
-                              <Td className={tdClasses}>B</Td>
-                              <Td className={tdClasses}>C</Td>
-                              <Td className={tdClasses}>D</Td>
-                              <Td className={tdClasses}>E</Td>
-                              <Td className={tdClasses}>F</Td>
-                              <Td className={tdClasses}>G</Td>
-                              <Td className={tdClasses}>H</Td>
-                              <Td className={tdClasses}>I</Td>
-                            </Tr>
-                            <Tr>
-                              <Td className={tdClasses}>J</Td>
-                              <Td className={tdClasses}>K</Td>
-                              <Td className={tdClasses}>L</Td>
-                              <Td className={tdClasses}>M</Td>
-                              <Td className={tdClasses}>N</Td>
-                              <Td className={tdClasses}>O</Td>
-                              <Td className={tdClasses}>P</Td>
-                              <Td className={tdClasses}>Q</Td>
-                              <Td className={tdClasses}>R</Td>
-                            </Tr>
-                            <Tr>
-                              <Td className={tdClasses}>S</Td>
-                              <Td className={tdClasses}>T</Td>
-                              <Td className={tdClasses}>U</Td>
-                              <Td className={tdClasses}>V</Td>
-                              <Td className={tdClasses}>W</Td>
-                              <Td className={tdClasses}>X</Td>
-                              <Td className={tdClasses}>Y</Td>
-                              <Td className={tdClasses}>Z</Td>
-                              <Td className={tdClasses}></Td>
-                            </Tr>
-                          </Tbody>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className={thClasses}>1</TableHead>
+                              <TableHead className={thClasses}>2</TableHead>
+                              <TableHead className={thClasses}>3</TableHead>
+                              <TableHead className={thClasses}>4</TableHead>
+                              <TableHead className={thClasses}>5</TableHead>
+                              <TableHead className={thClasses}>6</TableHead>
+                              <TableHead className={thClasses}>7</TableHead>
+                              <TableHead className={thClasses}>8</TableHead>
+                              <TableHead className={thClasses}>9</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            <TableRow>
+                              <TableCell className={tdClasses}>A</TableCell>
+                              <TableCell className={tdClasses}>B</TableCell>
+                              <TableCell className={tdClasses}>C</TableCell>
+                              <TableCell className={tdClasses}>D</TableCell>
+                              <TableCell className={tdClasses}>E</TableCell>
+                              <TableCell className={tdClasses}>F</TableCell>
+                              <TableCell className={tdClasses}>G</TableCell>
+                              <TableCell className={tdClasses}>H</TableCell>
+                              <TableCell className={tdClasses}>I</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className={tdClasses}>J</TableCell>
+                              <TableCell className={tdClasses}>K</TableCell>
+                              <TableCell className={tdClasses}>L</TableCell>
+                              <TableCell className={tdClasses}>M</TableCell>
+                              <TableCell className={tdClasses}>N</TableCell>
+                              <TableCell className={tdClasses}>O</TableCell>
+                              <TableCell className={tdClasses}>P</TableCell>
+                              <TableCell className={tdClasses}>Q</TableCell>
+                              <TableCell className={tdClasses}>R</TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className={tdClasses}>S</TableCell>
+                              <TableCell className={tdClasses}>T</TableCell>
+                              <TableCell className={tdClasses}>U</TableCell>
+                              <TableCell className={tdClasses}>V</TableCell>
+                              <TableCell className={tdClasses}>W</TableCell>
+                              <TableCell className={tdClasses}>X</TableCell>
+                              <TableCell className={tdClasses}>Y</TableCell>
+                              <TableCell className={tdClasses}>Z</TableCell>
+                              <TableCell className={tdClasses}></TableCell>
+                            </TableRow>
+                          </TableBody>
                         </Table>
                         <Label htmlFor="destiny_name" className="block mb-2 font-semibold text-text-main">
                           Full Birth Name:
@@ -2217,15 +2207,6 @@ export default function GuidebookPage() {
                           <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
                             <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>18: Gray Moon</h4>
                           </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> This number symbolizes the dark
-                              side of the spiritual world, representing materialism, deception, and social upheavals. It
-                              warns of danger from illusions, false friends, and following a path devoid of spiritual
-                              truth. The karmic lesson is to develop keen discernment and navigate the material world
-                              without losing one&apos;s soul.
-                            </p>
-                          </AccordionContent>
                         </AccordionItem>
                         {/* Compound Number 19 */}
                         <AccordionItem
@@ -2436,261 +2417,6 @@ export default function GuidebookPage() {
                             </p>
                           </AccordionContent>
                         </AccordionItem>
-                        {/* Compound Number 30 */}
-                        <AccordionItem
-                          value="comp-30"
-                          className="border border-border-color rounded-lg bg-container-bg transition-all duration-300 open:bg-[#333] open:border-accent-gold"
-                        >
-                          <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
-                            <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>
-                              30: Thoughtful Deduction
-                            </h4>
-                          </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> This number represents mental
-                              superiority, intellect, and thoughtful analysis. It is not about material gain but about
-                              the power of the mind. People with this number are often detached, preferring to analyze
-                              rather than feel. It is favorable for intellectual pursuits but can indicate a sense of
-                              loneliness.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                        {/* Compound Number 31 */}
-                        <AccordionItem
-                          value="comp-31"
-                          className="border border-border-color rounded-lg bg-container-bg transition-all duration-300 open:bg-[#333] open:border-accent-gold"
-                        >
-                          <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
-                            <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>
-                              31: Self-Isolation and Loneliness
-                            </h4>
-                          </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> Similar to 30, but more extreme,
-                              this number is often associated with self-imposed isolation and loneliness. The individual
-                              may feel above others intellectually and withdraw from society. It is not a materially
-                              fortunate number, suggesting that focus is on inner reflection rather than worldly
-                              success.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                        {/* Compound Number 32 */}
-                        <AccordionItem
-                          value="comp-32"
-                          className="border border-border-color rounded-lg bg-container-bg transition-all duration-300 open:bg-[#333] open:border-accent-gold"
-                        >
-                          <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
-                            <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>32: Magical Power</h4>
-                          </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> Represents the power of
-                              communication and influence over crowds. If the person&apos;s judgment is sound and their
-                              purpose is good, this number can be highly fortunate and bring great success. However, if
-                              used for selfish purposes, the magic will turn against them. It favors leadership and
-                              persuasion.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                        {/* Compound Number 33 */}
-                        <AccordionItem
-                          value="comp-33"
-                          className="border border-border-color rounded-lg bg-container-bg transition-all duration-300 open:bg-[#333] open:border-accent-gold"
-                        >
-                          <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
-                            <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>
-                              33: Gain Through Love and Rank
-                            </h4>
-                          </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> As a Master Number and a higher
-                              octave of 24, this number is extremely favorable for gains made through love,
-                              relationships, and partnerships. It suggests success through strong alliances and powerful
-                              emotional connections.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                        {/* Compound Number 34 and 45 */}
-                        <AccordionItem
-                          value="comp-34-45"
-                          className="border border-border-color rounded-lg bg-container-bg transition-all duration-300 open:bg-[#333] open:border-accent-gold"
-                        >
-                          <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
-                            <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>
-                              34 and 45: Strength Through Experience
-                            </h4>
-                          </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> These numbers echo the theme of
-                              25, indicating that challenges and trials will ultimately lead to strength, mastery, and
-                              respected authority within the community.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                        {/* Compound Number 35 and 46 */}
-                        <AccordionItem
-                          value="comp-35-46"
-                          className="border border-border-color rounded-lg bg-container-bg transition-all duration-300 open:bg-[#333] open:border-accent-gold"
-                        >
-                          <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
-                            <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>
-                              35 and 46: Disasters Caused by Others
-                            </h4>
-                          </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> These numbers carry the warning of
-                              26, cautioning against ruinous partnerships and collaborations that lack clear
-                              communication or are built on faulty trust.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                        {/* Compound Number 36 and 47 */}
-                        <AccordionItem
-                          value="comp-36-47"
-                          className="border border-border-color rounded-lg bg-container-bg transition-all duration-300 open:bg-[#333] open:border-accent-gold"
-                        >
-                          <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
-                            <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>
-                              36 and 47: Command and Authority
-                            </h4>
-                          </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> Reflecting the power of 27, these
-                              numbers indicate that command and authority can bring success, but must be wielded wisely
-                              to avoid the dangers of overreach and arrogance.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                        {/* Compound Number 38 and 49 */}
-                        <AccordionItem
-                          value="comp-38-49"
-                          className="border border-border-color rounded-lg bg-container-bg transition-all duration-300 open:bg-[#333] open:border-accent-gold"
-                        >
-                          <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
-                            <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>
-                              38 and 49: Uncertainties and Deception
-                            </h4>
-                          </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> These numbers carry the difficult
-                              energy of 29, warning of uncertainties, grief, and the need for extreme caution in
-                              emotional and personal relationships.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                        {/* Compound Number 39 */}
-                        <AccordionItem
-                          value="comp-39"
-                          className="border border-border-color rounded-lg bg-container-bg transition-all duration-300 open:bg-[#333] open:border-accent-gold"
-                        >
-                          <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
-                            <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>
-                              39: Thoughtful Deduction
-                            </h4>
-                          </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> This is a higher octave of 30,
-                              emphasizing that mental clarity and thoughtful deduction are the keys to overcoming trials
-                              and avoiding danger.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                        {/* Compound Number 40 and 51 */}
-                        <AccordionItem
-                          value="comp-40-51"
-                          className="border border-border-color rounded-lg bg-container-bg transition-all duration-300 open:bg-[#333] open:border-accent-gold"
-                        >
-                          <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
-                            <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>
-                              40 and 51: Self-Isolation and Loneliness
-                            </h4>
-                          </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> These numbers echo the theme of
-                              31, suggesting that while material success may be elusive, the path of solitude and
-                              reflection can bring great inner strength and spiritual growth.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                        {/* Compound Number 41 and 52 */}
-                        <AccordionItem
-                          value="comp-41-52"
-                          className="border border-border-color rounded-lg bg-container-bg transition-all duration-300 open:bg-[#333] open:border-accent-gold"
-                        >
-                          <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
-                            <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>
-                              41 and 52: Magical Power
-                            </h4>
-                          </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> Reflecting the energy of 32, these
-                              numbers promise success and favorable outcomes when one&apos;s judgment is fair and their
-                              will is strong. They represent the power to manifest when actions align with integrity.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                        {/* Compound Number 42 */}
-                        <AccordionItem
-                          value="comp-42"
-                          className="border border-border-color rounded-lg bg-container-bg transition-all duration-300 open:bg-[#333] open:border-accent-gold"
-                        >
-                          <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
-                            <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>42: Warrior Spirit</h4>
-                          </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> This number signals sudden
-                              advancements and opportunities, often in volatile situations. It carries the energy of a
-                              warrior, but warns that quick changes require resilience and come with inherent risks.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                        {/* Compound Number 43 */}
-                        <AccordionItem
-                          value="comp-43"
-                          className="border border-border-color rounded-lg bg-container-bg transition-all duration-300 open:bg-[#333] open:border-accent-gold"
-                        >
-                          <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
-                            <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>
-                              43: Upheaval and Revolution
-                            </h4>
-                          </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> A highly unfortunate number,
-                              representing upheaval, failure, revolution, and strife. It is a warning of sudden
-                              disruptions and the potential for plans to be completely overturned.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                        {/* Compound Number 44 */}
-                        <AccordionItem
-                          value="comp-44"
-                          className="border border-border-color rounded-lg bg-container-bg transition-all duration-300 open:bg-[#333] open:border-accent-gold"
-                        >
-                          <AccordionTrigger className={cn("p-5 no-underline hover:no-underline", summaryClasses)}>
-                            <h4 className={cn("text-heading", subHeadingClasses, "mt-0 mb-0")}>
-                              44: Magical Power for Nations and People
-                            </h4>
-                          </AccordionTrigger>
-                          <AccordionContent className={cn("pt-0", detailsContentClasses)}>
-                            <p className="mt-4">
-                              <strong className={strongClasses}>Description:</strong> This number is similar to 24 and
-                              33 but emphasizes gain through relationships on a larger scale, such as alliances between
-                              nations or communities. Emotional balance is key to success.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
                       </Accordion>
                     </CardContent>
                   </Card>
@@ -2705,91 +2431,101 @@ export default function GuidebookPage() {
                     </CardHeader>
                     <CardContent className={cn("p-6 space-y-4", bodyTextClasses)}>
                       <p>
-                        Your role extends beyond interpreting cards. You carry a significant ethical responsibility
-                        toward those seeking your insight.
+                        As a NUMOracle reader, you are not just interpreting cards; you are guiding individuals through
+                        their life&apos;s journey. This role comes with significant ethical responsibilities.
                       </p>
+
+                      <h4 className={cn("text-2xl mt-8", subHeadingClasses)}>Key Ethical Guidelines</h4>
                       <ol className="list-decimal list-inside pl-4 space-y-3">
                         <li>
-                          <strong className={strongClasses}>Empower the Querent:</strong> Your goal is to foster agency,
-                          not dependency. Frame messages around choices and potentials, not immutable fate.
+                          <strong className={strongClasses}>Do No Harm:</strong> Your primary goal should always be to
+                          provide guidance that empowers and uplifts. Avoid language that instills fear, anxiety, or
+                          dependence.
                         </li>
                         <li>
-                          <strong className={strongClasses}>Maintain Boundaries:</strong> Confidentiality is sacred.
-                          Gently but firmly decline questions about a third party&apos;s private life, or those seeking
-                          medical, legal, or financial advice.
+                          <strong className={strongClasses}>Maintain Confidentiality:</strong> Treat all readings and
+                          personal information with the utmost privacy. Never share details of a reading without
+                          explicit consent.
                         </li>
                         <li>
-                          <strong className={strongClasses}>Honesty and Integrity:</strong> Deliver all messages, even
-                          difficult ones, with compassion and a constructive focus on how to navigate the challenge.
+                          <strong className={strongClasses}>Be Honest and Transparent:</strong> Clearly state your
+                          qualifications and approach. Avoid making unrealistic promises or guarantees. Be upfront about
+                          the limitations of the reading.
                         </li>
                         <li>
-                          <strong className={strongClasses}>Know When to Refer:</strong> Recognizing the limits of your
-                          role is a sign of professionalism. Guide querents toward licensed professionals for issues
-                          outside the scope of spiritual guidance.
+                          <strong className={strongClasses}>Respect Free Will:</strong> Emphasize that the future is not
+                          fixed. Readings offer potential outcomes and guidance, but the querent always has the power to
+                          make their own choices.
                         </li>
                         <li>
-                          <strong className={strongClasses}>Self-Care:</strong> You cannot pour from an empty cup.
-                          Ground yourself before and after readings to clear your energy field and maintain your own
-                          clarity.
+                          <strong className={strongClasses}>
+                            Avoid Giving Advice on Topics Outside Your Expertise:
+                          </strong>{" "}
+                          Do not offer medical, legal, or financial advice unless you are qualified to do so. Refer
+                          querents to appropriate professionals when necessary.
+                        </li>
+                        <li>
+                          <strong className={strongClasses}>Set Clear Boundaries:</strong> Establish clear expectations
+                          regarding the length, cost, and scope of your readings. Be firm about your availability and
+                          communication policies.
+                        </li>
+                        <li>
+                          <strong className={strongClasses}>Practice Self-Care:</strong> Conducting readings can be
+                          emotionally taxing. Ensure you have adequate support and boundaries to protect your own
+                          well-being.
                         </li>
                       </ol>
+
+                      <h4 className={cn("text-2xl mt-8", subHeadingClasses)}>Handling Sensitive Topics</h4>
+                      <p>
+                        Some readings may touch on sensitive topics such as relationships, health, or finances. Approach
+                        these situations with extra care and empathy.
+                      </p>
+                      <ul className="list-disc list-inside pl-4 space-y-3">
+                        <li>
+                          <strong className={strongClasses}>Relationships:</strong> Focus on empowering the querent to
+                          make healthy choices. Avoid fueling drama or encouraging them to stay in harmful situations.
+                        </li>
+                        <li>
+                          <strong className={strongClasses}>Health:</strong> Never diagnose or prescribe treatments.
+                          Encourage the querent to seek professional medical advice.
+                        </li>
+                        <li>
+                          <strong className={strongClasses}>Finances:</strong> Avoid making specific investment
+                          recommendations. Focus on helping the querent develop a responsible and mindful approach to
+                          their finances.
+                        </li>
+                      </ul>
+
+                      <h4 className={cn("text-2xl mt-8", subHeadingClasses)}>Empowering Your Clients</h4>
+                      <p>
+                        The most ethical approach is to empower your clients to take ownership of their lives and make
+                        informed decisions. Encourage them to:
+                      </p>
+                      <ul className="list-disc list-inside pl-4 space-y-3">
+                        <li>Trust their own intuition</li>
+                        <li>Seek multiple perspectives</li>
+                        <li>Take responsibility for their choices</li>
+                        <li>Focus on personal growth and self-awareness</li>
+                      </ul>
                     </CardContent>
                   </Card>
                 </TabsContent>
 
                 <TabsContent value="download" className="mt-0">
-                  <Card className="bg-gray-800/50 border-gray-700">
+                  <Card className={sectionCardClasses}>
                     <CardHeader>
-                      <CardTitle className="text-2xl text-purple-400">Download Options</CardTitle>
-                      <CardDescription>Available formats for the NUMO Oracle Guidebook</CardDescription>
+                      <CardTitle className={cn("text-3xl", titleClasses)}>Download Options</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <Card className="bg-gray-700/50 border-gray-600">
-                          <CardHeader className="pb-2">
-                            <CardTitle className="text-lg">PDF Format</CardTitle>
-                          </CardHeader>
-                          <CardContent className="text-sm text-gray-300">
-                            High-quality PDF optimized for both screen reading and printing. Includes bookmarks and
-                            hyperlinks for easy navigation.
-                          </CardContent>
-                          <CardFooter>
-                            <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                              <Download className="mr-2 h-4 w-4" /> Download PDF
-                            </Button>
-                          </CardFooter>
-                        </Card>
-
-                        <Card className="bg-gray-700/50 border-gray-600">
-                          <CardHeader className="pb-2">
-                            <CardTitle className="text-lg">EPUB Format</CardTitle>
-                          </CardHeader>
-                          <CardContent className="text-sm text-gray-300">
-                            Optimized for e-readers and mobile devices. Reflowable text adapts to your screen size for
-                            comfortable reading.
-                          </CardContent>
-                          <CardFooter>
-                            <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                              <Download className="mr-2 h-4 w-4" /> Download EPUB
-                            </Button>
-                          </CardFooter>
-                        </Card>
-
-                        <Card className="bg-gray-700/50 border-gray-600">
-                          <CardHeader className="pb-2">
-                            <CardTitle className="text-lg">MOBI Format</CardTitle>
-                          </CardHeader>
-                          <CardContent className="text-sm text-gray-300">
-                            Compatible with Kindle devices and apps. Includes all images and formatting optimized for
-                            Kindle readers.
-                          </CardContent>
-                          <CardFooter>
-                            <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                              <Download className="mr-2 h-4 w-4" /> Download MOBI
-                            </Button>
-                          </CardFooter>
-                        </Card>
-                      </div>
+                    <CardContent className={cn("p-6 space-y-4", bodyTextClasses)}>
+                      <p>
+                        Thank you for exploring the NUMO Oracle Guidebook. As a member, you have access to download the
+                        guidebook in various formats for your convenience.
+                      </p>
+                      <Button className={buttonClasses}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Download PDF
+                      </Button>
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -2800,10 +2536,22 @@ export default function GuidebookPage() {
         </div>
       </div>
 
-      <div className="text-center text-sm text-gray-500 mt-12">
-        <p>The NUMO Oracle Guidebook is a product of Kraftwerk Numerology © 2023. All rights reserved.</p>
-        <p className="mt-1">numoracle.com</p>
-      </div>
+      {showLoginPrompt && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-container-bg p-8 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-semibold mb-4">Login Required</h2>
+            <p className="text-gray-300 mb-4">Please log in to access the full guidebook.</p>
+            <Link href="/login">
+              <Button className="bg-accent-gold text-bg-dark px-5 py-3 border-none rounded-md cursor-pointer text-base font-semibold uppercase hover:bg-[#ffdf6c]">
+                Login
+              </Button>
+            </Link>
+            <Button onClick={() => setShowLoginPrompt(false)} variant="secondary">
+              Close
+            </Button>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

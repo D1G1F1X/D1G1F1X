@@ -1,6 +1,26 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 import { SUPABASE_CONFIG, validateDigifixIntegration } from "./supabase/config"
 
+// ----------  BROWSER CLIENT (PUBLIC ANON) ----------
+let _supabaseClient: SupabaseClient | undefined
+
+export function getClientSide(): SupabaseClient {
+  if (typeof window === "undefined") {
+    throw new Error("getClientSide should only run in the browser")
+  }
+
+  if (!_supabaseClient) {
+    // Re-use across HMR sessions by stashing on globalThis
+    _supabaseClient =
+      (globalThis as any)._numoracleSupabase ?? createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey)
+    ;(globalThis as any)._numoracleSupabase = _supabaseClient
+  }
+  return _supabaseClient
+}
+
+// Named export expected by deploy checker
+export const supabase = typeof window !== "undefined" ? getClientSide() : ({} as SupabaseClient)
+
 // DIGIFIX Supabase Configuration - Validated
 const supabaseServiceRoleKey = SUPABASE_CONFIG.serviceRoleKey
 
