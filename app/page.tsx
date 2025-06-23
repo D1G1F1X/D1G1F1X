@@ -144,9 +144,7 @@ export default function Home() {
               <Button size="lg" asChild className="hover:opacity-90" style={buttonPrimaryStyle}>
                 <Link href="/services">Explore Our Services</Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="hover:opacity-90" style={buttonOutlineStyle}>
-                <Link href="/contact">Contact Us</Link>
-              </Button>
+              
             </div>
           </div>
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
