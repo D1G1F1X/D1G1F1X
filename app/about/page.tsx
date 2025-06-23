@@ -18,32 +18,37 @@ export default function AboutPage() {
       <div className="container px-4 mx-auto py-16 relative z-10">
         <div className="max-w-4xl mx-auto">
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-12">
-            <h2 className="text-3xl font-bold text-white mb-6">Our Story</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">My Story</h2>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-              Lumen Helix was established by seasoned technology and business consultants with over 30 years of
-              collective industry experience. They recognized that many organizations struggled not from a lack of
-              technology options, but from a lack of strategic direction and implementation expertise, and set out to
-              provide clarity and confidence in the increasingly complex digital landscape.
+              With over 30 years of experience as a seasoned technology consultant and project manager, I've been an
+              integral part of multiple development companies throughout my career. My journey has taken me through the
+              evolution of technology from its early enterprise days to the sophisticated digital landscape we navigate
+              today.
             </p>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-              From our humble beginnings as a boutique consulting firm, we've grown into a comprehensive digital
-              transformation partner, expanding our services to include AI strategy, project management, web
-              development, graphic design, marketing strategy, and technology consulting. Throughout our evolution,
-              we've maintained our commitment to delivering integrated solutions that address the full spectrum of
-              digital challenges.
+              After a brief hiatus following the COVID pandemic, I recognized the dawning of the AI revolution and its
+              transformative potential for businesses across all industries. This realization reignited my passion for
+              technology consulting, and I began freelancing again, helping organizations navigate this new frontier.
+            </p>
+            <p className="text-gray-300 text-lg mb-6 leading-relaxed">
+              The natural evolution of this journey led to the launch of Lumen Helix Solutions—a comprehensive digital
+              transformation consultancy that combines decades of proven expertise with cutting-edge AI strategy and
+              implementation. Today, I lead a team of specialists who share my vision of illuminating the path to
+              digital excellence for organizations ready to embrace the future.
             </p>
           </div>
 
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-12">
-            <h2 className="text-3xl font-bold text-white mb-6">Our Mission</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">My Mission</h2>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed italic">
-              To illuminate the path to digital excellence by fusing strategic insight with flawless execution,
-              empowering organizations to thrive in an ever-evolving technological landscape.
+              To illuminate the path to digital excellence by fusing three decades of strategic insight with
+              cutting-edge AI innovation, empowering organizations to not just adapt to technological change, but to
+              lead it.
             </p>
           </div>
 
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-12">
-            <h2 className="text-3xl font-bold text-white mb-6">Our Values</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">My Core Values</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-gray-900/60 p-6 rounded-lg border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300">
@@ -91,22 +96,22 @@ export default function AboutPage() {
           </div>
 
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-12">
-            <h2 className="text-3xl font-bold text-white mb-6">Our Team</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">Leadership & Expertise</h2>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-              Our diverse team brings together experts from various disciplines, including technology, design,
-              marketing, and business strategy. This multidisciplinary approach enables us to develop comprehensive
-              solutions that address the full spectrum of digital challenges.
+              Drawing from over three decades of hands-on experience in technology consulting and project management, I
+              bring a unique perspective that bridges traditional enterprise solutions with emerging AI technologies. My
+              extensive background includes leadership roles across multiple development companies, giving me deep
+              insights into what works—and what doesn't—in digital transformation initiatives.
             </p>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-              Led by our founding partners and a seasoned leadership team, our organization combines the agility of a
-              boutique firm with the capabilities of a full-service digital transformation partner. We invest heavily in
-              our team's professional development, ensuring they remain at the forefront of emerging technologies and
-              methodologies.
+              At Lumen Helix Solutions, I've assembled a carefully curated team of specialists who complement my
+              experience with fresh perspectives and cutting-edge expertise. Together, we combine the wisdom of proven
+              methodologies with the innovation required to harness AI's transformative potential.
             </p>
 
             <div className="mt-8 text-center">
               <Button asChild className="bg-primary-500 hover:bg-primary-600 text-white">
-                <Link href="/contact">Get in Touch</Link>
+                <Link href="/contact">Let's Discuss Your Project</Link>
               </Button>
             </div>
           </div>
