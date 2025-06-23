@@ -6,8 +6,8 @@ interface TallyFormEmbedProps {
 }
 
 export default function TallyFormEmbed({ formId, className = "" }: TallyFormEmbedProps) {
-  // Using the exact embed URL you provided: only dynamicHeight=1
-  const tallyEmbedUrl = `https://tally.so/embed/${formId}?dynamicHeight=1`
+  // Using the exact embed URL you provided: only the base form ID
+  const tallyEmbedUrl = `https://tally.so/embed/${formId}`
 
   return (
     <div className={`w-full ${className}`}>
