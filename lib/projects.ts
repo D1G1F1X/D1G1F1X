@@ -108,10 +108,52 @@ export const projects = [
     stage: "beta",
     tags: ["Healthcare", "Mobile", "UX Design"],
   },
+  {
+    id: "numoracle-oracle-cards",
+    title: "NUMO Oracle Card Platform",
+    description: "A mystical numerology platform featuring oracle card readings and ancient wisdom tools.",
+    image: "/images/projects/numoracle-oracle-cards.jpg",
+    category: "client",
+    stage: "deployed",
+    tags: ["Web Development", "Numerology", "Oracle Tools", "UI/UX"],
+    url: "https://numoracle.com",
+  },
+  {
+    id: "kraftwerk-numerology",
+    title: "Kraftwerk Numerology Platform",
+    description: "A comprehensive numerology platform with advanced calculation tools and mystical insights.",
+    image: "/images/projects/kraftwerk-numerology.jpg",
+    category: "client",
+    stage: "deployed",
+    tags: ["Web Development", "Numerology", "SaaS", "Analytics"],
+    url: "https://kraftwerked.com",
+  },
+  {
+    id: "hodge-documentary",
+    title: "The Hodge Documentary Website",
+    description: "A compelling documentary website showcasing Cleveland artists and their impact on social change.",
+    image: "/images/projects/hodge-documentary.jpg",
+    category: "client",
+    stage: "deployed",
+    tags: ["Web Development", "Documentary", "Video", "Social Impact"],
+    url: "https://hodgedoc.com",
+  },
+  {
+    id: "lolita-wilson-portfolio",
+    title: "Lolita Wilson Creative Portfolio",
+    description:
+      "A sophisticated portfolio website for a creative professional showcasing artistic works and projects.",
+    image: "/images/projects/lolita-wilson-portfolio.jpg",
+    category: "client",
+    stage: "building",
+    tags: ["Portfolio", "Creative", "Web Development", "Art"],
+    url: "https://lolitawilson.com",
+  },
 ]
 
 export const featuredProjects = [
   projects.find((p) => p.id === "enterprise-project-management-system")!,
   projects.find((p) => p.id === "ai-content-generator")!,
   projects.find((p) => p.id === "virtual-event-platform")!,
+  projects.find((p) => p.id === "numoracle-oracle-cards")!,
 ]
