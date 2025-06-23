@@ -20,10 +20,10 @@ export default function AboutPage() {
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-12">
             <h2 className="text-3xl font-bold text-white mb-6">Our Story</h2>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-              Lumen Helix was founded in 2013 with a simple yet ambitious vision: to help businesses navigate the
-              increasingly complex digital landscape with clarity and confidence. Our founders, seasoned technology and
-              business consultants, recognized that most organizations struggled not from a lack of technology options,
-              but from a lack of strategic direction and implementation expertise.
+              Lumen Helix was established by seasoned technology and business consultants with over 30 years of
+              collective industry experience. They recognized that many organizations struggled not from a lack of
+              technology options, but from a lack of strategic direction and implementation expertise, and set out to
+              provide clarity and confidence in the increasingly complex digital landscape.
             </p>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed">
               From our humble beginnings as a boutique consulting firm, we've grown into a comprehensive digital
