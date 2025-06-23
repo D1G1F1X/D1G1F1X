@@ -96,7 +96,7 @@ export default function PortfolioPage() {
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-white mb-6 text-center">Project Stages Explained</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-lg shadow-sm border border-gray-700/50 hover:border-secondary-500/30 transition-all duration-300 relative overflow-hidden group">
+            <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl shadow-sm border border-gray-700/50 hover:border-secondary-500/30 transition-all duration-300 relative overflow-hidden group">
               {/* Tech corner accent */}
               <div className="absolute top-0 right-0 w-16 h-16 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
                 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -112,7 +112,7 @@ export default function PortfolioPage() {
                 active development.
               </p>
             </div>
-            <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-lg shadow-sm border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300 relative overflow-hidden group">
+            <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl shadow-sm border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-16 h-16 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
                 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="0" cy="0" r="32" stroke="url(#techGridGradient)" strokeWidth="1" />
@@ -126,7 +126,7 @@ export default function PortfolioPage() {
                 Projects currently in active development. The core functionality is being implemented and tested.
               </p>
             </div>
-            <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-lg shadow-sm border border-gray-700/50 hover:border-secondary-600/30 transition-all duration-300 relative overflow-hidden group">
+            <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl shadow-sm border border-gray-700/50 hover:border-secondary-600/30 transition-all duration-300 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-16 h-16 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
                 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="0" cy="0" r="32" stroke="url(#techGridGradient)" strokeWidth="1" />
@@ -141,7 +141,7 @@ export default function PortfolioPage() {
                 deployment.
               </p>
             </div>
-            <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-lg shadow-sm border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300 relative overflow-hidden group">
+            <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl shadow-sm border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-16 h-16 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
                 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="0" cy="0" r="32" stroke="url(#techGridGradient)" strokeWidth="1" />

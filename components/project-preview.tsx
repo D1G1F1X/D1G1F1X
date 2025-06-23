@@ -40,7 +40,7 @@ export default function ProjectPreview({ project }: ProjectPreviewProps) {
   }
 
   return (
-    <div className="bg-gray-900/90 backdrop-blur-sm rounded-xl overflow-hidden hover:shadow-xl transition-all duration-500 border border-gray-800/50 hover:border-primary-500/50 group relative flex flex-col h-full transform hover:-translate-y-1">
+    <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl overflow-hidden hover:shadow-xl transition-all duration-500 border border-gray-700/50 hover:border-primary-500/50 group relative flex flex-col h-full transform hover:-translate-y-1">
       {/* Futuristic circuit pattern overlay */}
       <div className="absolute inset-0 opacity-5 group-hover:opacity-10 pointer-events-none transition-opacity duration-500">
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -73,7 +73,7 @@ export default function ProjectPreview({ project }: ProjectPreviewProps) {
         </svg>
       </div>
 
-      <div className="h-52 bg-gray-800/90 relative overflow-hidden">
+      <div className="h-52 bg-gray-900/80 relative overflow-hidden">
         <img
           src={imageSrc || "/placeholder.svg"}
           alt={project.title}
