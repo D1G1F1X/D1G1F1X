@@ -1,7 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { projects } from "@/lib/projects"
+import { projects, getRecentlyDeployedProjects, getInHouseProjects, getClientProjects } from "@/lib/projects"
 import PageHero from "@/components/page-hero"
 import ProjectCard from "@/components/project-card"
+import { Badge } from "@/components/ui/badge"
 
 export default function PortfolioPage() {
   const stageColors = {
@@ -16,8 +17,9 @@ export default function PortfolioPage() {
     client: "bg-accent-600",
   }
 
-  const inHouseProjects = projects.filter((project) => project.category === "in-house")
-  const clientProjects = projects.filter((project) => project.category === "client")
+  const recentlyDeployedProjects = getRecentlyDeployedProjects()
+  const inHouseProjects = getInHouseProjects()
+  const clientProjects = getClientProjects()
 
   return (
     <div className="min-h-screen bg-gray-900 relative overflow-hidden">
@@ -29,6 +31,29 @@ export default function PortfolioPage() {
       />
 
       <div className="container px-4 mx-auto py-12 relative z-10">
+        {/* Recently Deployed Section */}
+        <div className="mb-16">
+          <div className="flex items-center gap-4 mb-8">
+            <h2 className="text-3xl font-bold text-white">Recently Deployed</h2>
+            <Badge className="bg-accent-500 text-white">New</Badge>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {recentlyDeployedProjects.map((project) => (
+              <div key={project.id} className="relative">
+                <ProjectCard project={project} stageColors={stageColors} categoryColors={categoryColors} />
+                {project.developmentTimeline && (
+                  <div className="mt-4 p-3 bg-gray-800/60 backdrop-blur-sm rounded-lg border border-gray-700/50">
+                    <p className="text-sm text-gray-300">
+                      <span className="font-semibold text-primary-400">Development Timeline:</span>{" "}
+                      {project.developmentTimeline}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
         <Tabs defaultValue="all" className="w-full">
           <div className="flex justify-center mb-8">
             <TabsList className="bg-gray-800/80 backdrop-blur-sm border border-gray-700/50">
@@ -42,13 +67,13 @@ export default function PortfolioPage() {
                 value="in-house"
                 className="data-[state=active]:bg-primary-500/20 data-[state=active]:text-primary-400"
               >
-                In-House
+                In-House Projects
               </TabsTrigger>
               <TabsTrigger
                 value="client"
                 className="data-[state=active]:bg-primary-500/20 data-[state=active]:text-primary-400"
               >
-                Client
+                Client Projects
               </TabsTrigger>
             </TabsList>
           </div>
@@ -67,6 +92,13 @@ export default function PortfolioPage() {
           </TabsContent>
 
           <TabsContent value="in-house">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-white mb-2">In-House Projects</h3>
+              <p className="text-gray-300">
+                These projects represent our core expertise and long-term development initiatives, including the NUMO
+                system with over 20 years of underlying development.
+              </p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {inHouseProjects.map((project) => (
                 <ProjectCard
@@ -80,6 +112,12 @@ export default function PortfolioPage() {
           </TabsContent>
 
           <TabsContent value="client">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-white mb-2">Client Projects</h3>
+              <p className="text-gray-300">
+                Custom solutions developed for our clients across various industries and use cases.
+              </p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {clientProjects.map((project) => (
                 <ProjectCard
@@ -97,12 +135,6 @@ export default function PortfolioPage() {
           <h2 className="text-2xl font-bold text-white mb-6 text-center">Project Stages Explained</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl shadow-sm border border-gray-700/50 hover:border-secondary-500/30 transition-all duration-300 relative overflow-hidden group">
-              {/* Tech corner accent */}
-              <div className="absolute top-0 right-0 w-16 h-16 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
-                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="0" cy="0" r="32" stroke="url(#techGridGradient)" strokeWidth="1" />
-                </svg>
-              </div>
               <div className="flex items-center mb-4">
                 <div className="w-4 h-4 rounded-full bg-secondary-500 mr-2"></div>
                 <h3 className="text-lg font-semibold text-white">Concept</h3>
@@ -113,11 +145,6 @@ export default function PortfolioPage() {
               </p>
             </div>
             <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl shadow-sm border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-16 h-16 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
-                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="0" cy="0" r="32" stroke="url(#techGridGradient)" strokeWidth="1" />
-                </svg>
-              </div>
               <div className="flex items-center mb-4">
                 <div className="w-4 h-4 rounded-full bg-primary-500 mr-2"></div>
                 <h3 className="text-lg font-semibold text-white">Building</h3>
@@ -127,11 +154,6 @@ export default function PortfolioPage() {
               </p>
             </div>
             <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl shadow-sm border border-gray-700/50 hover:border-secondary-600/30 transition-all duration-300 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-16 h-16 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
-                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="0" cy="0" r="32" stroke="url(#techGridGradient)" strokeWidth="1" />
-                </svg>
-              </div>
               <div className="flex items-center mb-4">
                 <div className="w-4 h-4 rounded-full bg-secondary-600 mr-2"></div>
                 <h3 className="text-lg font-semibold text-white">Beta</h3>
@@ -142,11 +164,6 @@ export default function PortfolioPage() {
               </p>
             </div>
             <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl shadow-sm border border-gray-700/50 hover:border-accent-500/30 transition-all duration-300 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-16 h-16 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
-                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="0" cy="0" r="32" stroke="url(#techGridGradient)" strokeWidth="1" />
-                </svg>
-              </div>
               <div className="flex items-center mb-4">
                 <div className="w-4 h-4 rounded-full bg-accent-500 mr-2"></div>
                 <h3 className="text-lg font-semibold text-white">Deployed</h3>

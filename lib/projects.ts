@@ -1,4 +1,58 @@
 export const projects = [
+  // Priority Projects - Recently Deployed
+  {
+    id: "numoracle-oracle-cards",
+    title: "NUMO Oracle Card Platform",
+    description:
+      "A mystical numerology platform featuring oracle card readings and ancient wisdom tools. Built on the NUMO system with over 20 years of underlying development, this represents the culmination of decades of numerological research and innovation.",
+    image: "/images/projects/numoracle-oracle-cards.jpg",
+    category: "in-house",
+    stage: "deployed",
+    tags: ["Numerology", "Oracle Tools", "React", "Node.js", "20+ Years Development"],
+    url: "https://numoracle.com",
+    featured: true,
+    recentlyDeployed: true,
+    developmentTimeline: "4 years (built on 20+ year NUMO system foundation)",
+  },
+  {
+    id: "kraftwerk-numerology",
+    title: "Kraftwerk Numerology Platform",
+    description:
+      "A comprehensive numerology platform with advanced calculation tools and mystical insights. This in-house project showcases decades of numerological expertise combined with modern web technologies.",
+    image: "/images/projects/kraftwerk-numerology.jpg",
+    category: "in-house",
+    stage: "deployed",
+    tags: ["Numerology", "SaaS", "Analytics", "Advanced Calculations"],
+    url: "https://kraftwerked.com",
+    featured: true,
+    recentlyDeployed: true,
+    developmentTimeline: "4 years",
+  },
+  {
+    id: "hodge-documentary",
+    title: "The Hodge Documentary Website",
+    description:
+      "A compelling documentary website showcasing Cleveland artists and their impact on social change. Recently deployed with full video integration and artist profiles.",
+    image: "/images/projects/hodge-documentary.jpg",
+    category: "client",
+    stage: "deployed",
+    tags: ["Documentary", "Video Integration", "Social Impact", "Cleveland Artists"],
+    url: "https://hodgedoc.com",
+    featured: true,
+    recentlyDeployed: true,
+  },
+  {
+    id: "lolita-wilson-portfolio",
+    title: "Lolita Wilson Creative Portfolio",
+    description:
+      "A sophisticated portfolio website for a creative professional showcasing artistic works and projects.",
+    image: "/images/projects/lolita-wilson-portfolio.jpg",
+    category: "client",
+    stage: "building",
+    tags: ["Portfolio", "Creative", "Web Development", "Art"],
+    url: "https://lolitawilson.com",
+  },
+  // Existing Projects
   {
     id: "enterprise-project-management-system",
     title: "Enterprise Project Management System",
@@ -108,52 +162,24 @@ export const projects = [
     stage: "beta",
     tags: ["Healthcare", "Mobile", "UX Design"],
   },
-  {
-    id: "numoracle-oracle-cards",
-    title: "NUMO Oracle Card Platform",
-    description: "A mystical numerology platform featuring oracle card readings and ancient wisdom tools.",
-    image: "/images/projects/numoracle-oracle-cards.jpg",
-    category: "client",
-    stage: "deployed",
-    tags: ["Web Development", "Numerology", "Oracle Tools", "UI/UX"],
-    url: "https://numoracle.com",
-  },
-  {
-    id: "kraftwerk-numerology",
-    title: "Kraftwerk Numerology Platform",
-    description: "A comprehensive numerology platform with advanced calculation tools and mystical insights.",
-    image: "/images/projects/kraftwerk-numerology.jpg",
-    category: "client",
-    stage: "deployed",
-    tags: ["Web Development", "Numerology", "SaaS", "Analytics"],
-    url: "https://kraftwerked.com",
-  },
-  {
-    id: "hodge-documentary",
-    title: "The Hodge Documentary Website",
-    description: "A compelling documentary website showcasing Cleveland artists and their impact on social change.",
-    image: "/images/projects/hodge-documentary.jpg",
-    category: "client",
-    stage: "deployed",
-    tags: ["Web Development", "Documentary", "Video", "Social Impact"],
-    url: "https://hodgedoc.com",
-  },
-  {
-    id: "lolita-wilson-portfolio",
-    title: "Lolita Wilson Creative Portfolio",
-    description:
-      "A sophisticated portfolio website for a creative professional showcasing artistic works and projects.",
-    image: "/images/projects/lolita-wilson-portfolio.jpg",
-    category: "client",
-    stage: "building",
-    tags: ["Portfolio", "Creative", "Web Development", "Art"],
-    url: "https://lolitawilson.com",
-  },
 ]
 
 export const featuredProjects = [
-  projects.find((p) => p.id === "enterprise-project-management-system")!,
-  projects.find((p) => p.id === "ai-content-generator")!,
-  projects.find((p) => p.id === "virtual-event-platform")!,
   projects.find((p) => p.id === "numoracle-oracle-cards")!,
+  projects.find((p) => p.id === "kraftwerk-numerology")!,
+  projects.find((p) => p.id === "hodge-documentary")!,
+  projects.find((p) => p.id === "enterprise-project-management-system")!,
 ]
+
+// Helper functions for project categorization
+export const getRecentlyDeployedProjects = () => {
+  return projects.filter((project) => project.recentlyDeployed)
+}
+
+export const getInHouseProjects = () => {
+  return projects.filter((project) => project.category === "in-house")
+}
+
+export const getClientProjects = () => {
+  return projects.filter((project) => project.category === "client")
+}
