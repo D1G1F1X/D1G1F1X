@@ -144,7 +144,6 @@ export default function Home() {
               <Button size="lg" asChild className="hover:opacity-90" style={buttonPrimaryStyle}>
                 <Link href="/services">Explore Our Services</Link>
               </Button>
-              
             </div>
           </div>
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
@@ -367,4 +366,9 @@ export default function Home() {
         </div>
 
         <div className="container px-4 mx-auto relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"></div>
+        </div>
+      </section>
+    </div>
+  )
+}
