@@ -15,7 +15,7 @@ import { featuredPosts } from "@/lib/blog"
 import TallyFormEmbed from "@/components/tally-form-embed" // Import Tally embed
 
 // IMPORTANT: Replace with your actual Tally form ID
-const YOUR_TALLY_FORM_ID_HOMEPAGE = "YOUR_TALLY_FORM_ID_HERE" // e.g., "wLejAl"
+const YOUR_TALLY_FORM_ID_HOMEPAGE = "yourActualHomepageFormId" // e.g., "wLejAl"
 
 export default function Home() {
   const [heroTextStyle, setHeroTextStyle] = useState({})

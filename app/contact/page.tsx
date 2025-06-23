@@ -2,7 +2,7 @@ import PageHero from "@/components/page-hero"
 import TallyFormEmbed from "@/components/tally-form-embed" // Import the new Tally embed component
 
 // IMPORTANT: Replace with your actual Tally form ID
-const YOUR_TALLY_FORM_ID = "YOUR_TALLY_FORM_ID_HERE" // e.g., "mYForm1d"
+const YOUR_TALLY_FORM_ID = "yourActualContactFormId" // e.g., "mYForm1d"
 
 export default function ContactPage() {
   return (
