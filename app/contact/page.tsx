@@ -1,8 +1,8 @@
 import PageHero from "@/components/page-hero"
-import TallyFormEmbed from "@/components/tally-form-embed" // Import the new Tally embed component
+import TallyFormEmbed from "@/components/tally-form-embed"
 
-// IMPORTANT: Replace with your actual Tally form ID
-const YOUR_TALLY_FORM_ID = "yourActualContactFormId" // e.g., "mYForm1d"
+// IMPORTANT: Replace with your actual Tally form ID (e.g., "mYForm1d")
+const YOUR_TALLY_FORM_ID = "YOUR_TALLY_FORM_ID_HERE"
 
 export default function ContactPage() {
   return (
@@ -29,7 +29,6 @@ export default function ContactPage() {
           )}
         </div>
 
-        {/* You can keep other contact info if needed */}
         <div className="mt-16 text-center max-w-3xl mx-auto">
           <h3 className="text-2xl font-semibold text-white mb-6">Other Ways to Reach Us</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-lg">
@@ -54,7 +53,6 @@ export default function ContactPage() {
         </div>
       </div>
 
-      {/* Decorative glowing orbs */}
       <div className="absolute top-1/4 left-1/4 w-72 h-72 sm:w-96 sm:h-96 bg-primary-500/10 rounded-full filter blur-[100px] sm:blur-[150px] opacity-30 animate-pulse-slow"></div>
       <div className="absolute bottom-1/4 right-1/4 w-72 h-72 sm:w-96 sm:h-96 bg-secondary-500/10 rounded-full filter blur-[100px] sm:blur-[150px] opacity-30 animate-pulse-slow delay-300"></div>
     </div>

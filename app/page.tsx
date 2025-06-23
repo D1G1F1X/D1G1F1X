@@ -11,11 +11,10 @@ import BlogPostCard from "@/components/blog-post-card"
 import { services } from "@/lib/data"
 import { featuredProjects } from "@/lib/projects"
 import { featuredPosts } from "@/lib/blog"
-// import ContactForm from "@/components/contact-form" // No longer using the custom Resend form here
-import TallyFormEmbed from "@/components/tally-form-embed" // Import Tally embed
+import TallyFormEmbed from "@/components/tally-form-embed"
 
-// IMPORTANT: Replace with your actual Tally form ID
-const YOUR_TALLY_FORM_ID_HOMEPAGE = "yourActualHomepageFormId" // e.g., "wLejAl"
+// IMPORTANT: Replace with your actual Tally form ID (e.g., "wLejAl")
+const YOUR_TALLY_FORM_ID_HOMEPAGE = "YOUR_TALLY_FORM_ID_HERE"
 
 export default function Home() {
   const [heroTextStyle, setHeroTextStyle] = useState({})
@@ -23,21 +22,16 @@ export default function Home() {
   const [buttonPrimaryStyle, setButtonPrimaryStyle] = useState({})
   const [buttonOutlineStyle, setButtonOutlineStyle] = useState({})
   const [chevronStyle, setChevronStyle] = useState({})
-  // const [timeOfDay, setTimeOfDay] = useState(0) // timeOfDay logic can be kept or removed if not used elsewhere
 
   useEffect(() => {
-    // ... (hero text style effect - keeping for brevity, assuming it's still desired)
-    // Update text styles based on animation cycle
     const updateTextStyles = () => {
-      const cycleDuration = 240000 // 4 minutes for a full day cycle
+      const cycleDuration = 240000
       const startTime = (window as any).animationStartTime || Date.now()
-      // Set animation start time if not already set
       if (!(window as any).animationStartTime) {
         ;(window as any).animationStartTime = startTime
       }
       const elapsed = (Date.now() - startTime) % cycleDuration
       const timeOfDayCalc = (elapsed / cycleDuration) * 24
-      // setTimeOfDay(timeOfDayCalc) // If you still need timeOfDay state
 
       let headingColor, subheadingColor, headingShadow, subheadingShadow
       let primaryBtnBg, primaryBtnText, outlineBtnBorder, outlineBtnText, chevronColor
@@ -134,7 +128,6 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Hero Section */}
       <section className="relative pt-32 md:pt-40 pb-16 md:pb-24">
         <div className="container px-4 mx-auto relative z-10">
           <div className="max-w-4xl mx-auto text-center">
@@ -164,7 +157,6 @@ export default function Home() {
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-secondary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
       </section>
 
-      {/* Services Section */}
       <section id="services" className="py-24 bg-gray-900 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5 pointer-events-none">{/* SVG background pattern */}</div>
         <div className="absolute top-20 left-20 w-96 h-96 bg-primary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
@@ -200,9 +192,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* About Section */}
       <section id="about" className="py-24 bg-gray-800 relative overflow-hidden">
-        {/* SVG background pattern */}
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary-500 rounded-full filter blur-[120px] opacity-10 animate-pulse-slow"></div>
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-secondary-500 rounded-full filter blur-[120px] opacity-10 animate-pulse-slow"></div>
         <div className="container px-4 mx-auto relative z-10">
@@ -216,7 +206,6 @@ export default function Home() {
               fusing cutting-edge AI strategy with expert project management, innovative web development, captivating
               design, and data-driven marketing strategies.
             </p>
-            {/* More philosophy text & CTA */}
             <Button
               asChild
               className="group bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white shadow-lg hover:shadow-primary-500/20 transition-all duration-300"
@@ -233,7 +222,6 @@ export default function Home() {
                 <div className="absolute -top-8 -left-8 w-32 h-32 bg-primary-500 opacity-20 rounded-full animate-pulse-slow"></div>
                 <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-secondary-500 opacity-20 rounded-full animate-pulse-slow"></div>
                 <div className="relative bg-gray-900/90 backdrop-blur-sm p-8 rounded-xl shadow-2xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-500 group">
-                  {/* SVG overlay */}
                   <div className="flex items-center mb-6">
                     <div className="w-12 h-12 flex items-center justify-center bg-primary-500/20 rounded-full mr-4 border border-primary-500/30">
                       <Sparkles className="h-6 w-6 text-primary-400" />
@@ -254,12 +242,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Project Portfolio Preview */}
       <section
         id="portfolio"
         className="py-24 bg-gradient-to-b from-gray-900 to-gray-800 text-white relative overflow-hidden"
       >
-        {/* SVG background pattern */}
+        <div className="absolute inset-0 opacity-5 pointer-events-none">{/* SVG background pattern */}</div>
         <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-primary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
         <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-secondary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
         <div className="container px-4 mx-auto relative z-10">
@@ -292,9 +279,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Blog Preview */}
       <section id="blog" className="py-24 bg-gray-900 relative overflow-hidden">
-        {/* SVG background pattern */}
         <div className="container px-4 mx-auto relative z-10">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <Badge className="mb-4 bg-primary-500/20 text-primary-300 border-primary-500/30 px-4 py-1 text-sm">
@@ -325,14 +310,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Contact Section - Updated to use TallyFormEmbed */}
       <section id="contact" className="py-24 bg-gray-900 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5 pointer-events-none">{/* SVG background pattern */}</div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
         <div className="absolute top-0 left-0 w-96 h-96 bg-secondary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
         <div className="container px-4 mx-auto relative z-10">
           <div className="max-w-3xl mx-auto">
-            {/* The Tally form will be embedded here, matching the style from the screenshot */}
             {YOUR_TALLY_FORM_ID_HOMEPAGE === "YOUR_TALLY_FORM_ID_HERE" ? (
               <div className="bg-yellow-900/30 border border-yellow-500/50 text-yellow-300 p-6 rounded-lg text-center">
                 <h3 className="text-xl font-semibold mb-2">Tally Form Not Configured</h3>
@@ -342,13 +325,9 @@ export default function Home() {
                 </p>
               </div>
             ) : (
-              <TallyFormEmbed
-                formId={YOUR_TALLY_FORM_ID_HOMEPAGE}
-                className="max-w-2xl mx-auto" // Center and constrain width if needed
-              />
+              <TallyFormEmbed formId={YOUR_TALLY_FORM_ID_HOMEPAGE} className="max-w-2xl mx-auto" />
             )}
 
-            {/* You can add other contact details below the Tally form if desired */}
             <div className="mt-12 text-center text-gray-400">
               <p>Or, reach out directly:</p>
               <a href="mailto:info@lumenhelix.com" className="text-primary-400 hover:text-primary-300">
@@ -363,7 +342,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section */}
       <section className="py-16 bg-gray-800/50 backdrop-blur-sm relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
