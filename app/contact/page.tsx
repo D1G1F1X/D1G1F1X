@@ -2,7 +2,7 @@ import PageHero from "@/components/page-hero"
 import TallyFormEmbed from "@/components/tally-form-embed"
 
 // Using the new Tally form ID
-const YOUR_TALLY_FORM_ID = "m6G65e"
+const TALLY_FORM_ID = "m6G65e"
 
 export default function ContactPage() {
   return (
@@ -17,7 +17,7 @@ export default function ContactPage() {
       <div className="container px-4 mx-auto py-12 sm:py-16 md:py-20 relative z-10">
         <div className="max-w-3xl mx-auto">
           {/* The Tally form will be embedded here */}
-          <TallyFormEmbed formId={YOUR_TALLY_FORM_ID} />
+          <TallyFormEmbed formId={TALLY_FORM_ID} />
         </div>
 
         <div className="mt-16 text-center max-w-3xl mx-auto">
