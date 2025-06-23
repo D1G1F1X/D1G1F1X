@@ -1,8 +1,8 @@
 import PageHero from "@/components/page-hero"
 import TallyFormEmbed from "@/components/tally-form-embed"
 
-// IMPORTANT: Replace with your actual Tally form ID (e.g., "mYForm1d")
-const YOUR_TALLY_FORM_ID = "YOUR_TALLY_FORM_ID_HERE"
+// Using the new Tally form ID
+const YOUR_TALLY_FORM_ID = "m6G65e"
 
 export default function ContactPage() {
   return (
@@ -16,17 +16,8 @@ export default function ContactPage() {
 
       <div className="container px-4 mx-auto py-12 sm:py-16 md:py-20 relative z-10">
         <div className="max-w-3xl mx-auto">
-          {YOUR_TALLY_FORM_ID === "YOUR_TALLY_FORM_ID_HERE" ? (
-            <div className="bg-yellow-900/30 border border-yellow-500/50 text-yellow-300 p-6 rounded-lg text-center">
-              <h3 className="text-xl font-semibold mb-2">Tally Form Not Configured</h3>
-              <p>
-                Please update the `YOUR_TALLY_FORM_ID` in `app/contact/page.tsx` with your actual Tally form ID to
-                display the contact form.
-              </p>
-            </div>
-          ) : (
-            <TallyFormEmbed formId={YOUR_TALLY_FORM_ID} />
-          )}
+          {/* The Tally form will be embedded here */}
+          <TallyFormEmbed formId={YOUR_TALLY_FORM_ID} />
         </div>
 
         <div className="mt-16 text-center max-w-3xl mx-auto">

@@ -13,8 +13,8 @@ import { featuredProjects } from "@/lib/projects"
 import { featuredPosts } from "@/lib/blog"
 import TallyFormEmbed from "@/components/tally-form-embed"
 
-// IMPORTANT: Replace with your actual Tally form ID (e.g., "wLejAl")
-const YOUR_TALLY_FORM_ID_HOMEPAGE = "YOUR_TALLY_FORM_ID_HERE"
+// Using the new Tally form ID for the homepage
+const YOUR_TALLY_FORM_ID_HOMEPAGE = "m6G65e"
 
 export default function Home() {
   const [heroTextStyle, setHeroTextStyle] = useState({})
@@ -316,17 +316,8 @@ export default function Home() {
         <div className="absolute top-0 left-0 w-96 h-96 bg-secondary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
         <div className="container px-4 mx-auto relative z-10">
           <div className="max-w-3xl mx-auto">
-            {YOUR_TALLY_FORM_ID_HOMEPAGE === "YOUR_TALLY_FORM_ID_HERE" ? (
-              <div className="bg-yellow-900/30 border border-yellow-500/50 text-yellow-300 p-6 rounded-lg text-center">
-                <h3 className="text-xl font-semibold mb-2">Tally Form Not Configured</h3>
-                <p>
-                  Please update the `YOUR_TALLY_FORM_ID_HOMEPAGE` in `app/page.tsx` with your actual Tally form ID to
-                  display the contact form.
-                </p>
-              </div>
-            ) : (
-              <TallyFormEmbed formId={YOUR_TALLY_FORM_ID_HOMEPAGE} className="max-w-2xl mx-auto" />
-            )}
+            {/* The Tally form will be embedded here */}
+            <TallyFormEmbed formId={YOUR_TALLY_FORM_ID_HOMEPAGE} className="max-w-2xl mx-auto" />
 
             <div className="mt-12 text-center text-gray-400">
               <p>Or, reach out directly:</p>
