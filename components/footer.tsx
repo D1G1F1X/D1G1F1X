@@ -168,7 +168,9 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                
+                <Link href="/careers" className="text-gray-400 hover:text-primary-400 transition-colors">
+                  Careers
+                </Link>
               </li>
               <li>
                 <Link href="/contact" className="text-gray-400 hover:text-primary-400 transition-colors">
@@ -195,11 +197,7 @@ export default function Footer() {
               </li>
               <li className="flex items-start">
                 <span className="text-primary-400 mr-2">Address:</span>
-                <span className="text-gray-400">
-                  123 Innovation Drive,
-                  <br />
-                  Tech City, TC 12345
-                </span>
+                <span className="text-gray-400">Akron, Ohio</span>
               </li>
             </ul>
           </div>
