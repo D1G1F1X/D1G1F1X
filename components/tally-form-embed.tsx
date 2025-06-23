@@ -6,15 +6,15 @@ interface TallyFormEmbedProps {
 }
 
 export default function TallyFormEmbed({ formId, className = "" }: TallyFormEmbedProps) {
-  // Using the exact embed URL parameters you provided: only dynamicHeight=1
-  const tallyEmbedUrl = `https://tally.so/embed/${formId}?dynamicHeight=1`
+  // Using the exact embed URL you provided: only the base form ID
+  const tallyEmbedUrl = `https://tally.so/embed/${formId}`
 
   return (
     <div className={`w-full ${className}`}>
       <iframe
         src={tallyEmbedUrl}
         width="100%"
-        height="600" // Initial height, Tally's dynamicHeight should adjust this
+        height="600" // Initial height, Tally's dynamicHeight should adjust this if configured in Tally
         frameBorder="0"
         marginHeight={0}
         marginWidth={0}
