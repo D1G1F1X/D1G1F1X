@@ -6,10 +6,8 @@ interface TallyFormEmbedProps {
 }
 
 export default function TallyFormEmbed({ formId, className = "" }: TallyFormEmbedProps) {
-  // Using the provided embed URL parameters.
-  // Note: transparentBackground=1 is removed, allowing Tally's native background to show.
-  // hideTitle=1 is kept, as the Tally form itself seems to have its own title/intro text.
-  const tallyEmbedUrl = `https://tally.so/embed/${formId}?alignLeft=1&hideTitle=1&dynamicHeight=1`
+  // Using the exact embed URL parameters you provided: only dynamicHeight=1
+  const tallyEmbedUrl = `https://tally.so/embed/${formId}?dynamicHeight=1`
 
   return (
     <div className={`w-full ${className}`}>
@@ -20,8 +18,8 @@ export default function TallyFormEmbed({ formId, className = "" }: TallyFormEmbe
         frameBorder="0"
         marginHeight={0}
         marginWidth={0}
-        title="Tally Intake Form"
-        // Removed explicit bg-white, allowing Tally's native dark background to appear
+        title="Tally Web Project Intake Questionnaire"
+        // No custom background or styling here, allowing Tally's native theme to show
         className="rounded-lg shadow-lg min-h-[550px] sm:min-h-[600px]"
       ></iframe>
     </div>
