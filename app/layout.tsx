@@ -15,6 +15,8 @@ import StarfieldBackground from "@/components/starfield-background"
 import ConstellationBackground from "@/components/constellation-background"
 import GeometricOverlay from "@/components/geometric-overlay"
 import { Toaster } from "@/components/ui/toaster"
+import { Analytics } from "@vercel/analytics/next"
+import { Suspense } from "react"
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -35,22 +37,25 @@ export default function RootLayout({
             <AuthProvider>
               <ManualCartProvider>
                 {/* Animated Backgrounds */}
-                <DeepOceanWaves />
-                <StarfieldBackground />
-                <ConstellationBackground />
-                <GeometricOverlay />
-                <div className="relative flex min-h-screen flex-col">
-                  <Navbar />
-                  <main className="flex-1">{children}</main>
-                  <Footer />
-                  <BugReport />
-                  <SiteAssistant />
-                </div>
-                <Toaster />
+                <Suspense fallback={null}>
+                  <DeepOceanWaves />
+                  <StarfieldBackground />
+                  <ConstellationBackground />
+                  <GeometricOverlay />
+                  <div className="relative flex min-h-screen flex-col">
+                    <Navbar />
+                    <main className="flex-1">{children}</main>
+                    <Footer />
+                    <BugReport />
+                    <SiteAssistant />
+                  </div>
+                  <Toaster />
+                </Suspense>
               </ManualCartProvider>
             </AuthProvider>
           </ThemeProvider>
         </ErrorBoundary>
+        <Analytics />
       </body>
     </html>
   )
