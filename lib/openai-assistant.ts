@@ -22,3 +22,30 @@ export function validateAssistantConfig(): boolean {
 
   return hasApiKey && hasAssistantId
 }
+
+/** Utility: create a chat completion with sensible defaults. */
+export async function createCustomOpenAIResponse(prompt: string): Promise<string> {
+  try {
+    const { choices } = await openaiClient.chat.completions.create({
+      model: process.env.OPENAI_MODEL || "gpt-4o",
+      max_tokens: 800,
+      temperature: 0.7,
+      messages: [{ role: "user", content: prompt }],
+    })
+    return choices?.[0]?.message?.content ?? ""
+  } catch (err) {
+    console.error("createCustomOpenAIResponse failed", err)
+    return "⚠️ AI unavailable at the moment."
+  }
+}
+
+/** Higher-level helper used by oracle endpoints */
+export async function generateOracleReading(cardSpread: unknown): Promise<string> {
+  const systemPrompt =
+    "You are Numoracle, a mystical oracle. Provide a concise, insightful reading based on the spread that follows."
+  const prompt = `${systemPrompt}\n\nSpread JSON:\n${JSON.stringify(cardSpread)}`
+  return createCustomOpenAIResponse(prompt)
+}
+
+/* re-export the client so other modules can reuse the configured instance */
+export { openaiClient }

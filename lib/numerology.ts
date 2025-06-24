@@ -183,3 +183,12 @@ function reduceToSingleDigit(num: number): number {
       .reduce((sum, digit) => sum + Number.parseInt(digit), 0),
   )
 }
+
+/**
+ * Alias for calculateDestinyNumber - calculates the expression number based on a full name
+ * @param fullName The full name of the person
+ * @returns The expression number (1-9, 11, 22, or 33)
+ */
+export function calculateExpressionNumber(fullName: string): number {
+  return calculateDestinyNumber(fullName)
+}
