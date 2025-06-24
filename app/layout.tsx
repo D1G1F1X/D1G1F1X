@@ -6,6 +6,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import AnimatedBackground from "@/components/animated-background"
+import { Analytics } from "@vercel/analytics/next"
+import { Suspense } from "react"
 
 // Load Inter font for body text
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -21,7 +23,7 @@ export const metadata: Metadata = {
   title: "Lumen Helix Solutions | Tech Consulting Firm",
   description:
     "Lumen Helix Solutions is a tech consulting firm that merges strategic insight with practical implementation, offering AI strategy & fusion, web development, graphic design, marketing strategy, and tech consulting services.",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -33,11 +35,14 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${lexend.variable} font-sans`}>
         <AnimatedBackground />
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-        </ThemeProvider>
+        <Suspense fallback={null}>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+          </ThemeProvider>
+        </Suspense>
+        <Analytics />
       </body>
     </html>
   )
