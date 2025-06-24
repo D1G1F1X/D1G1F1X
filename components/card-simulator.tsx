@@ -697,60 +697,49 @@ export function CardSimulator() {
     setHasGeneratedAIReading(true) // Set flag that AI reading is being generated
 
     try {
-      const response = await fetch("/api/generateCompleteReading", {
+      const response = await fetch("/api/ai/reading", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          fullName: fullName,
+          fullName,
           dateOfBirth: birthDate,
           timeOfBirth: birthTime,
-          birthPlace: birthPlace,
-          question: question,
-          selectedCards: selectedCards,
-          spreadType: spreadType,
+          birthPlace,
+          question,
+          selectedCards,
+          spreadType,
+          isMember: userProfile?.isMember ?? false,
         }),
       })
 
-      // --- old code ---
-      // const data = await response.json()
-      // if (data.success) { … }
-
-      // --- new code ---
-      let data: any
+      // ---------- new safer response handling ----------
+      let data: any = {}
       try {
-        // Try to parse as JSON first
-        data = await response.clone().json()
-      } catch (_err) {
-        // Not JSON – read the raw text
-        const rawText = await response.text()
-        data = {
-          success: false,
-          error: rawText || "Unknown server response",
-          fallback: true,
-        }
+        data = await response.json()
+      } catch {
+        data = { success: false, error: "Malformed server response" }
       }
 
-      if (response.ok && data.success) {
-        setConversationThreadId(data.threadId)
+      if (!response.ok || !data?.success) {
+        console.error("AI reading generation failed:", data?.error ?? response.statusText)
         setAssistantReading(data.reading ?? "")
-        setReading(data.reading ?? "No detailed AI reading available. Please try again or ask a follow-up question.")
-        toast({
-          title: "Reading Generated!",
-          description: "Your personalized oracle reading is ready.",
-        })
-      } else {
-        console.error("AI reading generation failed:", data.error ?? data)
-        setAssistantReading(data.reading ?? "")
-        setReading(data.reading ?? `Failed to generate an advanced AI reading: ${data.error ?? "Unknown error"}.`)
+        setReading(
+          data.reading ??
+            `Failed to generate an AI reading${data?.error ? `: ${data.error}` : "."}  Please try again later.`,
+        )
         toast({
           title: "Reading Failed",
-          description: `Could not generate AI reading: ${data.error ?? "Unknown error"}.`,
+          description: data?.error ?? "Internal server error.",
           variant: "destructive",
         })
+        setHasGeneratedAIReading(false)
+      } else {
+        setConversationThreadId(data.threadId)
+        setAssistantReading(data.reading ?? "")
+        setReading(data.reading ?? "")
+        toast({ title: "Reading Generated!", description: "Your personalized oracle reading is ready." })
       }
+      // ---------- end new handling ----------
     } catch (error: any) {
       console.error("Error generating AI reading:", error)
       setReading("Failed to generate an advanced reading due to a network or server error. Please try again later.")

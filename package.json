@@ -63,6 +63,7 @@
     "fs": "latest",
     "input-otp": "latest",
     "jspdf": "latest",
+    "lib": "latest",
     "lucide-react": "^0.454.0",
     "next": "14.2.16",
     "next-themes": "latest",

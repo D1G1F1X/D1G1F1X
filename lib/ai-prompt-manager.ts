@@ -3,7 +3,6 @@
 // Types for the card data
 import type { OracleCard } from "@/components/card-simulator" // Use OracleCard from CardSimulator
 import { masterPromptTemplate } from "./prompt-templates"
-import { getCardPromptTemplate, getFollowUpPromptTemplate } from "@/lib/prompt-templates"
 import { calculateLifePath } from "@/lib/numerology" // Import the actual numerology function
 
 // Helper function to calculate Sun Sign
@@ -126,7 +125,6 @@ export async function getSpreadTypeName(spreadType: string): Promise<string> {
 
 // Helper function to get the position name based on the index and spread type
 export async function getPositionName(index: number, spreadType: string): Promise<string> {
-  // Position names for different spread types
   const positions: Record<string, string[]> = {
     single: ["Guidance"],
     three: ["Past", "Present", "Future"],
@@ -148,41 +146,6 @@ export async function getPositionName(index: number, spreadType: string): Promis
     decision: ["Current Situation", "Option A", "Option B", "Key Factor", "Guidance"],
   }
 
-  // Get the positions for the requested spread type, or use generic positions
   const spreadPositions = positions[spreadType] || Array.from({ length: 10 }, (_, i) => `Position ${i + 1}`)
-
-  // Return the position name if it exists, otherwise return a generic position name
   return index < spreadPositions.length ? spreadPositions[index] : `Position ${index + 1}`
-}
-
-export async function generateCardReadingPrompt(cards: any[], question = ""): Promise<string> {
-  const template = getCardPromptTemplate()
-
-  // Format card information
-  const cardDetails = cards
-    .map((card, index) => {
-      return `Card ${index + 1}: ${card.fullTitle} (${card.baseElement} - ${card.suit})`
-    })
-    .join("\n")
-
-  // Replace placeholders in the template
-  let prompt = template.replace("{{CARD_COUNT}}", cards.length.toString()).replace("{{CARD_DETAILS}}", cardDetails)
-
-  // Add question context if provided
-  if (question && question.trim()) {
-    prompt = prompt.replace(
-      "{{QUESTION_CONTEXT}}",
-      `The querent has asked: "${question}". Please address this specific question in your reading.`,
-    )
-  } else {
-    prompt = prompt.replace("{{QUESTION_CONTEXT}}", "")
-  }
-
-  return prompt
-}
-
-export async function generateFollowUpPrompt(originalReading: string, followUpQuestion: string): Promise<string> {
-  const template = getFollowUpPromptTemplate()
-
-  return template.replace("{{ORIGINAL_READING}}", originalReading).replace("{{FOLLOW_UP_QUESTION}}", followUpQuestion)
 }

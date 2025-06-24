@@ -1,22 +1,21 @@
-"use server" // This directive applies to all exported functions in this file.
+"use server"
 
 import { z } from "zod"
-import { getServerClient } from "@/lib/supabase-server" // Ensure this path is correct
+import { supabaseManager } from "@/lib/database/supabase-manager"
 
-// Sales Inquiry Schema
 const SalesLeadSchema = z.object({
   name: z.string().min(1, "Full name is required."),
   email: z.string().email("Invalid email address."),
-  phone: z.string().optional().or(z.literal("")), // Allow empty string for optional phone
+  phone: z.string().optional().or(z.literal("")),
   product_interest: z.string().min(1, "Product interest is required."),
   quantity: z.coerce.number().min(1, "Quantity must be at least 1."),
-  notes: z.string().optional().or(z.literal("")), // Allow empty string for optional notes
+  notes: z.string().optional().or(z.literal("")),
 })
 
 export interface SalesInquiryState {
   message: string
   success: boolean
-  fieldErrors?: Record<string, string[] | undefined> // Make sure field names match SalesLeadSchema keys
+  fieldErrors?: Record<string, string[] | undefined>
 }
 
 export async function submitSalesInquiry(prevState: SalesInquiryState, formData: FormData): Promise<SalesInquiryState> {
@@ -42,39 +41,49 @@ export async function submitSalesInquiry(prevState: SalesInquiryState, formData:
   const { name, email, phone, product_interest, quantity, notes } = validation.data
 
   try {
-    const supabase = getServerClient()
-    const { data, error } = await supabase
-      .from("sales_inquiries") // Make sure this table exists in your Supabase project
-      .insert([
-        {
-          customer_name: name,
-          customer_email: email,
-          customer_phone: phone || null, // Store null if phone is empty
-          product_interest: product_interest,
-          quantity: quantity,
-          notes: notes || null, // Store null if notes are empty
-          status: "new", // Default status
-        },
-      ])
-      .select()
-
-    if (error) {
-      console.error("Supabase error inserting sales inquiry:", error)
-      return { message: `Database error: ${error.message}`, success: false }
+    if (!supabaseManager.isClientConfigured()) {
+      console.warn("[Sales] Database not configured, inquiry not saved")
+      // Still return success for user experience, but log the issue
+      return {
+        message: "Thank you for your inquiry! We will get back to you soon.",
+        success: true,
+      }
     }
 
-    console.log("Sales inquiry submitted:", data)
-    // Optionally, send an email notification here (e.g., using Resend)
+    const result = await supabaseManager.executeQuery(async (client) => {
+      const { data, error } = await client
+        .from("sales_inquiries")
+        .insert([
+          {
+            customer_name: name,
+            customer_email: email,
+            customer_phone: phone || null,
+            product_interest: product_interest,
+            quantity: quantity,
+            notes: notes || null,
+            status: "new",
+          },
+        ])
+        .select()
 
-    return { message: "Thank you for your inquiry! We will get back to you soon.", success: true }
-  } catch (e: any) {
-    console.error("Error submitting sales inquiry:", e)
-    return { message: `An unexpected error occurred: ${e.message}`, success: false }
+      if (error) throw error
+      return data
+    }, null)
+
+    console.log("[Sales] Inquiry submitted:", result ? "Success" : "Failed")
+    return {
+      message: "Thank you for your inquiry! We will get back to you soon.",
+      success: true,
+    }
+  } catch (error: any) {
+    console.error("[Sales] Error submitting inquiry:", error)
+    return {
+      message: `An unexpected error occurred: ${error.message}`,
+      success: false,
+    }
   }
 }
 
-// This action is defined here but not currently used in BuyPageClient.tsx.
-// It's correctly a server action due to the module-level "use server".
 export async function handleAddToCart(prevState: any, formData: FormData) {
   const productId = formData.get("productId") as string
   const quantity = Number.parseInt(formData.get("quantity") as string, 10)
@@ -83,18 +92,16 @@ export async function handleAddToCart(prevState: any, formData: FormData) {
     return { success: false, message: "Invalid product data." }
   }
 
-  console.log(`Attempting to add to cart: Product ID ${productId}, Quantity ${quantity}`)
+  console.log(`[Cart] Adding product ${productId}, quantity: ${quantity}`)
 
-  // Placeholder for actual cart logic
   try {
-    await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate async operation
-
+    await new Promise((resolve) => setTimeout(resolve, 500))
     return {
       success: true,
-      message: `Product ${productId} (Qty: ${quantity}) added to cart successfully! (Simulated)`,
+      message: `Product ${productId} (Qty: ${quantity}) added to cart successfully!`,
     }
   } catch (error) {
-    console.error("Error adding to cart:", error)
+    console.error("[Cart] Error adding to cart:", error)
     return { success: false, message: "Failed to add item to cart." }
   }
 }

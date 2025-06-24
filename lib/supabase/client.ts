@@ -3,24 +3,35 @@ import { createBrowserClient } from "@supabase/ssr"
 import type { Database } from "./types"
 import { publicSupabaseConfig } from "./config"
 
-// Use globalThis to ensure the client is truly a singleton across HMR updates
+// Use a more specific global key to avoid conflicts
 declare global {
-  var supabaseBrowserClient: ReturnType<typeof createBrowserClient<Database>> | undefined
+  var __numoracle_supabase_client: ReturnType<typeof createBrowserClient<Database>> | undefined
 }
 
 export function createClient() {
   if (typeof window === "undefined") {
-    // This client is for the browser, return undefined or throw an error if called on server
-    // For Next.js App Router, server components should use createServerClient
+    // This client is for the browser, return undefined for server-side calls
     return undefined
   }
 
-  if (!globalThis.supabaseBrowserClient) {
-    globalThis.supabaseBrowserClient = createBrowserClient<Database>(
+  // Use a singleton pattern with a specific key
+  if (!globalThis.__numoracle_supabase_client) {
+    globalThis.__numoracle_supabase_client = createBrowserClient<Database>(
       publicSupabaseConfig.url,
       publicSupabaseConfig.anonKey,
+      {
+        // Add options to prevent multiple instances
+        auth: {
+          persistSession: true,
+          detectSessionInUrl: true,
+          flowType: "pkce",
+        },
+      },
     )
   }
 
-  return globalThis.supabaseBrowserClient
+  return globalThis.__numoracle_supabase_client
 }
+
+// Export a singleton instance for consistent usage
+export const supabaseClient = typeof window !== "undefined" ? createClient() : null

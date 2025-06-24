@@ -1,0 +1,290 @@
+import OpenAI from "openai"
+import { environmentManager } from "@/lib/config/environment"
+import type { OracleCard } from "@/components/card-simulator"
+
+export interface ReadingRequest {
+  fullName: string
+  dateOfBirth?: string
+  timeOfBirth?: string
+  birthPlace?: string
+  question: string
+  selectedCards: OracleCard[]
+  spreadType: string
+  isMember?: boolean
+}
+
+export interface ReadingResponse {
+  success: boolean
+  reading?: string
+  error?: string
+  fallback?: boolean
+  threadId?: string
+  runId?: string
+  details?: string
+}
+
+export interface AssistantMessage {
+  role: "user" | "assistant"
+  content: string
+  timestamp: Date
+}
+
+class AIServiceManager {
+  private static instance: AIServiceManager
+  private openaiClient: OpenAI | null = null
+  private isConfigured = false
+  private config: ReturnType<typeof environmentManager.getConfig>
+
+  private constructor() {
+    this.config = environmentManager.getConfig()
+    this.initializeOpenAI()
+  }
+
+  public static getInstance(): AIServiceManager {
+    if (!AIServiceManager.instance) {
+      AIServiceManager.instance = new AIServiceManager()
+    }
+    return AIServiceManager.instance
+  }
+
+  private initializeOpenAI(): void {
+    // Only initialize on server side
+    if (typeof window !== "undefined") {
+      console.warn("⚠️ AI Service Manager should only be initialized on server side")
+      return
+    }
+
+    // Prioritize ChatGPT Assistant API key
+    const apiKey = process.env.OPENAI_ASSISTANT_API_KEY || process.env.OPENAI_API_KEY
+    const assistantId = process.env.OPENAI_ASSISTANT_ID
+
+    console.log("[AI] Initializing with:", {
+      hasApiKey: !!apiKey,
+      hasAssistantId: !!assistantId,
+      apiKeySource: process.env.OPENAI_ASSISTANT_API_KEY ? "OPENAI_ASSISTANT_API_KEY" : "OPENAI_API_KEY",
+    })
+
+    if (apiKey && assistantId) {
+      try {
+        this.openaiClient = new OpenAI({
+          apiKey: apiKey,
+          defaultHeaders: {
+            "OpenAI-Beta": "assistants=v2",
+          },
+        })
+        this.isConfigured = true
+        console.log("✅ OpenAI Assistant client initialized successfully")
+      } catch (error) {
+        console.error("❌ Failed to initialize OpenAI Assistant client:", error)
+        this.isConfigured = false
+      }
+    } else {
+      console.warn("⚠️ OpenAI Assistant configuration incomplete:")
+      console.warn(`  - API Key: ${apiKey ? "Present" : "Missing"}`)
+      console.warn(`  - Assistant ID: ${assistantId ? "Present" : "Missing"}`)
+      this.isConfigured = false
+    }
+  }
+
+  public isAIConfigured(): boolean {
+    const hasApiKey = !!(process.env.OPENAI_ASSISTANT_API_KEY || process.env.OPENAI_API_KEY)
+    const hasAssistantId = !!process.env.OPENAI_ASSISTANT_ID
+    const isServer = typeof window === "undefined"
+
+    return this.isConfigured && hasApiKey && hasAssistantId && isServer
+  }
+
+  private createFallbackResponse(error: string): ReadingResponse {
+    return {
+      success: false,
+      error,
+      fallback: true,
+      reading: this.generateFallbackReading(),
+    }
+  }
+
+  private generateFallbackReading(): string {
+    return `I apologize, but the AI service is currently unavailable. Here's a general guidance:
+
+The cards you've drawn suggest a time of reflection and potential transformation. Consider the following:
+
+• Trust your intuition as you navigate current challenges
+• Look for opportunities for growth in unexpected places  
+• Remember that every ending creates space for new beginnings
+• Stay open to the wisdom that comes from within
+
+While this reading is generated as a fallback, the energy you bring to interpreting these cards is what gives them meaning. Take time to meditate on what resonates with your current situation.`
+  }
+
+  public async generateOracleReading(request: ReadingRequest): Promise<ReadingResponse> {
+    if (!this.isAIConfigured()) {
+      console.warn("[AI] Service not configured, using fallback reading")
+      return this.createFallbackResponse("AI service not configured")
+    }
+
+    try {
+      console.log("[AI] Starting reading generation for:", request.fullName)
+
+      // Create thread
+      const thread = await this.openaiClient!.beta.threads.create()
+      console.log("[AI] Thread created:", thread.id)
+
+      // Generate prompt
+      const prompt = await this.generateReadingPrompt(request)
+
+      // Add message to thread
+      await this.openaiClient!.beta.threads.messages.create(thread.id, {
+        role: "user",
+        content: prompt,
+      })
+
+      // Create and poll run
+      let run = await this.openaiClient!.beta.threads.runs.create(thread.id, {
+        assistant_id: this.config.openai.assistantId!,
+      })
+
+      // Poll for completion with better error handling
+      const maxAttempts = 30
+      let attempts = 0
+
+      while (["queued", "in_progress", "cancelling"].includes(run.status) && attempts < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+
+        try {
+          run = await this.openaiClient!.beta.threads.runs.retrieve(thread.id, run.id)
+        } catch (pollError: any) {
+          console.error(`[AI] Error polling run status:`, pollError)
+          return this.createFallbackResponse(`Polling error: ${pollError.message}`)
+        }
+
+        attempts++
+
+        if (attempts % 5 === 0) {
+          console.log(`[AI] Polling attempt ${attempts}, status: ${run.status}`)
+        }
+      }
+
+      if (run.status === "completed") {
+        const messages = await this.openaiClient!.beta.threads.messages.list(thread.id, {
+          order: "desc",
+          limit: 1,
+        })
+
+        const assistantMessage = messages.data[0]
+        if (assistantMessage?.content[0]?.type === "text") {
+          console.log("[AI] Reading generated successfully")
+          return {
+            success: true,
+            reading: assistantMessage.content[0].text.value,
+            threadId: thread.id,
+            runId: run.id,
+          }
+        }
+      }
+
+      console.warn(`[AI] Run completed with status: ${run.status}`)
+      if (run.status === "failed") {
+        console.error("[AI] Run failed with error:", run.last_error)
+        return this.createFallbackResponse(`AI run failed: ${run.last_error?.message || "Unknown error"}`)
+      }
+
+      return this.createFallbackResponse(`AI run completed with unexpected status: ${run.status}`)
+    } catch (error: any) {
+      console.error("[AI] Error generating reading:", error)
+      return this.createFallbackResponse(`AI service error: ${error.message}`)
+    }
+  }
+
+  public async continueConversation(threadId: string, message: string): Promise<ReadingResponse> {
+    if (!this.isAIConfigured()) {
+      return this.createFallbackResponse("AI service not configured")
+    }
+
+    try {
+      console.log(`[AI] Continuing conversation in thread: ${threadId}`)
+
+      await this.openaiClient!.beta.threads.messages.create(threadId, {
+        role: "user",
+        content: message,
+      })
+
+      let run = await this.openaiClient!.beta.threads.runs.create(threadId, {
+        assistant_id: this.config.openai.assistantId!,
+      })
+
+      // Poll for completion (similar to generateOracleReading)
+      const maxAttempts = 30
+      let attempts = 0
+
+      while (["queued", "in_progress", "cancelling"].includes(run.status) && attempts < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+        run = await this.openaiClient!.beta.threads.runs.retrieve(threadId, run.id)
+        attempts++
+      }
+
+      if (run.status === "completed") {
+        const messages = await this.openaiClient!.beta.threads.messages.list(threadId, {
+          order: "desc",
+          limit: 1,
+        })
+
+        const assistantMessage = messages.data[0]
+        if (assistantMessage?.content[0]?.type === "text") {
+          return {
+            success: true,
+            reading: assistantMessage.content[0].text.value,
+            threadId,
+            runId: run.id,
+          }
+        }
+      }
+
+      return this.createFallbackResponse(`Conversation failed with status: ${run.status}`)
+    } catch (error: any) {
+      console.error("[AI] Error continuing conversation:", error)
+      return this.createFallbackResponse(`Conversation error: ${error.message}`)
+    }
+  }
+
+  public async getConversationHistory(threadId: string): Promise<AssistantMessage[]> {
+    if (!this.isAIConfigured()) {
+      console.warn("[AI] Service not configured for history retrieval")
+      return []
+    }
+
+    try {
+      const messages = await this.openaiClient!.beta.threads.messages.list(threadId, {
+        order: "asc",
+      })
+
+      return messages.data.map((msg) => ({
+        role: msg.role as "user" | "assistant",
+        content: msg.content[0]?.type === "text" ? msg.content[0].text.value : "",
+        timestamp: new Date(msg.created_at * 1000),
+      }))
+    } catch (error: any) {
+      console.error("[AI] Error fetching conversation history:", error)
+      return []
+    }
+  }
+
+  private async generateReadingPrompt(request: ReadingRequest): Promise<string> {
+    const cardDescriptions = request.selectedCards
+      .map((card) => `${card.fullTitle}: ${card.keyMeanings?.join(" ") || "A card of significance in your reading."}`)
+      .join("\n\n")
+
+    return `Please provide a detailed oracle card reading for ${request.fullName}.
+
+Question: ${request.question}
+${request.dateOfBirth ? `Date of Birth: ${request.dateOfBirth}` : ""}
+${request.birthPlace ? `Birth Place: ${request.birthPlace}` : ""}
+Spread Type: ${request.spreadType}
+
+Cards Drawn:
+${cardDescriptions}
+
+Please provide an insightful, personalized reading that addresses the question while incorporating the meanings and symbolism of the drawn cards. Focus on practical guidance and spiritual insight.`
+  }
+}
+
+export const aiServiceManager = AIServiceManager.getInstance()

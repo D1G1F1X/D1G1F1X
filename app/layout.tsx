@@ -1,5 +1,5 @@
 import type React from "react"
-import { Inter, Cinzel, Montserrat } from "next/font/google" // Added Cinzel and Montserrat
+import { Roboto } from "next/font/google"
 import { cn } from "@/lib/utils"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -16,9 +16,11 @@ import ConstellationBackground from "@/components/constellation-background"
 import GeometricOverlay from "@/components/geometric-overlay"
 import { Toaster } from "@/components/ui/toaster"
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
-const cinzel = Cinzel({ subsets: ["latin"], weight: ["400", "600", "700"], variable: "--font-serif" }) // Defined Cinzel font variable
-const montserrat = Montserrat({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-body" }) // Defined Montserrat font variable
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-roboto",
+})
 
 export default function RootLayout({
   children,
@@ -27,14 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          inter.variable,
-          cinzel.variable, // Applied Cinzel font variable
-          montserrat.variable, // Applied Montserrat font variable
-        )}
-      >
+      <body className={cn("min-h-screen bg-background font-sans antialiased", roboto.variable)}>
         <ErrorBoundary>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
             <AuthProvider>

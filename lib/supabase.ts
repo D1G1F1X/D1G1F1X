@@ -10,10 +10,18 @@ export function getClientSide(): SupabaseClient {
   }
 
   if (!_supabaseClient) {
-    // Re-use across HMR sessions by stashing on globalThis
+    // Use a specific global key to prevent conflicts
+    const globalKey = "__numoracle_supabase_singleton"
     _supabaseClient =
-      (globalThis as any)._numoracleSupabase ?? createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey)
-    ;(globalThis as any)._numoracleSupabase = _supabaseClient
+      (globalThis as any)[globalKey] ??
+      createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey, {
+        auth: {
+          persistSession: true,
+          detectSessionInUrl: true,
+          flowType: "pkce",
+        },
+      })
+    ;(globalThis as any)[globalKey] = _supabaseClient
   }
   return _supabaseClient
 }
@@ -24,13 +32,12 @@ export const supabase = typeof window !== "undefined" ? getClientSide() : ({} as
 // DIGIFIX Supabase Configuration - Validated
 const supabaseServiceRoleKey = SUPABASE_CONFIG.serviceRoleKey
 
-// Validate DIGIFIX integration on initialization
+// Validate DIGIFIX integration on initialization (server-side only)
 if (typeof window === "undefined") {
   validateDigifixIntegration()
 }
 
 // ----------  SERVER-SIDE ADMIN (SERVICE ROLE) ----------
-
 let _supabaseAdmin: SupabaseClient | undefined
 
 /**
