@@ -1,7 +1,7 @@
 "use server"
 
 import { z } from "zod"
-import { createServerClient } from "@/lib/supabase-server"
+import { createServerClient } from "@/lib/supabase/server"
 import { brevoEmailService } from "@/lib/services/brevo-email-service"
 
 // Define the schema for a single item in the order

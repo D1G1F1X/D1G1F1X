@@ -37,8 +37,23 @@ function _makeClient(): SupabaseClient {
 export const supabaseServerClient = _makeClient()
 
 /**
- * Factory that matches the name many files expect.
+ * Creates a fresh server-side Supabase client. Falls back to a mocked client
+ * in build/preview if env vars are missing so the app never crashes.
+ * This matches the original `createServerClient` export name.
  */
-export function createServerSupabaseClient() {
+export function createServerClient(): SupabaseClient {
   return _makeClient()
 }
+
+/**
+ * Re-uses a singleton Supabase client per request to avoid multiple connections.
+ * This matches the original `getServerClient` export name.
+ */
+export function getServerClient(): SupabaseClient {
+  return supabaseServerClient // Use the already created singleton
+}
+
+/**
+ * Alias kept for legacy imports.
+ */
+export const createServerSupabaseClient = createServerClient

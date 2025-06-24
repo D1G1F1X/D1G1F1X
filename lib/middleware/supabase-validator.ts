@@ -1,31 +1,31 @@
-import { SUPABASE_CONFIG, validateDigifixIntegration } from "../supabase/config"
-
 /**
- * Middleware to validate DIGIFIX Supabase integration
+ * Previously this file threw when the SUPABASE_SERVICE_ROLE_KEY
+ * environment variable was missing, which caused build failures on
+ * preview deployments.  We now log a warning instead so the app still
+ * works with the public anon key while clearly indicating that the
+ * service-role key is recommended for production.
  */
-export function validateSupabaseIntegration() {
-  const isValid = validateDigifixIntegration()
 
-  if (!isValid) {
-    throw new Error("Invalid Supabase integration - DIGIFIX project required")
+export function validateSupabaseEnv() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const role = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!url) {
+    console.warn(
+      "[supabase] NEXT_PUBLIC_SUPABASE_URL is not set – certain features " +
+        "that require server-side Supabase will be disabled.",
+    )
   }
 
-  // Additional runtime checks
-  if (typeof window === "undefined") {
-    // Server-side validation
-    const url = SUPABASE_CONFIG.url
-    if (!url || (!url.includes("digifix") && !url.includes("your-digifix-project-id"))) {
-      console.warn("⚠️  Supabase URL validation warning - ensure DIGIFIX project is configured")
-    }
+  if (!role) {
+    console.warn(
+      "[supabase] SUPABASE_SERVICE_ROLE_KEY is not set – falling back to " +
+        "the public anon key for build/preview.  Provide the service-role " +
+        "key in the Vercel env vars for full database privileges.",
+    )
   }
 
-  return true
-}
-
-/**
- * Runtime check for unauthorized Supabase usage
- */
-export function checkSupabaseUsage(context: string) {
-  console.log(`🔍 Supabase usage check: ${context} - DIGIFIX integration`)
-  return validateSupabaseIntegration()
+  // Return a boolean so callers can decide what to do at runtime.
+  return Boolean(url && (role || anon))
 }

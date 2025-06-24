@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { submitManualOrder } from "@/app/manual-checkout/actions"
+import { availableProducts } from "@/lib/products"
 
 export interface OrderItem {
   id: string
@@ -22,58 +23,14 @@ export interface OrderItem {
   description?: string
 }
 
-// Predefined products for easy selection
+// Predefined products for easy selection, sourced from lib/products.ts
 const PREDEFINED_PRODUCTS = [
-  {
-    id: "novice-oracle-deck",
-    name: "The Novice Oracle Deck",
-    price: 25,
-    description:
-      "Larger format 25-card deck with keywords printed on cards, perfect for beginners. Includes premium website access.",
-  },
-  {
-    id: "adepts-oracle-deck",
-    name: "The Adepts Oracle Deck",
-    price: 22,
-    description:
-      "Standard size 25-card deck without printed keywords, designed for experienced readers. Includes premium website access.",
-  },
-  {
-    id: "elemental-dice-set",
-    name: "10-sided Elemental Oracle Dice Set",
-    price: 11,
-    description: "A set of elemental dice for divination.",
-  },
-  {
-    id: "numo-spread-cloth",
-    name: "Numo Oracle Spread Cloth with Guide",
-    price: 11,
-    description: "A beautiful spread cloth with an accompanying guide.",
-  },
-  {
-    id: "standard-deck",
-    name: "Numo Oracle Standard Deck",
-    price: 33,
-    description: "The foundational Numo Oracle deck.",
-  },
-  {
-    id: "deluxe-deck",
-    name: "Numo Oracle Deluxe Deck",
-    price: 55,
-    description: "A premium version of the Numo Oracle deck with enhanced features.",
-  },
-  {
-    id: "guidebook",
-    name: "Numo Oracle Guidebook",
-    price: 15,
-    description: "A comprehensive guidebook to the Numo Oracle system.",
-  },
-  {
-    id: "crystal-set",
-    name: "Elemental Crystal Set",
-    price: 20,
-    description: "A set of crystals aligned with elemental energies.",
-  },
+  ...availableProducts.map((product) => ({
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    description: product.description,
+  })),
   { id: "custom-item", name: "Custom Item", price: 0, description: "Specify custom product" },
 ]
 
