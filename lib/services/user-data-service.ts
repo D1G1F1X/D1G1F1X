@@ -1,282 +1,81 @@
-import { getCookie, setCookie, deleteCookie } from "cookies-next"
+// This file is a placeholder for user-data-service.ts
+// Ensure it does NOT import server-only modules or access server-only environment variables.
 
 export interface UserProfile {
   fullName?: string
-  currentName?: string
-  nicknames?: string
-  birthDate?: string
-  birthPlace?: string
-  email?: string
   preferredSpread?: string
+  birthDate?: string
+  birthTime?: string
+  birthPlace?: string
+  readingsCount?: number
   lastUsed?: string
-  // Numerology specific data
-  lastCalculation?: {
-    lifePathNumber?: number
-    destinyNumber?: number
-    soulNumber?: number
-    personalityNumber?: number
-    birthDayNumber?: number
-    expressionNumber?: number
-    maturityNumber?: number
-    challengeNumbers?: number[]
-    pinnacleNumbers?: number[]
-    calculatedAt?: string
-  }
-  // Session management
-  activeSession?: {
-    sessionId: string
-    isComplete: boolean
-    timestamp: string
-  }
-}
-
-export interface UserPreferences {
-  saveReadings?: boolean
-  emailNotifications?: boolean
-  theme?: "light" | "dark"
-  language?: string
-  autoSaveEnabled?: boolean
-  reportPreferences?: {
-    includeTimeline?: boolean
-    includeCompatibility?: boolean
-    detailLevel?: "basic" | "comprehensive"
-  }
+  createdAt?: string
+  isMember?: boolean
 }
 
 class UserDataService {
-  private readonly PROFILE_COOKIE = "numo_user_profile"
-  private readonly PREFERENCES_COOKIE = "numo_user_preferences"
-  private readonly CONSENT_COOKIE = "numo_privacy_consent"
-  private readonly SESSION_COOKIE = "numo_active_session"
-  private readonly COOKIE_EXPIRY = 30 // days
+  private storageKey = "numoUserProfile"
+  private consentKey = "cardSimulatorConsent"
 
-  // Check if user has given consent for data storage
-  hasConsent(): boolean {
-    if (typeof window === "undefined") return false
-    return getCookie(this.CONSENT_COOKIE) === "true"
+  public hasConsent(): boolean {
+    if (typeof window === "undefined") return false // Server-side, no consent
+    return localStorage.getItem(this.consentKey) === "true"
   }
 
-  // Set user consent
-  setConsent(consent: boolean): void {
+  public setConsent(consent: boolean): void {
     if (typeof window === "undefined") return
-
-    if (consent) {
-      setCookie(this.CONSENT_COOKIE, "true", {
-        maxAge: this.COOKIE_EXPIRY * 24 * 60 * 60,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-      })
-    } else {
+    localStorage.setItem(this.consentKey, String(consent))
+    if (!consent) {
       this.clearAllData()
     }
   }
 
-  // Get user profile data
-  getUserProfile(): UserProfile | null {
-    if (typeof window === "undefined" || !this.hasConsent()) return null
-
+  public getUserProfile(): UserProfile | null {
+    if (typeof window === "undefined") return null
     try {
-      const profileData = getCookie(this.PROFILE_COOKIE)
-      return profileData ? JSON.parse(profileData as string) : null
+      const data = localStorage.getItem(this.storageKey)
+      return data ? JSON.parse(data) : null
     } catch (error) {
-      console.error("Error parsing user profile:", error)
+      console.error("Error parsing user profile from localStorage:", error)
       return null
     }
   }
 
-  // Save user profile data with optimized updates
-  saveUserProfile(profile: Partial<UserProfile>): void {
-    if (typeof window === "undefined" || !this.hasConsent()) return
-
-    const existingProfile = this.getUserProfile() || {}
-    const updatedProfile = {
-      ...existingProfile,
-      ...profile,
-      lastUsed: new Date().toISOString(),
-    }
-
-    setCookie(this.PROFILE_COOKIE, JSON.stringify(updatedProfile), {
-      maxAge: this.COOKIE_EXPIRY * 24 * 60 * 60,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    })
-  }
-
-  // Get user preferences
-  getUserPreferences(): UserPreferences | null {
-    if (typeof window === "undefined" || !this.hasConsent()) return null
-
-    try {
-      const prefsData = getCookie(this.PREFERENCES_COOKIE)
-      return prefsData ? JSON.parse(prefsData as string) : null
-    } catch (error) {
-      console.error("Error parsing user preferences:", error)
-      return null
-    }
-  }
-
-  // Save user preferences
-  saveUserPreferences(preferences: Partial<UserPreferences>): void {
-    if (typeof window === "undefined" || !this.hasConsent()) return
-
-    const existingPrefs = this.getUserPreferences() || {}
-    const updatedPrefs = { ...existingPrefs, ...preferences }
-
-    setCookie(this.PREFERENCES_COOKIE, JSON.stringify(updatedPrefs), {
-      maxAge: this.COOKIE_EXPIRY * 24 * 60 * 60,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    })
-  }
-
-  // Clear all user data
-  clearAllData(): void {
+  public saveUserProfile(profile: Partial<UserProfile>): void {
     if (typeof window === "undefined") return
-
-    deleteCookie(this.PROFILE_COOKIE)
-    deleteCookie(this.PREFERENCES_COOKIE)
-    deleteCookie(this.CONSENT_COOKIE)
-    deleteCookie(this.SESSION_COOKIE)
-  }
-
-  // Update last used timestamp
-  updateLastUsed(): void {
-    if (typeof window === "undefined" || !this.hasConsent()) return
-
-    const profile = this.getUserProfile()
-    if (profile) {
-      this.saveUserProfile({ lastUsed: new Date().toISOString() })
+    if (!this.hasConsent()) {
+      console.warn("Cannot save user profile: consent not given.")
+      return
     }
-  }
-
-  // Save numerology calculation results with session management
-  saveNumerologyCalculation(calculationData: Partial<UserProfile["lastCalculation"]>): void {
-    if (typeof window === "undefined" || !this.hasConsent()) return
-
-    const profile = this.getUserProfile() || {}
-    const sessionId = this.generateSessionId()
-
+    const currentProfile = this.getUserProfile() || {}
     const updatedProfile = {
+      ...currentProfile,
       ...profile,
-      lastCalculation: {
-        ...profile.lastCalculation,
-        ...calculationData,
-        calculatedAt: new Date().toISOString(),
-      },
-      activeSession: {
-        sessionId,
-        isComplete: true,
-        timestamp: new Date().toISOString(),
-      },
       lastUsed: new Date().toISOString(),
+      createdAt: currentProfile.createdAt || new Date().toISOString(),
+      readingsCount: (currentProfile.readingsCount || 0) + (profile.readingsCount ? profile.readingsCount : 0), // Increment if a new reading is explicitly counted
     }
-
-    setCookie(this.PROFILE_COOKIE, JSON.stringify(updatedProfile), {
-      maxAge: this.COOKIE_EXPIRY * 24 * 60 * 60,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    })
-
-    // Save session reference
-    setCookie(this.SESSION_COOKIE, sessionId, {
-      maxAge: this.COOKIE_EXPIRY * 24 * 60 * 60,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    })
+    localStorage.setItem(this.storageKey, JSON.stringify(updatedProfile))
   }
 
-  // Get last numerology calculation
-  getLastCalculation(): UserProfile["lastCalculation"] | null {
-    if (typeof window === "undefined" || !this.hasConsent()) return null
-
-    const profile = this.getUserProfile()
-    return profile?.lastCalculation || null
+  public updateLastUsed(): void {
+    if (typeof window === "undefined") return
+    if (!this.hasConsent()) return
+    this.saveUserProfile({ lastUsed: new Date().toISOString() })
   }
 
-  // Check if there's an active session
-  hasActiveSession(): boolean {
-    if (typeof window === "undefined" || !this.hasConsent()) return false
-
-    const profile = this.getUserProfile()
-    const sessionCookie = getCookie(this.SESSION_COOKIE)
-
-    return !!(profile?.activeSession?.isComplete && sessionCookie === profile.activeSession.sessionId)
+  public incrementReadingCount(): void {
+    if (typeof window === "undefined") return
+    if (!this.hasConsent()) return
+    const currentProfile = this.getUserProfile() || {}
+    this.saveUserProfile({ readingsCount: (currentProfile.readingsCount || 0) + 1 })
   }
 
-  // Get active session data
-  getActiveSession(): UserProfile["activeSession"] | null {
-    if (typeof window === "undefined" || !this.hasConsent()) return null
-
-    const profile = this.getUserProfile()
-    return profile?.activeSession || null
-  }
-
-  // Generate unique session ID
-  private generateSessionId(): string {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  }
-
-  // Get complete calculation session data
-  getCompleteSession(): {
-    userData: {
-      fullName?: string
-      currentName?: string
-      nicknames?: string
-      birthDate?: string
-    }
-    calculation: UserProfile["lastCalculation"]
-    session: UserProfile["activeSession"]
-  } | null {
-    if (typeof window === "undefined" || !this.hasConsent()) return null
-
-    const profile = this.getUserProfile()
-    if (!profile || !this.hasActiveSession()) return null
-
-    return {
-      userData: {
-        fullName: profile.fullName,
-        currentName: profile.currentName,
-        nicknames: profile.nicknames,
-        birthDate: profile.birthDate,
-      },
-      calculation: profile.lastCalculation || null,
-      session: profile.activeSession || null,
-    }
-  }
-
-  // Validate session integrity
-  validateSession(): boolean {
-    if (typeof window === "undefined" || !this.hasConsent()) return false
-
-    const session = this.getCompleteSession()
-    if (!session) return false
-
-    // Check if we have minimum required data
-    const hasRequiredData = !!(
-      session.userData.fullName &&
-      session.userData.birthDate &&
-      session.calculation?.lifePathNumber &&
-      session.session?.isComplete
-    )
-
-    return hasRequiredData
-  }
-
-  // Auto-save form data (debounced)
-  private autoSaveTimeout: NodeJS.Timeout | null = null
-
-  autoSaveFormData(formData: Partial<UserProfile>, debounceMs = 1000): void {
-    if (typeof window === "undefined" || !this.hasConsent()) return
-
-    // Clear existing timeout
-    if (this.autoSaveTimeout) {
-      clearTimeout(this.autoSaveTimeout)
-    }
-
-    // Set new timeout for debounced save
-    this.autoSaveTimeout = setTimeout(() => {
-      this.saveUserProfile(formData)
-    }, debounceMs)
+  public clearAllData(): void {
+    if (typeof window === "undefined") return
+    localStorage.removeItem(this.storageKey)
+    localStorage.removeItem(this.consentKey)
+    localStorage.removeItem("numoReadings") // Clear saved readings too
   }
 }
 

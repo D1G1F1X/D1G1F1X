@@ -11,7 +11,7 @@ const envConfig: Record<string, EnvVar> = {
   // Supabase
   NEXT_PUBLIC_SUPABASE_URL: { value: process.env.NEXT_PUBLIC_SUPABASE_URL, required: true },
   NEXT_PUBLIC_SUPABASE_ANON_KEY: { value: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, required: true },
-  SUPABASE_SERVICE_ROLE_KEY: { value: process.env.SUPABASE_SERVICE_ROLE_KEY, required: false },
+  // SUPABASE_SERVICE_ROLE_KEY is server-only, handled by lib/config/environment.ts
 
   // Vercel KV
   KV_URL: { value: process.env.KV_URL, required: false },
@@ -23,18 +23,9 @@ const envConfig: Record<string, EnvVar> = {
   // Vercel Blob
   BLOB_READ_WRITE_TOKEN: { value: process.env.BLOB_READ_WRITE_TOKEN, required: false },
 
-  // Brevo Email Service
-  BREVO_API_KEY: { value: process.env.BREVO_API_KEY, required: false },
-  BREVO_SENDER_EMAIL: { value: process.env.BREVO_SENDER_EMAIL, required: false, default: "noreply@numoracle.com" },
-  BREVO_SENDER_NAME: { value: process.env.BREVO_SENDER_NAME, required: false, default: "Numoracle" },
+  // Brevo Email Service (server-only, handled by lib/config/environment.ts)
 
-  // Admin Email Configuration
-  ADMIN_EMAIL_FOR_NOTIFICATIONS: {
-    value: process.env.ADMIN_EMAIL_FOR_NOTIFICATIONS,
-    required: false,
-    default: "admin@numoracle.com",
-  },
-  ADMIN_EMAIL: { value: process.env.ADMIN_EMAIL, required: false, default: "admin@numoracle.com" },
+  // Admin Email Configuration (server-only, handled by lib/config/environment.ts)
 
   // App URL
   NEXT_PUBLIC_APP_URL: {
@@ -43,9 +34,7 @@ const envConfig: Record<string, EnvVar> = {
     default: "http://localhost:3000",
   },
 
-  // OpenAI
-  OPENAI_API_KEY: { value: process.env.OPENAI_API_KEY, required: true }, // Marked as required
-  OPENAI_ASSISTANT_ID: { value: process.env.OPENAI_ASSISTANT_ID, required: true }, // Marked as required
+  // OpenAI (server-only, handled by lib/config/environment.ts)
 }
 
 // Validate all required environment variables on startup
@@ -53,7 +42,8 @@ export function validateEnv(): string[] {
   const missingVars: string[] = []
 
   Object.entries(envConfig).forEach(([key, config]) => {
-    if (config.required && !config.value) {
+    // Only validate NEXT_PUBLIC_ variables here if this file is used on client
+    if (config.required && !config.value && key.startsWith("NEXT_PUBLIC_")) {
       missingVars.push(key)
     }
   })
@@ -66,7 +56,7 @@ export function getEnv(key: keyof typeof envConfig): string {
   const config = envConfig[key]
 
   if (!config) {
-    throw new Error(`Environment variable ${key} is not configured`)
+    throw new Error(`Environment variable ${key} is not configured in lib/env.ts`)
   }
 
   if (!config.value) {
@@ -77,31 +67,6 @@ export function getEnv(key: keyof typeof envConfig): string {
   }
 
   return config.value
-}
-
-// Get the admin email with proper fallback logic
-export function getAdminEmail(): string {
-  // Priority: ADMIN_EMAIL_FOR_NOTIFICATIONS > ADMIN_EMAIL > default
-  return process.env.ADMIN_EMAIL_FOR_NOTIFICATIONS || process.env.ADMIN_EMAIL || "admin@numoracle.com"
-}
-
-// Validate admin email format
-export function validateAdminEmail(): { isValid: boolean; email: string; source: string } {
-  const email = getAdminEmail()
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-  let source = "default (admin@numoracle.com)"
-  if (process.env.ADMIN_EMAIL_FOR_NOTIFICATIONS) {
-    source = "ADMIN_EMAIL_FOR_NOTIFICATIONS"
-  } else if (process.env.ADMIN_EMAIL) {
-    source = "ADMIN_EMAIL"
-  }
-
-  return {
-    isValid: emailRegex.test(email),
-    email,
-    source,
-  }
 }
 
 // Check if we're running on the client side
@@ -116,6 +81,7 @@ export function getClientEnv(key: string): string | undefined {
     }
     return undefined
   }
+  // On server, allow access to all configured envs
   return getEnv(key as keyof typeof envConfig)
 }
 
@@ -126,14 +92,8 @@ export const isDev = process.env.NODE_ENV === "development"
 export const isProd = process.env.NODE_ENV === "production"
 
 // Initialize and validate environment on startup
+// This part will run on both client and server if imported universally
 const missingVars = validateEnv()
 if (missingVars.length > 0) {
   console.warn(`Missing required environment variables: ${missingVars.join(", ")}`)
-}
-
-// Log admin email configuration on startup
-const adminEmailConfig = validateAdminEmail()
-console.log(`Admin email configured: ${adminEmailConfig.email} (from ${adminEmailConfig.source})`)
-if (!adminEmailConfig.isValid) {
-  console.warn(`⚠️  Invalid admin email format: ${adminEmailConfig.email}`)
 }

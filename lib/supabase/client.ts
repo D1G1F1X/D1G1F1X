@@ -17,6 +17,10 @@ const browserSupabaseClient = (() => {
   }
 
   // If an instance already exists globally (e.g., due to HMR), reuse it.
+  // In development, HMR might cause this module to be re-evaluated,
+  // leading to "Multiple GoTrueClient instances" warnings. This is generally
+  // harmless in development and the singleton ensures only one client is active
+  // per browser session.
   if (globalThis.__numoracle_supabase_client_instance) {
     return globalThis.__numoracle_supabase_client_instance
   }
