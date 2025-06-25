@@ -16,10 +16,11 @@ interface AssistantChatProps {
   onThreadCreated?: (threadId: string) => void
 }
 
-const AssistantChat: React.FC<AssistantChatProps> = ({ initialReading, threadId, onThreadCreated }) => {
+const AssistantChat: React.FC<AssistantChatProps> = ({ initialReading, threadId: propThreadId, onThreadCreated }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [inputMessage, setInputMessage] = useState<string>("")
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [currentThreadId, setCurrentThreadId] = useState<string | undefined>(propThreadId)
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -34,6 +35,13 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ initialReading, threadId,
       ])
     }
   }, [initialReading])
+
+  useEffect(() => {
+    // Update internal threadId state if propThreadId changes (e.g., from parent component)
+    if (propThreadId && propThreadId !== currentThreadId) {
+      setCurrentThreadId(propThreadId)
+    }
+  }, [propThreadId, currentThreadId])
 
   useEffect(() => {
     // Scroll to bottom on new message
@@ -60,53 +68,64 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ initialReading, threadId,
     setMessages((prev) => [...prev, newUserMessage])
 
     try {
-      let currentThreadId = threadId
+      let responseData: any
 
-      // If no thread exists, create one with the initial reading
       if (!currentThreadId) {
-        const response = await fetch("/api/generateReading", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: userMessage }),
-        })
-
-        const data = await response.json()
-
-        if (response.ok && data.success) {
-          currentThreadId = data.threadId
-          onThreadCreated?.(currentThreadId)
-        } else {
-          throw new Error(data.error || "Failed to create conversation thread")
-        }
-      } else {
-        // Continue existing conversation
-        const response = await fetch("/api/continueConversation", {
+        // If no thread exists, create one with the initial reading
+        console.log("[AssistantChat] Creating new conversation thread...")
+        const response = await fetch("/api/ai/reading", {
+          // Use new AI reading endpoint
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            fullName: "User", // Placeholder, ideally from user context
+            question: userMessage,
+            selectedCards: [], // Placeholder, ideally from current reading context
+            spreadType: "chat_init",
+          }),
+        })
+
+        responseData = await response.json()
+
+        if (response.ok && responseData.success) {
+          setCurrentThreadId(responseData.threadId)
+          onThreadCreated?.(responseData.threadId)
+          console.log("[AssistantChat] New thread created:", responseData.threadId)
+        } else {
+          throw new Error(responseData.error || "Failed to create conversation thread")
+        }
+      } else {
+        // Continue existing conversation
+        console.log("[AssistantChat] Continuing conversation in thread:", currentThreadId)
+        const response = await fetch("/api/ai/conversation", {
+          // Use new AI conversation endpoint
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "continue",
             threadId: currentThreadId,
             message: userMessage,
           }),
         })
 
-        const data = await response.json()
+        responseData = await response.json()
 
-        if (!response.ok || !data.success) {
-          throw new Error(data.error || "Failed to continue conversation")
+        if (!response.ok || !responseData.success) {
+          throw new Error(responseData.error || "Failed to continue conversation")
         }
       }
 
-      // For now, add a placeholder assistant response
-      // In a real implementation, you'd poll for the assistant's actual response
+      // Add assistant's actual response
+      const assistantResponseContent = responseData.reading || "I'm processing your question. Please wait a moment."
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content:
-          "I'm processing your question about the reading. This is a placeholder response while the assistant generates a proper answer.",
+        content: assistantResponseContent,
         timestamp: new Date(),
       }
 
       setMessages((prev) => [...prev, assistantMessage])
+      console.log("[AssistantChat] Assistant response received.")
     } catch (error) {
       console.error("Error sending message:", error)
 

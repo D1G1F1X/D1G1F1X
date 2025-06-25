@@ -94,6 +94,15 @@ class AIServiceManager {
     return this.isConfigured && hasApiKey && hasAssistantId && isServer
   }
 
+  /**
+   * Returns true only when BOTH an assistant ID and either OPENAI_ASSISTANT_API_KEY
+   * or OPENAI_API_KEY are present.  If we have only an API key, we can still fall
+   * back to Chat Completions.
+   */
+  private supportsAssistants(): boolean {
+    return !!process.env.OPENAI_ASSISTANT_ID && !!(process.env.OPENAI_ASSISTANT_API_KEY || process.env.OPENAI_API_KEY)
+  }
+
   private createFallbackResponse(error: string): ReadingResponse {
     return {
       success: false,
@@ -116,11 +125,48 @@ The cards you've drawn suggest a time of reflection and potential transformation
 While this reading is generated as a fallback, the energy you bring to interpreting these cards is what gives them meaning. Take time to meditate on what resonates with your current situation.`
   }
 
-  public async generateOracleReading(request: ReadingRequest): Promise<ReadingResponse> {
-    if (!this.isAIConfigured()) {
-      console.warn("[AI] Service not configured, using fallback reading")
-      return this.createFallbackResponse("AI service not configured")
+  /**
+   * Fallback path that uses a single chat-completion request when the
+   * Assistant tooling is not configured.
+   */
+  private async generateReadingWithChatCompletion(prompt: string): Promise<ReadingResponse> {
+    try {
+      if (!this.openaiClient) this.openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+      const completion = await this.openaiClient.chat.completions.create({
+        model: this.config.openai.model ?? "gpt-4o",
+        max_tokens: this.config.openai.maxTokens,
+        temperature: this.config.openai.temperature,
+        messages: [{ role: "user", content: prompt }],
+      })
+      return {
+        success: true,
+        reading: completion.choices[0].message.content ?? "",
+      }
+    } catch (error: any) {
+      console.error("[AI] Chat completion error:", error)
+      return this.createFallbackResponse(`Chat completion error: ${error.message}`)
     }
+  }
+
+  public async generateOracleReading(request: ReadingRequest): Promise<ReadingResponse> {
+    // --- 0. Ensure we have at least some API key ----------------------------
+    if (!process.env.OPENAI_ASSISTANT_API_KEY && !process.env.OPENAI_API_KEY) {
+      console.warn("[AI] No OpenAI API key configured, falling back")
+      return this.createFallbackResponse("OpenAI key missing")
+    }
+
+    // Build the user-prompt once.
+    const prompt = await this.generateReadingPrompt(request)
+
+    // --- 1. Figure out if we *really* can use the Assistant endpoint ---------
+    const canUseAssistant = this.supportsAssistants() && this.isConfigured && this.openaiClient !== null
+
+    if (!canUseAssistant) {
+      console.info("[AI] Assistant not usable, switching to chat completion")
+      return this.generateReadingWithChatCompletion(prompt)
+    }
+
+    // --- 2. Assistant flow (unchanged) --------------------------------------
 
     try {
       console.log("[AI] Starting reading generation for:", request.fullName)
@@ -128,9 +174,6 @@ While this reading is generated as a fallback, the energy you bring to interpret
       // Create thread
       const thread = await this.openaiClient!.beta.threads.create()
       console.log("[AI] Thread created:", thread.id)
-
-      // Generate prompt
-      const prompt = await this.generateReadingPrompt(request)
 
       // Add message to thread
       await this.openaiClient!.beta.threads.messages.create(thread.id, {
