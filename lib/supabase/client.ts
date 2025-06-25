@@ -3,35 +3,51 @@ import { createBrowserClient } from "@supabase/ssr"
 import type { Database } from "./types"
 import { publicSupabaseConfig } from "./config"
 
-// Use a more specific global key to avoid conflicts
+// Declare global variable for the singleton instance
 declare global {
-  var __numoracle_supabase_client: ReturnType<typeof createBrowserClient<Database>> | undefined
+  var __numoracle_supabase_client_instance: ReturnType<typeof createBrowserClient<Database>> | undefined
 }
 
-export function createClient() {
+// Eagerly initialize the client once when the module is loaded in the browser.
+// This ensures createBrowserClient is called only once per module evaluation.
+const browserSupabaseClient = (() => {
   if (typeof window === "undefined") {
-    // This client is for the browser, return undefined for server-side calls
+    // Return undefined for server-side calls, as this client is for the browser
     return undefined
   }
 
-  // Use a singleton pattern with a specific key
-  if (!globalThis.__numoracle_supabase_client) {
-    globalThis.__numoracle_supabase_client = createBrowserClient<Database>(
-      publicSupabaseConfig.url,
-      publicSupabaseConfig.anonKey,
-      {
-        // Add options to prevent multiple instances
-        auth: {
-          persistSession: true,
-          detectSessionInUrl: true,
-          flowType: "pkce",
-        },
-      },
-    )
+  // If an instance already exists globally (e.g., due to HMR), reuse it.
+  if (globalThis.__numoracle_supabase_client_instance) {
+    return globalThis.__numoracle_supabase_client_instance
   }
 
-  return globalThis.__numoracle_supabase_client
+  // Otherwise, create a new instance and store it globally.
+  const newClient = createBrowserClient<Database>(publicSupabaseConfig.url, publicSupabaseConfig.anonKey, {
+    auth: {
+      persistSession: true,
+      detectSessionInUrl: true,
+      flowType: "pkce",
+    },
+  })
+  globalThis.__numoracle_supabase_client_instance = newClient
+  return newClient
+})()
+
+// -----------------------------------------------------------------------------
+// Public API ------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+/**
+ * Returns the singleton Supabase browser client.
+ * This function always returns the same instance.
+ */
+export function createClient() {
+  return browserSupabaseClient
 }
 
-// Export a singleton instance for consistent usage
-export const supabaseClient = typeof window !== "undefined" ? createClient() : null
+/**
+ * Eagerly-initialised singleton instance.
+ * Import this when you just need the shared client and don’t care about lazy
+ * creation timing.
+ */
+export const supabaseClient = browserSupabaseClient

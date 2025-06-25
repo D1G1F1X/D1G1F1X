@@ -64,24 +64,25 @@ class AIServiceManager {
       apiKeySource: process.env.OPENAI_ASSISTANT_API_KEY ? "OPENAI_ASSISTANT_API_KEY" : "OPENAI_API_KEY",
     })
 
-    if (apiKey && assistantId) {
+    if (apiKey) {
+      // Initialize client if any API key is present
       try {
         this.openaiClient = new OpenAI({
           apiKey: apiKey,
           defaultHeaders: {
             "OpenAI-Beta": "assistants=v2",
           },
+          // CRITICAL FIX: Allow initialization in browser-like server environments (e.g., Vercel Edge)
+          dangerouslyAllowBrowser: true,
         })
         this.isConfigured = true
-        console.log("✅ OpenAI Assistant client initialized successfully")
+        console.log("✅ OpenAI client initialized successfully")
       } catch (error) {
-        console.error("❌ Failed to initialize OpenAI Assistant client:", error)
+        console.error("❌ Failed to initialize OpenAI client:", error)
         this.isConfigured = false
       }
     } else {
-      console.warn("⚠️ OpenAI Assistant configuration incomplete:")
-      console.warn(`  - API Key: ${apiKey ? "Present" : "Missing"}`)
-      console.warn(`  - Assistant ID: ${assistantId ? "Present" : "Missing"}`)
+      console.warn("⚠️ OpenAI API Key is missing. AI features will be disabled.")
       this.isConfigured = false
     }
   }
@@ -91,7 +92,8 @@ class AIServiceManager {
     const hasAssistantId = !!process.env.OPENAI_ASSISTANT_ID
     const isServer = typeof window === "undefined"
 
-    return this.isConfigured && hasApiKey && hasAssistantId && isServer
+    // isConfigured from initializeOpenAI checks if client was successfully created
+    return this.isConfigured && hasApiKey && isServer
   }
 
   /**
@@ -131,7 +133,13 @@ While this reading is generated as a fallback, the energy you bring to interpret
    */
   private async generateReadingWithChatCompletion(prompt: string): Promise<ReadingResponse> {
     try {
-      if (!this.openaiClient) this.openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+      // Ensure client is initialized for chat completions if not already
+      if (!this.openaiClient) {
+        this.openaiClient = new OpenAI({
+          apiKey: process.env.OPENAI_API_KEY,
+          dangerouslyAllowBrowser: true, // CRITICAL FIX: Apply here too
+        })
+      }
       const completion = await this.openaiClient.chat.completions.create({
         model: this.config.openai.model ?? "gpt-4o",
         max_tokens: this.config.openai.maxTokens,
@@ -149,40 +157,39 @@ While this reading is generated as a fallback, the energy you bring to interpret
   }
 
   public async generateOracleReading(request: ReadingRequest): Promise<ReadingResponse> {
-    // --- 0. Ensure we have at least some API key ----------------------------
-    if (!process.env.OPENAI_ASSISTANT_API_KEY && !process.env.OPENAI_API_KEY) {
-      console.warn("[AI] No OpenAI API key configured, falling back")
-      return this.createFallbackResponse("OpenAI key missing")
+    // --- 0. Ensure we have at least some API key and client is initialized ---
+    if (!this.isConfigured || !this.openaiClient) {
+      console.warn("[AI] OpenAI client not initialized or configured, falling back")
+      return this.createFallbackResponse("OpenAI client not ready")
     }
 
     // Build the user-prompt once.
     const prompt = await this.generateReadingPrompt(request)
 
     // --- 1. Figure out if we *really* can use the Assistant endpoint ---------
-    const canUseAssistant = this.supportsAssistants() && this.isConfigured && this.openaiClient !== null
+    const canUseAssistant = this.supportsAssistants()
 
     if (!canUseAssistant) {
       console.info("[AI] Assistant not usable, switching to chat completion")
       return this.generateReadingWithChatCompletion(prompt)
     }
 
-    // --- 2. Assistant flow (unchanged) --------------------------------------
-
+    // --- 2. Assistant flow --------------------------------------------------
     try {
       console.log("[AI] Starting reading generation for:", request.fullName)
 
       // Create thread
-      const thread = await this.openaiClient!.beta.threads.create()
+      const thread = await this.openaiClient.beta.threads.create() // Use non-null assertion as client is checked above
       console.log("[AI] Thread created:", thread.id)
 
       // Add message to thread
-      await this.openaiClient!.beta.threads.messages.create(thread.id, {
+      await this.openaiClient.beta.threads.messages.create(thread.id, {
         role: "user",
         content: prompt,
       })
 
       // Create and poll run
-      let run = await this.openaiClient!.beta.threads.runs.create(thread.id, {
+      let run = await this.openaiClient.beta.threads.runs.create(thread.id, {
         assistant_id: this.config.openai.assistantId!,
       })
 
@@ -194,7 +201,7 @@ While this reading is generated as a fallback, the energy you bring to interpret
         await new Promise((resolve) => setTimeout(resolve, 1000))
 
         try {
-          run = await this.openaiClient!.beta.threads.runs.retrieve(thread.id, run.id)
+          run = await this.openaiClient.beta.threads.runs.retrieve(thread.id, run.id)
         } catch (pollError: any) {
           console.error(`[AI] Error polling run status:`, pollError)
           return this.createFallbackResponse(`Polling error: ${pollError.message}`)
@@ -208,7 +215,7 @@ While this reading is generated as a fallback, the energy you bring to interpret
       }
 
       if (run.status === "completed") {
-        const messages = await this.openaiClient!.beta.threads.messages.list(thread.id, {
+        const messages = await this.openaiClient.beta.threads.messages.list(thread.id, {
           order: "desc",
           limit: 1,
         })
@@ -239,19 +246,19 @@ While this reading is generated as a fallback, the energy you bring to interpret
   }
 
   public async continueConversation(threadId: string, message: string): Promise<ReadingResponse> {
-    if (!this.isAIConfigured()) {
-      return this.createFallbackResponse("AI service not configured")
+    if (!this.isAIConfigured() || !this.openaiClient || !this.supportsAssistants()) {
+      return this.createFallbackResponse("AI service not configured for conversation or does not support Assistants")
     }
 
     try {
       console.log(`[AI] Continuing conversation in thread: ${threadId}`)
 
-      await this.openaiClient!.beta.threads.messages.create(threadId, {
+      await this.openaiClient.beta.threads.messages.create(threadId, {
         role: "user",
         content: message,
       })
 
-      let run = await this.openaiClient!.beta.threads.runs.create(threadId, {
+      let run = await this.openaiClient.beta.threads.runs.create(threadId, {
         assistant_id: this.config.openai.assistantId!,
       })
 
@@ -261,12 +268,12 @@ While this reading is generated as a fallback, the energy you bring to interpret
 
       while (["queued", "in_progress", "cancelling"].includes(run.status) && attempts < maxAttempts) {
         await new Promise((resolve) => setTimeout(resolve, 1000))
-        run = await this.openaiClient!.beta.threads.runs.retrieve(threadId, run.id)
+        run = await this.openaiClient.beta.threads.runs.retrieve(threadId, run.id)
         attempts++
       }
 
       if (run.status === "completed") {
-        const messages = await this.openaiClient!.beta.threads.messages.list(threadId, {
+        const messages = await this.openaiClient.beta.threads.messages.list(threadId, {
           order: "desc",
           limit: 1,
         })
@@ -290,13 +297,13 @@ While this reading is generated as a fallback, the energy you bring to interpret
   }
 
   public async getConversationHistory(threadId: string): Promise<AssistantMessage[]> {
-    if (!this.isAIConfigured()) {
-      console.warn("[AI] Service not configured for history retrieval")
+    if (!this.isAIConfigured() || !this.openaiClient || !this.supportsAssistants()) {
+      console.warn("[AI] Service not configured for history retrieval or does not support Assistants")
       return []
     }
 
     try {
-      const messages = await this.openaiClient!.beta.threads.messages.list(threadId, {
+      const messages = await this.openaiClient.beta.threads.messages.list(threadId, {
         order: "asc",
       })
 
