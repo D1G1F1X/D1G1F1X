@@ -42,6 +42,19 @@ export const projects = [
     recentlyDeployed: true,
   },
   {
+    id: "nowo-radio",
+    title: "NOWO Radio Platform",
+    description:
+      "A retro-futuristic radio station website featuring cyberpunk aesthetics and interactive broadcasting elements. Combines newschool vibes with oldschool rhythms in a digital frontier experience.",
+    image: "/images/projects/nowo-radio.jpg",
+    category: "client",
+    stage: "deployed",
+    tags: ["Radio", "Cyberpunk Design", "Interactive Media", "Broadcasting"],
+    url: "https://noworadio.vercel.app",
+    featured: false,
+    recentlyDeployed: true,
+  },
+  {
     id: "lolita-wilson-portfolio",
     title: "Lolita Wilson Creative Portfolio",
     description:
