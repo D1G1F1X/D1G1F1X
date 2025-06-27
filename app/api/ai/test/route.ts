@@ -1,33 +1,31 @@
 import { NextResponse } from "next/server"
-import { aiServiceManager } from "@/lib/ai/ai-service-manager"
+import { aiServiceManager } from "@/lib/ai/enhanced-ai-service-manager"
 
 export async function GET() {
   try {
-    const isConfigured = aiServiceManager.isAIConfigured()
+    console.log("🧪 AI Test API called")
 
-    const config = {
-      isConfigured,
-      hasAssistantApiKey: !!process.env.OPENAI_ASSISTANT_API_KEY,
-      hasRegularApiKey: !!process.env.OPENAI_API_KEY,
-      hasAssistantId: !!process.env.OPENAI_ASSISTANT_ID,
-      isServer: typeof window === "undefined",
-    }
+    const testResult = await aiServiceManager.testConfiguration()
 
-    console.log("[AI Test] Configuration check:", config)
+    console.log("📊 Test results:", testResult)
 
     return NextResponse.json({
-      success: true,
-      configured: isConfigured,
-      config,
-      message: isConfigured ? "AI service is properly configured" : "AI service configuration is incomplete",
+      ...testResult,
+      timestamp: new Date().toISOString(),
+      message: testResult.success ? "AI service is working correctly" : "AI service has configuration issues",
     })
-  } catch (error: any) {
-    console.error("[AI Test] Error checking configuration:", error)
+  } catch (error) {
+    console.error("💥 AI Test API error:", error)
+
     return NextResponse.json(
       {
         success: false,
-        error: error.message,
-        configured: false,
+        assistant_configured: false,
+        assistant_accessible: false,
+        chat_completion_available: false,
+        error: error instanceof Error ? error.message : "Unknown error occurred",
+        timestamp: new Date().toISOString(),
+        message: "Failed to test AI service configuration",
       },
       { status: 500 },
     )

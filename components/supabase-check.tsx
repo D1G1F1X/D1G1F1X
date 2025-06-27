@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
+import { createClient } from "@/lib/supabase/client" // Ensure this is the client singleton
 
 export function SupabaseCheck() {
   const [status, setStatus] = useState<{
@@ -17,9 +18,10 @@ export function SupabaseCheck() {
 
   useEffect(() => {
     // Only check on client side
+    const supabaseClient = createClient() // Get the client-side singleton
     setStatus({
-      url: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-      anonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      url: !!supabaseClient?.supabaseUrl, // Access properties from the client instance
+      anonKey: !!supabaseClient?.supabaseKey,
       serviceKey: false, // We can't check server-side env vars from client
     })
   }, [])

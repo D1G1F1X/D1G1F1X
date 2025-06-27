@@ -1,3 +1,5 @@
+"use client" // Explicitly mark as client-only
+
 // DIGIFIX Project Client - Browser Side
 import { createBrowserClient } from "@supabase/ssr"
 import type { Database } from "./types"

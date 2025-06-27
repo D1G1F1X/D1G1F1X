@@ -738,6 +738,7 @@ export function CardSimulator() {
         setAssistantReading(data.reading ?? "")
         setReading(data.reading ?? "")
         toast({ title: "Reading Generated!", description: "Your personalized oracle reading is ready." })
+        userDataService.incrementReadingCount() // Increment reading count on successful AI reading
       }
       // ---------- end new handling ----------
     } catch (error: any) {

@@ -1,32 +1,43 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 
-export const SUPABASE_CONFIG = {
-  url: process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "",
-  anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-  serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
+interface PublicSupabaseConfig {
+  url: string
+  anonKey: string
 }
 
+const publicSupabaseConfig: PublicSupabaseConfig = {
+  url: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+}
+
+// Validate public config on load (client-side safe)
+if (!publicSupabaseConfig.url) {
+  console.warn("⚠️ NEXT_PUBLIC_SUPABASE_URL is not set. Supabase client features may not work.")
+}
+if (!publicSupabaseConfig.anonKey) {
+  console.warn("⚠️ NEXT_PUBLIC_SUPABASE_ANON_KEY is not set. Supabase client features may not work.")
+}
+
+export { publicSupabaseConfig }
+
 // ------------------------------------------------------------------
-//  Public (client-side safe) config expected by client helpers
+//  Private (server-side only) config for admin operations
 // ------------------------------------------------------------------
-export const publicSupabaseConfig = {
-  url: SUPABASE_CONFIG.url,
-  anonKey: SUPABASE_CONFIG.anonKey,
-} as const
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 
 /**
  * Validates the Supabase integration configuration.
  * Returns true if valid, false otherwise. Logs warnings instead of throwing during build.
  */
-export function validateDigifixIntegration(): boolean {
+function validateDigifixIntegration(): boolean {
   if (
-    !SUPABASE_CONFIG.url ||
-    (!SUPABASE_CONFIG.url.includes("digifix") && !SUPABASE_CONFIG.url.includes("your-digifix-project-id"))
+    !publicSupabaseConfig.url ||
+    (!publicSupabaseConfig.url.includes("digifix") && !publicSupabaseConfig.url.includes("your-digifix-project-id"))
   ) {
     console.warn("⚠️  Invalid Supabase integration - DIGIFIX project URL not found. Some features may not work.")
     return false
   }
-  if (!SUPABASE_CONFIG.serviceRoleKey) {
+  if (!SUPABASE_SERVICE_ROLE_KEY) {
     console.warn(
       "⚠️  Missing SUPABASE_SERVICE_ROLE_KEY env var. Admin operations will be disabled or mocked during build/preview.",
     )
@@ -72,7 +83,7 @@ export function getSupabaseAdminClient(): SupabaseClient {
       },
     }
   }
-  return createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.serviceRoleKey, {
+  return createClient(publicSupabaseConfig.url, SUPABASE_SERVICE_ROLE_KEY, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

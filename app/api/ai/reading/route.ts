@@ -1,113 +1,59 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { aiServiceManager } from "@/lib/ai/ai-service-manager" // This is a server-only import
+import { aiServiceManager } from "@/lib/ai/enhanced-ai-service-manager"
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("[API] AI reading request received")
+    console.log("🔮 AI Reading API called")
 
-    // Parse request body with error handling
-    let body: any
-    try {
-      body = await request.json()
-    } catch (parseError: any) {
-      console.error("[API] Failed to parse request body:", parseError.message, parseError.stack)
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid request format. Please ensure your request body is valid JSON.",
-          details: parseError.message,
-          fallback: true,
-        },
-        { status: 400 },
-      )
-    }
-
-    console.log("[API] Request body parsed:", {
-      fullName: body.fullName,
+    const body = await request.json()
+    console.log("📝 Request body:", {
+      hasCards: !!body.cards,
+      cardCount: body.cards?.length || 0,
       hasQuestion: !!body.question,
-      hasCards: !!body.selectedCards,
-      spreadType: body.spreadType,
+      spreadType: body.spread_type,
     })
 
-    // Validate required fields
-    if (!body.fullName || !body.question || !body.selectedCards) {
-      console.error("[API] Missing required fields:", {
-        fullName: !!body.fullName,
-        question: !!body.question,
-        selectedCards: !!body.selectedCards,
-      })
+    // Validate request
+    if (!body.cards || !Array.isArray(body.cards) || body.cards.length === 0) {
       return NextResponse.json(
         {
           success: false,
-          error: "Missing required fields: fullName, question, or selectedCards.",
-          fallback: true,
+          error: "Cards array is required and must not be empty",
+          reading: "Please select at least one card for your reading.",
+          interpretation: "No cards were provided for interpretation.",
+          guidance: "Choose cards that resonate with your question.",
         },
         { status: 400 },
       )
     }
 
-    // Validate selectedCards is an array
-    if (!Array.isArray(body.selectedCards) || body.selectedCards.length === 0) {
-      console.error("[API] Invalid selectedCards: must be a non-empty array.", body.selectedCards)
-      return NextResponse.json(
-        {
-          success: false,
-          error: "selectedCards must be a non-empty array.",
-          fallback: true,
-        },
-        { status: 400 },
-      )
-    }
-
-    const readingRequest = {
-      fullName: body.fullName,
-      dateOfBirth: body.dateOfBirth || undefined,
-      timeOfBirth: body.timeOfBirth || undefined,
-      birthPlace: body.birthPlace || undefined,
+    // Generate reading using the AI service manager
+    const result = await aiServiceManager.generateReading({
+      cards: body.cards,
       question: body.question,
-      selectedCards: body.selectedCards,
-      spreadType: body.spreadType || "single",
-      isMember: body.isMember || false,
-    }
-
-    // Ensure aiServiceManager is configured before calling it
-    if (!aiServiceManager.isAIConfigured()) {
-      console.error("[API] AI Service Manager is not configured. Check OpenAI environment variables.")
-      return NextResponse.json(
-        {
-          success: false,
-          error: "AI service is not configured on the server. Please check server environment variables.",
-          fallback: true,
-          reading: aiServiceManager.generateFallbackReading(), // Use fallback reading from manager
-        },
-        { status: 500 },
-      )
-    }
-
-    console.log("[API] Calling AI service manager to generate reading...")
-    const response = await aiServiceManager.generateOracleReading(readingRequest)
-
-    console.log("[API] AI service response:", {
-      success: response.success,
-      hasReading: !!response.reading,
-      hasThreadId: !!response.threadId,
-      error: response.error,
+      spread_type: body.spread_type,
+      user_context: body.user_context,
     })
 
-    // Always return 200 status for successful API calls, let the client handle the response
-    // If response.success is false, the client will handle the error message in 'response.error'
-    return NextResponse.json(response)
-  } catch (error: any) {
-    console.error("[API] Unexpected error in AI reading route:", error.message, error.stack)
+    console.log("✨ Reading generated:", {
+      success: result.success,
+      method: result.method,
+      hasReading: !!result.reading,
+      hasError: !!result.error,
+    })
+
+    return NextResponse.json(result)
+  } catch (error) {
+    console.error("💥 AI Reading API error:", error)
 
     return NextResponse.json(
       {
         success: false,
-        error: "Internal server error during AI reading generation.",
-        details: error.message,
-        fallback: true,
-        reading:
-          "I apologize, but the AI service encountered an unexpected error. Please try again later or contact support if the issue persists.",
+        error: error instanceof Error ? error.message : "Unknown error occurred",
+        reading: "I apologize, but I'm unable to provide a reading at this time.",
+        interpretation: "The AI service encountered an unexpected error.",
+        guidance: "Please try again in a few moments, or contact support if the issue persists.",
+        method: "error_fallback",
       },
       { status: 500 },
     )

@@ -140,7 +140,7 @@ While this reading is generated as a fallback, the energy you bring to interpret
       console.error("[AI] Chat completion error:", error)
       return {
         success: false,
-        error: `Chat completion error: ${error.message}`,
+        error: `Chat completion error: ${String(error.message)}`,
         fallback: true,
         reading: this.generateFallbackReading(),
       }
@@ -199,10 +199,10 @@ While this reading is generated as a fallback, the energy you bring to interpret
         try {
           run = await this.openaiClient!.beta.threads.runs.retrieve(thread.id, run.id)
         } catch (pollError: any) {
-          console.error(`[AI] Error polling run status:`, pollError)
+          console.error(`[AI] Error polling run status:`, String(pollError.message))
           return {
             success: false,
-            error: `Polling error: ${pollError.message}`,
+            error: `Polling error: ${String(pollError.message)}`,
             fallback: true,
             reading: this.generateFallbackReading(),
           }
@@ -238,7 +238,7 @@ While this reading is generated as a fallback, the energy you bring to interpret
         console.error("[AI] Run failed with error:", run.last_error)
         return {
           success: false,
-          error: `AI run failed: ${run.last_error?.message || "Unknown error"}`,
+          error: `AI run failed: ${String(run.last_error?.message || "Unknown error")}`,
           fallback: true,
           reading: this.generateFallbackReading(),
         }
@@ -251,10 +251,10 @@ While this reading is generated as a fallback, the energy you bring to interpret
         reading: this.generateFallbackReading(),
       }
     } catch (error: any) {
-      console.error("[AI] Error generating reading:", error)
+      console.error("[AI] Error generating reading:", String(error.message))
       return {
         success: false,
-        error: `AI service error: ${error.message}`,
+        error: `AI service error: ${String(error.message)}`,
         fallback: true,
         reading: this.generateFallbackReading(),
       }
@@ -317,10 +317,10 @@ While this reading is generated as a fallback, the energy you bring to interpret
         reading: this.generateFallbackReading(),
       }
     } catch (error: any) {
-      console.error("[AI] Error continuing conversation:", error)
+      console.error("[AI] Error continuing conversation:", String(error.message))
       return {
         success: false,
-        error: `Conversation error: ${error.message}`,
+        error: `Conversation error: ${String(error.message)}`,
         fallback: true,
         reading: this.generateFallbackReading(),
       }
@@ -344,7 +344,7 @@ While this reading is generated as a fallback, the energy you bring to interpret
         timestamp: new Date(msg.created_at * 1000),
       }))
     } catch (error: any) {
-      console.error("[AI] Error fetching conversation history:", error)
+      console.error("[AI] Error fetching conversation history:", String(error.message))
       return []
     }
   }

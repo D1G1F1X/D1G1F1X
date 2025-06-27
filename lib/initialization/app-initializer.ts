@@ -1,3 +1,5 @@
+"use server" // Explicitly mark as server-only
+
 // Application initialization and health checks
 import { environmentManager } from "@/lib/config/environment"
 import { supabaseManager } from "@/lib/database/supabase-manager"

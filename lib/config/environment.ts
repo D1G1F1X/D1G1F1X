@@ -1,3 +1,5 @@
+"use server"
+
 // Centralized environment configuration with validation and fallbacks
 interface EnvironmentConfig {
   // OpenAI Configuration
@@ -22,7 +24,7 @@ interface EnvironmentConfig {
   app: {
     url: string
     environment: "development" | "production" | "test"
-    isServer: boolean // This will always be true for this module now
+    isServer: boolean
   }
 
   // Email Configuration
@@ -55,26 +57,25 @@ class EnvironmentManager {
   }
 
   private loadConfiguration(): EnvironmentConfig {
-    // All process.env access here is guaranteed to be server-side
     return {
       openai: {
         apiKey: process.env.OPENAI_API_KEY || null,
         assistantApiKey: process.env.OPENAI_ASSISTANT_API_KEY || null,
         assistantId: process.env.OPENAI_ASSISTANT_ID || null,
         model: process.env.OPENAI_MODEL || "gpt-4o",
-        maxTokens: Number.parseInt(process.env.OPENAI_MAX_TOKENS || "2048"),
+        maxTokens: Number.parseInt(process.env.OPENAI_MAX_TOKENS || "4000"),
         temperature: Number.parseFloat(process.env.OPENAI_TEMPERATURE || "0.7"),
       },
       supabase: {
-        url: process.env.NEXT_PUBLIC_SUPABASE_URL || null, // NEXT_PUBLIC_ is fine here, but it's still server-side access
-        anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || null, // NEXT_PUBLIC_ is fine here
+        url: process.env.NEXT_PUBLIC_SUPABASE_URL || null,
+        anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || null,
         serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || null,
         isConfigured: !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
       },
       app: {
-        url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000", // NEXT_PUBLIC_ is fine here
+        url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
         environment: (process.env.NODE_ENV as any) || "development",
-        isServer: true, // Always true for this module
+        isServer: true,
       },
       email: {
         brevoApiKey: process.env.BREVO_API_KEY || null,
@@ -87,7 +88,6 @@ class EnvironmentManager {
 
   private validateCriticalConfig(): void {
     const warnings: string[] = []
-    const errors: string[] = []
 
     // OpenAI validation
     if (!this.config.openai.assistantApiKey && !this.config.openai.apiKey) {
@@ -102,12 +102,8 @@ class EnvironmentManager {
       warnings.push("Supabase is not fully configured - Database features will use mock client")
     }
 
-    // Log warnings and errors
     if (warnings.length > 0) {
-      console.warn("Environment Configuration Warnings:", warnings)
-    }
-    if (errors.length > 0) {
-      console.error("Environment Configuration Errors:", errors)
+      console.warn("🔧 Environment Configuration Warnings:", warnings)
     }
   }
 
@@ -116,6 +112,10 @@ class EnvironmentManager {
   }
 
   public isOpenAIConfigured(): boolean {
+    return !!(this.config.openai.assistantApiKey || this.config.openai.apiKey)
+  }
+
+  public isAssistantConfigured(): boolean {
     return !!(this.config.openai.assistantApiKey || this.config.openai.apiKey) && !!this.config.openai.assistantId
   }
 
