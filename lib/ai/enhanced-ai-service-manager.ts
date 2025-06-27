@@ -51,13 +51,20 @@ export class EnhancedAIServiceManager {
     this.assistantId = process.env.OPENAI_ASSISTANT_ID
     this.model = process.env.OPENAI_MODEL || "gpt-4o"
     this.maxTokens = Number.parseInt(process.env.OPENAI_MAX_TOKENS || "4000")
+
+    console.log("🤖 AI Service Manager initialized:", {
+      hasApiKey: !!apiKey,
+      hasAssistantId: !!this.assistantId,
+      model: this.model,
+      maxTokens: this.maxTokens,
+    })
   }
 
   async generateReading(request: ReadingRequest): Promise<ReadingResponse> {
     try {
       // Try assistant first if configured
       if (this.assistantId) {
-        console.log("Attempting to use OpenAI Assistant:", this.assistantId)
+        console.log("🎭 Attempting to use OpenAI Assistant:", this.assistantId)
         try {
           const assistantReading = await this.generateWithAssistant(request)
           return {
@@ -66,12 +73,12 @@ export class EnhancedAIServiceManager {
             success: true,
           }
         } catch (assistantError) {
-          console.warn("Assistant failed, falling back to chat completion:", assistantError)
+          console.warn("⚠️ Assistant failed, falling back to chat completion:", assistantError)
         }
       }
 
       // Fallback to chat completion
-      console.log("Using chat completion fallback")
+      console.log("💬 Using chat completion fallback")
       const chatReading = await this.generateWithChatCompletion(request)
       return {
         ...chatReading,
@@ -79,11 +86,11 @@ export class EnhancedAIServiceManager {
         success: true,
       }
     } catch (error) {
-      console.error("AI Service Error:", error)
+      console.error("❌ AI Service Error:", error)
       return {
-        reading: "Unable to generate reading at this time.",
-        interpretation: "Please try again later.",
-        guidance: "The AI service is temporarily unavailable.",
+        reading: "I apologize, but I'm unable to provide a reading at this time due to a technical issue.",
+        interpretation: "The AI service encountered an error while processing your request.",
+        guidance: "Please try again in a few moments. If the issue persists, contact support.",
         success: false,
         method: "chat_completion",
         error: error instanceof Error ? error.message : "Unknown error",
@@ -96,49 +103,106 @@ export class EnhancedAIServiceManager {
       throw new Error("Assistant ID not configured")
     }
 
-    // Create a thread
-    const thread = await this.openai.beta.threads.create()
+    console.log("🧵 Creating thread...")
+
+    // Create a thread with better error handling
+    let thread
+    try {
+      thread = await this.openai.beta.threads.create()
+      console.log("✅ Thread created successfully:", thread.id)
+    } catch (threadError) {
+      console.error("❌ Failed to create thread:", threadError)
+      throw new Error(`Thread creation failed: ${threadError instanceof Error ? threadError.message : "Unknown error"}`)
+    }
 
     // Create the message with detailed card information
     const prompt = this.buildDetailedPrompt(request)
 
-    await this.openai.beta.threads.messages.create(thread.id, {
-      role: "user",
-      content: prompt,
-    })
+    try {
+      console.log("📝 Adding message to thread...")
+      await this.openai.beta.threads.messages.create(thread.id, {
+        role: "user",
+        content: prompt,
+      })
+      console.log("✅ Message added successfully")
+    } catch (messageError) {
+      console.error("❌ Failed to add message:", messageError)
+      throw new Error(
+        `Message creation failed: ${messageError instanceof Error ? messageError.message : "Unknown error"}`,
+      )
+    }
 
-    // Run the assistant
-    const run = await this.openai.beta.threads.runs.create(thread.id, {
-      assistant_id: this.assistantId,
-      max_completion_tokens: this.maxTokens,
-    })
+    // Run the assistant with better error handling
+    let run
+    try {
+      console.log("🏃 Creating run...")
+      run = await this.openai.beta.threads.runs.create(thread.id, {
+        assistant_id: this.assistantId,
+        max_completion_tokens: this.maxTokens,
+      })
+      console.log("✅ Run created successfully:", run.id)
+    } catch (runError) {
+      console.error("❌ Failed to create run:", runError)
+      throw new Error(`Run creation failed: ${runError instanceof Error ? runError.message : "Unknown error"}`)
+    }
 
-    // Wait for completion
-    let runStatus = await this.openai.beta.threads.runs.retrieve(thread.id, run.id)
+    // Wait for completion with improved polling
+    console.log("⏳ Waiting for completion...")
+    let runStatus = run
+    let attempts = 0
+    const maxAttempts = 60 // 60 seconds max
 
-    while (runStatus.status === "in_progress" || runStatus.status === "queued") {
+    while ((runStatus.status === "in_progress" || runStatus.status === "queued") && attempts < maxAttempts) {
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      runStatus = await this.openai.beta.threads.runs.retrieve(thread.id, run.id)
+      attempts++
+
+      try {
+        runStatus = await this.openai.beta.threads.runs.retrieve(thread.id, run.id)
+
+        if (attempts % 10 === 0) {
+          console.log(`⏳ Still waiting... Status: ${runStatus.status} (${attempts}s)`)
+        }
+      } catch (pollError) {
+        console.error("❌ Polling error:", pollError)
+        throw new Error(`Polling failed: ${pollError instanceof Error ? pollError.message : "Unknown error"}`)
+      }
     }
 
     if (runStatus.status !== "completed") {
-      throw new Error(`Assistant run failed with status: ${runStatus.status}`)
+      console.error("❌ Run failed with status:", runStatus.status)
+      if (runStatus.last_error) {
+        console.error("❌ Run error details:", runStatus.last_error)
+      }
+      throw new Error(
+        `Assistant run failed with status: ${runStatus.status}${runStatus.last_error ? ` - ${runStatus.last_error.message}` : ""}`,
+      )
     }
+
+    console.log("✅ Run completed successfully")
 
     // Get the response
-    const messages = await this.openai.beta.threads.messages.list(thread.id)
-    const lastMessage = messages.data[0]
+    try {
+      console.log("📥 Retrieving messages...")
+      const messages = await this.openai.beta.threads.messages.list(thread.id)
+      const lastMessage = messages.data[0]
 
-    if (!lastMessage || lastMessage.role !== "assistant") {
-      throw new Error("No assistant response found")
+      if (!lastMessage || lastMessage.role !== "assistant") {
+        throw new Error("No assistant response found")
+      }
+
+      const content = lastMessage.content[0]
+      if (content.type !== "text") {
+        throw new Error("Unexpected response type from assistant")
+      }
+
+      console.log("✅ Response retrieved successfully")
+      return this.parseAssistantResponse(content.text.value)
+    } catch (retrieveError) {
+      console.error("❌ Failed to retrieve response:", retrieveError)
+      throw new Error(
+        `Response retrieval failed: ${retrieveError instanceof Error ? retrieveError.message : "Unknown error"}`,
+      )
     }
-
-    const content = lastMessage.content[0]
-    if (content.type !== "text") {
-      throw new Error("Unexpected response type from assistant")
-    }
-
-    return this.parseAssistantResponse(content.text.value)
   }
 
   private async generateWithChatCompletion(
@@ -146,6 +210,8 @@ export class EnhancedAIServiceManager {
   ): Promise<Omit<ReadingResponse, "method" | "success">> {
     const systemPrompt = this.buildSystemPrompt()
     const userPrompt = this.buildDetailedPrompt(request)
+
+    console.log("💬 Generating with chat completion...")
 
     const completion = await this.openai.chat.completions.create({
       model: this.model,
@@ -162,11 +228,12 @@ export class EnhancedAIServiceManager {
       throw new Error("No response from OpenAI")
     }
 
+    console.log("✅ Chat completion successful")
     return this.parseAssistantResponse(response)
   }
 
   private buildSystemPrompt(): string {
-    return `You are a master oracle reader specializing in the NUMO Oracle system, which combines Celtic mythology with numerological wisdom. The NUMO Oracle features five sacred treasures from Celtic lore:
+    return `You are the Oracle of NUMO, a mystical guide specializing in Celtic numerology and elemental wisdom through the sacred NUMO Oracle Cards. The NUMO Oracle features five sacred treasures from Celtic lore:
 
 1. **Cauldron of Dagda** (0) - Abundance, nourishment, infinite potential
 2. **Sword of Nuada** (1-9) - Truth, clarity, decisive action  
@@ -298,29 +365,34 @@ Always provide responses in this exact JSON format:
 
       // Test chat completion
       try {
+        console.log("🧪 Testing chat completion...")
         await this.openai.chat.completions.create({
           model: this.model,
           max_tokens: 10,
           messages: [{ role: "user", content: "Test" }],
         })
         result.chat_completion_available = true
+        console.log("✅ Chat completion test passed")
       } catch (error) {
-        console.warn("Chat completion test failed:", error)
+        console.warn("❌ Chat completion test failed:", error)
       }
 
       // Test assistant if configured
       if (this.assistantId) {
         try {
+          console.log("🧪 Testing assistant accessibility...")
           await this.openai.beta.assistants.retrieve(this.assistantId)
           result.assistant_accessible = true
+          console.log("✅ Assistant test passed")
         } catch (error) {
-          console.warn("Assistant test failed:", error)
+          console.warn("❌ Assistant test failed:", error)
         }
       }
 
       result.success = result.chat_completion_available || result.assistant_accessible
       return result
     } catch (error) {
+      console.error("❌ Configuration test failed:", error)
       return {
         success: false,
         assistant_configured: false,

@@ -3,26 +3,27 @@ import { aiServiceManager } from "@/lib/ai/enhanced-ai-service-manager"
 
 export async function GET() {
   try {
+    console.log("🔍 Checking AI service status...")
+
     const status = await aiServiceManager.testConfiguration()
 
+    console.log("📊 AI Service Status:", status)
+
     return NextResponse.json({
+      success: true,
       ...status,
       timestamp: new Date().toISOString(),
-      environment: {
-        has_openai_key: !!process.env.OPENAI_API_KEY,
-        has_assistant_key: !!process.env.OPENAI_ASSISTANT_API_KEY,
-        has_assistant_id: !!process.env.OPENAI_ASSISTANT_ID,
-        model: process.env.OPENAI_MODEL || "gpt-4o",
-        max_tokens: process.env.OPENAI_MAX_TOKENS || "4000",
-      },
     })
   } catch (error) {
-    console.error("Assistant status check failed:", error)
+    console.error("❌ Error checking AI service status:", error)
 
     return NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
+        assistant_configured: false,
+        assistant_accessible: false,
+        chat_completion_available: false,
         timestamp: new Date().toISOString(),
       },
       { status: 500 },

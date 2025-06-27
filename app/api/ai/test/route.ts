@@ -1,31 +1,53 @@
 import { NextResponse } from "next/server"
 import { aiServiceManager } from "@/lib/ai/enhanced-ai-service-manager"
 
-export async function GET() {
+export async function POST() {
   try {
-    console.log("🧪 AI Test API called")
+    console.log("🧪 Running AI service test...")
 
-    const testResult = await aiServiceManager.testConfiguration()
+    // Test with sample card data
+    const testCards = [
+      {
+        id: "test-card",
+        name: "Test Card - The Oracle's Wisdom",
+        element: "Spirit",
+        tool: "Cauldron",
+        number: 0,
+        meaning: "Testing the connection to divine wisdom",
+        description: "A test card to validate the AI service functionality",
+        keywords: ["test", "validation", "connection", "wisdom"],
+      },
+    ]
 
-    console.log("📊 Test results:", testResult)
+    const testRequest = {
+      cards: testCards,
+      question: "Is the AI service working correctly?",
+      spread_type: "test",
+      user_context: "This is a system test to validate AI functionality",
+    }
+
+    console.log("📝 Generating test reading...")
+    const result = await aiServiceManager.generateReading(testRequest)
+
+    console.log("✅ Test completed:", {
+      success: result.success,
+      method: result.method,
+      hasReading: !!result.reading,
+    })
 
     return NextResponse.json({
-      ...testResult,
+      success: true,
+      test_result: result,
       timestamp: new Date().toISOString(),
-      message: testResult.success ? "AI service is working correctly" : "AI service has configuration issues",
     })
   } catch (error) {
-    console.error("💥 AI Test API error:", error)
+    console.error("❌ AI service test failed:", error)
 
     return NextResponse.json(
       {
         success: false,
-        assistant_configured: false,
-        assistant_accessible: false,
-        chat_completion_available: false,
-        error: error instanceof Error ? error.message : "Unknown error occurred",
+        error: error instanceof Error ? error.message : "Unknown error",
         timestamp: new Date().toISOString(),
-        message: "Failed to test AI service configuration",
       },
       { status: 500 },
     )
