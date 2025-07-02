@@ -41,6 +41,7 @@ export const projects = [
     featured: true,
     recentlyDeployed: true,
   },
+  // Currently Building Projects
   {
     id: "nowo-radio",
     title: "NOWO Radio Platform",
@@ -48,11 +49,24 @@ export const projects = [
       "A retro-futuristic radio station website featuring cyberpunk aesthetics and interactive broadcasting elements. Combines newschool vibes with oldschool rhythms in a digital frontier experience.",
     image: "/images/projects/nowo-radio.jpg",
     category: "client",
-    stage: "deployed",
+    stage: "building",
     tags: ["Radio", "Cyberpunk Design", "Interactive Media", "Broadcasting"],
     url: "https://noworadio.vercel.app",
     featured: false,
-    recentlyDeployed: true,
+    recentlyDeployed: false,
+  },
+  {
+    id: "oyah-love",
+    title: "Oyah Love Spiritual Platform",
+    description:
+      "A mystical wellness and spiritual transformation platform featuring beautiful imagery and empowering content. Designed to help users embrace change and discover their inner strength through curated experiences.",
+    image: "/images/projects/oyah-love.jpg",
+    category: "client",
+    stage: "building",
+    tags: ["Spiritual Wellness", "E-commerce", "Blog Platform", "Transformation"],
+    url: "https://oyah.vercel.app",
+    featured: false,
+    recentlyDeployed: false,
   },
   {
     id: "lolita-wilson-portfolio",
@@ -195,4 +209,8 @@ export const getInHouseProjects = () => {
 
 export const getClientProjects = () => {
   return projects.filter((project) => project.category === "client")
+}
+
+export const getBuildingProjects = () => {
+  return projects.filter((project) => project.stage === "building")
 }
