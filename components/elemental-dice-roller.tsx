@@ -280,7 +280,7 @@ export function ElementalDiceRoller() {
 
                       <div className="mt-6">
                         <h4 className="font-medium mb-2">Affirmation</h4>
-                        <p className="italic text-center p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-md border border-purple-100">
+                        <p className="italic text-center p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-md border border-purple-100 text-gray-900">
                           {generateAffirmation(diceResults, elementalBalance, reducedValue)}
                         </p>
                       </div>

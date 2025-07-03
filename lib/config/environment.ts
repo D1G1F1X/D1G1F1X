@@ -53,6 +53,14 @@ class EnvironmentManager {
     return this.config.server
   }
 
+  /** Full config (public + server).  Useful for modules that need both. */
+  public getConfig(): EnvironmentConfig {
+    if (!this.config) {
+      this.config = this.loadConfig()
+    }
+    return this.config
+  }
+
   private loadConfig(): EnvironmentConfig {
     const publicConfig = {
       supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
@@ -121,6 +129,7 @@ export const environmentManager = EnvironmentManager.getInstance()
 export const getPublicConfig = () => environmentManager.getPublicConfig()
 export const getServerConfig = () => environmentManager.getServerConfig()
 export const validateEnvironment = () => environmentManager.validateConfig()
+export const getConfig = () => environmentManager.getConfig()
 
 // Export types
 export type { EnvironmentConfig }
