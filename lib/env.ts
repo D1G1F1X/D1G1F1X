@@ -31,3 +31,37 @@ export function validatePublicEnv() {
 
 // Server-only environment variables should be accessed directly in server components/API routes
 // or through the environmentManager in lib/config/environment.ts
+
+// ------------------------------------------------------------------
+// Convenience helpers — some legacy code expects these named exports
+// ------------------------------------------------------------------
+
+/** Simple env getter with optional default */
+export function getEnv(key: string, fallback = ""): string {
+  return process.env[key as keyof NodeJS.ProcessEnv] ?? fallback
+}
+
+/** Returns the admin notification email & where it came from */
+export function getAdminEmail(): string {
+  return process.env.ADMIN_EMAIL_FOR_NOTIFICATIONS || process.env.ADMIN_EMAIL || "admin@numoracle.com"
+}
+
+/**
+ * Validates admin email string and reports the source used.
+ * Useful for logging & build-time checks.
+ */
+export function validateAdminEmail(): {
+  isValid: boolean
+  email: string
+  source: "ADMIN_EMAIL_FOR_NOTIFICATIONS" | "ADMIN_EMAIL" | "default"
+} {
+  const email = getAdminEmail()
+  const source = process.env.ADMIN_EMAIL_FOR_NOTIFICATIONS
+    ? "ADMIN_EMAIL_FOR_NOTIFICATIONS"
+    : process.env.ADMIN_EMAIL
+      ? "ADMIN_EMAIL"
+      : "default"
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return { isValid: emailRegex.test(email), email, source }
+}

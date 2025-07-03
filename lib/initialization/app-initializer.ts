@@ -1,142 +1,101 @@
-"use server" // Explicitly mark as server-only
+/**
+ * Application Initialization Manager
+ * Handles startup tasks, environment validation, and service initialization
+ */
 
-// Application initialization and health checks
-import { environmentManager } from "@/lib/config/environment"
-import { supabaseManager } from "@/lib/database/supabase-manager"
-import { aiServiceManager } from "@/lib/ai/ai-service-manager"
+import { validatePublicEnv } from "@/lib/env"
+import { publicSupabaseConfig } from "@/lib/supabase/config"
 
-interface SystemHealth {
-  environment: "healthy" | "warning" | "error"
-  database: "healthy" | "warning" | "error"
-  ai: "healthy" | "warning" | "error"
-  overall: "healthy" | "warning" | "error"
-  details: {
-    environment: string[]
-    database: string[]
-    ai: string[]
+interface InitializationResult {
+  success: boolean
+  errors: string[]
+  warnings: string[]
+  services: {
+    supabase: boolean
+    environment: boolean
   }
 }
 
 class AppInitializer {
   private static instance: AppInitializer
   private initialized = false
+  private initResult: InitializationResult | null = null
 
   private constructor() {}
 
-  public static getInstance(): AppInitializer {
+  static getInstance(): AppInitializer {
     if (!AppInitializer.instance) {
       AppInitializer.instance = new AppInitializer()
     }
     return AppInitializer.instance
   }
 
-  public async initialize(): Promise<void> {
-    if (this.initialized) return
+  async initialize(): Promise<InitializationResult> {
+    if (this.initialized && this.initResult) {
+      return this.initResult
+    }
 
-    console.log("🚀 Initializing Numoracle application...")
+    const errors: string[] = []
+    const warnings: string[] = []
+    const services = {
+      supabase: false,
+      environment: false,
+    }
 
-    // Initialize core services
-    const config = environmentManager.getConfig()
-    console.log(`📍 Environment: ${config.app.environment}`)
-    console.log(`🌐 App URL: ${config.app.url}`)
+    try {
+      // Validate public environment variables
+      const envValid = validatePublicEnv()
+      services.environment = envValid
 
-    // Check system health
-    const health = await this.checkSystemHealth()
-    this.logSystemHealth(health)
+      if (!envValid) {
+        warnings.push("Some public environment variables are missing")
+      }
 
-    this.initialized = true
-    console.log("✅ Application initialization complete")
+      // Validate Supabase configuration (client-safe)
+      if (publicSupabaseConfig.url && publicSupabaseConfig.anonKey) {
+        services.supabase = true
+      } else {
+        warnings.push("Supabase configuration incomplete")
+      }
+
+      this.initResult = {
+        success: errors.length === 0,
+        errors,
+        warnings,
+        services,
+      }
+
+      this.initialized = true
+      return this.initResult
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown initialization error"
+      errors.push(errorMessage)
+
+      this.initResult = {
+        success: false,
+        errors,
+        warnings,
+        services,
+      }
+
+      return this.initResult
+    }
   }
 
-  public async checkSystemHealth(): Promise<SystemHealth> {
-    const details = {
-      environment: [] as string[],
-      database: [] as string[],
-      ai: [] as string[],
-    }
-
-    // Check environment
-    const envStatus = this.checkEnvironmentHealth(details.environment)
-
-    // Check database
-    const dbStatus = this.checkDatabaseHealth(details.database)
-
-    // Check AI
-    const aiStatus = this.checkAIHealth(details.ai)
-
-    // Determine overall health
-    const statuses = [envStatus, dbStatus, aiStatus]
-    const overall = statuses.includes("error") ? "error" : statuses.includes("warning") ? "warning" : "healthy"
-
-    return {
-      environment: envStatus,
-      database: dbStatus,
-      ai: aiStatus,
-      overall,
-      details,
-    }
+  getInitializationStatus(): InitializationResult | null {
+    return this.initResult
   }
 
-  private checkEnvironmentHealth(details: string[]): "healthy" | "warning" | "error" {
-    const config = environmentManager.getConfig()
-
-    if (!config.supabase.url || !config.supabase.anonKey) {
-      details.push("Supabase configuration incomplete")
-    }
-
-    if (!config.email.brevoApiKey) {
-      details.push("Email service not configured")
-    }
-
-    return details.length === 0 ? "healthy" : "warning"
-  }
-
-  private checkDatabaseHealth(details: string[]): "healthy" | "warning" | "error" {
-    if (!supabaseManager.isClientConfigured()) {
-      details.push("Database client not configured - using mock")
-      return "warning"
-    }
-
-    details.push("Database client configured and ready")
-    return "healthy"
-  }
-
-  private checkAIHealth(details: string[]): "healthy" | "warning" | "error" {
-    if (!aiServiceManager.isAIConfigured()) {
-      details.push("AI service not configured - using fallback responses")
-      return "warning"
-    }
-
-    details.push("AI service configured and ready")
-    return "healthy"
-  }
-
-  private logSystemHealth(health: SystemHealth): void {
-    const emoji = {
-      healthy: "✅",
-      warning: "⚠️",
-      error: "❌",
-    }
-
-    console.log(`\n📊 System Health Check:`)
-    console.log(`${emoji[health.environment]} Environment: ${health.environment}`)
-    console.log(`${emoji[health.database]} Database: ${health.database}`)
-    console.log(`${emoji[health.ai]} AI Service: ${health.ai}`)
-    console.log(`${emoji[health.overall]} Overall: ${health.overall}\n`)
-
-    // Log details if there are issues
-    if (health.overall !== "healthy") {
-      console.log("📋 Health Details:")
-      Object.entries(health.details).forEach(([service, issues]) => {
-        if (issues.length > 0) {
-          console.log(`  ${service}:`)
-          issues.forEach((issue) => console.log(`    • ${issue}`))
-        }
-      })
-      console.log("")
-    }
+  isInitialized(): boolean {
+    return this.initialized
   }
 }
 
+// Export singleton instance
 export const appInitializer = AppInitializer.getInstance()
-export type { SystemHealth }
+
+// Export initialization function for convenience
+export const initializeApp = () => appInitializer.initialize()
+
+// Export types
+export type { InitializationResult }

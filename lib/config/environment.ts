@@ -1,132 +1,126 @@
-"use server"
+/**
+ * Environment Configuration Manager
+ * Centralized environment variable management with validation
+ */
 
-// Centralized environment configuration with validation and fallbacks
 interface EnvironmentConfig {
-  // OpenAI Configuration
-  openai: {
-    apiKey: string | null
-    assistantApiKey: string | null
-    assistantId: string | null
-    model: string
-    maxTokens: number
-    temperature: number
+  // Public variables (client-safe)
+  public: {
+    supabaseUrl: string
+    supabaseAnonKey: string
+    appUrl: string
+    nodeEnv: string
   }
-
-  // Supabase Configuration
-  supabase: {
-    url: string | null
-    anonKey: string | null
-    serviceRoleKey: string | null
-    isConfigured: boolean
-  }
-
-  // Application Configuration
-  app: {
-    url: string
-    environment: "development" | "production" | "test"
-    isServer: boolean
-  }
-
-  // Email Configuration
-  email: {
-    brevoApiKey: string | null
-    senderEmail: string
-    senderName: string
-    adminEmail: string
+  // Server-only variables (accessed only on server-side)
+  server: {
+    supabaseServiceRoleKey?: string
+    openaiApiKey?: string
+    openaiAssistantId?: string
+    adminEmail?: string
+    brevoApiKey?: string
   }
 }
 
 class EnvironmentManager {
   private static instance: EnvironmentManager
-  private config: EnvironmentConfig
+  private config: EnvironmentConfig | null = null
 
-  private constructor() {
-    // Ensure this constructor is only called on the server
-    if (typeof window !== "undefined") {
-      throw new Error("EnvironmentManager can only be initialized on the server side.")
-    }
-    this.config = this.loadConfiguration()
-    this.validateCriticalConfig()
-  }
+  private constructor() {}
 
-  public static getInstance(): EnvironmentManager {
+  static getInstance(): EnvironmentManager {
     if (!EnvironmentManager.instance) {
       EnvironmentManager.instance = new EnvironmentManager()
     }
     return EnvironmentManager.instance
   }
 
-  private loadConfiguration(): EnvironmentConfig {
+  getPublicConfig(): EnvironmentConfig["public"] {
+    if (!this.config) {
+      this.config = this.loadConfig()
+    }
+    return this.config.public
+  }
+
+  // Server-side only method
+  getServerConfig(): EnvironmentConfig["server"] {
+    if (typeof window !== "undefined") {
+      throw new Error("Server config cannot be accessed on the client side")
+    }
+
+    if (!this.config) {
+      this.config = this.loadConfig()
+    }
+    return this.config.server
+  }
+
+  private loadConfig(): EnvironmentConfig {
+    const publicConfig = {
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+      supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+      appUrl: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+      nodeEnv: process.env.NODE_ENV || "development",
+    }
+
+    // Server config - only load on server side
+    const serverConfig =
+      typeof window === "undefined"
+        ? {
+            supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+            openaiApiKey: process.env.OPENAI_API_KEY,
+            openaiAssistantId: process.env.OPENAI_ASSISTANT_ID,
+            adminEmail: process.env.ADMIN_EMAIL_FOR_NOTIFICATIONS || process.env.ADMIN_EMAIL,
+            brevoApiKey: process.env.BREVO_API_KEY,
+          }
+        : {}
+
     return {
-      openai: {
-        apiKey: process.env.OPENAI_API_KEY || null,
-        assistantApiKey: process.env.OPENAI_ASSISTANT_API_KEY || null,
-        assistantId: process.env.OPENAI_ASSISTANT_ID || null,
-        model: process.env.OPENAI_MODEL || "gpt-4o",
-        maxTokens: Number.parseInt(process.env.OPENAI_MAX_TOKENS || "4000"),
-        temperature: Number.parseFloat(process.env.OPENAI_TEMPERATURE || "0.7"),
-      },
-      supabase: {
-        url: process.env.NEXT_PUBLIC_SUPABASE_URL || null,
-        anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || null,
-        serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || null,
-        isConfigured: !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
-      },
-      app: {
-        url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-        environment: (process.env.NODE_ENV as any) || "development",
-        isServer: true,
-      },
-      email: {
-        brevoApiKey: process.env.BREVO_API_KEY || null,
-        senderEmail: process.env.BREVO_SENDER_EMAIL || "admin@numoracle.com",
-        senderName: process.env.BREVO_SENDER_NAME || "Numo Admin",
-        adminEmail: process.env.ADMIN_EMAIL_FOR_NOTIFICATIONS || process.env.ADMIN_EMAIL || "admin@numoracle.com",
-      },
+      public: publicConfig,
+      server: serverConfig,
     }
   }
 
-  private validateCriticalConfig(): void {
+  validateConfig(): { isValid: boolean; errors: string[]; warnings: string[] } {
+    const errors: string[] = []
     const warnings: string[] = []
+    const config = this.getPublicConfig()
 
-    // OpenAI validation
-    if (!this.config.openai.assistantApiKey && !this.config.openai.apiKey) {
-      warnings.push("Neither OPENAI_ASSISTANT_API_KEY nor OPENAI_API_KEY is configured - AI features will be disabled")
-    }
-    if (!this.config.openai.assistantId) {
-      warnings.push("OPENAI_ASSISTANT_ID is not configured - Assistant features will be disabled")
+    // Validate required public variables
+    if (!config.supabaseUrl) {
+      errors.push("NEXT_PUBLIC_SUPABASE_URL is required")
     }
 
-    // Supabase validation
-    if (!this.config.supabase.isConfigured) {
-      warnings.push("Supabase is not fully configured - Database features will use mock client")
+    if (!config.supabaseAnonKey) {
+      errors.push("NEXT_PUBLIC_SUPABASE_ANON_KEY is required")
     }
 
-    if (warnings.length > 0) {
-      console.warn("🔧 Environment Configuration Warnings:", warnings)
+    // Server-side validation (only run on server)
+    if (typeof window === "undefined") {
+      const serverConfig = this.getServerConfig()
+
+      if (!serverConfig.supabaseServiceRoleKey) {
+        warnings.push("SUPABASE_SERVICE_ROLE_KEY is missing - admin features may be limited")
+      }
+
+      if (!serverConfig.openaiApiKey) {
+        warnings.push("OPENAI_API_KEY is missing - AI features will be disabled")
+      }
     }
-  }
 
-  public getConfig(): Readonly<EnvironmentConfig> {
-    return Object.freeze({ ...this.config })
-  }
-
-  public isOpenAIConfigured(): boolean {
-    return !!(this.config.openai.assistantApiKey || this.config.openai.apiKey)
-  }
-
-  public isAssistantConfigured(): boolean {
-    return !!(this.config.openai.assistantApiKey || this.config.openai.apiKey) && !!this.config.openai.assistantId
-  }
-
-  public isSupabaseConfigured(): boolean {
-    return this.config.supabase.isConfigured
-  }
-
-  public isEmailConfigured(): boolean {
-    return !!this.config.email.brevoApiKey
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings,
+    }
   }
 }
 
+// Export singleton instance
 export const environmentManager = EnvironmentManager.getInstance()
+
+// Export convenience functions
+export const getPublicConfig = () => environmentManager.getPublicConfig()
+export const getServerConfig = () => environmentManager.getServerConfig()
+export const validateEnvironment = () => environmentManager.validateConfig()
+
+// Export types
 export type { EnvironmentConfig }

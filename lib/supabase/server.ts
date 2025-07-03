@@ -1,9 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 
-// Declare global variable for the singleton instance on the server
-declare global {
-  var __numoracle_supabase_server_client_instance: SupabaseClient | undefined
-}
+// Singleton instance to prevent multiple server clients
+let supabaseServerClientInstance: SupabaseClient | null = null
 
 /**
  * Internal helper to create a tolerant Supabase client that does **not**
@@ -11,17 +9,21 @@ declare global {
  * This function is designed to be called only once to create the singleton.
  */
 function _createAndCacheServerClient(): SupabaseClient {
-  // If an instance already exists globally, reuse it.
-  if (globalThis.__numoracle_supabase_server_client_instance) {
-    return globalThis.__numoracle_supabase_server_client_instance
+  // If an instance already exists, reuse it.
+  if (supabaseServerClientInstance) {
+    return supabaseServerClientInstance
   }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   if (!url) {
     console.warn("⚠️  NEXT_PUBLIC_SUPABASE_URL is not set - returning mock Supabase client.")
     // @ts-ignore – very minimal mock for build-time/static generation
-    const mockClient = { from: () => ({ select: () => ({ data: null, error: new Error("Supabase URL missing") }) }) }
-    globalThis.__numoracle_supabase_server_client_instance = mockClient
+    const mockClient = {
+      from: () => ({
+        select: () => ({ data: null, error: new Error("Supabase URL missing") }),
+      }),
+    }
+    supabaseServerClientInstance = mockClient
     return mockClient
   }
 
@@ -36,13 +38,13 @@ function _createAndCacheServerClient(): SupabaseClient {
   }
 
   const key = serviceRoleKey || anonKey || ""
-  const newClient = createClient(url, key, {
+  supabaseServerClientInstance = createClient(url, key, {
     auth: {
       persistSession: false,
     },
   })
-  globalThis.__numoracle_supabase_server_client_instance = newClient
-  return newClient
+
+  return supabaseServerClientInstance
 }
 
 // Eagerly initialize the server client once when the module is loaded
@@ -54,10 +56,6 @@ export const supabaseServerClient = _createAndCacheServerClient()
  * This function now returns the singleton instance.
  */
 export function createServerClient(): SupabaseClient {
-  // In development, Next.js HMR might cause this module to be re-evaluated,
-  // leading to "Multiple GoTrueClient instances" warnings. This is generally
-  // harmless in development and the singleton ensures only one client is active
-  // per server instance.
   return supabaseServerClient // Always return the cached singleton
 }
 
@@ -66,10 +64,6 @@ export function createServerClient(): SupabaseClient {
  * This matches the original `getServerClient` export name.
  */
 export function getServerClient(): SupabaseClient {
-  // In development, Next.js HMR might cause this module to be re-evaluated,
-  // leading to "Multiple GoTrueClient instances" warnings. This is generally
-  // harmless in development and the singleton ensures only one client is active
-  // per server instance.
   return supabaseServerClient // Use the already created singleton
 }
 

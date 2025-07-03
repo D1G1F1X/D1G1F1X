@@ -28,11 +28,22 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { PrivacyNotice } from "@/components/privacy-notice"
-import { userDataService, type UserProfile } from "@/lib/services/user-data-service"
-import { getCardImageUrl, preloadCardImages } from "@/lib/card-image-blob-handler"
 import { Progress } from "@/components/ui/progress"
-import { AssistantChat } from "@/components/assistant-chat"
-import { useToast } from "@/components/ui/use-toast" // Import useToast
+import { useToast } from "@/components/ui/use-toast"
+import dynamic from "next/dynamic"
+
+// Dynamically import components that might cause SSR issues
+const AssistantChat = dynamic(
+  () => import("@/components/assistant-chat").then((mod) => ({ default: mod.AssistantChat })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center p-4">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    ),
+  },
+)
 
 // Complete NUMO Oracle Card Data Structure
 export interface Symbol {
@@ -56,6 +67,130 @@ export interface OracleCard {
   sacredGeometry: string
   synergisticElement: string
   imagePath?: string
+}
+
+// User profile interface
+interface UserProfile {
+  fullName?: string
+  preferredSpread?: string
+  birthDate?: string
+  birthTime?: string
+  birthPlace?: string
+  readingsCount?: number
+  lastUsed?: string
+  createdAt?: string
+  isMember?: boolean
+}
+
+// Simple user data service for client-side storage
+const userDataService = {
+  hasConsent: (): boolean => {
+    if (typeof window === "undefined") return false
+    try {
+      return localStorage.getItem("cardSimulatorConsent") === "true"
+    } catch {
+      return false
+    }
+  },
+
+  getUserProfile: (): UserProfile | null => {
+    if (typeof window === "undefined") return null
+    try {
+      const profile = localStorage.getItem("numoUserProfile")
+      return profile ? JSON.parse(profile) : null
+    } catch {
+      return null
+    }
+  },
+
+  saveUserProfile: (data: Partial<UserProfile>): void => {
+    if (typeof window === "undefined") return
+    try {
+      const existing = userDataService.getUserProfile() || {}
+      const updated = { ...existing, ...data, lastUsed: new Date().toISOString() }
+      localStorage.setItem("numoUserProfile", JSON.stringify(updated))
+    } catch (error) {
+      console.error("Failed to save user profile:", error)
+    }
+  },
+
+  updateLastUsed: (): void => {
+    if (typeof window === "undefined") return
+    try {
+      const profile = userDataService.getUserProfile()
+      if (profile) {
+        userDataService.saveUserProfile({ lastUsed: new Date().toISOString() })
+      }
+    } catch (error) {
+      console.error("Failed to update last used:", error)
+    }
+  },
+
+  incrementReadingCount: (): void => {
+    if (typeof window === "undefined") return
+    try {
+      const profile = userDataService.getUserProfile() || {}
+      const count = (profile.readingsCount || 0) + 1
+      userDataService.saveUserProfile({ readingsCount: count })
+    } catch (error) {
+      console.error("Failed to increment reading count:", error)
+    }
+  },
+
+  clearAllData: (): void => {
+    if (typeof window === "undefined") return
+    try {
+      localStorage.removeItem("numoUserProfile")
+      localStorage.removeItem("cardSimulatorConsent")
+    } catch (error) {
+      console.error("Failed to clear data:", error)
+    }
+  },
+}
+
+// Simple card image handler
+const getCardImageUrl = async (cardId: string, element: string): Promise<string> => {
+  try {
+    // Try to construct the image path based on card ID and element
+    const imagePath = `/cards/${cardId.toLowerCase()}-${element.toLowerCase()}.jpg`
+    return imagePath
+  } catch (error) {
+    console.error(`Error getting image URL for ${cardId}:`, error)
+    return `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardId)}`
+  }
+}
+
+const preloadCardImages = async (
+  cardIds: string[],
+  elements: string[],
+  onProgress?: (loaded: number, total: number) => void,
+): Promise<{ loaded: number; failed: number; totalTime: number }> => {
+  const startTime = Date.now()
+  let loaded = 0
+  let failed = 0
+
+  const total = cardIds.length
+
+  for (let i = 0; i < cardIds.length; i++) {
+    try {
+      const cardId = cardIds[i]
+      const element = elements[i % elements.length]
+      await getCardImageUrl(cardId, element)
+      loaded++
+    } catch {
+      failed++
+    }
+
+    if (onProgress) {
+      onProgress(loaded + failed, total)
+    }
+  }
+
+  return {
+    loaded,
+    failed,
+    totalTime: Date.now() - startTime,
+  }
 }
 
 // Complete MASTER Card Data from the JSON
@@ -86,12 +221,7 @@ const masterCardData: OracleCard[] = [
       "Astrology (Scorpio): Reflects external themes of rebirth, secrecy, and shedding of old layers. Scorpio navigates the depths of existence, confronting power dynamics, intense emotions, and the mysteries of life and death, ultimately leading to profound healing and empowerment.",
       "Synergistic Element (Fire): The combustion of Spirit and Water—the ignition of creation and passion. Fire is the activating, dynamic principle that fuels transformation, provides courage, and illuminates the path, turning inspiration (Spirit) and emotional depth (Water) into tangible manifestation.",
     ],
-    keyMeanings: [
-      "Creation in Progress: Energy is stirring, but not yet ready to emerge. This signifies a nascent stage where potential is palpable but requires further nurturing and internal development before it can be fully expressed or witnessed externally.",
-      "Alchemy and Transformation: Inner metamorphosis is occurring beneath the surface. Like the alchemical process of turning lead into gold, this points to profound internal shifts, healing, and the integration of disparate parts of oneself into a more evolved state.",
-      'Infinite Potential: Anything is possible, but it must go through the fire. The "fire" represents a necessary trial, purification, or intense experience that refines and tempers, unlocking the boundless creative power inherent in the initial void.',
-      "Inner Depths: The process requires patience and surrender to unseen forces. This emphasizes the need for trust in the natural unfolding, a willingness to delve into one's own subconscious, and the wisdom to allow the creation to mature at its own pace without force.",
-    ],
+    keyMeanings: ["Creation in Progress", "Alchemy and Transformation", "Infinite Potential", "Inner Depths"],
     baseElement: "Spirit",
     planetInternalInfluence: "Pluto – deep transformation, inner renewal, and hidden power.",
     astrologyExternalDomain: "Scorpio – cycles of death and rebirth, secrets, intensity.",
@@ -126,12 +256,7 @@ const masterCardData: OracleCard[] = [
       "Astrology (Leo): External stage—performance, confidence, leadership. Leo embodies the joy of self-expression, the courage to take center stage, and the magnanimity of a natural leader, inspiring others through its radiant and creative presence.",
       "Synergistic Element (Fire): Fire and Spirit igniting the fires of birth and radiant will. This highlights the pure, active, and enthusiastic energy that fuels manifestation, transforming divine inspiration (Spirit) into passionate, visible action.",
     ],
-    keyMeanings: [
-      "Manifestation in Motion: Pour your energy into the world. This is a call to take deliberate action, to channel your creative forces and intentions into tangible outcomes and share your unique contributions.",
-      "Personal Power: Lead the creation with your fire. Embrace your innate abilities, willpower, and passion to direct the course of your creations. Own your strength and capacity to make an impact.",
-      "Creative Expression: Let your gifts be seen. Do not hide your talents or insights. This is the time to showcase what you have developed, to perform, to publish, to share your unique voice.",
-      "Action-Oriented: Time to execute what you've been envisioning. Move beyond planning and dreaming into the realm of doing. Take the necessary steps to bring your visions into reality.",
-    ],
+    keyMeanings: ["Manifestation in Motion", "Personal Power", "Creative Expression", "Action-Oriented"],
     baseElement: "Fire",
     planetInternalInfluence: "Sun – creative force, willpower, and illumination.",
     astrologyExternalDomain: "Leo – pride in expression, creative passion, dramatic emergence.",
@@ -166,12 +291,7 @@ const masterCardData: OracleCard[] = [
       "Astrology (Cancer): Emotional awareness applied to outer security and nurturing. Cancer emphasizes the need for a secure emotional foundation, using intuition to protect and care for oneself and others. It brings a sensitive, empathetic quality to perception.",
       "Synergistic Element (Water): Water enhances the sword's clarity by infusing emotional depth into logical discernment, allowing intuition to guide precise thought. This creates a balance where intellect is informed by empathy, leading to more holistic understanding.",
     ],
-    keyMeanings: [
-      "Focused Awareness: Seeing clearly without reacting impulsively. This calls for keen observation and understanding of a situation before taking action, using both intellect and intuition to perceive the truth.",
-      "Emotional Intelligence: Understanding one's own and others' inner worlds. It is the ability to recognize, understand, and manage your own emotions, and to understand and influence the emotions of others, leading to better decisions.",
-      "Hesitation with Purpose: Listening and weighing choices before action. This is not procrastination, but a deliberate pause to ensure that any decision made is well-informed, balanced, and aligned with deeper intuitive knowing.",
-      "Mental Alignment: The mind aligning with emotional intuition. True clarity comes when logical thought processes are harmonized with the wisdom of feelings, leading to choices that are both sound and soulful.",
-    ],
+    keyMeanings: ["Focused Awareness", "Emotional Intelligence", "Hesitation with Purpose", "Mental Alignment"],
     baseElement: "Water",
     planetInternalInfluence: "Moon – intuition, reflection, inner perception.",
     astrologyExternalDomain: "Cancer – protection, emotional depth, caregiving.",
@@ -179,304 +299,6 @@ const masterCardData: OracleCard[] = [
     orientation: "Point First",
     sacredGeometry: "Vesica Piscis",
     synergisticElement: "Water",
-  },
-  {
-    id: "3-Cord",
-    number: "3",
-    suit: "Cord",
-    fullTitle: "3 Cord – The Cord of Purpose and Time",
-    symbols: [
-      { key: "Number", value: "3" },
-      { key: "Suit", value: "Cord" },
-      { key: "Element (Base)", value: "Fire" },
-      { key: "Planet (Internal Influence)", value: "Jupiter – expansion, purpose, trust in time." },
-      {
-        key: "Astrology (External Domain)",
-        value: "Sagittarius – truth-seeking, life journey, philosophical freedom.",
-      },
-      { key: "Icon", value: "Hourglass" },
-      { key: "Orientation", value: "Knot Before" },
-      { key: "Sacred Geometry", value: "Finite Symbol" },
-      { key: "Synergistic Element", value: "Spirit" },
-    ],
-    symbolismBreakdown: [
-      "Number: 3 – Completion of a small cycle—body, mind, spirit. Represents initial synthesis, creativity, expression, and the first stage of fruition. It's about bringing different elements together to create something new.",
-      "Suit (Cord): Binds, restrains, or ends that which must be sealed. The cord symbolizes connection, commitment, but also the potential for limitation or the conclusion of a phase. It marks a point of definition.",
-      "Icon (Hourglass): Measures time, inevitability, and clarity in limitation. The hourglass reminds us of the passage of time and the importance of using it wisely. It highlights cycles, deadlines, and the beauty found within defined parameters.",
-      'Orientation (Knot Before): Suggests the binding is imminent—preparation for conclusion. A knot tied signifies commitment, a decision made, or a process being secured. "Knot Before" implies the final actions leading up to this sealing.',
-      "Sacred Geometry (Finite Symbol): The edge of infinity-what is bounded must resolve. This likely refers to a symbol representing a closed loop or a defined boundary (perhaps the infinity symbol itself, representing cycles), indicating that within any given framework, resolution or completion is sought.",
-      "Planet (Jupiter): Inner expansion through boundaries and endings. Jupiter brings growth, optimism, and a search for meaning. Even as a cycle concludes, Jupiter's influence ensures that this ending paves the way for greater understanding and future opportunities.",
-      "Astrology (Sagittarius): External truth-seeking mission concluding a cycle. Sagittarius is associated with exploration, higher learning, and a quest for truth. This indicates that a particular journey of discovery or understanding is reaching a point of culmination.",
-      "Synergistic Element (Spirit): Earth giving rise to release and ascension. Spirit here connects to the ethereal, the transcendent. As the earthly cycle (represented by the cord and its binding) completes, there's an opportunity for a release of energy or understanding to a higher level.",
-    ],
-    keyMeanings: [
-      "Countdown to Release: A lesson or binding is reaching its final moment. There's a sense of anticipation as a period of learning, commitment, or a particular situation approaches its defined end, preparing for a transition.",
-      "Truth Before Binding: A need to recognize what must be seen before closure. Before a cycle is fully completed or a commitment sealed, it's crucial to acknowledge all relevant truths and insights gained.",
-      "Purpose Realized: The result of your actions must be accepted. The efforts and choices made within this cycle are now culminating, and it's time to own the outcomes, learning from them for future growth.",
-      "Time's End: A cycle completes, but a journey continues inward. While an external phase may be finishing, the internal process of integration, learning, and spiritual development carries on, often deepened by the experience.",
-    ],
-    baseElement: "Fire",
-    planetInternalInfluence: "Jupiter – expansion, purpose, trust in time.",
-    astrologyExternalDomain: "Sagittarius – truth-seeking, life journey, philosophical freedom.",
-    iconSymbol: "Hourglass",
-    orientation: "Knot Before",
-    sacredGeometry: "Finite Symbol",
-    synergisticElement: "Spirit",
-  },
-  {
-    id: "4-Spear",
-    number: "4",
-    suit: "Spear",
-    fullTitle: "4 Spear - The Spear of Drive and Direction",
-    symbols: [
-      { key: "Number", value: "4" },
-      { key: "Suit", value: "Spear" },
-      { key: "Element (Base)", value: "Earth" },
-      { key: "Planet (Internal Influence)", value: "Uranus – revolution, innovation, and personal awakening." },
-      { key: "Astrology (External Domain)", value: "Aquarius – humanitarian focus, idealism, breaking tradition." },
-      { key: "Icon", value: "Direction Arrows" },
-      { key: "Orientation", value: "Shaft First" },
-      { key: "Sacred Geometry", value: "Ladder" },
-      { key: "Synergistic Element", value: "Air" },
-    ],
-    symbolismBreakdown: [
-      "Number: 4 – Stability, foundation, the four corners of effort and space. Represents structure, order, practicality, and the establishment of a solid base. It's about building something lasting and reliable.",
-      "Suit (Spear): A symbol of forward movement and protection through assertion. The spear is a tool for focused intention, direct action, and defending one's position or goals. It implies courage and a clear aim.",
-      "Icon (Direction Arrows): Symbolizes the many directions our focus and purpose can take. This highlights choices in path, the ability to aim with precision, and the dynamic nature of pursuing goals. It can also mean clear guidance.",
-      "Orientation (Shaft First): Emphasizes the need to develop stable momentum and a strong inner stance. Before the spearpoint finds its mark, the shaft provides balance, power, and controlled direction, signifying thorough preparation and a solid core.",
-      "Sacred Geometry (Ladder): Represents ascension through structured effort. The ladder is a symbol of step-by-step progress, connecting different levels of understanding or achievement. Each rung is a necessary stage in the upward journey.",
-      "Planet (Uranus): Brings disruptive insight and personal change. Uranus challenges the status quo with sudden breakthroughs, innovative ideas, and a call for freedom and authenticity, often leading to unexpected shifts in direction.",
-      "Astrology (Aquarius): Connects external breakthroughs to idealistic purpose. Aquarius champions progress, humanitarianism, and unconventional thinking, seeking to apply innovative solutions for the betterment of the collective.",
-      "Synergistic Element (Air): Fire combined with Air creates movement, clarity, and momentum. Air (intellect, communication) fans the flames of Fire (action, drive), providing strategic thinking and clear articulation to propel initiatives forward.",
-    ],
-    keyMeanings: [
-      "Drive With Vision: Structured energy moving toward an ideal. This combines passionate motivation with a clear, well-defined goal and a practical plan, ensuring that effort is applied effectively and purposefully.",
-      "Foundation for Action: Building what will carry the force forward. Before launching an initiative, it's crucial to establish a stable base, gather resources, and create the necessary support structures to sustain momentum.",
-      "Revolutionary Roots: A new direction built on idealism and truth. This encourages breaking from outdated norms if necessary, guided by a strong sense of purpose and a commitment to authentic, progressive ideals.",
-      "Strategic Advancement: A call to ground your inspiration into method. Inspiration needs a practical plan. This is about transforming visionary ideas into actionable steps and methodical execution to achieve tangible results.",
-    ],
-    baseElement: "Earth",
-    planetInternalInfluence: "Uranus – revolution, innovation, and personal awakening.",
-    astrologyExternalDomain: "Aquarius – humanitarian focus, idealism, breaking tradition.",
-    iconSymbol: "Direction Arrows",
-    orientation: "Shaft First",
-    sacredGeometry: "Ladder",
-    synergisticElement: "Air",
-  },
-  {
-    id: "5-Sword",
-    number: "5",
-    suit: "Sword",
-    fullTitle: "5 Sword - The Sword of Power and Conflict",
-    symbols: [
-      { key: "Number", value: "5" },
-      { key: "Suit", value: "Sword" },
-      { key: "Element (Base)", value: "Earth" },
-      { key: "Planet (Internal Influence)", value: "Mercury – communication, mental sharpness, adaptability." },
-      {
-        key: "Astrology (External Domain)",
-        value: "Gemini – dual perspectives, clever problem solving, sharp intellect.",
-      },
-      { key: "Icon", value: "Delta" },
-      { key: "Orientation", value: "Edge First" },
-      { key: "Sacred Geometry", value: "Fivefold Circles" },
-      { key: "Synergistic Element", value: "Water" },
-    ],
-    symbolismBreakdown: [
-      "Number: 5 - Change, challenge, the turning point that provokes growth. Represents instability, conflict, and the disruption of equilibrium, often leading to necessary adjustments and a dynamic shift in understanding or circumstances.",
-      "Suit (Sword): Conveys precision, cutting through illusion or stagnation. In the context of 5, the sword highlights mental conflict, debates, or the harsh clarity that can arise from difficult truths or disagreements.",
-      "Icon (Delta): A symbol of forceful change and active transformation. The Delta here underscores the dynamic and often abrupt nature of the change indicated by the number 5, a gateway to a new state often passed through challenge.",
-      "Orientation (Edge First): Reflects initiating movement through force, often in conflict. The sword's edge leading implies a confrontational stance, a willingness to cut ties, or to assert oneself in a challenging situation, potentially creating friction.",
-      "Sacred Geometry (Fivefold Circles): Represents harmony in chaos—balance through multiplicity. Fivefold geometry (like a pentagram or patterns of five) often symbolizes the human form or dynamic balance. Here, it suggests that even within conflict or multiplicity, an underlying order or potential for new harmony exists.",
-      "Planet (Mercury): Speaks to swift action, persuasion, and agility. Mercury's influence brings quick thinking, articulate communication (or miscommunication leading to conflict), and the mental dexterity to navigate complex or challenging discussions.",
-      "Astrology (Gemini): External engagement through mental versatility and charm. Gemini explores duality, excels at debate, and can see multiple sides of an issue, which can either fuel conflict through argument or resolve it through clever negotiation.",
-      "Synergistic Element (Water): Water tempers the sword's force with adaptability and flow, enabling flexible strategy and emotional resilience in the heat of confrontation. It suggests that navigating conflict successfully requires not just sharp intellect but also emotional understanding and the ability to adapt.",
-    ],
-    keyMeanings: [
-      "Power Through Speech: A situation may demand clarity, assertion, or confrontation. This is a call to use your words carefully but decisively, to speak your truth, or to engage in necessary discussions even if they are difficult.",
-      "Conflict as Catalyst: Tension can lead to needed movement. Disagreements or challenges, while uncomfortable, often highlight areas that require change, forcing new perspectives and ultimately paving the way for progress.",
-      "Mental Dexterity: Use adaptability and cleverness to handle resistance. This advises approaching challenges with a flexible mind, being resourceful, and using wit and strategic thinking to overcome obstacles or opposition.",
-      "Sharp Direction: Know when to cut ties or move forward with bold clarity. Sometimes, resolution requires decisive action, such as ending a situation that is no longer tenable or making a clear choice to pursue a new path, even if it's difficult.",
-    ],
-    baseElement: "Earth",
-    planetInternalInfluence: "Mercury – communication, mental sharpness, adaptability.",
-    astrologyExternalDomain: "Gemini – dual perspectives, clever problem solving, sharp intellect.",
-    iconSymbol: "Delta",
-    orientation: "Edge First",
-    sacredGeometry: "Fivefold Circles",
-    synergisticElement: "Water",
-  },
-  {
-    id: "6-Stone",
-    number: "6",
-    suit: "Stone",
-    fullTitle: "6 Stone - The Stone of Foundation and Ritual",
-    symbols: [
-      { key: "Number", value: "6" },
-      { key: "Suit", value: "Stone" },
-      { key: "Element (Base)", value: "Earth" },
-      { key: "Planet (Internal Influence)", value: "Venus – beauty, receptivity, and sensual expression." },
-      { key: "Astrology (External Domain)", value: "Taurus – comfort, stability, and persistent building." },
-      { key: "Icon", value: "Pentagon" },
-      { key: "Orientation", value: "Rough Side" },
-      { key: "Sacred Geometry", value: "Spiral" },
-      { key: "Synergistic Element", value: "Earth" },
-    ],
-    symbolismBreakdown: [
-      "Number: 6 – Harmony through repetition, balance, and organic growth. Represents reciprocity, community, family, and the beauty found in established rhythms and mutual support. It seeks equilibrium and peaceful coexistence.",
-      "Suit (Stone): The material realm, the body, rituals, earth's memory. Stone signifies solidity, endurance, ancient wisdom, and the tangible world. It connects to foundations, traditions, and physical well-being.",
-      "Icon (Pentagon): Symbolizes the human form and the material temple. The pentagon, with its five points, often represents the microcosm of the human body or the harmonious integration of elements within a sacred, tangible space.",
-      "Orientation (Rough Side): Roughness represents rawness, potential, and growth through abrasion. The unpolished side of the stone suggests that foundations are built through effort, and that initial stages may involve challenges that shape and strengthen.",
-      "Sacred Geometry (Spiral): Reflects growth, cycles, and evolution through persistence. The spiral is a universal symbol of journeying, expansion from a central point, and the cyclical nature of life, indicating continuous development and deepening understanding.",
-      "Planet (Venus): Brings beauty, receptivity, and sensual expression. Venus fosters love, harmony, appreciation for aesthetics, and a connection to the physical senses, encouraging the creation of a pleasant and nurturing environment.",
-      "Astrology (Taurus): Externalizes comfort, stability, and persistent building. Taurus seeks security in the material world, values dependability, and works steadily to create a life of comfort, beauty, and lasting worth.",
-      "Synergistic Element (Earth): Earth reinforces stability and grounding, deepening the bond between physical ritual and long-lasting structure. The element of Earth here amplifies the stone's qualities, emphasizing the importance of tangible practices and solid foundations for enduring well-being.",
-    ],
-    keyMeanings: [
-      "Rituals of Becoming: Establish patterns that shape who you're becoming. This highlights the power of consistent practices and routines to build character, reinforce values, and create a supportive structure for personal growth.",
-      "Sacred Groundwork: Root in what nourishes and sustains you. Identify and connect with the core elements – be it values, relationships, or practices – that provide fundamental support, stability, and a sense of belonging.",
-      "Embodied Cycles: Growth takes time—trust organic rhythms. Recognize that true development unfolds naturally and often cyclically. Patience and trust in these inherent life patterns are key to sustainable progress.",
-      "Earth as Teacher: The path of grounded wisdom begins in the body. Pay attention to physical sensations and the wisdom of the material world. Practical experience and connection to nature offer profound lessons.",
-    ],
-    baseElement: "Earth",
-    planetInternalInfluence: "Venus – beauty, receptivity, and sensual expression.",
-    astrologyExternalDomain: "Taurus – comfort, stability, and persistent building.",
-    iconSymbol: "Pentagon",
-    orientation: "Rough Side",
-    sacredGeometry: "Spiral",
-    synergisticElement: "Earth",
-  },
-  {
-    id: "7-Spear",
-    number: "7",
-    suit: "Spear",
-    fullTitle: "7 Spear – The Spear of Intuition and Service",
-    symbols: [
-      { key: "Number", value: "7" },
-      { key: "Suit", value: "Spear" },
-      { key: "Element (Base)", value: "Air" },
-      {
-        key: "Planet (Internal Influence)",
-        value: "Neptune – dreamlike guidance, spiritual defense, and inner clarity.",
-      },
-      {
-        key: "Astrology (External Domain)",
-        value: "Pisces – empathy-driven service, defending those unseen, romantic sensitivity.",
-      },
-      { key: "Icon", value: "Direction Arrows" },
-      { key: "Orientation", value: "Point First" },
-      { key: "Sacred Geometry", value: "Chevron" },
-      { key: "Synergistic Element", value: "Air" },
-    ],
-    symbolismBreakdown: [
-      "Number: 7 – Mystery, inner knowledge, spiritual vision. Represents introspection, analysis, wisdom gained through solitude, and the quest for deeper understanding beyond the mundane. It often signifies a spiritual or intellectual breakthrough.",
-      "Suit (Spear): Symbol of proactive force and chosen direction. In the context of 7, the spear's aim is guided by inner wisdom and intuitive insights, directing focused action towards a higher purpose or a more spiritual goal.",
-      "Icon (Direction Arrows): Suggests attunement to inner guidance through movement. The arrows here point towards a path revealed by intuition, indicating that action should follow the subtle cues and internal compass.",
-      "Orientation (Point First): Directs action guided by feeling and subtle knowing. The spear is aimed with precision, but that precision comes from a deep, intuitive sense of rightness rather than purely logical deduction.",
-      "Sacred Geometry (Chevron): Represents directional clarity and sacred alignment. The chevron (V-shape) is a strong directional marker, often symbolizing a path, a gateway, or a focused movement upwards or forwards, in alignment with a higher principle.",
-      "Planet (Neptune): Connects you to subtle truths and intuitive flow. Neptune dissolves boundaries, enhances imagination, and opens channels to psychic awareness, dreams, and spiritual inspiration, guiding through feeling and visionary insight.",
-      "Astrology (Pisces): Brings empathy, receptivity, and imagination to the external journey. Pisces navigates the world with profound compassion, artistic sensitivity, and a connection to the collective unconscious, often serving others through intuitive understanding.",
-      "Synergistic Element (Air): Air inspires the spear's focus with creative insight and expansiveness, facilitating clear communication and intellectual agility in acts of service. Air provides the mental clarity and articulate expression needed to translate intuitive insights into understandable concepts and effective, helpful actions.",
-    ],
-    keyMeanings: [
-      "Guided Service: Let higher intuition shape your efforts. Allow your inner wisdom, dreams, and spiritual insights to direct how you help others or pursue your goals, trusting the subtle guidance you receive.",
-      "Inspired Defenses: Protecting others may require imagination and sensitivity. When defending a cause or individuals, employ not just strength but also empathy, creative problem-solving, and an intuitive understanding of the unseen dynamics at play.",
-      "Spiritual Targeting: Aim your will at what only you can see. Direct your focus and efforts towards goals or truths that are revealed through your unique intuitive perception, even if they are not yet apparent to others.",
-      "Fluid Precision: Act on subtle truths with clarity and compassion. Combine the sharpness of insight with a gentle, understanding approach. This means being decisive when intuition is clear, yet always acting with kindness and empathy.",
-    ],
-    baseElement: "Air",
-    planetInternalInfluence: "Neptune – dreamlike guidance, spiritual defense, and inner clarity.",
-    astrologyExternalDomain: "Pisces – empathy-driven service, defending those unseen, romantic sensitivity.",
-    iconSymbol: "Direction Arrows",
-    orientation: "Point First",
-    sacredGeometry: "Chevron",
-    synergisticElement: "Air",
-  },
-  {
-    id: "8-Cord",
-    number: "8",
-    suit: "Cord",
-    fullTitle: "8 Cord – The Cord of Binding and Resolution",
-    symbols: [
-      { key: "Number", value: "8" },
-      { key: "Suit", value: "Cord" },
-      { key: "Element (Base)", value: "Spirit" },
-      {
-        key: "Planet (Internal Influence)",
-        value: "Saturn – responsibility, karmic patterns, mastery through boundaries.",
-      },
-      { key: "Astrology (External Domain)", value: "Capricorn – structure, long-term goals, integrity." },
-      { key: "Icon", value: "Hourglass" },
-      { key: "Orientation", value: "Knot Away" },
-      { key: "Sacred Geometry", value: "Infinity Symbol" },
-      { key: "Synergistic Element", value: "Spirit" },
-    ],
-    symbolismBreakdown: [
-      "Number: 8 – Karmic return, balance of effort, cycles of resolution. Represents cause and effect, power, abundance, and the balancing of material and spiritual realms. It often signifies the consequences of past actions coming to fruition.",
-      "Suit (Cord): Represents connections, bonds, and energetic ties. In the context of 8, the cord can symbolize commitments, contracts, or energetic links that are now up for review, resolution, or the realization of their long-term implications.",
-      "Icon (Hourglass): Symbolizes obligations, contracts, or fate-bound energies. The hourglass signifies something firmly established or an entanglement. Depending on context, it could be a secure bond or a complex issue needing to be untied or resolved.",
-      'Orientation (Knot Away): Something may be sealed, finished, or removed from current influence. Tying a knot "away" suggests a deliberate act of concluding, securing an outcome, or releasing something by finalizing its form or connection.',
-      "Sacred Geometry (Infinity Symbol): Represents eternal return, looping timelines, or continuous connection. The infinity symbol (lemniscate) highlights cycles, endlessness, and the interconnectedness of all things, suggesting that resolutions often lead to new beginnings within a larger pattern.",
-      "Planet (Saturn): Speaks to long-term structure, karmic duty, and life's harder lessons. Saturn brings discipline, responsibility, and the wisdom gained through facing limitations and fulfilling obligations. It encourages mastery and integrity.",
-      "Astrology (Capricorn): Grounded ambition, duty, and achievement. Capricorn strives for tangible accomplishments through hard work, strategic planning, and a strong sense of responsibility, often building enduring structures.",
-      "Synergistic Element (Spirit): Spirit weaves through bonds, elevating connections beyond the material to reveal karmic lessons and soul-level integration. Spirit infuses the practical and material aspects with higher purpose, helping to understand the deeper meaning behind commitments and resolutions.",
-    ],
-    keyMeanings: [
-      "Closure and Finality: Tied energy has reached its endpoint. A cycle of effort, a relationship, or a particular obligation is coming to a definitive conclusion, and its results are becoming clear.",
-      "Sacred Obligation: A contract must be honored—or ended with care. This refers to commitments, whether spoken or unspoken, that require fulfillment or a conscious, respectful process of dissolution if they are no longer serving their purpose.",
-      "Mastery Through Boundaries: Limits clarify power. Understanding and working within defined structures and responsibilities can lead to greater focus, efficiency, and the development of true capability and strength.",
-      "Fated Resolution: Karmic threads are being woven or cut. Events unfold that seem destined, bringing resolution to long-standing issues or patterns, often reflecting the natural consequences of past actions and choices.",
-    ],
-    baseElement: "Spirit",
-    planetInternalInfluence: "Saturn – responsibility, karmic patterns, mastery through boundaries.",
-    astrologyExternalDomain: "Capricorn – structure, long-term goals, integrity.",
-    iconSymbol: "Hourglass",
-    orientation: "Knot Away",
-    sacredGeometry: "Infinity Symbol",
-    synergisticElement: "Spirit",
-  },
-  {
-    id: "9-Stone",
-    number: "9",
-    suit: "Stone",
-    fullTitle: "9 Stone - The Stone of Witness and Completion",
-    symbols: [
-      { key: "Number", value: "9" },
-      { key: "Suit", value: "Stone" },
-      { key: "Element (Base)", value: "Air" },
-      { key: "Planet (Internal Influence)", value: "Mars – assertion, willpower, protection." },
-      {
-        key: "Astrology (External Domain)",
-        value: "Aries – courageous movement, initiating closure, leading through resolve.",
-      },
-      { key: "Icon", value: "Pentagon" },
-      { key: "Orientation", value: "Smooth Side" },
-      { key: "Sacred Geometry", value: "Eye" },
-      { key: "Synergistic Element", value: "Earth" },
-    ],
-    symbolismBreakdown: [
-      "Number: 9 – Completion, spiritual wisdom, closure. Represents the culmination of a cycle, attainment, humanitarianism, and the wisdom gained from a full spectrum of experiences. It is a prelude to a new beginning.",
-      "Suit (Stone): The physical, ritual witness, the stone of remembrance. The stone here acts as a monument to what has been experienced and learned, a tangible marker of the journey's end and the wisdom consolidated.",
-      "Icon (Pentagon): The pentagon represents watchful presence and inner vision, symbolizing the power of sacred attention to bear witness to endings and new beginnings. It implies clear perception, wisdom, and impartial observation.",
-      "Orientation (Smooth Side): Completion and ease—what has been shaped can now be released. The polished side of the stone indicates that the work is done, the lessons learned, and there's a sense of peace and fulfillment in the accomplishment.",
-      "Sacred Geometry (Eye): Symbol of clear knowing, sacred witness, and divine attention. The Eye of Providence or the inner eye signifies enlightenment, spiritual awareness, and the ability to see things as they truly are, with profound understanding.",
-      "Planet (Mars): Brings energy to assert finality or protection. Mars provides the courage and drive to definitively conclude matters, protect the wisdom gained, and make any necessary assertive moves to ensure a clean ending.",
-      "Astrology (Aries): Direct action, courage, and leadership in ending cycles. Aries initiates with boldness. In the context of 9, this energy is applied to courageously finalize a chapter, leading the way towards resolution and preparing for new ventures.",
-      "Synergistic Element (Earth): Where Air unveils patterns and possibilities, Earth gives those patterns substance—turning vision into ritual, ideas into foundations, and fleeting clarity into enduring wisdom. Earth grounds the insights (Air) into tangible, lasting understanding and solidifies the completion.",
-    ],
-    keyMeanings: [
-      "Completion With Honor: What was built can now be let go. Acknowledge accomplishments and the end of a significant phase with grace and integrity, releasing attachments to allow for future growth.",
-      "Witness to the Journey: Acknowledge what has been seen and learned. Reflect upon the entire cycle, integrating the lessons and insights gained. This is a time for deep understanding and acceptance of the path traveled.",
-      "Spiritual Protection: Guard sacred truths and endings. Preserve the wisdom acquired and ensure that the closure process is respected, protecting the sanctity of what has been completed from negativity or disruption.",
-      "Release With Awareness: Let go, but let it teach you. Consciously release people, situations, or beliefs that are part of the concluding cycle, doing so with an understanding of their role in your growth and carrying the lessons forward.",
-    ],
-    baseElement: "Air",
-    planetInternalInfluence: "Mars – assertion, willpower, protection.",
-    astrologyExternalDomain: "Aries – courageous movement, initiating closure, leading through resolve.",
-    iconSymbol: "Pentagon",
-    orientation: "Smooth Side",
-    sacredGeometry: "Eye",
-    synergisticElement: "Earth",
   },
 ]
 
@@ -507,12 +329,20 @@ export function CardSimulator() {
   const [birthDate, setBirthDate] = useState("")
   const [birthTime, setBirthTime] = useState("")
   const [birthPlace, setBirthPlace] = useState("")
-  const [hasGeneratedAIReading, setHasGeneratedAIReading] = useState(false) // New state to track AI reading generation
+  const [hasGeneratedAIReading, setHasGeneratedAIReading] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
-  const { toast } = useToast() // Initialize useToast
+  const { toast } = useToast()
+
+  // Handle mounting to prevent hydration issues
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Load card images from blob storage
   useEffect(() => {
+    if (!mounted) return
+
     const loadCardImages = async () => {
       setIsLoadingImages(true)
       setImageLoadingStats({ loaded: 0, total: masterCardData.length, failed: 0, isLoading: true })
@@ -579,41 +409,51 @@ export function CardSimulator() {
     }
 
     loadCardImages()
-  }, [])
+  }, [mounted])
 
   // Initial card draw on mount, after images are loaded
   useEffect(() => {
+    if (!mounted) return
+
     if (cardsWithImages.length > 0 && selectedCards.length === 0 && !isLoadingImages) {
       const numCards = spreadType === "single" ? 1 : spreadType === "three" ? 3 : 5
       const shuffled = [...cardsWithImages].sort(() => Math.random() - 0.5)
       const initialDraw = shuffled.slice(0, numCards)
       setSelectedCards(initialDraw)
-      setReading("") // Ensure no AI reading is present initially
+      setReading("")
       setAssistantReading("")
       setHasGeneratedAIReading(false)
     }
-  }, [cardsWithImages, selectedCards.length, isLoadingImages, spreadType])
+  }, [cardsWithImages, selectedCards.length, isLoadingImages, spreadType, mounted])
 
   // Load user data on component mount
   useEffect(() => {
-    const consent = userDataService.hasConsent()
-    setHasConsent(consent)
+    if (!mounted) return
 
-    if (consent) {
-      const profile = userDataService.getUserProfile()
-      if (profile) {
-        setUserProfile(profile)
-        setFullName(profile.fullName || "")
-        setSpreadType(profile.preferredSpread || "single")
-        setBirthDate(profile.birthDate || "")
-        setBirthTime(profile.birthTime || "")
-        setBirthPlace(profile.birthPlace || "")
+    try {
+      const consent = userDataService.hasConsent()
+      setHasConsent(consent)
+
+      if (consent) {
+        const profile = userDataService.getUserProfile()
+        if (profile) {
+          setUserProfile(profile)
+          setFullName(profile.fullName || "")
+          setSpreadType(profile.preferredSpread || "single")
+          setBirthDate(profile.birthDate || "")
+          setBirthTime(profile.birthTime || "")
+          setBirthPlace(profile.birthPlace || "")
+        }
       }
+    } catch (error) {
+      console.error("Error loading user data:", error)
     }
-  }, [])
+  }, [mounted])
 
   // Save user data when form changes
   useEffect(() => {
+    if (!mounted) return
+
     if (hasConsent && (fullName || spreadType !== "single" || birthPlace || birthDate || birthTime)) {
       const profileData: Partial<UserProfile> = {}
 
@@ -625,40 +465,43 @@ export function CardSimulator() {
 
       userDataService.saveUserProfile(profileData)
     }
-  }, [fullName, spreadType, birthPlace, birthDate, birthTime, hasConsent])
+  }, [fullName, spreadType, birthPlace, birthDate, birthTime, hasConsent, mounted])
 
   // Memoize handleConsentChange
-  const handleConsentChange = useCallback((consent: boolean) => {
-    setHasConsent(consent)
+  const handleConsentChange = useCallback(
+    (consent: boolean) => {
+      if (!mounted) return
 
-    if (consent) {
-      // Load existing data if available
-      const profile = userDataService.getUserProfile()
-      if (profile) {
-        setUserProfile(profile)
-        setFullName(profile.fullName || "")
-        setSpreadType(profile.preferredSpread || "single")
-        setBirthDate(profile.birthDate || "")
-        setBirthTime(profile.birthTime || "")
-        setBirthPlace(profile.birthPlace || "")
+      setHasConsent(consent)
+
+      if (consent) {
+        const profile = userDataService.getUserProfile()
+        if (profile) {
+          setUserProfile(profile)
+          setFullName(profile.fullName || "")
+          setSpreadType(profile.preferredSpread || "single")
+          setBirthDate(profile.birthDate || "")
+          setBirthTime(profile.birthTime || "")
+          setBirthPlace(profile.birthPlace || "")
+        }
+      } else {
+        userDataService.clearAllData()
+        setUserProfile(null)
+        setFullName("")
+        setSpreadType("single")
+        setBirthDate("")
+        setBirthTime("")
+        setBirthPlace("")
       }
-    } else {
-      // Clear form data when consent is withdrawn
-      userDataService.clearAllData() // Clear all user data
-      setUserProfile(null)
-      setFullName("")
-      setSpreadType("single")
-      setBirthDate("")
-      setBirthTime("")
-      setBirthPlace("")
-    }
-  }, [])
+    },
+    [mounted],
+  )
 
   const shuffleCards = async () => {
     setIsShuffling(true)
-    setReading("") // Clear previous reading
-    setAssistantReading("") // Clear previous assistant reading
-    setHasGeneratedAIReading(false) // Reset AI reading flag
+    setReading("")
+    setAssistantReading("")
+    setHasGeneratedAIReading(false)
 
     if (hasConsent) {
       userDataService.updateLastUsed()
@@ -694,59 +537,109 @@ export function CardSimulator() {
     }
 
     setIsGeneratingReading(true)
-    setHasGeneratedAIReading(true) // Set flag that AI reading is being generated
+    setHasGeneratedAIReading(true)
 
     try {
-      const response = await fetch("/api/ai/reading", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
+      console.log("🔮 Generating AI reading...")
+
+      const requestBody = {
+        cards: selectedCards.map((card) => ({
+          id: card.id,
+          name: card.fullTitle,
+          element: card.baseElement,
+          tool: card.suit,
+          number: Number.parseInt(card.number),
+          meaning: card.keyMeanings.join(", "),
+          description: card.symbolismBreakdown.join(" "),
+          keywords: card.keyMeanings,
+        })),
+        question: question.trim(),
+        spread_type: spreadType,
+        user_context: JSON.stringify({
           fullName,
-          dateOfBirth: birthDate,
-          timeOfBirth: birthTime,
+          birthDate,
+          birthTime,
           birthPlace,
-          question,
-          selectedCards,
-          spreadType,
           isMember: userProfile?.isMember ?? false,
         }),
+      }
+
+      console.log("📤 Sending request:", {
+        cardCount: requestBody.cards.length,
+        hasQuestion: !!requestBody.question,
+        spreadType: requestBody.spread_type,
       })
 
-      // ---------- new safer response handling ----------
+      const response = await fetch("/api/ai/reading", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      console.log("📥 Response status:", response.status, response.statusText)
+
       let data: any = {}
+      const responseText = await response.text()
+      console.log("📄 Raw response:", responseText.substring(0, 200) + "...")
+
       try {
-        data = await response.json()
-      } catch {
-        data = { success: false, error: "Malformed server response" }
+        data = JSON.parse(responseText)
+        console.log("✅ Parsed response:", {
+          success: data.success,
+          hasReading: !!data.reading,
+          method: data.method,
+          error: data.error,
+        })
+      } catch (parseError) {
+        console.error("❌ JSON parse error:", parseError)
+        data = {
+          success: false,
+          error: "Invalid JSON response from server",
+          reading: "Unable to parse server response. Please try again.",
+          interpretation: "The server returned an invalid response format.",
+          guidance: "Please try again or contact support if the issue persists.",
+        }
       }
 
-      if (!response.ok || !data?.success) {
-        console.error("AI reading generation failed:", data?.error ?? response.statusText)
-        setAssistantReading(data.reading ?? "")
-        setReading(
-          data.reading ??
-            `Failed to generate an AI reading${data?.error ? `: ${data.error}` : "."}  Please try again later.`,
-        )
-        toast({
-          title: "Reading Failed",
-          description: data?.error ?? "Internal server error.",
-          variant: "destructive",
-        })
-        setHasGeneratedAIReading(false)
-      } else {
-        setConversationThreadId(data.threadId)
-        setAssistantReading(data.reading ?? "")
-        setReading(data.reading ?? "")
-        toast({ title: "Reading Generated!", description: "Your personalized oracle reading is ready." })
-        userDataService.incrementReadingCount() // Increment reading count on successful AI reading
+      if (!response.ok) {
+        console.error("❌ HTTP error:", response.status, data?.error)
+        throw new Error(data?.error || `HTTP ${response.status}: ${response.statusText}`)
       }
-      // ---------- end new handling ----------
-    } catch (error: any) {
-      console.error("Error generating AI reading:", error)
-      setReading("Failed to generate an advanced reading due to a network or server error. Please try again later.")
+
+      if (!data?.success) {
+        console.error("❌ API error:", data?.error)
+        throw new Error(data?.error || "API returned unsuccessful response")
+      }
+
+      // Success case
+      console.log("✅ Reading generated successfully")
+      setConversationThreadId(data.threadId || "")
+      setAssistantReading(data.reading || "")
+      setReading(data.reading || "")
+
       toast({
-        title: "Network Error",
-        description: `Failed to connect to AI service: ${error.message}. Please check your internet connection or try again later.`,
+        title: "Reading Generated!",
+        description: "Your personalized oracle reading is ready.",
+      })
+
+      if (hasConsent) {
+        userDataService.incrementReadingCount()
+      }
+    } catch (error: any) {
+      console.error("💥 Error generating AI reading:", error)
+
+      const errorMessage = error.message || "Unknown error occurred"
+      const fallbackReading = `I apologize, but I'm unable to provide an AI reading at this time. Error: ${errorMessage}`
+
+      setReading(fallbackReading)
+      setHasGeneratedAIReading(false)
+
+      toast({
+        title: "Reading Failed",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -837,7 +730,6 @@ export function CardSimulator() {
           })
         })
     } else {
-      // Fallback to clipboard
       const shareText = `My NUMO Oracle Reading\n\nQuestion: ${question}\n\n${reading}`
       if (navigator.clipboard) {
         navigator.clipboard.writeText(shareText)
@@ -870,7 +762,6 @@ export function CardSimulator() {
           <DialogTitle>{card.fullTitle}</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
-          {/* Card Image and Basic Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="relative aspect-[2/3] rounded-lg overflow-hidden border">
               <Image
@@ -904,7 +795,6 @@ export function CardSimulator() {
             </div>
           </div>
 
-          {/* Symbols */}
           <div>
             <h3 className="text-lg font-semibold mb-3">Symbols</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -916,7 +806,6 @@ export function CardSimulator() {
             </div>
           </div>
 
-          {/* Key Meanings */}
           <div>
             <h3 className="text-lg font-semibold mb-3">Key Meanings</h3>
             <div className="space-y-3">
@@ -928,7 +817,6 @@ export function CardSimulator() {
             </div>
           </div>
 
-          {/* Symbolism Breakdown */}
           <div>
             <h3 className="text-lg font-semibold mb-3">Symbolism Breakdown</h3>
             <Accordion type="single" collapsible>
@@ -949,9 +837,24 @@ export function CardSimulator() {
     </Dialog>
   )
 
+  // Don't render until mounted to prevent hydration issues
+  if (!mounted) {
+    return (
+      <div className="max-w-6xl mx-auto p-6 space-y-8">
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            NUMO Oracle Card Simulator
+          </h1>
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
-      {/* Privacy Notice */}
       <PrivacyNotice
         title="Card Simulator Privacy"
         description="This tool can optionally remember your name and preferences to personalize your readings."
@@ -965,7 +868,6 @@ export function CardSimulator() {
         ]}
       />
 
-      {/* Header */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
           NUMO Oracle Card Simulator
@@ -974,7 +876,6 @@ export function CardSimulator() {
           Experience the wisdom of the Five Sacred Treasures through digital divination
         </p>
 
-        {/* Network Status Indicator */}
         <div className="flex items-center justify-center gap-2 text-sm">
           {networkStatus === "online" ? (
             <Wifi className="h-4 w-4 text-green-500" />
@@ -989,7 +890,6 @@ export function CardSimulator() {
         </div>
       </div>
 
-      {/* Image Loading Progress */}
       {isLoadingImages && (
         <Card>
           <CardContent className="p-6">
@@ -1008,7 +908,6 @@ export function CardSimulator() {
         </Card>
       )}
 
-      {/* Configuration */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -1092,7 +991,6 @@ export function CardSimulator() {
         </CardContent>
       </Card>
 
-      {/* Shuffle Button */}
       <div className="text-center">
         <Button
           onClick={shuffleCards}
@@ -1114,7 +1012,6 @@ export function CardSimulator() {
         </Button>
       </div>
 
-      {/* Selected Cards */}
       {selectedCards.length > 0 && (
         <Card>
           <CardHeader>
@@ -1173,7 +1070,6 @@ export function CardSimulator() {
         </Card>
       )}
 
-      {/* AI Reading Trigger Button */}
       {selectedCards.length > 0 && !hasGeneratedAIReading && (
         <div className="text-center">
           <Button
@@ -1200,7 +1096,6 @@ export function CardSimulator() {
         </div>
       )}
 
-      {/* Reading Display (only shows after AI reading is initiated) */}
       {(reading || isGeneratingReading || hasGeneratedAIReading) && (
         <Card>
           <CardHeader>
@@ -1213,11 +1108,11 @@ export function CardSimulator() {
                     Ask Follow-up
                   </Button>
                 )}
-                <Button variant="outline" size="sm" onClick={saveReading} disabled={!reading}>
+                <Button variant="outline" size="sm" onClick={saveReading} disabled={!reading.trim()}>
                   <Save className="h-4 w-4 mr-1" />
                   Save
                 </Button>
-                <Button variant="outline" size="sm" onClick={shareReading} disabled={!reading}>
+                <Button variant="outline" size="sm" onClick={shareReading} disabled={!reading.trim()}>
                   <Share2 className="h-4 w-4 mr-1" />
                   Share
                 </Button>
@@ -1229,51 +1124,75 @@ export function CardSimulator() {
               <div className="flex items-center justify-center py-8">
                 <div className="text-center space-y-4">
                   <Loader2 className="h-8 w-8 animate-spin mx-auto text-purple-600" />
-                  <p className="text-lg font-medium">Consulting the Oracle...</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    The sacred wisdom is being channeled through the digital realm
-                  </p>
+                  <p className="text-lg font-medium">The Oracle is consulting the sacred wisdom...</p>
+                  <p className="text-sm text-gray-600">This may take a moment as we channel divine insights</p>
                 </div>
               </div>
-            ) : (
+            ) : reading ? (
               <div className="prose dark:prose-invert max-w-none">
                 <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 leading-relaxed">{reading}</div>
               </div>
-            )}
+            ) : hasGeneratedAIReading ? (
+              <div className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                <p className="text-lg font-medium text-red-600">
+                  Failed to generate an AI reading: Malformed server response
+                </p>
+                <p className="text-sm text-gray-600 mt-2">Please try again later.</p>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       )}
 
-      {/* Assistant Chat Modal */}
-      {showAssistantChat && conversationThreadId && (
-        <Dialog open={showAssistantChat} onOpenChange={setShowAssistantChat}>
-          <DialogContent className="max-w-4xl max-h-[80vh]">
-            <DialogHeader>
-              <DialogTitle>Continue Your Reading</DialogTitle>
-            </DialogHeader>
-            <AssistantChat
-              threadId={conversationThreadId}
-              context={{
-                fullName,
-                question,
-                selectedCards,
-                reading: assistantReading,
-                spreadType,
-                birthDate,
-                birthTime,
-                birthPlace,
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
+      {/* How to Use the Oracle */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            How to Use the Oracle
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto">
+                <span className="text-xl font-bold text-purple-600 dark:text-purple-400">1</span>
+              </div>
+              <h3 className="font-semibold">Focus Your Intent</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Clear your mind and formulate a specific question. The more focused your intent, the clearer the
+                guidance.
+              </p>
+            </div>
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto">
+                <span className="text-xl font-bold text-blue-600 dark:text-blue-400">2</span>
+              </div>
+              <h3 className="font-semibold">Choose Your Spread</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Select single card for focus, three cards for past-present-future, or five for elemental balance.
+              </p>
+            </div>
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto">
+                <span className="text-xl font-bold text-green-600 dark:text-green-400">3</span>
+              </div>
+              <h3 className="font-semibold">Receive Guidance</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Draw your cards and receive personalized insights from the Oracle through AI-powered interpretation.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Usage Statistics (if consent given) */}
+      {/* User Journey Stats */}
       {hasConsent && userProfile && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
+              <User className="h-5 w-5" />
               Your Oracle Journey
             </CardTitle>
           </CardHeader>
@@ -1306,46 +1225,25 @@ export function CardSimulator() {
         </Card>
       )}
 
-      {/* Help Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5" />
-            How to Use the Oracle
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto">
-                <span className="text-xl font-bold text-purple-600">1</span>
-              </div>
-              <h3 className="font-semibold">Set Your Intention</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Enter your question and personal details for a more personalized reading
-              </p>
-            </div>
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto">
-                <span className="text-xl font-bold text-blue-600">2</span>
-              </div>
-              <h3 className="font-semibold">Choose Your Spread</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Select single card for focus, three cards for past-present-future, or five for elemental balance
-              </p>
-            </div>
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto">
-                <span className="text-xl font-bold text-green-600">3</span>
-              </div>
-              <h3 className="font-semibold">Receive Guidance</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Draw your cards and receive personalized insights from the Oracle
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Assistant Chat Dialog */}
+      {showAssistantChat && conversationThreadId && (
+        <Dialog open={showAssistantChat} onOpenChange={setShowAssistantChat}>
+          <DialogContent className="max-w-4xl max-h-[80vh]">
+            <DialogHeader>
+              <DialogTitle>Continue Your Conversation with the Oracle</DialogTitle>
+            </DialogHeader>
+            <AssistantChat
+              threadId={conversationThreadId}
+              initialContext={{
+                cards: selectedCards,
+                question,
+                reading: assistantReading,
+                userProfile: userProfile || undefined,
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }

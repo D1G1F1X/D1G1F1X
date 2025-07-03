@@ -1,153 +1,97 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Shield, Lock, Eye, ExternalLink, X, Check } from "lucide-react"
-import Link from "next/link"
-import { userDataService } from "@/lib/services/user-data-service"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { Shield, Info } from "lucide-react"
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible"
 
 interface PrivacyNoticeProps {
-  context?: "card-simulator" | "numerology-calculator" | "general"
-  onConsentChange?: (hasConsent: boolean) => void
+  title: string
+  description: string
+  features: string[]
+  storageKey: string
+  onConsentChange: (consent: boolean) => void
 }
 
-export function PrivacyNotice({ context = "general", onConsentChange }: PrivacyNoticeProps) {
-  const [hasConsent, setHasConsent] = useState(false)
-  const [showBanner, setShowBanner] = useState(false)
+export function PrivacyNotice({ title, description, features, storageKey, onConsentChange }: PrivacyNoticeProps) {
+  const [consent, setConsent] = useState(false)
+  const [showDetails, setShowDetails] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    const consent = userDataService.hasConsent()
-    setHasConsent(consent)
-    setShowBanner(!consent)
-    onConsentChange?.(consent)
-  }, [onConsentChange])
-
-  const handleAcceptConsent = () => {
-    userDataService.setConsent(true)
-    setHasConsent(true)
-    setShowBanner(false)
-    onConsentChange?.(true)
-  }
-
-  const handleDeclineConsent = () => {
-    userDataService.setConsent(false)
-    setHasConsent(false)
-    setShowBanner(false)
-    onConsentChange?.(false)
-  }
-
-  const getContextMessage = () => {
-    switch (context) {
-      case "card-simulator":
-        return "To enhance your card reading experience, we can remember your name, question preferences, and reading history."
-      case "numerology-calculator":
-        return "To make future calculations easier, we can remember your name, birth date, and calculation preferences."
-      default:
-        return "To provide you with a personalized experience, we can remember your preferences and information."
+    setMounted(true)
+    if (typeof window !== "undefined") {
+      try {
+        const savedConsent = localStorage.getItem(storageKey) === "true"
+        setConsent(savedConsent)
+        onConsentChange(savedConsent)
+      } catch (error) {
+        console.error("Error reading consent from localStorage:", error)
+      }
     }
+  }, [storageKey, onConsentChange])
+
+  const handleConsentChange = (newConsent: boolean) => {
+    setConsent(newConsent)
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(storageKey, newConsent.toString())
+      } catch (error) {
+        console.error("Error saving consent to localStorage:", error)
+      }
+    }
+    onConsentChange(newConsent)
   }
 
-  if (hasConsent) {
-    return (
-      <Card className="bg-green-900/20 border-green-500/30 mb-6">
-        <CardContent className="p-4">
-          <div className="flex items-start space-x-3">
-            <Shield className="h-5 w-5 text-green-400 mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <h3 className="text-sm font-medium text-green-300 mb-1">Privacy Protected</h3>
-              <p className="text-xs text-green-200 mb-2">
-                Your information is securely stored locally and never shared with third parties.
-              </p>
-              <div className="flex flex-wrap gap-2 text-xs">
-                <Link
-                  href="/privacy-policy"
-                  className="text-green-300 hover:text-green-200 underline inline-flex items-center"
-                >
-                  <Eye className="h-3 w-3 mr-1" />
-                  Privacy Policy
-                </Link>
-                <button
-                  onClick={() => {
-                    userDataService.clearAllData()
-                    setHasConsent(false)
-                    setShowBanner(true)
-                    onConsentChange?.(false)
-                  }}
-                  className="text-green-300 hover:text-green-200 underline"
-                >
-                  Clear My Data
-                </button>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    )
+  if (!mounted) {
+    return null
   }
-
-  if (!showBanner) return null
 
   return (
-    <Card className="bg-blue-900/20 border-blue-500/30 mb-6">
-      <CardContent className="p-4">
-        <div className="flex items-start space-x-3">
-          <Lock className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
-          <div className="flex-1">
-            <h3 className="text-sm font-medium text-blue-300 mb-2">Enhance Your Experience</h3>
-            <p className="text-xs text-blue-200 mb-3">{getContextMessage()}</p>
-
-            <div className="bg-blue-950/50 rounded-lg p-3 mb-3">
-              <h4 className="text-xs font-medium text-blue-300 mb-2">What we store:</h4>
-              <ul className="text-xs text-blue-200 space-y-1">
-                <li>• Your name and birth information (for calculations)</li>
-                <li>• Reading preferences and history</li>
-                <li>• Settings and customizations</li>
-              </ul>
-
-              <h4 className="text-xs font-medium text-blue-300 mt-3 mb-2">Privacy commitment:</h4>
-              <ul className="text-xs text-blue-200 space-y-1">
-                <li>• Data stored locally in your browser only</li>
-                <li>• Never shared with third parties</li>
-                <li>• You can delete anytime</li>
-                <li>• No tracking or analytics on personal data</li>
-              </ul>
-            </div>
-
-            <div className="flex flex-wrap gap-2 mb-3">
-              <Link
-                href="/privacy-policy"
-                className="text-blue-300 hover:text-blue-200 underline text-xs inline-flex items-center"
-              >
-                <ExternalLink className="h-3 w-3 mr-1" />
-                Full Privacy Policy
-              </Link>
-              <Link
-                href="/terms-of-service"
-                className="text-blue-300 hover:text-blue-200 underline text-xs inline-flex items-center"
-              >
-                <ExternalLink className="h-3 w-3 mr-1" />
-                Terms of Service
-              </Link>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={handleAcceptConsent} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                <Check className="h-3 w-3 mr-1" />
-                Accept & Continue
-              </Button>
-              <Button
-                onClick={handleDeclineConsent}
-                variant="outline"
-                size="sm"
-                className="border-blue-500/30 text-blue-300 hover:bg-blue-900/30"
-              >
-                <X className="h-3 w-3 mr-1" />
-                No Thanks
-              </Button>
-            </div>
+    <Card className="border-blue-200 dark:border-blue-800">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Shield className="h-5 w-5 text-blue-600" />
+          {title}
+        </CardTitle>
+        <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Switch id="privacy-consent" checked={consent} onCheckedChange={handleConsentChange} />
+            <Label htmlFor="privacy-consent" className="text-sm font-medium">
+              Enable personalization features
+            </Label>
           </div>
+          <Button variant="ghost" size="sm" onClick={() => setShowDetails(!showDetails)} className="text-xs">
+            <Info className="h-3 w-3 mr-1" />
+            Details
+          </Button>
         </div>
+
+        <Collapsible open={showDetails} onOpenChange={setShowDetails}>
+          <CollapsibleContent className="space-y-2">
+            <div className="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-3 rounded">
+              <p className="font-medium mb-2">What we store locally:</p>
+              <ul className="space-y-1">
+                {features.map((feature, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <span className="text-green-600 mt-0.5">•</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-xs">
+                All data is stored locally in your browser and never sent to external servers. You can clear this data
+                at any time by disabling the toggle above.
+              </p>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </CardContent>
     </Card>
   )

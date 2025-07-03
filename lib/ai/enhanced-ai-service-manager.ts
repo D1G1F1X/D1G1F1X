@@ -24,43 +24,64 @@ interface ReadingResponse {
   interpretation: string
   guidance: string
   success: boolean
-  method: "assistant" | "chat_completion"
+  method: "assistant" | "chat_completion" | "fallback"
   error?: string
 }
 
 export class EnhancedAIServiceManager {
-  private openai: OpenAI
+  private openai: OpenAI | null = null
   private assistantId?: string
   private model: string
   private maxTokens: number
+  private isConfigured = false
 
   constructor() {
-    const apiKey = process.env.OPENAI_ASSISTANT_API_KEY || process.env.OPENAI_API_KEY
+    try {
+      const apiKey = process.env.OPENAI_ASSISTANT_API_KEY || process.env.OPENAI_API_KEY
 
-    if (!apiKey) {
-      throw new Error("OpenAI API key not found in environment variables")
+      if (!apiKey) {
+        console.warn("⚠️ OpenAI API key not found in environment variables")
+        this.isConfigured = false
+        return
+      }
+
+      this.openai = new OpenAI({
+        apiKey,
+        defaultHeaders: {
+          "OpenAI-Beta": "assistants=v2",
+        },
+      })
+
+      this.assistantId = process.env.OPENAI_ASSISTANT_ID
+      this.model = process.env.OPENAI_MODEL || "gpt-4o"
+      this.maxTokens = Number.parseInt(process.env.OPENAI_MAX_TOKENS || "4000")
+      this.isConfigured = true
+
+      console.log("🤖 AI Service Manager initialized:", {
+        hasApiKey: !!apiKey,
+        hasAssistantId: !!this.assistantId,
+        model: this.model,
+        maxTokens: this.maxTokens,
+      })
+    } catch (error) {
+      console.error("❌ Failed to initialize AI Service Manager:", error)
+      this.isConfigured = false
     }
-
-    this.openai = new OpenAI({
-      apiKey,
-      defaultHeaders: {
-        "OpenAI-Beta": "assistants=v2",
-      },
-    })
-
-    this.assistantId = process.env.OPENAI_ASSISTANT_ID
-    this.model = process.env.OPENAI_MODEL || "gpt-4o"
-    this.maxTokens = Number.parseInt(process.env.OPENAI_MAX_TOKENS || "4000")
-
-    console.log("🤖 AI Service Manager initialized:", {
-      hasApiKey: !!apiKey,
-      hasAssistantId: !!this.assistantId,
-      model: this.model,
-      maxTokens: this.maxTokens,
-    })
   }
 
   async generateReading(request: ReadingRequest): Promise<ReadingResponse> {
+    console.log("🎯 Generating reading for:", {
+      cardCount: request.cards.length,
+      hasQuestion: !!request.question,
+      spreadType: request.spread_type,
+    })
+
+    // If not configured, return fallback response
+    if (!this.isConfigured || !this.openai) {
+      console.warn("⚠️ AI service not configured, using fallback")
+      return this.generateFallbackReading(request)
+    }
+
     try {
       // Try assistant first if configured
       if (this.assistantId) {
@@ -92,14 +113,49 @@ export class EnhancedAIServiceManager {
         interpretation: "The AI service encountered an error while processing your request.",
         guidance: "Please try again in a few moments. If the issue persists, contact support.",
         success: false,
-        method: "chat_completion",
+        method: "fallback",
         error: error instanceof Error ? error.message : "Unknown error",
       }
     }
   }
 
+  private generateFallbackReading(request: ReadingRequest): ReadingResponse {
+    const { cards, question } = request
+
+    // Generate a basic reading based on card data
+    let reading = `Thank you for your question: "${question}"\n\n`
+
+    if (cards.length === 1) {
+      const card = cards[0]
+      reading += `The ${card.name} appears in your reading, representing the energy of ${card.element}. `
+      reading += `This card suggests: ${card.meaning}. `
+      reading += `Focus on the themes of ${card.keywords.slice(0, 3).join(", ")} as you move forward.`
+    } else if (cards.length === 3) {
+      reading += `Your three-card spread reveals:\n\n`
+      reading += `Past/Foundation: ${cards[0].name} - ${cards[0].meaning}\n`
+      reading += `Present/Focus: ${cards[1].name} - ${cards[1].meaning}\n`
+      reading += `Future/Outcome: ${cards[2].name} - ${cards[2].meaning}\n\n`
+      reading += `The elements ${cards.map((c) => c.element).join(", ")} are working together in your life.`
+    } else {
+      reading += `Your ${cards.length}-card spread shows a complex interplay of energies:\n\n`
+      cards.forEach((card, index) => {
+        reading += `${index + 1}. ${card.name} (${card.element}): ${card.meaning}\n`
+      })
+    }
+
+    return {
+      reading,
+      interpretation:
+        "This reading was generated using the card meanings and elemental associations from the NUMO Oracle system.",
+      guidance:
+        "Reflect on how these themes apply to your current situation and trust your intuition to guide you forward.",
+      success: true,
+      method: "fallback",
+    }
+  }
+
   private async generateWithAssistant(request: ReadingRequest): Promise<Omit<ReadingResponse, "method" | "success">> {
-    if (!this.assistantId) {
+    if (!this.assistantId || !this.openai) {
       throw new Error("Assistant ID not configured")
     }
 
@@ -115,8 +171,8 @@ export class EnhancedAIServiceManager {
       throw new Error(`Thread creation failed: ${threadError instanceof Error ? threadError.message : "Unknown error"}`)
     }
 
-    // Create the message with detailed card information
-    const prompt = this.buildDetailedPrompt(request)
+    // Create minimal prompt - let assistant system instructions handle the rest
+    const prompt = this.buildMinimalPrompt(request)
 
     try {
       console.log("📝 Adding message to thread...")
@@ -208,8 +264,13 @@ export class EnhancedAIServiceManager {
   private async generateWithChatCompletion(
     request: ReadingRequest,
   ): Promise<Omit<ReadingResponse, "method" | "success">> {
-    const systemPrompt = this.buildSystemPrompt()
-    const userPrompt = this.buildDetailedPrompt(request)
+    if (!this.openai) {
+      throw new Error("OpenAI client not initialized")
+    }
+
+    // Minimal system prompt for chat completion fallback
+    const systemPrompt = `You are the Oracle of NUMO, a mystical guide channeling wisdom through the Five Sacred Treasures. Provide oracle card readings in JSON format with "reading", "interpretation", and "guidance" fields. Be mystical, insightful, and encouraging.`
+    const userPrompt = this.buildMinimalPrompt(request)
 
     console.log("💬 Generating with chat completion...")
 
@@ -232,64 +293,25 @@ export class EnhancedAIServiceManager {
     return this.parseAssistantResponse(response)
   }
 
-  private buildSystemPrompt(): string {
-    return `You are the Oracle of NUMO, a mystical guide specializing in Celtic numerology and elemental wisdom through the sacred NUMO Oracle Cards. The NUMO Oracle features five sacred treasures from Celtic lore:
+  private buildMinimalPrompt(request: ReadingRequest): string {
+    const { cards, question, spread_type } = request
 
-1. **Cauldron of Dagda** (0) - Abundance, nourishment, infinite potential
-2. **Sword of Nuada** (1-9) - Truth, clarity, decisive action  
-3. **Cord of Fate** (10-99) - Connection, binding, destiny
-4. **Spear of Lugh** (100-999) - Direction, purpose, skill mastery
-5. **Stone of Destiny** (1000+) - Foundation, permanence, sovereignty
-
-Each card combines a tool with one of five elements (Air, Earth, Fire, Water, Spirit), creating unique energetic signatures.
-
-Your readings should be:
-- Deeply insightful and spiritually meaningful
-- Grounded in both Celtic mythology and numerological wisdom
-- Practical yet mystical
-- Respectful of the sacred nature of divination
-- Structured with clear sections for Reading, Interpretation, and Guidance
-
-Always provide responses in this exact JSON format:
-{
-  "reading": "The overall narrative of the cards drawn",
-  "interpretation": "Detailed analysis of each card's meaning and relationships",
-  "guidance": "Practical advice and spiritual wisdom for the querent"
-}`
-  }
-
-  private buildDetailedPrompt(request: ReadingRequest): string {
-    const { cards, question, spread_type, user_context } = request
-
-    let prompt = `Please provide a NUMO Oracle reading for the following cards:\n\n`
+    let prompt = `Cards drawn:\n`
 
     cards.forEach((card, index) => {
-      prompt += `**Card ${index + 1}: ${card.name}**\n`
-      prompt += `- Tool: ${card.tool}\n`
-      prompt += `- Element: ${card.element}\n`
-      prompt += `- Number: ${card.number}\n`
-      prompt += `- Core Meaning: ${card.meaning}\n`
-      prompt += `- Description: ${card.description}\n`
-      prompt += `- Keywords: ${card.keywords.join(", ")}\n`
-      if (card.reversed_meaning) {
-        prompt += `- Reversed Meaning: ${card.reversed_meaning}\n`
-      }
-      prompt += `\n`
+      prompt += `${index + 1}. ${card.name} (${card.tool} of ${card.element}, Number: ${card.number})\n`
+      prompt += `   Key meanings: ${card.keywords.join(", ")}\n`
     })
 
-    if (question) {
-      prompt += `**Question Asked:** ${question}\n\n`
+    if (question && question !== "General guidance") {
+      prompt += `\nQuestion: ${question}\n`
     }
 
     if (spread_type) {
-      prompt += `**Spread Type:** ${spread_type}\n\n`
+      prompt += `Spread: ${spread_type}\n`
     }
 
-    if (user_context) {
-      prompt += `**Additional Context:** ${user_context}\n\n`
-    }
-
-    prompt += `Please provide a comprehensive reading that weaves together the mythological significance, numerological wisdom, and elemental energies of these cards. Focus on the interplay between the sacred tools and elements, and how they relate to the querent's situation.`
+    prompt += `\nPlease provide a mystical oracle reading with deep insights and practical guidance.`
 
     return prompt
   }
@@ -299,7 +321,11 @@ Always provide responses in this exact JSON format:
       // Try to parse as JSON first
       const parsed = JSON.parse(response)
       if (parsed.reading && parsed.interpretation && parsed.guidance) {
-        return parsed
+        return {
+          reading: parsed.reading,
+          interpretation: parsed.interpretation,
+          guidance: parsed.guidance,
+        }
       }
     } catch {
       // If not JSON, parse as structured text
@@ -341,9 +367,14 @@ Always provide responses in this exact JSON format:
     // If sections are empty, use the full response as reading
     if (!sections.reading && !sections.interpretation && !sections.guidance) {
       sections.reading = response
-      sections.interpretation = "Please refer to the reading above for detailed insights."
-      sections.guidance = "Reflect on the messages presented and trust your intuition."
+      sections.interpretation = "The Oracle has spoken through the sacred cards."
+      sections.guidance = "Reflect on the messages presented and trust your intuition to guide your path forward."
     }
+
+    // Ensure all sections have content
+    if (!sections.reading) sections.reading = "The cards reveal their wisdom in mysterious ways."
+    if (!sections.interpretation) sections.interpretation = "Each symbol carries deep meaning for your journey."
+    if (!sections.guidance) sections.guidance = "Trust in the guidance provided and follow your inner wisdom."
 
     return sections
   }
@@ -361,6 +392,13 @@ Always provide responses in this exact JSON format:
         assistant_configured: !!this.assistantId,
         assistant_accessible: false,
         chat_completion_available: false,
+      }
+
+      if (!this.openai) {
+        return {
+          ...result,
+          error: "OpenAI client not initialized - missing API key",
+        }
       }
 
       // Test chat completion

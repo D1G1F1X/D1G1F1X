@@ -10,6 +10,9 @@ const publicSupabaseConfig: PublicSupabaseConfig = {
   anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
 }
 
+// Public config re-exported for consumers that expect SUPABASE_CONFIG
+export const SUPABASE_CONFIG = publicSupabaseConfig
+
 // Validate public config on load (client-side safe)
 if (!publicSupabaseConfig.url) {
   console.warn("⚠️ NEXT_PUBLIC_SUPABASE_URL is not set. Supabase client features may not work.")
@@ -23,7 +26,6 @@ export { publicSupabaseConfig }
 // ------------------------------------------------------------------
 //  Private (server-side only) config for admin operations
 // ------------------------------------------------------------------
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 
 /**
  * Validates the Supabase integration configuration.
@@ -37,21 +39,36 @@ function validateDigifixIntegration(): boolean {
     console.warn("⚠️  Invalid Supabase integration - DIGIFIX project URL not found. Some features may not work.")
     return false
   }
-  if (!SUPABASE_SERVICE_ROLE_KEY) {
-    console.warn(
-      "⚠️  Missing SUPABASE_SERVICE_ROLE_KEY env var. Admin operations will be disabled or mocked during build/preview.",
-    )
-    return false
+
+  // Only check service role key on server side
+  if (typeof window === "undefined") {
+    const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+    if (!SUPABASE_SERVICE_ROLE_KEY) {
+      console.warn(
+        "⚠️  Missing SUPABASE_SERVICE_ROLE_KEY env var. Admin operations will be disabled or mocked during build/preview.",
+      )
+      return false
+    }
   }
+
   return true
 }
+
+export { validateDigifixIntegration }
 
 /**
  * Returns a Supabase admin client. If SUPABASE_SERVICE_ROLE_KEY is missing,
  * it returns a mock client during build/preview to prevent crashes.
+ * SERVER-SIDE ONLY - will throw error if called on client
  */
 export function getSupabaseAdminClient(): SupabaseClient {
-  if (!validateDigifixIntegration()) {
+  if (typeof window !== "undefined") {
+    throw new Error("getSupabaseAdminClient can only be called on the server side")
+  }
+
+  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+
+  if (!validateDigifixIntegration() || !SUPABASE_SERVICE_ROLE_KEY) {
     // Return a mock client if the service role key is missing, to prevent build failures.
     // @ts-ignore - This is a mock for build-time tolerance.
     return {
@@ -83,6 +100,7 @@ export function getSupabaseAdminClient(): SupabaseClient {
       },
     }
   }
+
   return createClient(publicSupabaseConfig.url, SUPABASE_SERVICE_ROLE_KEY, {
     auth: {
       autoRefreshToken: false,
