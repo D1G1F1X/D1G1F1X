@@ -44,13 +44,13 @@ export const projects = [
   // Currently Building Projects
   {
     id: "melt",
-    title: "Melt Threat Assessment Platform",
+    title: "Melt Real-time Threat Assessment & Chat",
     description:
-      "An in-house project for real-time threat assessment and data visualization, featuring a local chat interface and national threat level monitoring. Designed for rapid intelligence gathering and communication.",
+      "An in-house project focused on real-time threat assessment and secure local communication. Features a dynamic chat interface and live data monitoring for various threat levels.",
     image: "/images/projects/melt.jpg",
     category: "in-house",
     stage: "building",
-    tags: ["Threat Assessment", "Data Visualization", "Real-time", "Intelligence", "Chat"],
+    tags: ["Real-time", "Chat", "Security", "Data Monitoring", "Internal Tool"],
     url: "https://meltice.vercel.app/",
     featured: false,
     recentlyDeployed: false,

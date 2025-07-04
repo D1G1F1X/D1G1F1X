@@ -2,111 +2,104 @@ import Image from "next/image"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { projects } from "@/lib/projects"
-import { ArrowLeftIcon, ExternalLinkIcon } from "lucide-react"
-import { PageHero } from "@/components/page-hero"
+import { ArrowRightIcon, ExternalLinkIcon } from "lucide-react"
 
 export default function MeltProjectPage() {
   const project = projects.find((p) => p.id === "melt")
 
   if (!project) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <h1 className="text-3xl font-bold text-red-500">Project Not Found</h1>
-        <p className="text-gray-400 mt-2">The requested project could not be found.</p>
-        <Link href="/portfolio" className="mt-6">
-          <Button variant="outline">
-            <ArrowLeftIcon className="mr-2 h-4 w-4" />
-            Back to Portfolio
-          </Button>
-        </Link>
-      </div>
-    )
+    return <div className="flex items-center justify-center min-h-[60vh] text-xl text-gray-400">Project not found.</div>
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <PageHero
-        title={project.title}
-        description={project.description}
-        image={project.image}
-        tags={project.tags}
-        category={project.category}
-        stage={project.stage}
-      />
-
-      <main className="container mx-auto px-4 py-12 md:py-20 relative z-10">
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-start">
-          <div className="space-y-8">
-            <h2 className="text-3xl font-bold text-white">Project Overview</h2>
-            <p className="text-lg text-gray-300">
-              Melt is an innovative in-house project focused on real-time threat assessment and data visualization. It
-              provides a dynamic platform for monitoring national threat levels and facilitating local communication
-              through an integrated chat interface. The system is designed to offer rapid intelligence gathering and
-              communication capabilities, crucial for proactive security measures.
-            </p>
-            <p className="text-lg text-gray-300">
-              The platform's intuitive dashboard presents a clear overview of threat statuses across various regions,
-              allowing users to quickly identify and respond to emerging situations. The integrated chat feature enables
-              seamless collaboration and information sharing among users, enhancing situational awareness and
-              coordinated response efforts.
-            </p>
-            <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-white">Key Features</h3>
-              <ul className="list-disc list-inside text-gray-300 space-y-2">
-                <li>Real-time National Threat Assessment</li>
-                <li>Interactive Local Chat Interface</li>
-                <li>Dynamic Data Visualization of Threat Levels</li>
-                <li>Secure Communication Channels</li>
-                <li>Scalable Architecture for Data Processing</li>
-              </ul>
-            </div>
-            <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-white">Technologies Used</h3>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary" className="bg-gray-700 text-gray-200 border-gray-600">
-                  React
-                </Badge>
-                <Badge variant="secondary" className="bg-gray-700 text-gray-200 border-gray-600">
-                  Next.js
-                </Badge>
-                <Badge variant="secondary" className="bg-gray-700 text-gray-200 border-gray-600">
-                  WebSockets
-                </Badge>
-                <Badge variant="secondary" className="bg-gray-700 text-gray-200 border-gray-600">
-                  Data Streaming
-                </Badge>
-                <Badge variant="secondary" className="bg-gray-700 text-gray-200 border-gray-600">
-                  Tailwind CSS
-                </Badge>
-              </div>
-            </div>
-            {project.url && (
-              <Button asChild className="mt-6">
-                <Link href={project.url} target="_blank" rel="noopener noreferrer">
-                  View Build Progress
-                  <ExternalLinkIcon className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            )}
+    <div className="container mx-auto px-4 py-12 md:py-20">
+      <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="space-y-6">
+          <Badge variant="secondary" className="px-3 py-1 text-sm">
+            {project.category === "in-house" ? "In-House Project" : "Client Project"}
+          </Badge>
+          <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">{project.title}</h1>
+          <p className="text-lg text-gray-300">{project.description}</p>
+          <div className="flex flex-wrap gap-2">
+            {project.tags.map((tag) => (
+              <Badge key={tag} variant="outline" className="text-gray-300 border-gray-700 bg-gray-800/50">
+                {tag}
+              </Badge>
+            ))}
           </div>
-          <div className="relative">
-            <Card className="bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-xl overflow-hidden">
-              <CardContent className="p-0">
-                <Image
-                  src={project.image || "/placeholder.svg"}
-                  alt={project.title}
-                  width={1200}
-                  height={800}
-                  className="w-full h-auto object-cover"
-                />
-              </CardContent>
-            </Card>
-            <div className="absolute inset-0 border-2 border-primary-500 rounded-xl pointer-events-none animate-pulse-border" />
+          <div className="flex gap-4">
+            {project.url && (
+              <Link href={project.url} target="_blank" rel="noopener noreferrer">
+                <Button className="bg-primary-600 hover:bg-primary-700 text-white">
+                  View Build Progress <ExternalLinkIcon className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            )}
+            <Link href="/portfolio">
+              <Button variant="outline" className="text-white border-gray-700 hover:bg-gray-800 bg-transparent">
+                Back to Portfolio <ArrowRightIcon className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </div>
-      </main>
+        <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden shadow-lg border border-gray-700">
+          <Image
+            src={project.image || "/placeholder.svg"}
+            alt={project.title}
+            fill
+            style={{ objectFit: "cover" }}
+            className="transition-transform duration-500 hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        </div>
+      </div>
+
+      <div className="mt-16 md:mt-24 space-y-12">
+        <h2 className="text-3xl font-bold text-white text-center">Project Insights</h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <Card className="bg-gray-800/80 backdrop-blur-sm border border-gray-700 text-white">
+            <CardHeader>
+              <CardTitle className="text-primary-400">Core Functionality</CardTitle>
+            </CardHeader>
+            <CardContent className="text-gray-300">
+              Melt is designed as a real-time communication and threat assessment platform. Its core features include a
+              local chat interface for secure messaging and a dynamic display of national threat levels, providing
+              immediate insights into security statuses across various regions.
+            </CardContent>
+          </Card>
+          <Card className="bg-gray-800/80 backdrop-blur-sm border border-gray-700 text-white">
+            <CardHeader>
+              <CardTitle className="text-primary-400">Technology Stack</CardTitle>
+            </CardHeader>
+            <CardContent className="text-gray-300">
+              Built with a focus on speed and responsiveness, Melt leverages modern web technologies for real-time data
+              processing and communication. The backend is designed for high-throughput data streams, ensuring
+              up-to-the-minute threat assessments.
+            </CardContent>
+          </Card>
+          <Card className="bg-gray-800/80 backdrop-blur-sm border border-gray-700 text-white">
+            <CardHeader>
+              <CardTitle className="text-primary-400">Design Philosophy</CardTitle>
+            </CardHeader>
+            <CardContent className="text-gray-300">
+              The user interface of Melt is clean and intuitive, prioritizing clarity and ease of use for critical
+              information. The dark theme reduces eye strain during prolonged monitoring, and the minimalist design
+              ensures focus on essential data.
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <div className="mt-16 md:mt-24 text-center">
+        <h2 className="text-3xl font-bold text-white mb-6">Explore More Projects</h2>
+        <Link href="/portfolio">
+          <Button className="bg-accent-600 hover:bg-accent-700 text-white text-lg px-8 py-4">
+            View All Projects <ArrowRightIcon className="ml-3 h-5 w-5" />
+          </Button>
+        </Link>
+      </div>
     </div>
   )
 }
