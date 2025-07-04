@@ -43,6 +43,19 @@ export const projects = [
   },
   // Currently Building Projects
   {
+    id: "melt",
+    title: "Melt Threat Assessment Platform",
+    description:
+      "An in-house project for real-time threat assessment and data visualization, featuring a local chat interface and national threat level monitoring. Designed for rapid intelligence gathering and communication.",
+    image: "/images/projects/melt.jpg",
+    category: "in-house",
+    stage: "building",
+    tags: ["Threat Assessment", "Data Visualization", "Real-time", "Intelligence", "Chat"],
+    url: "https://meltice.vercel.app/",
+    featured: false,
+    recentlyDeployed: false,
+  },
+  {
     id: "nowo-radio",
     title: "NOWO Radio Platform",
     description:
