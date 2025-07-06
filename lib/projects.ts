@@ -49,9 +49,9 @@ export const projects = [
       "An in-house project focused on real-time threat assessment and secure local communication. Features a dynamic chat interface and live data monitoring for various threat levels.",
     image: "/images/projects/melt.jpg",
     category: "in-house",
-    stage: "beta", // Changed from 'building' to 'beta'
+    stage: "beta",
     tags: ["Real-time", "Chat", "Security", "Data Monitoring", "Internal Tool"],
-    url: "https://icemelt.app", // Updated URL
+    url: "https://icemelt.app",
     featured: false,
     recentlyDeployed: false,
   },
