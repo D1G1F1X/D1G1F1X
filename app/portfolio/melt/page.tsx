@@ -23,6 +23,14 @@ export default function MeltProjectPage() {
           <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">
             M.E.L.T. (Monitor Enforcement Locate Threats)
           </h1>
+          {project.url && (
+            <p className="text-lg text-primary-400 font-semibold">
+              Domain:{" "}
+              <Link href={project.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                {new URL(project.url).hostname}
+              </Link>
+            </p>
+          )}
           <p className="text-lg text-gray-300">
             M.E.L.T. (Monitor Enforcement Locate Threats) is a web community-powered platform designed to provide
             real-time alerts, notifications, and insights into immigration & ICE sightings and threat levels in your
@@ -46,11 +54,13 @@ export default function MeltProjectPage() {
             </Badge>
           </div>
           <div className="flex gap-4">
-            <Link href="https://meltice.vercel.app/" target="_blank" rel="noopener noreferrer">
-              <Button className="bg-primary-600 hover:bg-primary-700 text-white">
-                View Build Progress <ExternalLinkIcon className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+            {project.url && (
+              <Link href={project.url} target="_blank" rel="noopener noreferrer">
+                <Button className="bg-primary-600 hover:bg-primary-700 text-white">
+                  View Build Progress <ExternalLinkIcon className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            )}
             <Link href="/portfolio">
               <Button variant="outline" className="text-white border-gray-700 hover:bg-gray-800 bg-transparent">
                 Back to Portfolio <ArrowRightIcon className="ml-2 h-4 w-4" />
