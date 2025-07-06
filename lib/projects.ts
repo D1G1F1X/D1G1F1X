@@ -150,3 +150,32 @@ export const projects: Project[] = [
     featured: false,
   },
 ]
+
+// Add the missing featuredProjects export
+export const featuredProjects = [
+  projects.find((p) => p.id === "numoracle-oracle-cards")!,
+  projects.find((p) => p.id === "kraftwerk-numerology")!,
+  projects.find((p) => p.id === "melt")!,
+  projects.find((p) => p.id === "enterprise-project-management-system")!,
+]
+
+// Helper functions for project categorization
+export const getRecentlyDeployedProjects = () => {
+  return projects.filter((project) => project.stage === "deployed").slice(0, 3)
+}
+
+export const getInHouseProjects = () => {
+  return projects.filter((project) => project.category === "in-house")
+}
+
+export const getClientProjects = () => {
+  return projects.filter((project) => project.category === "client")
+}
+
+export const getBuildingProjects = () => {
+  return projects.filter((project) => project.stage === "building")
+}
+
+export const getBetaProjects = () => {
+  return projects.filter((project) => project.stage === "beta")
+}
