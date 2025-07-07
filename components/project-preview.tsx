@@ -32,12 +32,19 @@ export default function ProjectPreview({ project }: ProjectPreviewProps) {
     building: "bg-primary-500",
     beta: "bg-secondary-600",
     deployed: "bg-accent-500",
+    live: "bg-accent-500", // new
+    development: "bg-primary-500", // new
+    archived: "bg-gray-600", // new
   }
 
   const categoryColors = {
     "in-house": "bg-primary-600",
     client: "bg-accent-600",
   }
+
+  // Accept either `stage` (old) or `status` (new) from the project data
+  const stageLabel =
+    (project as { stage?: string; status?: string }).stage ?? (project as { status?: string }).status ?? ""
 
   return (
     <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl overflow-hidden hover:shadow-xl transition-all duration-500 border border-gray-700/50 hover:border-primary-500/50 group relative flex flex-col h-full transform hover:-translate-y-1">
@@ -85,8 +92,8 @@ export default function ProjectPreview({ project }: ProjectPreviewProps) {
           <Badge className={cn("text-white", categoryColors[project.category])}>
             {project.category === "in-house" ? "In-House" : "Client"}
           </Badge>
-          <Badge className={cn("text-white", stageColors[project.stage])}>
-            {project.stage.charAt(0).toUpperCase() + project.stage.slice(1)}
+          <Badge className={cn("text-white", stageColors[stageLabel as keyof typeof stageColors] ?? "bg-gray-600")}>
+            {stageLabel ? stageLabel.charAt(0).toUpperCase() + stageLabel.slice(1) : "N/A"}
           </Badge>
         </div>
 
