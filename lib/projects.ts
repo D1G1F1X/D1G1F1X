@@ -1,58 +1,88 @@
-import type { Project } from "@/lib/types"
+import type { StaticImageData } from "next/image"
+
+import numoracleImage from "@/public/images/projects/numoracle-oracle-cards.jpg"
+import kraftwerkImage from "@/public/images/projects/kraftwerk-numerology.jpg"
+import hodgeDocImage from "@/public/images/projects/hodge-documentary.jpg"
+import lolitaWilsonImage from "@/public/images/projects/lolita-wilson-portfolio.jpg"
+import nowoRadioImage from "@/public/images/projects/nowo-radio.jpg"
+import oyahLoveImage from "@/public/images/projects/oyah-love.jpg"
+import meltImage from "@/public/images/projects/melt.jpg"
+import aiContentGeneratorImage from "@/public/images/projects/ai-content-generator.png"
+import brandIdentitySystemImage from "@/public/images/projects/brand-identity-system.png"
+import dataVisualizationDashboardImage from "@/public/images/projects/data-visualization-dashboard.png"
+import eCommercePlatformImage from "@/public/images/projects/e-commerce-platform.png"
+import enterpriseProjectManagementImage from "@/public/images/projects/enterprise-project-management.png"
+import virtualEventPlatformImage from "@/public/images/projects/virtual-event-platform.png"
+
+export type Project = {
+  id: string
+  title: string
+  description: string
+  image: StaticImageData | string
+  category: "in-house" | "client"
+  tags: string[]
+  domain?: string
+  liveSiteUrl?: string
+  githubUrl?: string
+  deploymentDate?: string
+  timeline?: string
+  status?: "completed" | "in-progress" | "beta" | "archived"
+  featured?: boolean
+}
 
 export const projects: Project[] = [
   {
     id: "numoracle-oracle-cards",
     title: "Numoracle Oracle Cards",
-    category: "client",
-    description: "A digital oracle card application for daily guidance and insights based on numerology.",
-    image: "/images/projects/numoracle-oracle-cards.jpg",
-    tags: ["Web Development", "Numerology", "Oracle Cards", "React", "Next.js", "Supabase"],
-    link: "https://numoracle.com",
+    description:
+      "A digital oracle card application that combines numerology with intuitive card readings for daily guidance and insights.",
+    image: numoracleImage,
+    category: "in-house",
+    tags: ["Numerology", "Oracle Cards", "Spirituality", "Web App", "React", "Next.js"],
+    domain: "numoracle.com",
+    liveSiteUrl: "https://numoracle.com",
+    deploymentDate: "2024-06-15",
     timeline: "2024 - Present",
-    stage: "live",
+    status: "in-progress",
+    featured: true,
   },
   {
     id: "kraftwerk-numerology",
     title: "Kraftwerk Numerology",
-    category: "client",
-    description: "An interactive platform offering personalized numerology readings and reports.",
-    image: "/images/projects/kraftwerk-numerology.jpg",
-    tags: ["Web Development", "Numerology", "Personalized Reports", "React", "Next.js", "API Integration"],
-    link: "https://kraftwerked.com",
+    description:
+      "An advanced numerology platform offering personalized reports, compatibility analysis, and predictive insights.",
+    image: kraftwerkImage,
+    category: "in-house",
+    tags: ["Numerology", "Personal Development", "Analytics", "Web Platform", "React", "Node.js"],
+    domain: "kraftwerked.com",
+    liveSiteUrl: "https://kraftwerked.com",
+    deploymentDate: "2024-05-20",
     timeline: "2023 - Present",
-    stage: "live",
+    status: "in-progress",
+    featured: true,
   },
   {
     id: "hodge-documentary",
     title: "Hodge Documentary",
-    category: "client",
     description:
       "A promotional website for a documentary film, featuring trailers, cast information, and screening schedules.",
-    image: "/images/projects/hodge-documentary.jpg",
-    tags: ["Web Design", "Film Promotion", "Documentary", "Next.js", "Content Management"],
-    link: "https://hodgedoc.com",
-    timeline: "2023 - 2024",
-    stage: "live",
-  },
-  {
-    id: "lolita-wilson-portfolio",
-    title: "Lolita Wilson Portfolio",
+    image: hodgeDocImage,
     category: "client",
-    description: "A professional portfolio website for artist Lolita Wilson, showcasing her artwork and exhibitions.",
-    image: "/images/projects/lolita-wilson-portfolio.jpg",
-    tags: ["Portfolio", "Art", "Web Design", "Next.js", "Gallery"],
-    link: "https://lolitawilson.com",
-    timeline: "2022 - 2023",
-    stage: "live",
+    tags: ["Film", "Documentary", "Promotional", "Website", "Next.js", "Content Management"],
+    domain: "hodgedoc.com",
+    liveSiteUrl: "https://hodgedoc.com",
+    deploymentDate: "2023-11-01",
+    timeline: "2023",
+    status: "completed",
+    featured: true,
   },
   {
     id: "melt",
     title: "M.E.L.T. (Monitor Enforcement Locate Threats)",
-    category: "in-house",
     description:
-      "A web community-powered platform providing real-time alerts and insights into immigration & ICE sightings.",
-    image: "/images/projects/melt.jpg",
+      "A web community-powered platform designed to provide real-time alerts, notifications, and insights into immigration & ICE sightings and threat levels in your area!",
+    image: meltImage, // This will be updated to the new screenshot
+    category: "in-house",
     tags: [
       "Real-time Alerts",
       "Community Reporting",
@@ -60,104 +90,134 @@ export const projects: Project[] = [
       "Location-based Services",
       "Secure Communication",
     ],
-    link: "https://icemelt.app",
+    domain: "icemelt.app",
+    liveSiteUrl: "https://icemelt.app",
+    deploymentDate: "2024-07-05",
     timeline: "2023 - Present",
-    stage: "beta",
+    status: "beta",
+    featured: true,
+  },
+  {
+    id: "lolita-wilson-portfolio",
+    title: "Lolita Wilson Portfolio",
+    description:
+      "A professional portfolio website for artist Lolita Wilson, showcasing her diverse range of artworks and exhibitions.",
+    image: lolitaWilsonImage,
+    category: "client",
+    tags: ["Art", "Portfolio", "Artist", "Website", "Gallery", "Next.js"],
+    domain: "lolitawilson.com",
+    liveSiteUrl: "https://lolitawilson.com",
+    deploymentDate: "2023-09-10",
+    timeline: "2023",
+    status: "completed",
+    featured: false,
   },
   {
     id: "nowo-radio",
     title: "NOWO Radio",
-    category: "client",
     description:
-      "A modern web application for an online radio station, featuring live streaming, show schedules, and artist profiles.",
-    image: "/images/projects/nowo-radio.jpg",
-    tags: ["Web Development", "Live Streaming", "Radio", "Next.js", "Audio Player"],
-    link: "https://noworadio.com",
-    timeline: "2024 - Present",
-    stage: "live",
+      "An online radio streaming platform featuring live broadcasts, podcasts, and a schedule of upcoming shows.",
+    image: nowoRadioImage,
+    category: "client",
+    tags: ["Radio", "Streaming", "Podcast", "Entertainment", "Web App"],
+    domain: "noworadio.com",
+    liveSiteUrl: "https://noworadio.com",
+    deploymentDate: "2022-08-20",
+    timeline: "2022",
+    status: "completed",
+    featured: false,
   },
   {
     id: "oyah-love",
     title: "Oyah Love",
-    category: "client",
     description:
-      "An e-commerce platform for a unique fashion brand, focusing on sustainable and ethically sourced clothing.",
-    image: "/images/projects/oyah-love.jpg",
-    tags: ["E-commerce", "Fashion", "Sustainable", "Shopify Integration", "Web Design"],
-    link: "https://oyahlove.com",
-    timeline: "2023 - Present",
-    stage: "live",
+      "An e-commerce store specializing in unique, handcrafted jewelry and accessories, with secure payment integration.",
+    image: oyahLoveImage,
+    category: "client",
+    tags: ["E-commerce", "Jewelry", "Handcrafted", "Online Store", "Shopify"],
+    domain: "oyahlove.com",
+    liveSiteUrl: "https://oyahlove.com",
+    deploymentDate: "2022-03-05",
+    timeline: "2022",
+    status: "completed",
+    featured: false,
   },
   {
     id: "ai-content-generator",
     title: "AI Content Generator",
+    description: "A powerful AI-driven platform for generating high-quality articles, blog posts, and marketing copy.",
+    image: aiContentGeneratorImage,
     category: "in-house",
-    description: "An intelligent platform leveraging AI to generate high-quality content for various marketing needs.",
-    image: "/images/projects/ai-content-generator.png",
-    tags: ["AI", "Content Creation", "Marketing Automation", "GPT Integration", "SaaS"],
-    link: "#",
-    timeline: "2023 - Present",
-    stage: "development",
+    tags: ["AI", "Content Creation", "SaaS", "GPT", "Next.js", "Tailwind CSS"],
+    deploymentDate: "2023-10-20",
+    timeline: "2023",
+    status: "completed",
+    featured: false,
   },
   {
     id: "brand-identity-system",
     title: "Brand Identity System",
-    category: "client",
     description:
-      "Development of a comprehensive brand identity system for a startup, including logo, typography, and style guides.",
-    image: "/images/projects/brand-identity-system.png",
-    tags: ["Branding", "Graphic Design", "Logo Design", "Style Guide", "Visual Identity"],
-    link: "#",
-    timeline: "2022 - 2023",
-    stage: "completed",
+      "Comprehensive brand guidelines and asset library for a startup, ensuring consistent visual communication.",
+    image: brandIdentitySystemImage,
+    category: "client",
+    tags: ["Branding", "Design System", "Guidelines", "UI/UX"],
+    deploymentDate: "2023-07-15",
+    timeline: "2023",
+    status: "completed",
+    featured: false,
   },
   {
     id: "data-visualization-dashboard",
     title: "Data Visualization Dashboard",
-    category: "in-house",
     description:
-      "An interactive dashboard for visualizing complex datasets, providing actionable insights for business intelligence.",
-    image: "/images/projects/data-visualization-dashboard.png",
-    tags: ["Data Visualization", "Business Intelligence", "Dashboard", "React", "D3.js", "Analytics"],
-    link: "#",
-    timeline: "2023 - Present",
-    stage: "development",
+      "An interactive dashboard for analyzing complex datasets, providing actionable insights through intuitive visualizations.",
+    image: dataVisualizationDashboardImage,
+    category: "in-house",
+    tags: ["Data Analytics", "Dashboard", "BI", "React", "D3.js"],
+    deploymentDate: "2023-05-01",
+    timeline: "2023",
+    status: "completed",
+    featured: false,
   },
   {
     id: "e-commerce-platform",
     title: "E-commerce Platform",
-    category: "client",
     description:
-      "A scalable e-commerce solution for a retail client, featuring product management, secure payments, and order fulfillment.",
-    image: "/images/projects/e-commerce-platform.png",
-    tags: ["E-commerce", "Retail", "Payment Gateway", "Inventory Management", "Next.js", "Stripe"],
-    link: "#",
-    timeline: "2022 - 2023",
-    stage: "completed",
+      "A scalable e-commerce solution with robust product management, secure payment gateway, and user-friendly interface.",
+    image: eCommercePlatformImage,
+    category: "client",
+    tags: ["E-commerce", "Online Store", "Payment Gateway", "Next.js", "Stripe"],
+    deploymentDate: "2022-11-30",
+    timeline: "2022",
+    status: "completed",
+    featured: false,
   },
   {
     id: "enterprise-project-management-system",
     title: "Enterprise Project Management System",
-    category: "in-house",
     description:
-      "A robust system designed to streamline project workflows, resource allocation, and team collaboration for large enterprises.",
-    image: "/images/projects/enterprise-project-management.png",
-    tags: ["Project Management", "Enterprise Software", "Workflow Automation", "Collaboration Tools", "SaaS"],
-    link: "#",
-    timeline: "2024 - Present",
-    stage: "development",
+      "A custom-built system for large organizations to manage projects, track progress, and collaborate efficiently.",
+    image: enterpriseProjectManagementImage,
+    category: "client",
+    tags: ["Project Management", "Enterprise Software", "Collaboration", "SaaS"],
+    deploymentDate: "2022-09-01",
+    timeline: "2022",
+    status: "completed",
+    featured: false,
   },
   {
     id: "virtual-event-platform",
     title: "Virtual Event Platform",
-    category: "client",
     description:
-      "A comprehensive platform for hosting virtual conferences and events, with features like live streaming, networking, and interactive sessions.",
-    image: "/images/projects/virtual-event-platform.png",
-    tags: ["Virtual Events", "Live Streaming", "Networking", "Event Management", "WebRTC"],
-    link: "#",
-    timeline: "2023 - 2024",
-    stage: "completed",
+      "A comprehensive platform for hosting virtual conferences and events, featuring live streaming, networking, and interactive sessions.",
+    image: virtualEventPlatformImage,
+    category: "in-house",
+    tags: ["Virtual Events", "Live Streaming", "Networking", "Event Management"],
+    deploymentDate: "2022-06-20",
+    timeline: "2022",
+    status: "completed",
+    featured: false,
   },
 ]
 
@@ -168,6 +228,6 @@ export const featuredProjects = [
   projects.find((p) => p.id === "melt")!,
 ]
 
-export const getBetaProjects = () => {
-  return projects.filter((project) => project.stage === "beta")
+export function getBetaProjects() {
+  return projects.filter((project) => project.status === "beta")
 }

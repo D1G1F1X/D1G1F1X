@@ -51,7 +51,7 @@ export default function MeltProjectPage() {
       <div className="mb-12 relative overflow-hidden rounded-xl border border-gray-800 shadow-xl">
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div>
         <Image
-          src={project.image || "/placeholder.svg"}
+          src="/images/projects/ice-melt-app-screenshot.png" // Updated image source
           alt={project.title}
           width={1200}
           height={675}
@@ -65,8 +65,7 @@ export default function MeltProjectPage() {
           <div className="bg-gray-900/70 backdrop-blur-sm p-6 rounded-xl border border-gray-800 hover:border-primary-500/30 transition-all duration-300">
             <h2 className="text-2xl font-bold mb-4 text-white">
               Project: M.E.L.T. (Monitor Enforcement Locate Threats)
-            </h2>{" "}
-            {/* Changed text color to white */}
+            </h2>
             <p className="text-gray-200 mb-4">
               <strong>Domain:</strong> <code className="text-primary-400">iceMELT.app</code>
             </p>
@@ -75,7 +74,7 @@ export default function MeltProjectPage() {
               real-time alerts, notifications, and insights into immigration & ICE sightings and threat levels in your
               area! 🚨 M.E.L.T. aims to empower communities with critical information.
             </p>
-            <h3 className="text-xl font-bold mb-3 text-white">Key Features:</h3> {/* Changed text color to white */}
+            <h3 className="text-xl font-bold mb-3 text-white">Key Features:</h3>
             <ul className="list-disc pl-6 space-y-2 text-gray-200 mb-6">
               <li>
                 <strong>Interactive Map:</strong> Visualize sightings and threat perimeters on a dynamic, real-time map.
@@ -98,8 +97,7 @@ export default function MeltProjectPage() {
                 reports, analyze data, and oversee community contributions.
               </li>
             </ul>
-            <h3 className="text-xl font-bold mb-3 text-white">Technologies Used:</h3>{" "}
-            {/* Changed text color to white */}
+            <h3 className="text-xl font-bold mb-3 text-white">Technologies Used:</h3>
             <ul className="list-disc pl-6 space-y-2 text-gray-200 mb-6">
               <li>
                 <strong>Frontend:</strong> Next.js, React, Tailwind CSS, shadcn/ui
@@ -114,14 +112,13 @@ export default function MeltProjectPage() {
                 <strong>Deployment:</strong> Vercel
               </li>
             </ul>
-            <h3 className="text-xl font-bold mb-3 text-white">Problem Solved:</h3> {/* Changed text color to white */}
+            <h3 className="text-xl font-bold mb-3 text-white">Problem Solved:</h3>
             <p className="text-gray-200 mb-6">
               In an increasingly complex environment, M.E.L.T. provides a vital resource for collective awareness and
               response to immigration and ICE-related activities. It empowers communities by giving them access to
               critical, real-time information, enabling more informed decisions and proactive measures.
             </p>
-            <h3 className="text-xl font-bold mb-3 text-white">Future Enhancements:</h3>{" "}
-            {/* Changed text color to white */}
+            <h3 className="text-xl font-bold mb-3 text-white">Future Enhancements:</h3>
             <ul className="list-disc pl-6 space-y-2 text-gray-200">
               <li>Advanced analytics and reporting for administrators.</li>
               <li>Push notifications for real-time alerts based on user-defined perimeters.</li>
@@ -133,7 +130,7 @@ export default function MeltProjectPage() {
 
         <div className="space-y-6">
           <div className="bg-gray-900/70 backdrop-blur-sm p-6 rounded-xl border border-gray-800 hover:border-primary-500/30 transition-all duration-300">
-            <h3 className="text-xl font-bold mb-4 text-white">Project Details</h3> {/* Changed text color to white */}
+            <h3 className="text-xl font-bold mb-4 text-white">Project Details</h3>
             <div className="space-y-4">
               <div>
                 <p className="text-gray-300 text-sm">Category</p>
@@ -155,7 +152,7 @@ export default function MeltProjectPage() {
           </div>
 
           <div className="bg-gray-900/70 backdrop-blur-sm p-6 rounded-xl border border-gray-800 hover:border-primary-500/30 transition-all duration-300">
-            <h3 className="text-xl font-bold mb-4 text-white">Links</h3> {/* Changed text color to white */}
+            <h3 className="text-xl font-bold mb-4 text-white">Links</h3>
             <div className="space-y-4">
               <Button asChild className="w-full" variant="default">
                 <a
