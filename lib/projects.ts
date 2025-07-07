@@ -198,3 +198,21 @@ export const projects: Project[] = [
 export const featuredProjects = projects.filter((p) => p.featured)
 
 export const getBetaProjects = () => projects.filter((project) => project.status === "beta")
+
+// --- Helper queries ---------------------------------------------------------
+
+/** Projects built internally by the Lumen Helix team */
+export const getInHouseProjects = () => projects.filter((project) => project.category === "in-house")
+
+/** Projects delivered for clients */
+export const getClientProjects = () => projects.filter((project) => project.category === "client")
+
+/**
+ * Recently-deployed projects – sorted by deploymentDate (newest first).
+ * Falls back gracefully if a project has no deploymentDate.
+ */
+export const getRecentlyDeployedProjects = (limit = 6) =>
+  [...projects]
+    .filter((p) => p.deploymentDate)
+    .sort((a, b) => new Date(b.deploymentDate ?? 0).getTime() - new Date(a.deploymentDate ?? 0).getTime())
+    .slice(0, limit)
