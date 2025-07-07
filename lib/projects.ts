@@ -1,32 +1,15 @@
-import type { StaticImageData } from "next/image"
-
-import numoracleImage from "@/public/images/projects/numoracle-oracle-cards.jpg"
-import kraftwerkImage from "@/public/images/projects/kraftwerk-numerology.jpg"
-import hodgeDocImage from "@/public/images/projects/hodge-documentary.jpg"
-import lolitaWilsonImage from "@/public/images/projects/lolita-wilson-portfolio.jpg"
-import nowoRadioImage from "@/public/images/projects/nowo-radio.jpg"
-import oyahLoveImage from "@/public/images/projects/oyah-love.jpg"
-import meltImage from "@/public/images/projects/melt.jpg"
-import aiContentGeneratorImage from "@/public/images/projects/ai-content-generator.png"
-import brandIdentitySystemImage from "@/public/images/projects/brand-identity-system.png"
-import dataVisualizationDashboardImage from "@/public/images/projects/data-visualization-dashboard.png"
-import eCommercePlatformImage from "@/public/images/projects/e-commerce-platform.png"
-import enterpriseProjectManagementImage from "@/public/images/projects/enterprise-project-management.png"
-import virtualEventPlatformImage from "@/public/images/projects/virtual-event-platform.png"
-
 export type Project = {
   id: string
   title: string
   description: string
-  image: StaticImageData | string
+  image: string
   category: "in-house" | "client"
   tags: string[]
   domain?: string
   liveSiteUrl?: string
-  githubUrl?: string
   deploymentDate?: string
   timeline?: string
-  status?: "completed" | "in-progress" | "beta" | "archived"
+  status?: "completed" | "in-progress" | "beta"
   featured?: boolean
 }
 
@@ -35,14 +18,14 @@ export const projects: Project[] = [
     id: "numoracle-oracle-cards",
     title: "Numoracle Oracle Cards",
     description:
-      "A digital oracle card application that combines numerology with intuitive card readings for daily guidance and insights.",
-    image: numoracleImage,
+      "A digital oracle card application that merges numerology with intuitive card readings for daily guidance.",
+    image: "/images/projects/numoracle-oracle-cards.jpg",
     category: "in-house",
-    tags: ["Numerology", "Oracle Cards", "Spirituality", "Web App", "React", "Next.js"],
+    tags: ["Numerology", "Oracle Cards", "Next.js", "Tailwind CSS"],
     domain: "numoracle.com",
     liveSiteUrl: "https://numoracle.com",
     deploymentDate: "2024-06-15",
-    timeline: "2024 - Present",
+    timeline: "2024 – Present",
     status: "in-progress",
     featured: true,
   },
@@ -50,25 +33,24 @@ export const projects: Project[] = [
     id: "kraftwerk-numerology",
     title: "Kraftwerk Numerology",
     description:
-      "An advanced numerology platform offering personalized reports, compatibility analysis, and predictive insights.",
-    image: kraftwerkImage,
+      "An advanced numerology platform offering personalised reports, compatibility charts and predictive insights.",
+    image: "/images/projects/kraftwerk-numerology.jpg",
     category: "in-house",
-    tags: ["Numerology", "Personal Development", "Analytics", "Web Platform", "React", "Node.js"],
+    tags: ["Numerology", "Analytics", "Next.js"],
     domain: "kraftwerked.com",
     liveSiteUrl: "https://kraftwerked.com",
     deploymentDate: "2024-05-20",
-    timeline: "2023 - Present",
+    timeline: "2023 – Present",
     status: "in-progress",
     featured: true,
   },
   {
     id: "hodge-documentary",
     title: "Hodge Documentary",
-    description:
-      "A promotional website for a documentary film, featuring trailers, cast information, and screening schedules.",
-    image: hodgeDocImage,
+    description: "Promo site for a social-impact documentary, featuring trailers, cast bios and screening schedules.",
+    image: "/images/projects/hodge-documentary.jpg",
     category: "client",
-    tags: ["Film", "Documentary", "Promotional", "Website", "Next.js", "Content Management"],
+    tags: ["Film", "Next.js"],
     domain: "hodgedoc.com",
     liveSiteUrl: "https://hodgedoc.com",
     deploymentDate: "2023-11-01",
@@ -79,32 +61,24 @@ export const projects: Project[] = [
   {
     id: "melt",
     title: "M.E.L.T. (Monitor Enforcement Locate Threats)",
-    description:
-      "A web community-powered platform designed to provide real-time alerts, notifications, and insights into immigration & ICE sightings and threat levels in your area!",
-    image: meltImage, // This will be updated to the new screenshot
+    description: "A community-powered platform delivering real-time alerts about immigration & ICE activity.",
+    image: "/images/projects/ice-melt-app-screenshot.png", // NEW screenshot
     category: "in-house",
-    tags: [
-      "Real-time Alerts",
-      "Community Reporting",
-      "Threat Monitoring",
-      "Location-based Services",
-      "Secure Communication",
-    ],
+    tags: ["Real-time Alerts", "Mapbox", "Supabase", "Next.js", "Tailwind CSS"],
     domain: "icemelt.app",
     liveSiteUrl: "https://icemelt.app",
     deploymentDate: "2024-07-05",
-    timeline: "2023 - Present",
+    timeline: "2023 – Present",
     status: "beta",
     featured: true,
   },
   {
     id: "lolita-wilson-portfolio",
     title: "Lolita Wilson Portfolio",
-    description:
-      "A professional portfolio website for artist Lolita Wilson, showcasing her diverse range of artworks and exhibitions.",
-    image: lolitaWilsonImage,
+    description: "A modern portfolio showcasing artist Lolita Wilson’s mixed-media works and exhibitions.",
+    image: "/images/projects/lolita-wilson-portfolio.jpg",
     category: "client",
-    tags: ["Art", "Portfolio", "Artist", "Website", "Gallery", "Next.js"],
+    tags: ["Portfolio", "Art", "Next.js"],
     domain: "lolitawilson.com",
     liveSiteUrl: "https://lolitawilson.com",
     deploymentDate: "2023-09-10",
@@ -117,7 +91,7 @@ export const projects: Project[] = [
     title: "NOWO Radio",
     description:
       "An online radio streaming platform featuring live broadcasts, podcasts, and a schedule of upcoming shows.",
-    image: nowoRadioImage,
+    image: "/images/projects/nowo-radio.jpg",
     category: "client",
     tags: ["Radio", "Streaming", "Podcast", "Entertainment", "Web App"],
     domain: "noworadio.com",
@@ -132,7 +106,7 @@ export const projects: Project[] = [
     title: "Oyah Love",
     description:
       "An e-commerce store specializing in unique, handcrafted jewelry and accessories, with secure payment integration.",
-    image: oyahLoveImage,
+    image: "/images/projects/oyah-love.jpg",
     category: "client",
     tags: ["E-commerce", "Jewelry", "Handcrafted", "Online Store", "Shopify"],
     domain: "oyahlove.com",
@@ -146,7 +120,7 @@ export const projects: Project[] = [
     id: "ai-content-generator",
     title: "AI Content Generator",
     description: "A powerful AI-driven platform for generating high-quality articles, blog posts, and marketing copy.",
-    image: aiContentGeneratorImage,
+    image: "/images/projects/ai-content-generator.png",
     category: "in-house",
     tags: ["AI", "Content Creation", "SaaS", "GPT", "Next.js", "Tailwind CSS"],
     deploymentDate: "2023-10-20",
@@ -159,7 +133,7 @@ export const projects: Project[] = [
     title: "Brand Identity System",
     description:
       "Comprehensive brand guidelines and asset library for a startup, ensuring consistent visual communication.",
-    image: brandIdentitySystemImage,
+    image: "/images/projects/brand-identity-system.png",
     category: "client",
     tags: ["Branding", "Design System", "Guidelines", "UI/UX"],
     deploymentDate: "2023-07-15",
@@ -172,7 +146,7 @@ export const projects: Project[] = [
     title: "Data Visualization Dashboard",
     description:
       "An interactive dashboard for analyzing complex datasets, providing actionable insights through intuitive visualizations.",
-    image: dataVisualizationDashboardImage,
+    image: "/images/projects/data-visualization-dashboard.png",
     category: "in-house",
     tags: ["Data Analytics", "Dashboard", "BI", "React", "D3.js"],
     deploymentDate: "2023-05-01",
@@ -185,7 +159,7 @@ export const projects: Project[] = [
     title: "E-commerce Platform",
     description:
       "A scalable e-commerce solution with robust product management, secure payment gateway, and user-friendly interface.",
-    image: eCommercePlatformImage,
+    image: "/images/projects/e-commerce-platform.png",
     category: "client",
     tags: ["E-commerce", "Online Store", "Payment Gateway", "Next.js", "Stripe"],
     deploymentDate: "2022-11-30",
@@ -198,7 +172,7 @@ export const projects: Project[] = [
     title: "Enterprise Project Management System",
     description:
       "A custom-built system for large organizations to manage projects, track progress, and collaborate efficiently.",
-    image: enterpriseProjectManagementImage,
+    image: "/images/projects/enterprise-project-management.png",
     category: "client",
     tags: ["Project Management", "Enterprise Software", "Collaboration", "SaaS"],
     deploymentDate: "2022-09-01",
@@ -211,7 +185,7 @@ export const projects: Project[] = [
     title: "Virtual Event Platform",
     description:
       "A comprehensive platform for hosting virtual conferences and events, featuring live streaming, networking, and interactive sessions.",
-    image: virtualEventPlatformImage,
+    image: "/images/projects/virtual-event-platform.png",
     category: "in-house",
     tags: ["Virtual Events", "Live Streaming", "Networking", "Event Management"],
     deploymentDate: "2022-06-20",
@@ -221,13 +195,6 @@ export const projects: Project[] = [
   },
 ]
 
-export const featuredProjects = [
-  projects.find((p) => p.id === "numoracle-oracle-cards")!,
-  projects.find((p) => p.id === "kraftwerk-numerology")!,
-  projects.find((p) => p.id === "hodge-documentary")!,
-  projects.find((p) => p.id === "melt")!,
-]
+export const featuredProjects = projects.filter((p) => p.featured)
 
-export function getBetaProjects() {
-  return projects.filter((project) => project.status === "beta")
-}
+export const getBetaProjects = () => projects.filter((project) => project.status === "beta")
