@@ -38,13 +38,10 @@ export default function MeltProjectPage() {
             iceMELT.app <ExternalLink className="ml-1 h-4 w-4" />
           </a>
         </p>
-        <p className="text-xl text-gray-200 mb-8">{project.description}</p>{" "}
-        {/* Changed from text-gray-300 to text-gray-200 */}
+        <p className="text-xl text-gray-200 mb-8">{project.description}</p>
         <div className="flex flex-wrap gap-2 mb-8">
           {project.tags.map((tag) => (
             <Badge key={tag} variant="secondary" className="bg-gray-800/50 text-gray-200">
-              {" "}
-              {/* Changed from text-gray-300 to text-gray-200 */}
               {tag}
             </Badge>
           ))}
@@ -66,24 +63,20 @@ export default function MeltProjectPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-gray-900/70 backdrop-blur-sm p-6 rounded-xl border border-gray-800 hover:border-primary-500/30 transition-all duration-300">
-            <h2 className="text-2xl font-bold mb-4">Project: M.E.L.T. (Monitor Enforcement Locate Threats)</h2>
+            <h2 className="text-2xl font-bold mb-4 text-white">
+              Project: M.E.L.T. (Monitor Enforcement Locate Threats)
+            </h2>{" "}
+            {/* Changed text color to white */}
             <p className="text-gray-200 mb-4">
-              {" "}
-              {/* Changed from text-gray-300 to text-gray-200 */}
               <strong>Domain:</strong> <code className="text-primary-400">iceMELT.app</code>
             </p>
             <p className="text-gray-200 mb-6">
-              {" "}
-              {/* Changed from text-gray-300 to text-gray-200 */}
               M.E.L.T. (Monitor Enforcement Locate Threats) is a web community-powered platform designed to provide
               real-time alerts, notifications, and insights into immigration & ICE sightings and threat levels in your
               area! 🚨 M.E.L.T. aims to empower communities with critical information.
             </p>
-
-            <h3 className="text-xl font-bold mb-3">Key Features:</h3>
+            <h3 className="text-xl font-bold mb-3 text-white">Key Features:</h3> {/* Changed text color to white */}
             <ul className="list-disc pl-6 space-y-2 text-gray-200 mb-6">
-              {" "}
-              {/* Changed from text-gray-300 to text-gray-200 */}
               <li>
                 <strong>Interactive Map:</strong> Visualize sightings and threat perimeters on a dynamic, real-time map.
                 This feature allows users to quickly understand the geographical context of reported incidents.
@@ -105,11 +98,9 @@ export default function MeltProjectPage() {
                 reports, analyze data, and oversee community contributions.
               </li>
             </ul>
-
-            <h3 className="text-xl font-bold mb-3">Technologies Used:</h3>
+            <h3 className="text-xl font-bold mb-3 text-white">Technologies Used:</h3>{" "}
+            {/* Changed text color to white */}
             <ul className="list-disc pl-6 space-y-2 text-gray-200 mb-6">
-              {" "}
-              {/* Changed from text-gray-300 to text-gray-200 */}
               <li>
                 <strong>Frontend:</strong> Next.js, React, Tailwind CSS, shadcn/ui
               </li>
@@ -123,20 +114,15 @@ export default function MeltProjectPage() {
                 <strong>Deployment:</strong> Vercel
               </li>
             </ul>
-
-            <h3 className="text-xl font-bold mb-3">Problem Solved:</h3>
+            <h3 className="text-xl font-bold mb-3 text-white">Problem Solved:</h3> {/* Changed text color to white */}
             <p className="text-gray-200 mb-6">
-              {" "}
-              {/* Changed from text-gray-300 to text-gray-200 */}
               In an increasingly complex environment, M.E.L.T. provides a vital resource for collective awareness and
               response to immigration and ICE-related activities. It empowers communities by giving them access to
               critical, real-time information, enabling more informed decisions and proactive measures.
             </p>
-
-            <h3 className="text-xl font-bold mb-3">Future Enhancements:</h3>
+            <h3 className="text-xl font-bold mb-3 text-white">Future Enhancements:</h3>{" "}
+            {/* Changed text color to white */}
             <ul className="list-disc pl-6 space-y-2 text-gray-200">
-              {" "}
-              {/* Changed from text-gray-300 to text-gray-200 */}
               <li>Advanced analytics and reporting for administrators.</li>
               <li>Push notifications for real-time alerts based on user-defined perimeters.</li>
               <li>Integration with additional data sources for enriched threat assessment.</li>
@@ -147,29 +133,29 @@ export default function MeltProjectPage() {
 
         <div className="space-y-6">
           <div className="bg-gray-900/70 backdrop-blur-sm p-6 rounded-xl border border-gray-800 hover:border-primary-500/30 transition-all duration-300">
-            <h3 className="text-xl font-bold mb-4">Project Details</h3>
+            <h3 className="text-xl font-bold mb-4 text-white">Project Details</h3> {/* Changed text color to white */}
             <div className="space-y-4">
               <div>
-                <p className="text-gray-300 text-sm">Category</p> {/* Changed from text-gray-400 to text-gray-300 */}
+                <p className="text-gray-300 text-sm">Category</p>
                 <p className="text-white">{project.category === "in-house" ? "In-house Project" : "Client Project"}</p>
               </div>
               <div>
-                <p className="text-gray-300 text-sm">Status</p> {/* Changed from text-gray-400 to text-gray-300 */}
+                <p className="text-gray-300 text-sm">Status</p>
                 <p className="text-white">Beta</p>
               </div>
               <div>
-                <p className="text-gray-300 text-sm">Timeline</p> {/* Changed from text-gray-400 to text-gray-300 */}
+                <p className="text-gray-300 text-sm">Timeline</p>
                 <p className="text-white">2023 - Present</p>
               </div>
               <div>
-                <p className="text-gray-300 text-sm">Team Size</p> {/* Changed from text-gray-400 to text-gray-300 */}
+                <p className="text-gray-300 text-sm">Team Size</p>
                 <p className="text-white">4 developers</p>
               </div>
             </div>
           </div>
 
           <div className="bg-gray-900/70 backdrop-blur-sm p-6 rounded-xl border border-gray-800 hover:border-primary-500/30 transition-all duration-300">
-            <h3 className="text-xl font-bold mb-4">Links</h3>
+            <h3 className="text-xl font-bold mb-4 text-white">Links</h3> {/* Changed text color to white */}
             <div className="space-y-4">
               <Button asChild className="w-full" variant="default">
                 <a
