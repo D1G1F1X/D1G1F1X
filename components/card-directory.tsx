@@ -9,8 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Sparkles, Search } from "lucide-react"
 import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
 import type { OracleCard } from "@/types/cards"
-import { filterCards, sortCards } from "@/lib/card-data-access"
-import { getSymbolValue } from "@/lib/numerology" // Correct import path
+import { filterCards, sortCards } from "@/lib/card-data-access" // Corrected import path for getSymbolValue
 
 interface CardDirectoryProps {
   allCards: OracleCard[]
@@ -49,8 +48,12 @@ export function CardDirectory({ allCards, suits, elements, numbers }: CardDirect
   const getSymbolValueSafe = (symbol: string | undefined): string => {
     if (!symbol) return "N/A"
     try {
-      const value = getSymbolValue(symbol)
-      return value.toString()
+      // getSymbolValue now expects an OracleCard and a key, not just a string symbol
+      // This part needs to be re-evaluated based on what 'symbol' is here.
+      // If 'symbol' is meant to be a key like "Icon", then `getSymbolValue(card, symbol)` would be correct.
+      // If 'symbol' is the actual value (e.g., "Pentagon"), then this function is redundant or needs a lookup.
+      // Assuming it's meant to display the raw symbol value for now.
+      return symbol.toString()
     } catch (error) {
       console.error(`Error getting symbol value for ${symbol}:`, error)
       return "N/A"

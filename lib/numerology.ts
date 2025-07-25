@@ -364,32 +364,6 @@ export function getLetterValue(letter: string): number {
 }
 
 /**
- * Gets the numerological value of a symbol
- * @param symbol Symbol name or identifier
- * @returns Numerical value
- */
-export function getSymbolValue(symbol: string): number {
-  if (!symbol) return 0
-  switch (symbol.toLowerCase()) {
-    case "pentagram":
-    case "pentagon":
-      return 5 // Often associated with the five elements or human form
-    case "plus sign":
-    case "delta":
-    case "direction arrows":
-      return 4 // Represents stability, foundation, four cardinal directions
-    case "hourglass":
-      return 8 // Represents cycles, time, often linked to infinity or balance
-    case "finite symbol":
-      return 9 // Represents completion, the end of a cycle
-    case "eye":
-      return 3 // Represents insight, vision, trinity
-    default:
-      return 0 // Default for unknown symbols
-  }
-}
-
-/**
  * Sums all digits in a number
  * @param num Number to sum digits of
  * @returns Sum of all digits

@@ -15,8 +15,8 @@ import { generateReading } from "@/lib/actions/generate-reading"
 import { useToast } from "@/components/ui/use-toast"
 import type { ReadingData } from "@/types/readings"
 import { cn } from "@/lib/utils"
-import { getSymbolValue, getOracleCards } from "@/lib/card-data-access" // Changed getCardData to getOracleCards
-import { parseCardImageFilename } from "@/lib/card-image-utils" // Import parseCardImageFilename
+import { getSymbolValue, getAllOracleCards as getOracleCards } from "@/lib/card-data-access" // Corrected import for getOracleCards
+import { parseCardImageFilename } from "@/lib/card-image-utils"
 import { Badge } from "@/components/ui/badge"
 import { calculateLifePath } from "@/lib/numerology"
 import { useMembership } from "@/lib/membership-context"
@@ -321,7 +321,7 @@ export default function EnhancedCardDealer({
   useEffect(() => {
     // Load all cards from the central data access layer
     const loadCards = async () => {
-      const cards = await getOracleCards() // Await the async function
+      const cards = getOracleCards() // Await the async function
       setAllCards(cards)
     }
     loadCards()

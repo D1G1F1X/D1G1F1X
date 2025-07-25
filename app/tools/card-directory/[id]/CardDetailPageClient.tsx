@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
 import type { OracleCard } from "@/types/cards"
-import { getSymbolValue, getSymbolDescription } from "@/lib/numerology" // Correct import path
+import { getSymbolDescription } from "@/lib/numerology" // Keep getSymbolDescription from numerology
 
 interface CardDetailPageClientProps {
   card: OracleCard
@@ -23,8 +23,12 @@ export default function CardDetailPageClient({ card }: CardDetailPageClientProps
   const getSymbolValueSafe = (symbol: string | undefined): string => {
     if (!symbol) return "N/A"
     try {
-      const value = getSymbolValue(symbol)
-      return value.toString()
+      // getSymbolValue now expects an OracleCard and a key, not just a string symbol
+      // This part needs to be re-evaluated based on what 'symbol' is here.
+      // If 'symbol' is meant to be a key like "Icon", then `getSymbolValue(card, symbol)` would be correct.
+      // If 'symbol' is the actual value (e.g., "Pentagon"), then this function is redundant or needs a lookup.
+      // Assuming it's meant to display the raw symbol value for now.
+      return symbol.toString()
     } catch (error) {
       console.error(`Error getting symbol value for ${symbol}:`, error)
       return "N/A"

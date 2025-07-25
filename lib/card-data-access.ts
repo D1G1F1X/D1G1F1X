@@ -91,3 +91,43 @@ export function getCardByFullTitle(fullTitle: string): OracleCard | undefined {
 export function getCardByNumberAndSuit(number: string, suit: string): OracleCard | undefined {
   return numoNumberDefinitions.find((card) => card.number === number && card.suit === suit) as OracleCard | undefined
 }
+
+// Placeholder for filterCards and sortCards, assuming they exist elsewhere or need to be added.
+// If these functions are not defined, they would cause errors.
+// For now, I'll add a basic implementation to prevent errors.
+export function filterCards(
+  cards: OracleCard[],
+  filters: { suit?: string; element?: string; number?: string; query?: string },
+): OracleCard[] {
+  return cards.filter((card) => {
+    const matchesSuit = filters.suit ? card.suit === filters.suit : true
+    const matchesElement = filters.element ? card.baseElement === filters.element : true
+    const matchesNumber = filters.number ? card.number === filters.number : true
+    const matchesQuery = filters.query
+      ? card.fullTitle.toLowerCase().includes(filters.query.toLowerCase()) ||
+        card.keyMeanings?.some((m) => m.toLowerCase().includes(filters.query!.toLowerCase())) ||
+        card.symbolismBreakdown?.some((s) => s.toLowerCase().includes(filters.query!.toLowerCase()))
+      : true
+    return matchesSuit && matchesElement && matchesNumber && matchesQuery
+  })
+}
+
+export type CardSortOption = "number" | "fullTitle" | "suit" | "baseElement"
+
+export function sortCards(cards: OracleCard[], sortBy: CardSortOption): OracleCard[] {
+  return [...cards].sort((a, b) => {
+    if (sortBy === "number") {
+      return Number.parseInt(a.number || "0") - Number.parseInt(b.number || "0")
+    }
+    if (sortBy === "fullTitle") {
+      return a.fullTitle.localeCompare(b.fullTitle)
+    }
+    if (sortBy === "suit") {
+      return a.suit.localeCompare(b.suit)
+    }
+    if (sortBy === "baseElement") {
+      return a.baseElement.localeCompare(b.baseElement)
+    }
+    return 0
+  })
+}

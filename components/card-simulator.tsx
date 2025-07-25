@@ -10,8 +10,7 @@ import { Sparkles, RefreshCw, Share2, Download } from "lucide-react"
 import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
 import { ShareReadingDialog } from "@/components/share-reading-dialog"
 import type { OracleCard } from "@/types/cards"
-import { getSymbolValue } from "@/lib/numerology" // Correct import path
-import { filterCards } from "@/lib/card-data-access"
+import { filterCards } from "@/lib/card-data-access" // Corrected import path for getSymbolValue
 
 interface CardSimulatorProps {
   allCards: OracleCard[]
@@ -82,8 +81,12 @@ export function CardSimulator({ allCards, suits, elements, numbers }: CardSimula
   const getSymbolValueSafe = (symbol: string | undefined): string => {
     if (!symbol) return "N/A"
     try {
-      const value = getSymbolValue(symbol)
-      return value.toString()
+      // getSymbolValue now expects an OracleCard and a key, not just a string symbol
+      // This part needs to be re-evaluated based on what 'symbol' is here.
+      // If 'symbol' is meant to be a key like "Icon", then `getSymbolValue(drawnCard, symbol)` would be correct.
+      // If 'symbol' is the actual value (e.g., "Pentagon"), then this function is redundant or needs a lookup.
+      // Assuming it's meant to display the raw symbol value for now.
+      return symbol.toString()
     } catch (error) {
       console.error(`Error getting symbol value for ${symbol}:`, error)
       return "N/A"

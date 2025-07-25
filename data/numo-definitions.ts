@@ -386,7 +386,7 @@ export const numoNumberDefinitions = [
       "Sacred Geometry (Eye): Represents insight, spiritual vision, and the ability to see beyond the surface. It signifies deep understanding and enlightenment gained from experience.",
       "Planet (Mars): Assertion, willpower, protection. Mars brings the courage to finalize a chapter and lead the way towards resolution.",
       "Astrology (Aries): Direct action, courage, and leadership in ending cycles. Aries initiates with boldness. In the context of 9, this energy is applied to courageously finalize a chapter, leading the way towards resolution and preparing for new ventures.",
-      "Synergistic Element (Earth): Where Air unveils patterns and possibilities, Earth gives those patterns substance—turning vision into ritual, ideas into foundations, and fleeting clarity into enduring wisdom. Earth grounds the insights (Air) into tangible, lasting understanding and solidifies the completion.",
+      "Synergistic Element (Earth): Where Air unveils patterns and possibilities, Earth gives those patterns substance—turning vision into ritual, ideas into foundations, and fleeting clarity into enduring wisdom. Earth grounds the insights (Air) into tangible, lasting understanding and and solidifies the completion.",
     ],
     keyMeanings: [
       "Completion With Honor: What was built can now be let go. Acknowledge accomplishments and the end of a significant phase with grace and integrity, releasing attachments to allow for future growth.",
