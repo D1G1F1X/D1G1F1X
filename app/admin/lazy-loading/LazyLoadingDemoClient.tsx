@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense, lazy } from "react"
+import { useState, Suspense, lazy } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -34,7 +34,7 @@ const LargeImage = ({ src, alt }: { src: string; alt: string }) => {
 }
 
 // Dummy HeavyComponent for demonstration if not creating a separate file
-function DummyHeavyComponent() {
+/*function DummyHeavyComponent() {
   const [data, setData] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -64,7 +64,7 @@ function DummyHeavyComponent() {
       </CardContent>
     </Card>
   )
-}
+}*/
 
 export function LazyLoadingDemoClient() {
   const [showHeavyComponent, setShowHeavyComponent] = useState(false)
@@ -97,8 +97,7 @@ export function LazyLoadingDemoClient() {
                     </div>
                   }
                 >
-                  {/* In a real app, this would be <HeavyComponent /> if imported from a separate file */}
-                  <DummyHeavyComponent />
+                  <HeavyComponent />
                 </Suspense>
               )}
             </div>

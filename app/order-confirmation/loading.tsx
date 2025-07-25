@@ -7,4 +7,7 @@ export default function Loading() {
         <Skeleton className="h-10 w-3/4" />
         <Skeleton className="h-6 w-1/2" />
       </div>
-      <div className="mt-8 grid grid-\
+      <div className="mt-8 grid grid-cols-2">{/* Additional content can be added here */}</div>
+    </div>
+  )
+}

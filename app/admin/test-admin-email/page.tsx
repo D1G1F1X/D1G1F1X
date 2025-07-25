@@ -1,4 +1,3 @@
-"use client"
 import TestAdminEmailClientPage from "./TestAdminEmailClientPage"
 
 export const metadata = {
