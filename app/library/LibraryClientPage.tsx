@@ -1,182 +1,146 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
-import { useToast } from "@/components/ui/use-toast"
-import type { LibraryDocument, LibrarySearchFilters, UserRole } from "@/types/library"
-import LibraryResourceGrid from "@/components/library-resource-grid" // Assuming this component exists
-import HeroSection from "@/components/hero-section" // Import HeroSection
+import { AlertDescription } from "@/components/ui/alert"
 
-export default function LibraryClientPage() {
-  const [documents, setDocuments] = useState<LibraryDocument[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchLoading, setSearchLoading] = useState(false)
-  const [selectedDocument, setSelectedDocument] = useState<LibraryDocument | null>(null)
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [showViewer, setShowViewer] = useState(false)
-  const [readingListItems, setReadingListItems] = useState<string[]>([])
-  const [activeTab, setActiveTab] = useState("browse")
+import { AlertTitle } from "@/components/ui/alert"
+
+import { Alert } from "@/components/ui/alert"
+
+import { useState, useEffect, useCallback } from "react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Search, Book, PlusCircle, RefreshCw, AlertTriangle, Eye } from "lucide-react"
+import Link from "next/link"
+import type { LibraryResource } from "@/types/library"
+import { getLibraryResources } from "@/lib/services/library-service"
+import { useToast } from "@/hooks/use-toast"
+
+interface LibraryClientPageProps {
+  initialResources: LibraryResource[]
+}
+
+export default function LibraryClientPage({ initialResources }: LibraryClientPageProps) {
+  const [resources, setResources] = useState<LibraryResource[]>(initialResources)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState("")
   const { toast } = useToast()
-  const [userRole, setUserRole] = useState<UserRole | null>(null)
 
-  // Mock user ID and role - in a real app, these would come from authentication
-  const userId = "user-123"
-  const userRoleMock = "admin" // Possible values: "admin", "user", "guest"
-
-  useEffect(() => {
-    fetchDocuments()
-    fetchReadingListItems()
-    setUserRole(userRoleMock as UserRole)
-  }, [])
-
-  const fetchDocuments = async (filters?: LibrarySearchFilters) => {
-    setSearchLoading(true)
+  const fetchResources = useCallback(async () => {
+    setLoading(true)
+    setError(null)
     try {
-      const params = new URLSearchParams()
-      if (filters?.query) params.append("query", filters.query)
-      if (filters?.author) params.append("author", filters.author)
-      if (filters?.category) params.append("category", filters.category)
-      if (filters?.fileType) params.append("fileType", filters.fileType)
-      if (filters?.isPublic !== undefined) params.append("isPublic", filters.isPublic.toString())
-
-      const response = await fetch(`/api/library/documents?${params}`)
-      const result = await response.json()
-
-      if (result.success) {
-        setDocuments(result.data)
-      } else {
-        throw new Error(result.error)
-      }
-    } catch (error) {
-      console.error("Error fetching documents:", error)
+      const fetchedResources = await getLibraryResources()
+      setResources(fetchedResources)
+      toast({
+        title: "Library Refreshed",
+        description: `Successfully loaded ${fetchedResources.length} resources.`,
+      })
+    } catch (err) {
+      console.error("Failed to fetch library resources:", err)
+      setError("Failed to fetch library resources. Please check your network connection.")
       toast({
         title: "Error",
-        description: "Failed to load documents",
+        description: "Failed to refresh library resources.",
         variant: "destructive",
       })
     } finally {
       setLoading(false)
-      setSearchLoading(false)
     }
-  }
+  }, [toast])
 
-  const fetchReadingListItems = async () => {
-    try {
-      const response = await fetch(`/api/library/reading-list?userId=${userId}`)
-      const result = await response.json()
+  useEffect(() => {
+    fetchResources()
+  }, [fetchResources])
 
-      if (result.success) {
-        setReadingListItems(result.data.map((item: any) => item.documentId))
-      }
-    } catch (error) {
-      console.error("Error fetching reading list:", error)
-    }
-  }
-
-  const handleSearch = (filters: LibrarySearchFilters) => {
-    fetchDocuments(filters)
-  }
-
-  const handleViewDocument = (document: LibraryDocument) => {
-    setSelectedDocument(document)
-    setShowViewer(true)
-  }
-
-  const handleAddToReadingList = async (document: LibraryDocument) => {
-    try {
-      const response = await fetch("/api/library/reading-list", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId,
-          documentId: document.id,
-          status: "to_read",
-        }),
-      })
-
-      const result = await response.json()
-
-      if (result.success) {
-        setReadingListItems((prev) => [...prev, document.id])
-        toast({
-          title: "Success",
-          description: "Added to reading list",
-        })
-      } else {
-        throw new Error(result.error)
-      }
-    } catch (error) {
-      console.error("Error adding to reading list:", error)
-      toast({
-        title: "Error",
-        description: "Failed to add to reading list",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const handleRemoveFromReadingList = async (document: LibraryDocument) => {
-    try {
-      // Find the reading list item ID
-      const response = await fetch(`/api/library/reading-list?userId=${userId}`)
-      const result = await response.json()
-
-      if (result.success) {
-        const item = result.data.find((item: any) => item.documentId === document.id)
-        if (item) {
-          const deleteResponse = await fetch(`/api/library/reading-list/${item.id}`, {
-            method: "DELETE",
-          })
-
-          const deleteResult = await deleteResponse.json()
-
-          if (deleteResult.success) {
-            setReadingListItems((prev) => prev.filter((id) => id !== document.id))
-            toast({
-              title: "Success",
-              description: "Removed from reading list",
-            })
-          } else {
-            throw new Error(deleteResult.error)
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error removing from reading list:", error)
-      toast({
-        title: "Error",
-        description: "Failed to remove from reading list",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const handleDocumentAdded = (document: LibraryDocument) => {
-    setDocuments((prev) => [document, ...prev])
-  }
-
-  const stats = {
-    total: documents.length,
-    inReadingList: readingListItems.length,
-    categories: [...new Set(documents.map((doc) => doc.category).filter(Boolean))].length,
-  }
-
-  const canAddDocuments = userRole === "admin" || userRole === "user"
+  const filteredResources = resources.filter(
+    (resource) =>
+      resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resource.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resource.description.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
 
   return (
-    <div className="relative min-h-screen bg-black">
-      <HeroSection
-        title="NUMO Oracle Library"
-        description="Access a comprehensive collection of resources, guides, and articles."
-        backgroundImage="/open-book-knowledge.png"
-      />
-      <div className="container mx-auto py-8">
-        <Suspense fallback={<div className="text-center py-20 text-white">Loading library resources...</div>}>
-          {/* Assuming LibraryResourceGrid component exists */}
-          <LibraryResourceGrid />
-        </Suspense>
-      </div>
+    <div className="container mx-auto px-4 py-8">
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Book className="h-5 w-5" /> Library Resources
+          </CardTitle>
+          <CardDescription>Explore a collection of resources to enhance your understanding.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
+            <div className="relative flex-grow">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search resources by title, author, or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button asChild>
+              <Link href="/admin/library">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Manage Library
+              </Link>
+            </Button>
+            <Button onClick={fetchResources} disabled={loading}>
+              <RefreshCw className={loading ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
+              {loading ? "Refreshing..." : "Refresh Resources"}
+            </Button>
+          </div>
+
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Author</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredResources.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                      No resources found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredResources.map((resource) => (
+                    <TableRow key={resource.id}>
+                      <TableCell className="font-medium">{resource.title}</TableCell>
+                      <TableCell>{resource.author}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{resource.description}</TableCell>
+                      <TableCell className="text-right">
+                        <Button asChild variant="outline" size="sm">
+                          <Link href={`/library/resource/${resource.id}`}>
+                            <Eye className="h-4 w-4" />
+                            <span className="sr-only">View</span>
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

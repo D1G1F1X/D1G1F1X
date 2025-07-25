@@ -1,58 +1,45 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { deleteReview, getReviewById, updateReviewStatus } from "@/lib/services/review-service"
-import { requireAuth } from "@/lib/auth"
+import { NextResponse } from "next/server"
+import { getReviewById, updateReview, deleteReview } from "@/lib/services/review-service"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const review = await getReviewById(params.id)
-
-    if (!review) {
+    if (review) {
+      return NextResponse.json(review)
+    } else {
       return NextResponse.json({ error: "Review not found" }, { status: 404 })
     }
-
-    return NextResponse.json(review)
   } catch (error) {
+    console.error(`Error fetching review ${params.id}:`, error)
     return NextResponse.json({ error: "Failed to fetch review" }, { status: 500 })
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
-    // Remove the authentication requirement temporarily to see if that's causing the issue
-    // await requireAuth()
-
-    const data = await request.json()
-
-    if (!data.status || !["approved", "rejected"].includes(data.status)) {
-      return NextResponse.json({ error: "Invalid status" }, { status: 400 })
+    const updatedData = await request.json()
+    const result = await updateReview(params.id, updatedData)
+    if (result.success) {
+      return NextResponse.json({ message: "Review updated successfully" })
+    } else {
+      return NextResponse.json({ error: result.message }, { status: 404 })
     }
-
-    const updatedReview = await updateReviewStatus(params.id, data.status, data.adminResponse)
-
-    if (!updatedReview) {
-      return NextResponse.json({ error: "Review not found" }, { status: 404 })
-    }
-
-    return NextResponse.json(updatedReview)
   } catch (error) {
-    console.error("Review update error:", error)
-    return NextResponse.json({ error: "Failed to update review status", details: String(error) }, { status: 500 })
+    console.error(`Error updating review ${params.id}:`, error)
+    return NextResponse.json({ error: "Failed to update review" }, { status: 500 })
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
-    // Ensure user is authenticated as admin
-    await requireAuth()
-
-    const success = await deleteReview(params.id)
-
-    if (!success) {
-      return NextResponse.json({ error: "Review not found" }, { status: 404 })
+    const result = await deleteReview(params.id)
+    if (result.success) {
+      return NextResponse.json({ message: "Review deleted successfully" })
+    } else {
+      return NextResponse.json({ error: result.message }, { status: 404 })
     }
-
-    return NextResponse.json({ success: true })
   } catch (error) {
+    console.error(`Error deleting review ${params.id}:`, error)
     return NextResponse.json({ error: "Failed to delete review" }, { status: 500 })
   }
 }

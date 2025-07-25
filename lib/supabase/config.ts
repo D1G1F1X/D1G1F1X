@@ -66,10 +66,11 @@ export function getSupabaseAdminClient(): SupabaseClient {
     throw new Error("getSupabaseAdminClient can only be called on the server side")
   }
 
-  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  if (!validateDigifixIntegration() || !SUPABASE_SERVICE_ROLE_KEY) {
-    // Return a mock client if the service role key is missing, to prevent build failures.
+  // If the service role key is missing, return a mock client immediately to prevent build failures.
+  if (!SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn("⚠️  SUPABASE_SERVICE_ROLE_KEY is missing. Returning mock Supabase Admin Client.")
     // @ts-ignore - This is a mock for build-time tolerance.
     return {
       from: () => ({
@@ -88,6 +89,42 @@ export function getSupabaseAdminClient(): SupabaseClient {
         delete: () => ({
           data: null,
           error: new Error("Supabase Admin Client not fully configured (missing service role key)"),
+        }),
+      }),
+      auth: {
+        admin: {
+          createUser: () =>
+            Promise.resolve({ data: null, error: new Error("Supabase Admin Client not fully configured") }),
+          deleteUser: () =>
+            Promise.resolve({ data: null, error: new Error("Supabase Admin Client not fully configured") }),
+        },
+      },
+    }
+  }
+
+  // Proceed with validation and actual client creation if key is present
+  if (!validateDigifixIntegration()) {
+    console.warn(
+      "⚠️  Invalid Supabase integration - DIGIFIX project URL not found. Returning mock Supabase Admin Client.",
+    )
+    // @ts-ignore - This is a mock for build-time tolerance.
+    return {
+      from: () => ({
+        select: () => ({
+          data: null,
+          error: new Error("Supabase Admin Client not fully configured (invalid URL)"),
+        }),
+        insert: () => ({
+          data: null,
+          error: new Error("Supabase Admin Client not fully configured (invalid URL)"),
+        }),
+        update: () => ({
+          data: null,
+          error: new Error("Supabase Admin Client not fully configured (invalid URL)"),
+        }),
+        delete: () => ({
+          data: null,
+          error: new Error("Supabase Admin Client not fully configured (invalid URL)"),
         }),
       }),
       auth: {

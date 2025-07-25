@@ -1,20 +1,11 @@
-import CardSimulatorPageClient from "./CardSimulatorPageClient"
-import HeroSection from "@/components/hero-section"
+import { getCardData, getUniqueSuits, getUniqueElements, getUniqueNumbers } from "@/lib/card-data-access"
+import { CardSimulatorPageClient } from "./CardSimulatorPageClient"
 
-export default function CardSimulatorPage() {
-  return (
-    <div className="relative min-h-screen bg-black flex flex-col">
-      {" "}
-      {/* Added flex flex-col */}
-      <HeroSection
-        title="NUMO Oracle Card Simulator"
-        description="Experience profound insights with our interactive oracle card readings."
-        backgroundImage="/mystical-insight-hero.png"
-      />
-      {/* New wrapper div to center the client component */}
-      <div className="flex-grow flex items-center justify-center">
-        <CardSimulatorPageClient />
-      </div>
-    </div>
-  )
+export default async function CardSimulatorPage() {
+  const allCards = await getCardData()
+  const suits = getUniqueSuits(allCards)
+  const elements = getUniqueElements(allCards)
+  const numbers = getUniqueNumbers(allCards)
+
+  return <CardSimulatorPageClient allCards={allCards} suits={suits} elements={elements} numbers={numbers} />
 }

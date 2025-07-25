@@ -1,42 +1,27 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { getAllFiles, getFilesByCategory, getFilesByPath, searchFiles } from "@/lib/services/file-service"
+import { NextResponse } from "next/server"
+import { getAllFiles, createFile } from "@/lib/services/file-service"
 
-// Force dynamic rendering for this route
-export const dynamic = "force-dynamic"
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const category = searchParams.get("category")
-    const path = searchParams.get("path")
-    const query = searchParams.get("query")
-
-    let files
-
-    try {
-      if (query) {
-        files = await searchFiles(query)
-      } else if (category) {
-        files = await getFilesByCategory(category)
-      } else if (path) {
-        files = await getFilesByPath(path)
-      } else {
-        files = await getAllFiles()
-      }
-    } catch (searchError) {
-      console.error("Error retrieving files:", searchError)
-      return NextResponse.json(
-        { error: `Failed to retrieve files: ${searchError instanceof Error ? searchError.message : "Unknown error"}` },
-        { status: 500 },
-      )
-    }
-
-    return NextResponse.json({ files })
+    const files = await getAllFiles()
+    return NextResponse.json(files)
   } catch (error) {
-    console.error("Unexpected error in files API:", error)
-    return NextResponse.json(
-      { error: "An unexpected error occurred", details: error instanceof Error ? error.message : undefined },
-      { status: 500 },
-    )
+    console.error("Error fetching files:", error)
+    return NextResponse.json({ error: "Failed to fetch files" }, { status: 500 })
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const fileData = await request.json()
+    const result = await createFile(fileData)
+    if (result.success) {
+      return NextResponse.json({ message: "File created successfully", file: result.file }, { status: 201 })
+    } else {
+      return NextResponse.json({ error: result.message }, { status: 400 })
+    }
+  } catch (error) {
+    console.error("Error creating file:", error)
+    return NextResponse.json({ error: "Failed to create file" }, { status: 500 })
   }
 }

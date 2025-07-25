@@ -1,6 +1,71 @@
 import type { Post } from "@/lib/content"
 
-// Enhanced blog posts with SEO optimization
+// Define a generic content item type for pages and posts
+export interface ContentItem {
+  id: string
+  title: string
+  slug: string
+  content: string
+  excerpt: string
+  author: string
+  isPublished: boolean
+  createdAt: string
+  updatedAt: string
+  featuredImage?: string
+  categories?: string[]
+  tags?: string[]
+  type: "post" | "page" // Added type to distinguish
+  published?: boolean // For pages, often just a boolean
+  lastModified?: string // For pages, to track updates
+}
+
+// Mock data for pages (similar structure to posts for reusability)
+const mockPages: ContentItem[] = [
+  {
+    id: "about",
+    title: "About Us",
+    slug: "about",
+    content: "This is the content for the about page.",
+    excerpt: "Learn more about our mission and values.",
+    author: "Admin",
+    isPublished: true,
+    createdAt: "2024-01-01T00:00:00Z",
+    updatedAt: "2024-01-01T00:00:00Z",
+    type: "page",
+    published: true,
+    lastModified: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: "privacy-policy",
+    title: "Privacy Policy",
+    slug: "privacy-policy",
+    content: "This is our privacy policy content.",
+    excerpt: "Understand how we handle your data.",
+    author: "Admin",
+    isPublished: true,
+    createdAt: "2024-01-05T00:00:00Z",
+    updatedAt: "2024-01-05T00:00:00Z",
+    type: "page",
+    published: true,
+    lastModified: "2024-01-05T00:00:00Z",
+  },
+  {
+    id: "terms-of-service",
+    title: "Terms of Service",
+    slug: "terms-of-service",
+    content: "These are our terms of service.",
+    excerpt: "Read our terms and conditions.",
+    author: "Admin",
+    isPublished: true,
+    createdAt: "2024-01-10T00:00:00Z",
+    updatedAt: "2024-01-10T00:00:00Z",
+    type: "page",
+    published: true,
+    lastModified: "2024-01-10T00:00:00Z",
+  },
+]
+
+// Enhanced blog posts with SEO optimization (from previous context)
 export const enhancedBlogPosts: Post[] = [
   // Existing posts from the original system
   {
@@ -51,7 +116,7 @@ Ready to decode your destiny? Get your FREE report now at [/tools/numerology-cal
     updatedAt: "2025-01-15T10:00:00Z",
     featuredImage: "/images/blog/numerology-report-feature.png",
     categories: ["Numerology", "Free Tools", "Self-Discovery"],
-    tags: ["numerology report", "life path", "destiny number", "free tools", "self-discovery"]
+    tags: ["numerology report", "life path", "destiny number", "free tools", "self-discovery"],
   },
 
   // The Five Gifts of Danu - SEO Optimized Posts
@@ -125,7 +190,7 @@ Whether you're seeking healing, inspiration, or simply a deeper connection to th
     updatedAt: "2025-01-10T09:00:00Z",
     featuredImage: "/images/blog/cauldron-danu-sacred-vessel.png",
     categories: ["Celtic Mythology", "Sacred Symbols", "Spiritual Practice"],
-    tags: ["Danu", "cauldron", "Celtic mythology", "sacred treasures", "transformation", "water element"]
+    tags: ["Danu", "cauldron", "Celtic mythology", "sacred treasures", "transformation", "water element"],
   },
 
   {
@@ -229,7 +294,7 @@ In our modern world, where deception and injustice often seem to prevail, the Sw
     updatedAt: "2025-01-11T10:00:00Z",
     featuredImage: "/images/blog/sword-nuada-truth-justice.png",
     categories: ["Celtic Mythology", "Sacred Symbols", "Leadership"],
-    tags: ["Nuada", "sword", "Celtic mythology", "truth", "justice", "fire element", "leadership"]
+    tags: ["Nuada", "sword", "Celtic mythology", "truth", "justice", "fire element", "leadership"],
   },
 
   {
@@ -363,7 +428,7 @@ In our modern world of endless distractions, the Spear of Lugh calls us to focus
     updatedAt: "2025-01-12T11:00:00Z",
     featuredImage: "/images/blog/spear-lugh-focus-victory.png",
     categories: ["Celtic Mythology", "Sacred Symbols", "Personal Development"],
-    tags: ["Lugh", "spear", "Celtic mythology", "focus", "victory", "air element", "mastery"]
+    tags: ["Lugh", "spear", "Celtic mythology", "focus", "victory", "air element", "mastery"],
   },
 
   {
@@ -522,7 +587,7 @@ In our modern world of digital connections and surface-level interactions, the C
     updatedAt: "2025-01-13T12:00:00Z",
     featuredImage: "/images/blog/cord-fate-connection-destiny.png",
     categories: ["Celtic Mythology", "Sacred Symbols", "Relationships"],
-    tags: ["cord of fate", "Celtic mythology", "connection", "destiny", "spirit element", "relationships"]
+    tags: ["cord of fate", "Celtic mythology", "connection", "destiny", "spirit element", "relationships"],
   },
 
   {
@@ -702,7 +767,7 @@ The stone's eternal presence reminds us that while everything else may change, t
     updatedAt: "2025-01-14T13:00:00Z",
     featuredImage: "/images/blog/stone-destiny-grounding-wisdom.png",
     categories: ["Celtic Mythology", "Sacred Symbols", "Spiritual Grounding"],
-    tags: ["stone of destiny", "Lia Fáil", "Celtic mythology", "grounding", "wisdom", "earth element"]
+    tags: ["stone of destiny", "Lia Fáil", "Celtic mythology", "grounding", "wisdom", "earth element"],
   },
 
   // Additional SEO-optimized blog posts
@@ -898,7 +963,7 @@ Ready to dive deeper into your numerology? Calculate your complete numerology ch
     updatedAt: "2025-01-16T14:00:00Z",
     featuredImage: "/images/blog/life-path-numbers-guide.png",
     categories: ["Numerology", "Life Path", "Personal Development"],
-    tags: ["life path number", "numerology guide", "soul purpose", "personal development", "spiritual growth"]
+    tags: ["life path number", "numerology guide", "soul purpose", "personal development", "spiritual growth"],
   },
 
   {
@@ -924,6 +989,13 @@ Unlike tarot's 78-card structure, oracle cards offer:
 - **Varied themes** from angels to animals to affirmations
 - **Positive messaging** focused on guidance rather than prediction
 - **Intuitive interpretation** without rigid card meanings
+
+### The NUMO Oracle Advantage
+The NUMO Oracle system offers unique benefits:
+- **Numerology integration** combining numbers with elemental wisdom
+- **Five-element system** (Fire, Water, Air, Earth, Spirit)
+- **Celtic mythology foundation** with rich symbolic meaning
+- **Practical guidance** for daily life and spiritual growth
 
 ## Choosing Your First Oracle Deck
 
@@ -1047,7 +1119,7 @@ Balance structure with intuition:
 - **Seven-card weekly spread** for the week ahead
 - **Review and reflection** on the previous week's cards
 - **Deck cleansing** with sage or moonlight
-- **Gratitude practice** for insights received
+- **Deck rotation** if you have multiple oracle decks
 
 ### Monthly Practices
 - **New moon intention setting** with oracle guidance
@@ -1156,7 +1228,7 @@ Ready to begin your oracle card journey? Explore the [NUMO Oracle Card System](/
     updatedAt: "2025-01-17T15:00:00Z",
     featuredImage: "/images/blog/oracle-cards-beginners-guide.png",
     categories: ["Oracle Cards", "Divination", "Spiritual Practice"],
-    tags: ["oracle cards", "divination", "intuitive reading", "spiritual guidance", "beginner guide"]
+    tags: ["oracle cards", "divination", "intuitive reading", "spiritual guidance", "beginner guide"],
   },
 
   {

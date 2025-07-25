@@ -11,27 +11,33 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Calculator,
   User,
-  Clock,
   FileText,
   Sparkles,
   Download,
   Share2,
   ChevronDown,
   ChevronUp,
-  Calendar,
   Star,
   Heart,
-  ArrowRight,
-  BarChart3,
 } from "lucide-react"
 import { MembershipBadge } from "@/components/membership-badge"
 import { type MembershipStatus, hasPremiumAccess } from "@/lib/membership-types"
 import { userDataService, type UserProfile } from "@/lib/services/user-data-service"
 import { toast } from "@/components/ui/use-toast"
-import { numberData } from "@/data/number-meanings"
+import { numoDefinitions } from "@/data/numo-definitions"
 import { NumberChart } from "./numerology-calculator/number-chart"
-import { LifePathChart } from "./numerology-calculator/life-path-chart"
-import { NumerologyTimeline } from "./numerology-calculator/numerology-timeline"
+import {
+  calculateExpressionNumber,
+  calculateMaturityNumber,
+  calculateChallengeNumbers,
+  calculatePinnacleNumbers,
+  getNumerologyReport,
+  getSingleDigitMeaning, // Import the new helper
+  calculateLifePathNumber,
+  calculateSoulUrgeNumber,
+  calculatePersonalityNumber,
+} from "@/lib/numerology"
+import { numoNumberDefinitions } from "@/data/numo-definitions" // Corrected import
 
 interface NumerologyProfile {
   birthName: string
@@ -83,6 +89,10 @@ export default function NumerologyCalculator({
   const [error, setError] = useState("")
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isClient, setIsClient] = useState(false)
+  const [expressionNumberSimple, setExpressionNumberSimple] = useState<number | null>(null)
+  const [soulUrgeNumberSimple, setSoulUrgeNumberSimple] = useState<number | null>(null)
+  const [personalityNumberSimple, setPersonalityNumberSimple] = useState<number | null>(null)
+  const [lifePathNumberSimple, setLifePathNumberSimple] = useState<number | null>(null)
 
   // Ensure we're on the client before accessing localStorage or other browser APIs
   useEffect(() => {
@@ -158,98 +168,7 @@ export default function NumerologyCalculator({
 
   // Convert a letter to its numerological value
   const letterToNumber = (letter: string): number => {
-    const letterMap: { [key: string]: number } = {
-      a: 1,
-      b: 2,
-      c: 3,
-      d: 4,
-      e: 5,
-      f: 6,
-      g: 7,
-      h: 8,
-      i: 9,
-      j: 1,
-      k: 2,
-      l: 3,
-      m: 4,
-      n: 5,
-      o: 6,
-      p: 7,
-      q: 8,
-      r: 9,
-      s: 1,
-      t: 2,
-      u: 3,
-      v: 4,
-      w: 5,
-      x: 6,
-      y: 7,
-      z: 8,
-    }
-    return letterMap[letter.toLowerCase()] || 0
-  }
-
-  // Calculate Life Path Number
-  const calculateLifePath = (birthDate: Date): number => {
-    const year = birthDate.getFullYear()
-    const month = birthDate.getMonth() + 1 // getMonth() returns 0-11
-    const day = birthDate.getDate()
-
-    const yearSum = reduceToSingleDigit(year)
-    const monthSum = reduceToSingleDigit(month)
-    const daySum = reduceToSingleDigit(day)
-
-    let lifePathNumber = yearSum + monthSum + daySum
-    while (lifePathNumber > 9 && lifePathNumber !== 11 && lifePathNumber !== 22 && lifePathNumber !== 33) {
-      lifePathNumber = reduceToSingleDigit(lifePathNumber)
-    }
-
-    return lifePathNumber
-  }
-
-  // Calculate Destiny Number
-  const calculateDestinyNumber = (fullName: string): number => {
-    const nameSum = fullName
-      .toLowerCase()
-      .replace(/[^a-z]/g, "")
-      .split("")
-      .reduce((sum, letter) => sum + letterToNumber(letter), 0)
-
-    return reduceToSingleDigit(nameSum)
-  }
-
-  // Calculate Soul Urge Number
-  const calculateSoulUrgeNumber = (fullName: string): number => {
-    const vowels = "aeiou"
-    const vowelSum = fullName
-      .toLowerCase()
-      .replace(/[^a-z]/g, "")
-      .split("")
-      .reduce((sum, letter) => {
-        if (vowels.includes(letter)) {
-          return sum + letterToNumber(letter)
-        }
-        return sum
-      }, 0)
-
-    return reduceToSingleDigit(vowelSum)
-  }
-
-  // Calculate Personality Number
-  const calculatePersonalityNumber = (fullName: string): number => {
-    const vowels = "aeiou"
-    const consonantSum = fullName
-      .toLowerCase()
-      .replace(/[^a-z]/g, "")
-      .split("")
-      .reduce((sum, letter) => {
-        if (!vowels.includes(letter)) {
-          return sum + letterToNumber(letter)
-        }
-        return sum
-      }, 0)
-
-    return reduceToSingleDigit(consonantSum)
+    return numoDefinitions.letterValues[letter.toUpperCase()] || 0
   }
 
   // Calculate bridge number between two numbers
@@ -266,42 +185,6 @@ export default function NumerologyCalculator({
 
     const sum = firstLetters.reduce((acc, letter) => acc + letterToNumber(letter), 0)
     return reduceToSingleDigit(sum)
-  }
-
-  // Calculate challenge numbers
-  const calculateChallengeNumbers = (birthDate: Date): number[] => {
-    const day = birthDate.getDate()
-    const month = birthDate.getMonth() + 1
-    const year = birthDate.getFullYear()
-
-    const dayNum = reduceToSingleDigit(day)
-    const monthNum = reduceToSingleDigit(month)
-    const yearNum = reduceToSingleDigit(year)
-
-    const c1 = Math.abs(dayNum - monthNum)
-    const c2 = Math.abs(dayNum - yearNum)
-    const c3 = Math.abs(c1 - c2)
-    const c4 = Math.abs(monthNum - yearNum)
-
-    return [c1, c2, c3, c4]
-  }
-
-  // Calculate pinnacle numbers
-  const calculatePinnacleNumbers = (birthDate: Date): number[] => {
-    const day = birthDate.getDate()
-    const month = birthDate.getMonth() + 1
-    const year = birthDate.getFullYear()
-
-    const dayNum = reduceToSingleDigit(day)
-    const monthNum = reduceToSingleDigit(month)
-    const yearNum = reduceToSingleDigit(year)
-
-    const p1 = reduceToSingleDigit(dayNum + monthNum)
-    const p2 = reduceToSingleDigit(dayNum + yearNum)
-    const p3 = reduceToSingleDigit(p1 + p2)
-    const p4 = reduceToSingleDigit(monthNum + yearNum)
-
-    return [p1, p2, p3, p4]
   }
 
   // Calculate personal year
@@ -401,26 +284,22 @@ export default function NumerologyCalculator({
 
       const nameForCalculation = currentName || birthName
 
-      // Calculate core numbers
-      const lifePathNumber = calculateLifePath(dateObj)
-      const destinyNumber = calculateDestinyNumber(birthName)
-      const expressionNumber = calculateDestinyNumber(nameForCalculation)
-      const soulUrgeNumber = calculateSoulUrgeNumber(birthName)
-      const personalityNumber = calculatePersonalityNumber(birthName)
+      // Calculate core numbers using the new getNumerologyReport
+      const coreNumbers = getNumerologyReport(dateObj, birthName)
 
       // Calculate birthday number
       const day = dateObj.getDate()
       const birthdayNumber = day > 9 ? (day > 22 ? (day % 10) + Math.floor(day / 10) : day) : day
 
       // Calculate maturity number
-      const maturityNumber = reduceToSingleDigit(lifePathNumber + destinyNumber)
+      const maturityNumber = calculateMaturityNumber(coreNumbers.lifePath, coreNumbers.expression)
 
       // Calculate balance number
       const balanceNumber = calculateBalanceNumber(birthName)
 
       // Calculate bridge number
       const bridgeNumber = currentName
-        ? calculateBridgeNumber(calculateDestinyNumber(birthName), calculateDestinyNumber(currentName))
+        ? calculateBridgeNumber(calculateExpressionNumber(birthName), calculateExpressionNumber(currentName))
         : undefined
 
       // Calculate challenge numbers
@@ -447,11 +326,11 @@ export default function NumerologyCalculator({
         currentName,
         nicknames,
         birthDate: dateObj,
-        lifePathNumber,
-        destinyNumber,
-        expressionNumber,
-        soulUrgeNumber,
-        personalityNumber,
+        lifePathNumber: coreNumbers.lifePath,
+        destinyNumber: coreNumbers.expression, // Destiny and Expression are often the same calculation, but based on birth name vs current name. Here, using Expression for Destiny based on birthName.
+        expressionNumber: calculateExpressionNumber(nameForCalculation), // Expression based on current/birth name
+        soulUrgeNumber: coreNumbers.soulUrge,
+        personalityNumber: coreNumbers.personality,
         birthdayNumber,
         maturityNumber,
         balanceNumber,
@@ -482,10 +361,10 @@ export default function NumerologyCalculator({
           birthName,
           currentName,
           birthDate: dateObj,
-          lifePath: lifePathNumber,
-          expression: expressionNumber,
-          soulUrge: soulUrgeNumber,
-          personality: personalityNumber,
+          lifePath: newProfile.lifePathNumber,
+          expression: newProfile.expressionNumber,
+          soulUrge: newProfile.soulUrgeNumber,
+          personality: newProfile.personalityNumber,
         }
         onReportCalculated(reportData)
       }
@@ -511,15 +390,15 @@ export default function NumerologyCalculator({
     }
   }
 
-  // Get number meaning from numberData
+  // Get number meaning from numoDefinitions
   const getNumberMeaning = (number: number): string => {
-    const data = numberData.find((item) => item.number === number)
+    const data = getSingleDigitMeaning(number)
     return data ? data.description : "No meaning available for this number."
   }
 
   // Get detailed number interpretation
   const getDetailedInterpretation = (number: number, type: string): string => {
-    const data = numberData.find((item) => item.number === number)
+    const data = getSingleDigitMeaning(number)
 
     if (!data) return "No detailed interpretation available."
 
@@ -527,13 +406,11 @@ export default function NumerologyCalculator({
 
     switch (type) {
       case "lifePath":
-        interpretation = `As a Life Path ${number}, ${data.description} Your life's journey is about ${data.keywords.join(", ").toLowerCase()}. ${data.numerologyMeaning}`
+        interpretation = `As a Life Path ${number}, ${data.description} Your life's journey is about ${data.keywords.join(", ").toLowerCase()}.`
         break
-      case "destiny":
-        interpretation = `Your Destiny Number ${number} reveals that ${data.description} Your life's purpose involves ${data.keywords.join(", ").toLowerCase()}. This number represents what you are destined to achieve and become.`
-        break
+      case "destiny": // Using expression for destiny based on birth name
       case "expression":
-        interpretation = `Your Expression Number ${number} (based on your current name) indicates that ${data.description} This number reveals how you express yourself in the world and the talents you have to offer.`
+        interpretation = `Your Expression Number ${number} indicates that ${data.description} This number reveals how you express yourself in the world and the talents you have to offer.`
         break
       case "soul":
         interpretation = `Your Soul Urge Number ${number} indicates that deep within, you desire ${data.keywords.join(", ").toLowerCase()}. ${data.description} This number reveals your inner cravings, motivations, and what brings you true satisfaction.`
@@ -611,7 +488,7 @@ export default function NumerologyCalculator({
       1: "You need to develop independence, initiative, and leadership abilities. Learn to stand on your own and express your individuality more confidently.",
       2: "You need to develop patience, cooperation, and sensitivity to others. Learn to work harmoniously with others and pay attention to details.",
       3: "You need to develop self-expression, creativity, and social skills. Learn to express your emotions and ideas more openly and joyfully.",
-      4: "You need to develop discipline, order, and practical skills. Learn to be more methodical, reliable, and grounded in your approach to life.",
+      4: "You need to develop discipline, order, and and practical skills. Learn to be more methodical, reliable, and grounded in your approach to life.",
       5: "You need to develop adaptability, versatility, and constructive use of freedom. Learn to embrace change and use your freedom responsibly.",
       6: "You need to develop responsibility, nurturing abilities, and service to others. Learn to create harmony and balance in your relationships.",
       7: "You need to develop analytical thinking, spiritual awareness, and trust in your intuition. Learn to look beneath the surface and seek deeper meaning.",
@@ -671,6 +548,34 @@ export default function NumerologyCalculator({
     }
 
     calculateNumerologyProfile()
+
+    if (birthDate) {
+      try {
+        setLifePathNumberSimple(calculateLifePathNumber(birthDate))
+      } catch (error) {
+        console.error("Error calculating Life Path Number:", error)
+        setLifePathNumberSimple(null)
+      }
+    }
+
+    if (birthName) {
+      try {
+        setExpressionNumberSimple(calculateExpressionNumber(birthName))
+        setSoulUrgeNumberSimple(calculateSoulUrgeNumber(birthName))
+        setPersonalityNumberSimple(calculatePersonalityNumber(birthName))
+      } catch (error) {
+        console.error("Error calculating Name Numbers:", error)
+        setExpressionNumberSimple(null)
+        setSoulUrgeNumberSimple(null)
+        setPersonalityNumberSimple(null)
+      }
+    }
+  }
+
+  const getMeaning = (number: number | null, type: "singleDigits" | "compoundNumbers") => {
+    if (number === null) return null
+    const numStr = number.toString()
+    return numoNumberDefinitions[type][numStr] || numoNumberDefinitions.singleDigits[numStr]
   }
 
   // Don't render until client-side to prevent hydration issues
@@ -828,6 +733,58 @@ export default function NumerologyCalculator({
                     </div>
                   )}
                 </div>
+                {(lifePathNumberSimple !== null ||
+                  expressionNumberSimple !== null ||
+                  soulUrgeNumberSimple !== null ||
+                  personalityNumberSimple !== null) && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Your Numerology Profile:</h3>
+                    {lifePathNumberSimple !== null && (
+                      <div className="border p-3 rounded-md">
+                        <p className="font-medium">Life Path Number: {lifePathNumberSimple}</p>
+                        {getMeaning(lifePathNumberSimple, "singleDigits") && (
+                          <p className="text-sm text-muted-foreground">
+                            {getMeaning(lifePathNumberSimple, "singleDigits")?.title}:{" "}
+                            {getMeaning(lifePathNumberSimple, "singleDigits")?.description}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    {expressionNumberSimple !== null && (
+                      <div className="border p-3 rounded-md">
+                        <p className="font-medium">Expression Number: {expressionNumberSimple}</p>
+                        {getMeaning(expressionNumberSimple, "singleDigits") && (
+                          <p className="text-sm text-muted-foreground">
+                            {getMeaning(expressionNumberSimple, "singleDigits")?.title}:{" "}
+                            {getMeaning(expressionNumberSimple, "singleDigits")?.description}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    {soulUrgeNumberSimple !== null && (
+                      <div className="border p-3 rounded-md">
+                        <p className="font-medium">Soul Urge Number: {soulUrgeNumberSimple}</p>
+                        {getMeaning(soulUrgeNumberSimple, "singleDigits") && (
+                          <p className="text-sm text-muted-foreground">
+                            {getMeaning(soulUrgeNumberSimple, "singleDigits")?.title}:{" "}
+                            {getMeaning(soulUrgeNumberSimple, "singleDigits")?.description}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    {personalityNumberSimple !== null && (
+                      <div className="border p-3 rounded-md">
+                        <p className="font-medium">Personality Number: {personalityNumberSimple}</p>
+                        {getMeaning(personalityNumberSimple, "singleDigits") && (
+                          <p className="text-sm text-muted-foreground">
+                            {getMeaning(personalityNumberSimple, "singleDigits")?.title}:{" "}
+                            {getMeaning(personalityNumberSimple, "singleDigits")?.description}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -915,11 +872,9 @@ export default function NumerologyCalculator({
                             </p>
                             <h4 className="font-medium text-purple-300 mb-2">Key Characteristics</h4>
                             <ul className="list-disc pl-5 space-y-1 text-gray-300">
-                              {numberData
-                                .find((item) => item.number === profile.lifePathNumber)
-                                ?.keywords.map((keyword, index) => (
-                                  <li key={index}>{keyword}</li>
-                                ))}
+                              {getSingleDigitMeaning(profile.lifePathNumber)?.keywords.map((keyword, index) => (
+                                <li key={index}>{keyword}</li>
+                              ))}
                             </ul>
                           </div>
                           <div className="flex flex-col items-center justify-center">
@@ -929,13 +884,8 @@ export default function NumerologyCalculator({
                             <div className="bg-purple-900/20 p-3 rounded-lg border border-purple-500/30 w-full">
                               <h4 className="font-medium text-purple-300 mb-1 text-center">Elemental Energy</h4>
                               <p className="text-sm text-center text-gray-300">
-                                {numberData.find((item) => item.number === profile.lifePathNumber)?.elementalPower
-                                  .name || "Universal"}{" "}
-                                -{" "}
-                                {
-                                  numberData.find((item) => item.number === profile.lifePathNumber)?.elementalPower
-                                    .description
-                                }
+                                {getSingleDigitMeaning(profile.lifePathNumber)?.elementalPower?.name || "Universal"} -{" "}
+                                {getSingleDigitMeaning(profile.lifePathNumber)?.elementalPower?.description}
                               </p>
                             </div>
                           </div>
@@ -980,13 +930,8 @@ export default function NumerologyCalculator({
                             <div className="bg-indigo-900/20 p-3 rounded-lg border border-indigo-500/30 w-full">
                               <h4 className="font-medium text-indigo-300 mb-1 text-center">Astrological Influence</h4>
                               <p className="text-sm text-center text-gray-300">
-                                {numberData.find((item) => item.number === profile.destinyNumber)?.astrologicalSign
-                                  .name || "Universal"}{" "}
-                                -{" "}
-                                {
-                                  numberData.find((item) => item.number === profile.destinyNumber)?.astrologicalSign
-                                    .description
-                                }
+                                {getSingleDigitMeaning(profile.destinyNumber)?.astrologicalSign?.name || "Universal"} -{" "}
+                                {getSingleDigitMeaning(profile.destinyNumber)?.astrologicalSign?.description}
                               </p>
                             </div>
                           </div>
@@ -1086,33 +1031,10 @@ export default function NumerologyCalculator({
                               <NumberChart number={profile.soulUrgeNumber} title="Soul Urge" />
                             </div>
                             <div className="bg-blue-900/20 p-3 rounded-lg border border-blue-500/30 w-full">
-                              <h4 className="font-medium text-blue-300 mb-1 text-center">Emotional Nature</h4>
+                              <h4 className="font-medium text-blue-300 mb-1 text-center">Planetary Influence</h4>
                               <p className="text-sm text-center text-gray-300">
-                                Your emotional nature tends toward{" "}
-                                {profile.soulUrgeNumber === 1
-                                  ? "independence and self-reliance"
-                                  : profile.soulUrgeNumber === 2
-                                    ? "sensitivity and emotional depth"
-                                    : profile.soulUrgeNumber === 3
-                                      ? "expressiveness and optimism"
-                                      : profile.soulUrgeNumber === 4
-                                        ? "stability and practicality"
-                                        : profile.soulUrgeNumber === 5
-                                          ? "adaptability and excitement"
-                                          : profile.soulUrgeNumber === 6
-                                            ? "nurturing and responsibility"
-                                            : profile.soulUrgeNumber === 7
-                                              ? "introspection and analysis"
-                                              : profile.soulUrgeNumber === 8
-                                                ? "ambition and control"
-                                                : profile.soulUrgeNumber === 9
-                                                  ? "compassion and universal love"
-                                                  : profile.soulUrgeNumber === 11
-                                                    ? "sensitivity and intuition"
-                                                    : profile.soulUrgeNumber === 22
-                                                      ? "practical idealism"
-                                                      : "selfless love and service"}
-                                .
+                                {getSingleDigitMeaning(profile.soulUrgeNumber)?.planetInfluence?.name || "Universal"} -{" "}
+                                {getSingleDigitMeaning(profile.soulUrgeNumber)?.planetInfluence?.description}
                               </p>
                             </div>
                           </div>
@@ -1143,11 +1065,10 @@ export default function NumerologyCalculator({
                             <p className="text-gray-300 mb-4">
                               {getDetailedInterpretation(profile.personalityNumber, "personality")}
                             </p>
-                            <h4 className="font-medium text-violet-300 mb-2">Social Presentation</h4>
+                            <h4 className="font-medium text-violet-300 mb-2">External Persona</h4>
                             <p className="text-gray-300 mb-4">
-                              Your Personality Number reveals how you present yourself to the world and how others
-                              perceive you upon first meeting. It represents the aspects of yourself that you allow
-                              others to see.
+                              Your Personality Number represents the outward impression you make on others. It's the
+                              aspect of yourself that you allow the world to see, influencing how people perceive you.
                             </p>
                           </div>
                           <div className="flex flex-col items-center justify-center">
@@ -1155,120 +1076,14 @@ export default function NumerologyCalculator({
                               <NumberChart number={profile.personalityNumber} title="Personality" />
                             </div>
                             <div className="bg-violet-900/20 p-3 rounded-lg border border-violet-500/30 w-full">
-                              <h4 className="font-medium text-violet-300 mb-1 text-center">Social Strengths</h4>
+                              <h4 className="font-medium text-violet-300 mb-1 text-center">Symbolic Representation</h4>
                               <p className="text-sm text-center text-gray-300">
-                                Your social strengths include{" "}
-                                {profile.personalityNumber === 1
-                                  ? "leadership, confidence, and originality"
-                                  : profile.personalityNumber === 2
-                                    ? "diplomacy, cooperation, and sensitivity"
-                                    : profile.personalityNumber === 3
-                                      ? "communication, creativity, and charm"
-                                      : profile.personalityNumber === 4
-                                        ? "reliability, organization, and practicality"
-                                        : profile.personalityNumber === 5
-                                          ? "adaptability, enthusiasm, and versatility"
-                                          : profile.personalityNumber === 6
-                                            ? "responsibility, harmony, and nurturing"
-                                            : profile.personalityNumber === 7
-                                              ? "analysis, wisdom, and depth"
-                                              : profile.personalityNumber === 8
-                                                ? "authority, confidence, and leadership"
-                                                : profile.personalityNumber === 9
-                                                  ? "compassion, idealism, and sophistication"
-                                                  : profile.personalityNumber === 11
-                                                    ? "intuition, inspiration, and sensitivity"
-                                                    : profile.personalityNumber === 22
-                                                      ? "practicality, vision, and capability"
-                                                      : "compassion, wisdom, and selflessness"}
-                                .
+                                {getSingleDigitMeaning(profile.personalityNumber)?.symbolicRepresentation?.name ||
+                                  "Universal"}{" "}
+                                -{" "}
+                                {getSingleDigitMeaning(profile.personalityNumber)?.symbolicRepresentation?.description}
                               </p>
                             </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    )}
-                  </Card>
-
-                  {/* Core Numbers Relationship */}
-                  <Card className="bg-gray-900/50 border-purple-500/30">
-                    <CardHeader
-                      className="pb-3 cursor-pointer"
-                      onClick={() => toggleSection("coreRelationshipSection")}
-                    >
-                      <div className="flex justify-between items-center">
-                        <CardTitle className="text-lg flex items-center">
-                          <BarChart3 className="h-5 w-5 mr-2 text-purple-400" />
-                          Core Numbers Relationship
-                        </CardTitle>
-                        {expandedSections["coreRelationshipSection"] ? (
-                          <ChevronUp className="h-5 w-5 text-gray-400" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-gray-400" />
-                        )}
-                      </div>
-                    </CardHeader>
-                    {expandedSections["coreRelationshipSection"] && (
-                      <CardContent className="pt-0">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div>
-                            <p className="text-gray-300 mb-4">
-                              The relationship between your core numbers reveals important patterns in your numerology
-                              profile. These interactions show how different aspects of your personality work together
-                              or create tension.
-                            </p>
-                            <h4 className="font-medium text-purple-300 mb-2">Key Observations</h4>
-                            <ul className="list-disc pl-5 space-y-2 text-gray-300">
-                              <li>
-                                Your Life Path ({profile.lifePathNumber}) and Destiny ({profile.destinyNumber}) numbers
-                                are
-                                {profile.lifePathNumber === profile.destinyNumber
-                                  ? " identical, creating a powerful alignment between your natural tendencies and life goals."
-                                  : Math.abs(profile.lifePathNumber - profile.destinyNumber) <= 1
-                                    ? " very compatible, suggesting a harmonious flow between your natural tendencies and life goals."
-                                    : " different, creating an interesting dynamic that may require integration of different energies."}
-                              </li>
-                              <li>
-                                Your Soul Urge ({profile.soulUrgeNumber}) and Personality ({profile.personalityNumber})
-                                numbers
-                                {profile.soulUrgeNumber === profile.personalityNumber
-                                  ? " match perfectly, indicating that your inner desires align with how you present yourself to the world."
-                                  : " differ, suggesting that your inner desires and outer presentation may create a complex but rich personality."}
-                              </li>
-                              {profile.expressionNumber && (
-                                <li>
-                                  Your Destiny ({profile.destinyNumber}) and Expression ({profile.expressionNumber})
-                                  numbers
-                                  {profile.destinyNumber === profile.expressionNumber
-                                    ? " are identical, indicating that your current name fully supports your life purpose."
-                                    : " differ, suggesting that your current name is creating a new path or expression of your talents."}
-                                </li>
-                              )}
-                              <li>
-                                Your Maturity Number ({profile.maturityNumber}) indicates that as you age, you will
-                                develop more
-                                {numberData
-                                  .find((item) => item.number === profile.maturityNumber)
-                                  ?.keywords.map((keyword, index) =>
-                                    index === 0
-                                      ? ` ${keyword.toLowerCase()}`
-                                      : index ===
-                                          numberData.find((item) => item.number === profile.maturityNumber)?.keywords
-                                            .length -
-                                            1
-                                        ? ` and ${keyword.toLowerCase()}`
-                                        : `, ${keyword.toLowerCase()}`,
-                                  )}
-                                .
-                              </li>
-                            </ul>
-                          </div>
-                          <div className="flex items-center justify-center">
-                            <LifePathChart
-                              lifePathNumber={profile.lifePathNumber}
-                              destinyNumber={profile.destinyNumber}
-                              soulNumber={profile.soulUrgeNumber}
-                            />
                           </div>
                         </div>
                       </CardContent>
@@ -1277,562 +1092,328 @@ export default function NumerologyCalculator({
                 </TabsContent>
 
                 <TabsContent value="cycles" className="space-y-6">
-                  {/* Personal Year Section */}
-                  <Card className="bg-gray-900/50 border-green-500/30">
-                    <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("personalYearSection")}>
+                  {/* Birthday Number Section */}
+                  <Card className="bg-gray-900/50 border-orange-500/30">
+                    <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("birthdaySection")}>
                       <div className="flex justify-between items-center">
                         <CardTitle className="text-lg flex items-center">
-                          <Calendar className="h-5 w-5 mr-2 text-green-400" />
-                          Personal Year: {profile.personalYear}
+                          <Sparkles className="h-5 w-5 mr-2 text-orange-400" />
+                          Birthday Number: {profile.birthdayNumber}
                         </CardTitle>
-                        {expandedSections["personalYearSection"] ? (
+                        {expandedSections["birthdaySection"] ? (
                           <ChevronUp className="h-5 w-5 text-gray-400" />
                         ) : (
                           <ChevronDown className="h-5 w-5 text-gray-400" />
                         )}
                       </div>
                     </CardHeader>
-                    {expandedSections["personalYearSection"] && (
+                    {expandedSections["birthdaySection"] && (
                       <CardContent className="pt-0">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          <div className="col-span-2">
-                            <p className="text-gray-300 mb-4">{getPersonalYearMeaning(profile.personalYear || 1)}</p>
-                            <h4 className="font-medium text-green-300 mb-2">Current Cycle</h4>
-                            <p className="text-gray-300 mb-4">
-                              You are currently in a Personal Year {profile.personalYear}, Personal Month{" "}
-                              {profile.personalMonth}, and Personal Day {profile.personalDay} cycle. These numbers
-                              indicate the energies and opportunities available to you during these specific time
-                              periods.
-                            </p>
-                          </div>
-                          <div>
-                            <div className="bg-green-900/20 p-4 rounded-lg border border-green-500/30 mb-4">
-                              <h4 className="font-medium text-green-300 mb-2 text-center">
-                                Personal Month: {profile.personalMonth}
-                              </h4>
-                              <p className="text-sm text-center text-gray-300">
-                                This month emphasizes{" "}
-                                {profile.personalMonth === 1
-                                  ? "new beginnings and initiative"
-                                  : profile.personalMonth === 2
-                                    ? "patience and cooperation"
-                                    : profile.personalMonth === 3
-                                      ? "creativity and self-expression"
-                                      : profile.personalMonth === 4
-                                        ? "organization and practical matters"
-                                        : profile.personalMonth === 5
-                                          ? "change and freedom"
-                                          : profile.personalMonth === 6
-                                            ? "responsibility and service"
-                                            : profile.personalMonth === 7
-                                              ? "reflection and spiritual growth"
-                                              : profile.personalMonth === 8
-                                                ? "business and achievement"
-                                                : "completion and letting go"}
-                                .
-                              </p>
-                            </div>
-                            <div className="bg-green-900/20 p-4 rounded-lg border border-green-500/30">
-                              <h4 className="font-medium text-green-300 mb-2 text-center">
-                                Personal Day: {profile.personalDay}
-                              </h4>
-                              <p className="text-sm text-center text-gray-300">
-                                Today is ideal for{" "}
-                                {profile.personalDay === 1
-                                  ? "taking initiative and starting new projects"
-                                  : profile.personalDay === 2
-                                    ? "cooperation and diplomatic interactions"
-                                    : profile.personalDay === 3
-                                      ? "creative expression and socializing"
-                                      : profile.personalDay === 4
-                                        ? "organization and attending to practical matters"
-                                        : profile.personalDay === 5
-                                          ? "embracing change and variety"
-                                          : profile.personalDay === 6
-                                            ? "handling responsibilities and nurturing others"
-                                            : profile.personalDay === 7
-                                              ? "reflection, research, and spiritual activities"
-                                              : profile.personalDay === 8
-                                                ? "focusing on business and financial matters"
-                                                : "completion, giving back, and letting go"}
-                                .
-                              </p>
-                            </div>
-                          </div>
-                        </div>
+                        <p className="text-gray-300 mb-4">
+                          Your Birthday Number reveals a specific talent or ability that will help you on your life
+                          path. It's a gift you bring into this lifetime.
+                        </p>
+                        <p className="text-gray-300">{getNumberMeaning(profile.birthdayNumber)}</p>
                       </CardContent>
                     )}
                   </Card>
 
-                  {/* Life Cycles Timeline */}
-                  <Card className="bg-gray-900/50 border-purple-500/30">
-                    <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("timelineSection")}>
+                  {/* Maturity Number Section */}
+                  <Card className="bg-gray-900/50 border-yellow-500/30">
+                    <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("maturitySection")}>
                       <div className="flex justify-between items-center">
                         <CardTitle className="text-lg flex items-center">
-                          <Clock className="h-5 w-5 mr-2 text-purple-400" />
-                          Life Cycles Timeline
+                          <Sparkles className="h-5 w-5 mr-2 text-yellow-400" />
+                          Maturity Number: {profile.maturityNumber}
                         </CardTitle>
-                        {expandedSections["timelineSection"] ? (
+                        {expandedSections["maturitySection"] ? (
                           <ChevronUp className="h-5 w-5 text-gray-400" />
                         ) : (
                           <ChevronDown className="h-5 w-5 text-gray-400" />
                         )}
                       </div>
                     </CardHeader>
-                    {expandedSections["timelineSection"] && (
+                    {expandedSections["maturitySection"] && (
                       <CardContent className="pt-0">
-                        <div className="mb-6">
-                          <p className="text-gray-300 mb-4">
-                            Your life is divided into distinct cycles, each with its own challenges and opportunities.
-                            Understanding these cycles helps you navigate life's journey with greater awareness and
-                            purpose.
-                          </p>
-                          <NumerologyTimeline
-                            birthdate={profile.birthDate.toISOString().split("T")[0]}
-                            challengeNumbers={profile.challengeNumbers || []}
-                            pinnacleNumbers={profile.pinnacleNumbers || []}
-                          />
-                        </div>
+                        <p className="text-gray-300 mb-4">
+                          Your Maturity Number represents the underlying desire that will become more prominent in the
+                          second half of your life. It's the goal you'll work towards and achieve.
+                        </p>
+                        <p className="text-gray-300">{getNumberMeaning(profile.maturityNumber)}</p>
                       </CardContent>
                     )}
                   </Card>
 
-                  {/* Pinnacle Numbers Section */}
-                  <Card className="bg-gray-900/50 border-emerald-500/30">
-                    <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("pinnaclesSection")}>
-                      <div className="flex justify-between items-center">
-                        <CardTitle className="text-lg flex items-center">
-                          <ArrowRight className="h-5 w-5 mr-2 text-emerald-400" />
-                          Pinnacle Numbers
-                        </CardTitle>
-                        {expandedSections["pinnaclesSection"] ? (
-                          <ChevronUp className="h-5 w-5 text-gray-400" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-gray-400" />
-                        )}
-                      </div>
-                    </CardHeader>
-                    {expandedSections["pinnaclesSection"] && (
-                      <CardContent className="pt-0">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div>
-                            <p className="text-gray-300 mb-4">
-                              Pinnacle Numbers represent periods of opportunity and achievement in your life. They
-                              indicate the lessons you are ready to master and the gifts you can access during specific
-                              life periods.
-                            </p>
-                            <div className="space-y-4">
-                              <div>
-                                <h4 className="font-medium text-emerald-300 mb-1">
-                                  First Pinnacle ({profile.pinnacleNumbers?.[0]})
-                                </h4>
-                                <p className="text-gray-300 text-sm">
-                                  Birth to age 27-35: {getPinnacleMeaning(profile.pinnacleNumbers?.[0] || 0)}
-                                </p>
-                              </div>
-                              <div>
-                                <h4 className="font-medium text-emerald-300 mb-1">
-                                  Second Pinnacle ({profile.pinnacleNumbers?.[1]})
-                                </h4>
-                                <p className="text-gray-300 text-sm">
-                                  Age 27-35 to 36-44: {getPinnacleMeaning(profile.pinnacleNumbers?.[1] || 0)}
-                                </p>
-                              </div>
-                              <div>
-                                <h4 className="font-medium text-emerald-300 mb-1">
-                                  Third Pinnacle ({profile.pinnacleNumbers?.[2]})
-                                </h4>
-                                <p className="text-gray-300 text-sm">
-                                  Age 36-44 to 53-62: {getPinnacleMeaning(profile.pinnacleNumbers?.[2] || 0)}
-                                </p>
-                              </div>
-                              <div>
-                                <h4 className="font-medium text-emerald-300 mb-1">
-                                  Fourth Pinnacle ({profile.pinnacleNumbers?.[3]})
-                                </h4>
-                                <p className="text-gray-300 text-sm">
-                                  Age 53-62 onward: {getPinnacleMeaning(profile.pinnacleNumbers?.[3] || 0)}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-emerald-300 mb-2">Pinnacle Progression</h4>
-                            <div className="bg-emerald-900/20 p-4 rounded-lg border border-emerald-500/30">
-                              <div className="space-y-3">
-                                <div>
-                                  <div className="flex justify-between items-center mb-1">
-                                    <span className="text-sm text-emerald-300">First Pinnacle</span>
-                                    <span className="text-sm text-emerald-300">{profile.pinnacleNumbers?.[0]}</span>
-                                  </div>
-                                  <div className="w-full bg-gray-700 rounded-full h-2">
-                                    <div
-                                      className="bg-emerald-500 h-2 rounded-full"
-                                      style={{ width: `${(profile.pinnacleNumbers?.[0] || 0) * 11}%` }}
-                                    ></div>
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="flex justify-between items-center mb-1">
-                                    <span className="text-sm text-emerald-300">Second Pinnacle</span>
-                                    <span className="text-sm text-emerald-300">{profile.pinnacleNumbers?.[1]}</span>
-                                  </div>
-                                  <div className="w-full bg-gray-700 rounded-full h-2">
-                                    <div
-                                      className="bg-emerald-500 h-2 rounded-full"
-                                      style={{ width: `${(profile.pinnacleNumbers?.[1] || 0) * 11}%` }}
-                                    ></div>
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="flex justify-between items-center mb-1">
-                                    <span className="text-sm text-emerald-300">Third Pinnacle</span>
-                                    <span className="text-sm text-emerald-300">{profile.pinnacleNumbers?.[2]}</span>
-                                  </div>
-                                  <div className="w-full bg-gray-700 rounded-full h-2">
-                                    <div
-                                      className="bg-emerald-500 h-2 rounded-full"
-                                      style={{ width: `${(profile.pinnacleNumbers?.[2] || 0) * 11}%` }}
-                                    ></div>
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="flex justify-between items-center mb-1">
-                                    <span className="text-sm text-emerald-300">Fourth Pinnacle</span>
-                                    <span className="text-sm text-emerald-300">{profile.pinnacleNumbers?.[3]}</span>
-                                  </div>
-                                  <div className="w-full bg-gray-700 rounded-full h-2">
-                                    <div
-                                      className="bg-emerald-500 h-2 rounded-full"
-                                      style={{ width: `${(profile.pinnacleNumbers?.[3] || 0) * 11}%` }}
-                                    ></div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    )}
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="challenges" className="space-y-6">
-                  {/* Challenge Numbers Section */}
-                  <Card className="bg-gray-900/50 border-amber-500/30">
-                    <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("challenge1Section")}>
-                      <div className="flex justify-between items-center">
-                        <CardTitle className="text-lg flex items-center">
-                          <ArrowRight className="h-5 w-5 mr-2 text-amber-400" />
-                          First Challenge: {profile.challengeNumbers?.[0]}
-                        </CardTitle>
-                        {expandedSections["challenge1Section"] ? (
-                          <ChevronUp className="h-5 w-5 text-gray-400" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-gray-400" />
-                        )}
-                      </div>
-                    </CardHeader>
-                    {expandedSections["challenge1Section"] && (
-                      <CardContent className="pt-0">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          <div className="col-span-2">
-                            <p className="text-gray-300 mb-4">
-                              Your First Challenge (birth to age 27-35) is {profile.challengeNumbers?.[0]}.
-                              {getChallengeMeaning(profile.challengeNumbers?.[0] || 0)}
-                            </p>
-                            <h4 className="font-medium text-amber-300 mb-2">Early Life Lessons</h4>
-                            <p className="text-gray-300 mb-4">
-                              This challenge represents the obstacles and lessons you need to overcome in your early
-                              life. It often relates to family patterns, education, and establishing your identity.
-                            </p>
-                          </div>
-                          <div className="flex flex-col justify-center">
-                            <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-500/30">
-                              <h4 className="font-medium text-amber-300 mb-2 text-center">Challenge Timeline</h4>
-                              <div className="relative pt-6 pb-2">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gray-700"></div>
-                                <div className="absolute top-0 left-0 w-1/4 h-1 bg-amber-500"></div>
-                                <div className="absolute top-0 left-0 w-1 h-3 bg-amber-500 -translate-y-1"></div>
-                                <div className="absolute top-0 left-1/4 w-1 h-3 bg-amber-500 -translate-y-1"></div>
-                                <div className="absolute top-0 left-1/2 w-1 h-3 bg-gray-700 -translate-y-1"></div>
-                                <div className="absolute top-0 left-3/4 w-1 h-3 bg-gray-700 -translate-y-1"></div>
-                                <div className="absolute top-0 right-0 w-1 h-3 bg-gray-700 -translate-y-1"></div>
-                                <div className="flex justify-between text-xs text-gray-400 mt-2">
-                                  <span>Birth</span>
-                                  <span className="absolute left-1/4 transform -translate-x-1/2">Age 28-35</span>
-                                  <span className="absolute left-1/2 transform -translate-x-1/2">Age 36-44</span>
-                                  <span className="absolute left-3/4 transform -translate-x-1/2">Age 53-62</span>
-                                  <span>Onward</span>
-                                </div>
-                              </div>
-                              <div className="text-center mt-6">
-                                <span className="inline-block px-3 py-1 bg-amber-900/40 text-amber-300 rounded-full text-sm">
-                                  Current Focus
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    )}
-                  </Card>
-
-                  {/* Additional Challenge Numbers */}
-                  {profile.challengeNumbers?.slice(1).map((challenge, index) => (
-                    <Card key={index + 1} className="bg-gray-900/50 border-amber-500/30">
-                      <CardHeader
-                        className="pb-3 cursor-pointer"
-                        onClick={() => toggleSection(`challenge${index + 2}Section`)}
-                      >
+                  {/* Balance Number Section */}
+                  {profile.balanceNumber !== undefined && (
+                    <Card className="bg-gray-900/50 border-green-500/30">
+                      <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("balanceSection")}>
                         <div className="flex justify-between items-center">
                           <CardTitle className="text-lg flex items-center">
-                            <ArrowRight className="h-5 w-5 mr-2 text-amber-400" />
-                            {index === 0 ? "Second" : index === 1 ? "Third" : "Fourth"} Challenge: {challenge}
+                            <Sparkles className="h-5 w-5 mr-2 text-green-400" />
+                            Balance Number: {profile.balanceNumber}
                           </CardTitle>
-                          {expandedSections[`challenge${index + 2}Section`] ? (
+                          {expandedSections["balanceSection"] ? (
                             <ChevronUp className="h-5 w-5 text-gray-400" />
                           ) : (
                             <ChevronDown className="h-5 w-5 text-gray-400" />
                           )}
                         </div>
                       </CardHeader>
-                      {expandedSections[`challenge${index + 2}Section`] && (
+                      {expandedSections["balanceSection"] && (
                         <CardContent className="pt-0">
                           <p className="text-gray-300 mb-4">
-                            Your {index === 0 ? "Second" : index === 1 ? "Third" : "Fourth"} Challenge is {challenge}.
-                            {getChallengeMeaning(challenge)}
+                            Your Balance Number indicates how you react to unexpected situations and crises. It reveals
+                            your inner strength and how you find equilibrium.
                           </p>
+                          <p className="text-gray-300">{getNumberMeaning(profile.balanceNumber)}</p>
                         </CardContent>
                       )}
                     </Card>
-                  ))}
+                  )}
+                </TabsContent>
+
+                <TabsContent value="challenges" className="space-y-6">
+                  {/* Challenge Numbers Section */}
+                  {profile.challengeNumbers && profile.challengeNumbers.length > 0 && (
+                    <Card className="bg-gray-900/50 border-red-500/30">
+                      <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("challenge1Section")}>
+                        <div className="flex justify-between items-center">
+                          <CardTitle className="text-lg flex items-center">
+                            <Sparkles className="h-5 w-5 mr-2 text-red-400" />
+                            Challenge Numbers
+                          </CardTitle>
+                          {expandedSections["challenge1Section"] ? (
+                            <ChevronUp className="h-5 w-5 text-gray-400" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-gray-400" />
+                          )}
+                        </div>
+                      </CardHeader>
+                      {expandedSections["challenge1Section"] && (
+                        <CardContent className="pt-0">
+                          <p className="text-gray-300 mb-4">
+                            Challenge Numbers represent the obstacles and lessons you'll encounter at different stages
+                            of your life. Overcoming these challenges leads to significant growth.
+                          </p>
+                          <ul className="list-disc list-inside space-y-2 text-gray-300">
+                            {profile.challengeNumbers.map((challenge, index) => (
+                              <li key={index}>
+                                <strong>
+                                  Challenge {index + 1}: {challenge}
+                                </strong>{" "}
+                                - {getChallengeMeaning(challenge)}
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      )}
+                    </Card>
+                  )}
 
                   {/* Karmic Lessons Section */}
-                  <Card className="bg-gray-900/50 border-purple-500/30">
-                    <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("karmicLessonsSection")}>
-                      <div className="flex justify-between items-center">
-                        <CardTitle className="text-lg flex items-center">
-                          <Sparkles className="h-5 w-5 mr-2 text-purple-400" />
-                          Karmic Lessons
-                        </CardTitle>
-                        {expandedSections["karmicLessonsSection"] ? (
-                          <ChevronUp className="h-5 w-5 text-gray-400" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-gray-400" />
-                        )}
-                      </div>
-                    </CardHeader>
-                    {expandedSections["karmicLessonsSection"] && (
-                      <CardContent className="pt-0">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          <div className="col-span-2">
-                            <p className="text-gray-300 mb-4">
-                              Karmic Lessons are indicated by missing numbers in your name. They represent skills or
-                              qualities that you need to develop in this lifetime, often because they were neglected in
-                              past lives.
-                            </p>
-                            {profile.karmicLessons && profile.karmicLessons.length > 0 ? (
-                              <div>
-                                <h4 className="font-medium text-purple-300 mb-2">Your Karmic Lessons</h4>
-                                <div className="space-y-3">
-                                  {profile.karmicLessons.map((lesson, index) => (
-                                    <div
-                                      key={index}
-                                      className="bg-purple-900/20 p-3 rounded-lg border border-purple-500/30"
-                                    >
-                                      <h5 className="font-medium text-purple-300 mb-1">Karmic Lesson {lesson}</h5>
-                                      <p className="text-sm text-gray-300">{getKarmicLessonMeaning(lesson)}</p>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="bg-purple-900/20 p-4 rounded-lg border border-purple-500/30">
-                                <h4 className="font-medium text-purple-300 mb-2 text-center">No Karmic Lessons</h4>
-                                <p className="text-center text-gray-300">
-                                  You have no missing numbers in your name, which suggests that you have already
-                                  developed a well-rounded set of skills and qualities. This indicates balanced
-                                  development from past lives.
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-purple-300 mb-2">Hidden Passion</h4>
-                            <div className="bg-purple-900/20 p-4 rounded-lg border border-purple-500/30">
-                              <div className="w-20 h-20 mx-auto mb-3">
-                                <NumberChart number={profile.hiddenPassionNumber || 0} title="Hidden Passion" />
-                              </div>
-                              <p className="text-center text-gray-300">
-                                Your Hidden Passion number is {profile.hiddenPassionNumber}, indicating a natural talent
-                                and love for activities related to{" "}
-                                {profile.hiddenPassionNumber === 1
-                                  ? "leadership, independence, and pioneering"
-                                  : profile.hiddenPassionNumber === 2
-                                    ? "cooperation, diplomacy, and relationships"
-                                    : profile.hiddenPassionNumber === 3
-                                      ? "creativity, communication, and self-expression"
-                                      : profile.hiddenPassionNumber === 4
-                                        ? "organization, detail, and building"
-                                        : profile.hiddenPassionNumber === 5
-                                          ? "freedom, change, and adventure"
-                                          : profile.hiddenPassionNumber === 6
-                                            ? "responsibility, nurturing, and harmony"
-                                            : profile.hiddenPassionNumber === 7
-                                              ? "analysis, research, and spiritual pursuits"
-                                              : profile.hiddenPassionNumber === 8
-                                                ? "business, achievement, and authority"
-                                                : "humanitarian service, compassion, and artistic expression"}
-                                .
-                              </p>
-                            </div>
-                          </div>
+                  {profile.karmicLessons && profile.karmicLessons.length > 0 && (
+                    <Card className="bg-gray-900/50 border-cyan-500/30">
+                      <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("karmicLessonsSection")}>
+                        <div className="flex justify-between items-center">
+                          <CardTitle className="text-lg flex items-center">
+                            <Sparkles className="h-5 w-5 mr-2 text-cyan-400" />
+                            Karmic Lessons
+                          </CardTitle>
+                          {expandedSections["karmicLessonsSection"] ? (
+                            <ChevronUp className="h-5 w-5 text-gray-400" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-gray-400" />
+                          )}
                         </div>
-                      </CardContent>
-                    )}
-                  </Card>
+                      </CardHeader>
+                      {expandedSections["karmicLessonsSection"] && (
+                        <CardContent className="pt-0">
+                          <p className="text-gray-300 mb-4">
+                            Karmic Lessons indicate areas where you may have lacked experience or development in past
+                            lives. These are areas you are meant to master in this lifetime.
+                          </p>
+                          <ul className="list-disc list-inside space-y-2 text-gray-300">
+                            {profile.karmicLessons.map((lesson, index) => (
+                              <li key={index}>
+                                <strong>Lesson {lesson}</strong> - {getKarmicLessonMeaning(lesson)}
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      )}
+                    </Card>
+                  )}
+
+                  {/* Hidden Passion Number Section */}
+                  {profile.hiddenPassionNumber !== undefined && profile.hiddenPassionNumber !== 0 && (
+                    <Card className="bg-gray-900/50 border-pink-500/30">
+                      <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("hiddenPassionSection")}>
+                        <div className="flex justify-between items-center">
+                          <CardTitle className="text-lg flex items-center">
+                            <Sparkles className="h-5 w-5 mr-2 text-pink-400" />
+                            Hidden Passion Number: {profile.hiddenPassionNumber}
+                          </CardTitle>
+                          {expandedSections["hiddenPassionSection"] ? (
+                            <ChevronUp className="h-5 w-5 text-gray-400" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-gray-400" />
+                          )}
+                        </div>
+                      </CardHeader>
+                      {expandedSections["hiddenPassionSection"] && (
+                        <CardContent className="pt-0">
+                          <p className="text-gray-300 mb-4">
+                            Your Hidden Passion Number reveals your deepest desires and what truly excites you. It's an
+                            area where you have natural talent and enthusiasm.
+                          </p>
+                          <p className="text-gray-300">{getNumberMeaning(profile.hiddenPassionNumber)}</p>
+                        </CardContent>
+                      )}
+                    </Card>
+                  )}
                 </TabsContent>
 
                 <TabsContent value="future" className="space-y-6">
-                  {/* Future Trends Section */}
-                  <Card className="bg-gray-900/50 border-blue-500/30">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-lg flex items-center">
-                        <Calendar className="h-5 w-5 mr-2 text-blue-400" />
-                        Future Trends and Forecasts
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-6">
-                        <div>
-                          <h4 className="font-medium text-blue-300 mb-2">9-Year Cycle Forecast</h4>
+                  {/* Pinnacle Numbers Section */}
+                  {profile.pinnacleNumbers && profile.pinnacleNumbers.length > 0 && (
+                    <Card className="bg-gray-900/50 border-teal-500/30">
+                      <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("pinnacleSection")}>
+                        <div className="flex justify-between items-center">
+                          <CardTitle className="text-lg flex items-center">
+                            <Sparkles className="h-5 w-5 mr-2 text-teal-400" />
+                            Pinnacle Numbers
+                          </CardTitle>
+                          {expandedSections["pinnacleSection"] ? (
+                            <ChevronUp className="h-5 w-5 text-gray-400" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-gray-400" />
+                          )}
+                        </div>
+                      </CardHeader>
+                      {expandedSections["pinnacleSection"] && (
+                        <CardContent className="pt-0">
                           <p className="text-gray-300 mb-4">
-                            Numerology works in 9-year cycles. Based on your Personal Year {profile.personalYear},
-                            here's what you can expect in the coming years:
+                            Pinnacle Numbers represent major life cycles, each lasting approximately 9 years. They
+                            indicate the dominant energies and opportunities present during these periods.
                           </p>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((year) => (
-                              <div
-                                key={year}
-                                className={`p-3 rounded-lg border ${
-                                  year === profile.personalYear
-                                    ? "bg-blue-900/30 border-blue-500/50"
-                                    : "bg-gray-800/30 border-gray-700"
-                                }`}
-                              >
-                                <h5
-                                  className={`font-medium mb-1 ${
-                                    year === profile.personalYear ? "text-blue-300" : "text-gray-300"
-                                  }`}
-                                >
-                                  Year {year}
-                                </h5>
-                                <p className="text-sm text-gray-300">{getPersonalYearMeaning(year).split(".")[0]}.</p>
-                              </div>
+                          <ul className="list-disc list-inside space-y-2 text-gray-300">
+                            {profile.pinnacleNumbers.map((pinnacle, index) => (
+                              <li key={index}>
+                                <strong>
+                                  Pinnacle {index + 1}: {pinnacle}
+                                </strong>{" "}
+                                - {getPinnacleMeaning(pinnacle)}
+                              </li>
                             ))}
-                          </div>
-                        </div>
-
-                        <div>
-                          <h4 className="font-medium text-blue-300 mb-2">Long-Term Forecast</h4>
-                          <p className="text-gray-300 mb-4">
-                            Based on your numerology profile, here are some key trends and opportunities to watch for in
-                            the coming years:
-                          </p>
-                          <ul className="list-disc pl-5 space-y-2 text-gray-300">
-                            <li>
-                              <span className="font-medium">Relationship Dynamics:</span> With your Soul Urge number{" "}
-                              {profile.soulUrgeNumber}, you will likely seek deeper connections that offer{" "}
-                              {profile.soulUrgeNumber === 1
-                                ? "freedom and independence"
-                                : profile.soulUrgeNumber === 2
-                                  ? "harmony and cooperation"
-                                  : profile.soulUrgeNumber === 3
-                                    ? "creativity and joy"
-                                    : profile.soulUrgeNumber === 4
-                                      ? "stability and security"
-                                      : profile.soulUrgeNumber === 5
-                                        ? "variety and adventure"
-                                        : profile.soulUrgeNumber === 6
-                                          ? "nurturing and responsibility"
-                                          : profile.soulUrgeNumber === 7
-                                            ? "depth and understanding"
-                                            : profile.soulUrgeNumber === 8
-                                              ? "mutual success and achievement"
-                                              : "compassion and universal love"}
-                              .
-                            </li>
-                            <li>
-                              <span className="font-medium">Career Evolution:</span> Your Destiny number{" "}
-                              {profile.destinyNumber} suggests that your career will increasingly align with{" "}
-                              {profile.destinyNumber === 1
-                                ? "leadership and pioneering new ideas"
-                                : profile.destinyNumber === 2
-                                  ? "cooperation, support roles, and partnerships"
-                                  : profile.destinyNumber === 3
-                                    ? "creative expression and communication"
-                                    : profile.destinyNumber === 4
-                                      ? "building, organizing, and creating solid structures"
-                                      : profile.destinyNumber === 5
-                                        ? "change, variety, and progressive ideas"
-                                        : profile.destinyNumber === 6
-                                          ? "service, teaching, and nurturing others"
-                                          : profile.destinyNumber === 7
-                                            ? "research, analysis, and specialized knowledge"
-                                            : profile.destinyNumber === 8
-                                              ? "business, management, and material achievement"
-                                              : profile.destinyNumber === 9
-                                                ? "humanitarian work and universal service"
-                                                : profile.destinyNumber === 11
-                                                  ? "inspiration, spiritual teaching, and visionary ideas"
-                                                  : profile.destinyNumber === 22
-                                                    ? "large-scale projects and practical manifestation"
-                                                    : "spiritual teaching and selfless service"}
-                              .
-                            </li>
-                            <li>
-                              <span className="font-medium">Personal Growth:</span> As you move toward your Maturity
-                              number {profile.maturityNumber}, you will develop more{" "}
-                              {profile.maturityNumber === 1
-                                ? "independence and leadership"
-                                : profile.maturityNumber === 2
-                                  ? "diplomacy and cooperation"
-                                  : profile.maturityNumber === 3
-                                    ? "creativity and self-expression"
-                                    : profile.maturityNumber === 4
-                                      ? "practicality and organization"
-                                      : profile.maturityNumber === 5
-                                        ? "adaptability and freedom"
-                                        : profile.maturityNumber === 6
-                                          ? "responsibility and nurturing"
-                                          : profile.maturityNumber === 7
-                                            ? "wisdom and spiritual awareness"
-                                            : profile.maturityNumber === 8
-                                              ? "material mastery and authority"
-                                              : profile.maturityNumber === 9
-                                                ? "compassion and universal perspective"
-                                                : profile.maturityNumber === 11
-                                                  ? "intuition and inspiration"
-                                                  : profile.maturityNumber === 22
-                                                    ? "practical vision and master building"
-                                                    : "spiritual teaching and selfless service"}
-                              .
-                            </li>
                           </ul>
+                        </CardContent>
+                      )}
+                    </Card>
+                  )}
+
+                  {/* Personal Year Section */}
+                  {profile.personalYear !== undefined && (
+                    <Card className="bg-gray-900/50 border-purple-500/30">
+                      <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("personalYearSection")}>
+                        <div className="flex justify-between items-center">
+                          <CardTitle className="text-lg flex items-center">
+                            <Sparkles className="h-5 w-5 mr-2 text-purple-400" />
+                            Personal Year: {profile.personalYear}
+                          </CardTitle>
+                          {expandedSections["personalYearSection"] ? (
+                            <ChevronUp className="h-5 w-5 text-gray-400" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-gray-400" />
+                          )}
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardHeader>
+                      {expandedSections["personalYearSection"] && (
+                        <CardContent className="pt-0">
+                          <p className="text-gray-300 mb-4">
+                            Your Personal Year number indicates the general theme and energy for the current year. It
+                            helps you understand what to focus on and what opportunities may arise.
+                          </p>
+                          <p className="text-gray-300">{getPersonalYearMeaning(profile.personalYear)}</p>
+                        </CardContent>
+                      )}
+                    </Card>
+                  )}
+
+                  {/* Personal Month Section */}
+                  {profile.personalMonth !== undefined && (
+                    <Card className="bg-gray-900/50 border-indigo-500/30">
+                      <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("personalMonthSection")}>
+                        <div className="flex justify-between items-center">
+                          <CardTitle className="text-lg flex items-center">
+                            <Sparkles className="h-5 w-5 mr-2 text-indigo-400" />
+                            Personal Month: {profile.personalMonth}
+                          </CardTitle>
+                          {expandedSections["personalMonthSection"] ? (
+                            <ChevronUp className="h-5 w-5 text-gray-400" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-gray-400" />
+                          )}
+                        </div>
+                      </CardHeader>
+                      {expandedSections["personalMonthSection"] && (
+                        <CardContent className="pt-0">
+                          <p className="text-gray-300 mb-4">
+                            Your Personal Month number refines the energy of your Personal Year, providing a more
+                            specific focus for the current month.
+                          </p>
+                          <p className="text-gray-300">{getNumberMeaning(profile.personalMonth)}</p>
+                        </CardContent>
+                      )}
+                    </Card>
+                  )}
+
+                  {/* Personal Day Section */}
+                  {profile.personalDay !== undefined && (
+                    <Card className="bg-gray-900/50 border-blue-500/30">
+                      <CardHeader className="pb-3 cursor-pointer" onClick={() => toggleSection("personalDaySection")}>
+                        <div className="flex justify-between items-center">
+                          <CardTitle className="text-lg flex items-center">
+                            <Sparkles className="h-5 w-5 mr-2 text-blue-400" />
+                            Personal Day: {profile.personalDay}
+                          </CardTitle>
+                          {expandedSections["personalDaySection"] ? (
+                            <ChevronUp className="h-5 w-5 text-gray-400" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-gray-400" />
+                          )}
+                        </div>
+                      </CardHeader>
+                      {expandedSections["personalDaySection"] && (
+                        <CardContent className="pt-0">
+                          <p className="text-gray-300 mb-4">
+                            Your Personal Day number provides the daily energy and focus, guiding your actions and
+                            interactions for the day.
+                          </p>
+                          <p className="text-gray-300">{getNumberMeaning(profile.personalDay)}</p>
+                        </CardContent>
+                      )}
+                    </Card>
+                  )}
                 </TabsContent>
               </Tabs>
             </div>
           ) : (
-            <div className="text-center text-gray-400 p-8">
-              <FileText className="h-12 w-12 mx-auto mb-4 text-purple-500/50" />
-              <p>Calculate your numerology profile first to generate your comprehensive report</p>
-              <p className="text-sm mt-2">Your detailed analysis will appear here</p>
-            </div>
+            <Card className="bg-gray-900/50 border-red-500/30">
+              <CardContent className="text-center py-8">
+                <p className="text-red-400 text-lg mb-4">No report generated yet.</p>
+                <p className="text-gray-300">
+                  Please go to the "Calculator" tab and fill in your details to generate your comprehensive numerology
+                  report.
+                </p>
+                <Button
+                  onClick={() => setActiveTab("calculator")}
+                  className="mt-4 bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Go to Calculator
+                </Button>
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
       </Tabs>

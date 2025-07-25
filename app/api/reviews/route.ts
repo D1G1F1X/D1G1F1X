@@ -1,51 +1,27 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { createReview, getReviews } from "@/lib/services/review-service"
-import { getCurrentUser } from "@/lib/auth"
+import { NextResponse } from "next/server"
+import { getReviews, createReview } from "@/lib/services/review-service"
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const status = searchParams.get("status") as any
-    const rating = searchParams.get("rating") ? Number.parseInt(searchParams.get("rating")!) : undefined
-    const readingType = searchParams.get("readingType")
-    const sortBy = searchParams.get("sortBy") as any
-    const sortOrder = searchParams.get("sortOrder") as any
-
-    const filters = {
-      status,
-      rating,
-      readingType,
-      sortBy,
-      sortOrder,
-    }
-
-    const reviews = await getReviews(filters)
+    const reviews = await getReviews()
     return NextResponse.json(reviews)
   } catch (error) {
+    console.error("Error fetching reviews:", error)
     return NextResponse.json({ error: "Failed to fetch reviews" }, { status: 500 })
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const data = await request.json()
-
-    // Basic validation
-    if (!data.userName || !data.rating || !data.comment) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    const reviewData = await request.json()
+    const result = await createReview(reviewData)
+    if (result.success) {
+      return NextResponse.json({ message: "Review created successfully", review: result.review }, { status: 201 })
+    } else {
+      return NextResponse.json({ error: result.message }, { status: 400 })
     }
-
-    // Get current user if logged in
-    const currentUser = await getCurrentUser()
-
-    // Create the review
-    const review = await createReview({
-      ...data,
-      userId: currentUser?.id,
-    })
-
-    return NextResponse.json(review)
   } catch (error) {
+    console.error("Error creating review:", error)
     return NextResponse.json({ error: "Failed to create review" }, { status: 500 })
   }
 }

@@ -1,16 +1,15 @@
-import { DashboardShell } from "@/components/admin/dashboard-shell"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function CardDataEditorLoading() {
   return (
-    <DashboardShell>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Card Data Editor</h1>
+    <div className="container mx-auto py-8 px-4 md:px-6">
+      <Skeleton className="h-10 w-1/2 mb-6" />
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Skeleton className="h-[200px] rounded-lg" />
+        <Skeleton className="h-[200px] rounded-lg" />
+        <Skeleton className="h-[200px] rounded-lg" />
       </div>
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-full" />
-        <Skeleton className="h-[600px] w-full" />
-      </div>
-    </DashboardShell>
+      <Skeleton className="h-[500px] w-full mt-6 rounded-lg" />
+    </div>
   )
 }

@@ -1,29 +1,18 @@
-import { DashboardShell } from "@/components/admin/dashboard-shell"
-import { ProtectedRoute } from "@/components/admin/protected-route"
-import { getPageById } from "@/lib/content"
-import { notFound } from "next/navigation"
-import { PageEditor } from "@/components/admin/page-editor"
+import { EditPagePageClient } from "./EditPagePageClient"
+import { getContentById } from "@/lib/enhanced-content" // Assuming this function exists
 
-export const dynamic = "force-dynamic"
-
-interface PageProps {
-  params: {
-    id: string
-  }
+export const metadata = {
+  title: "Edit Page - Admin",
+  description: "Edit an existing page.",
 }
 
-export default async function EditPagePage({ params }: PageProps) {
-  const page = await getPageById(params.id)
+export default async function EditPagePage({ params }: { params: { id: string } }) {
+  const pageId = params.id
+  const pageContent = await getContentById(pageId) // Fetch page content based on ID
 
-  if (!page) {
-    notFound()
+  if (!pageContent) {
+    return <div>Page not found.</div> // Handle case where page doesn't exist
   }
 
-  return (
-    <DashboardShell>
-      <ProtectedRoute>
-        <PageEditor page={page} />
-      </ProtectedRoute>
-    </DashboardShell>
-  )
+  return <EditPagePageClient initialContent={pageContent} />
 }

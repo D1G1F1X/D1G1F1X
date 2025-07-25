@@ -235,6 +235,106 @@ export class LibraryService {
     }
   }
 
+  // Aliases for requested exports
+  static async getLibraryResources(filters?: LibrarySearchFilters): Promise<LibraryDocument[]> {
+    return this.getAllDocuments(filters)
+  }
+
+  static async getAllReadingLists(userId?: string): Promise<UserReadingListItem[]> {
+    if (userId) {
+      return this.getUserReadingList(userId)
+    }
+    // In a real app, you might fetch all reading lists for admin or return an empty array
+    return []
+  }
+
+  static async createReadingList(
+    userId: string,
+    documentId: string,
+    status: "to_read" | "reading" | "completed" = "to_read",
+  ): Promise<UserReadingListItem | null> {
+    return this.addToReadingList(userId, documentId, status)
+  }
+
+  static async getReadingSessions(userId: string): Promise<any[]> {
+    // Placeholder for reading sessions. Assuming a 'reading_sessions' table.
+    try {
+      const { data, error } = await supabase.from("reading_sessions").select("*").eq("user_id", userId)
+      if (error) throw error
+      return data || []
+    } catch (error) {
+      console.error("Error fetching reading sessions:", error)
+      return []
+    }
+  }
+
+  static async createReadingSession(userId: string, documentId: string, durationMinutes: number): Promise<any | null> {
+    // Placeholder for creating a reading session.
+    try {
+      const { data, error } = await supabase
+        .from("reading_sessions")
+        .insert([{ user_id: userId, document_id: documentId, duration_minutes: durationMinutes, started_at: new Date().toISOString() }])
+        .select()
+        .single()
+      if (error) throw error
+      return data
+    } catch (error) {
+      console.error("Error creating reading session:", error)
+      return null
+    }
+  }
+
+  static async getLibraryStats(): Promise<any> {
+    // Placeholder for library statistics.
+    try {
+      const { count: totalDocuments, error: docError } = await supabase.from("library_documents").select("*", { count: "exact" })
+      const { count: totalReadingListItems, error: listItemError } = await supabase.from("user_reading_lists").select("*", { count: "exact" })
+
+      if (docError) throw docError
+      if (listItemError) throw listItemError
+
+      return {
+        totalDocuments: totalDocuments || 0,
+        totalReadingListItems: totalReadingListItems || 0,
+        // Add more stats as needed
+      }
+    } catch (error) {
+      console.error("Error fetching library stats:", error)
+      return { totalDocuments: 0, totalReadingListItems: 0 }
+    }
+  }
+
+  static async getReadingListById(id: string): Promise<UserReadingListItem | null> {
+    // This might be redundant with getUserReadingList if the ID is a list item ID.
+    // Assuming it refers to a specific item in a user's reading list.
+    try {
+      const { data, error } = await supabase.from("user_reading_lists").select("*").eq("id", id).single()
+      if (error) throw error
+      return data ? {
+        id: data.id,
+        userId: data.user_id,
+        documentId: data.document_id,
+        status: data.status,
+        progress: data.progress,
+        notes: data.notes,
+        rating: data.rating,
+        addedAt: data.added_at,
+        completedAt: data.completed_at,
+      } : null
+    } catch (error) {
+      console.error("Error fetching reading list item by ID:", error)
+      return null
+    }
+  }
+
+  static async updateReadingList(id: string, updates: Partial<UserReadingListItem>): Promise<UserReadingListItem | null> {
+    return this.updateReadingListItem(id, updates)
+  }
+
+  static async deleteReadingList(id: string): Promise<boolean> {
+    return this.removeFromReadingList(id)
+  }
+
   // Helper methods
   private static mapDocumentFromDb(dbDoc: any): LibraryDocument {
     return {

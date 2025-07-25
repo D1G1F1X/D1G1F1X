@@ -1,37 +1,18 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { normalizeImagePath } from "@/lib/image-utils"
+import { NextResponse } from "next/server"
+import { verifyImage } from "@/lib/image-processor"
 
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams
-  const imagePath = searchParams.get("path")
-
-  if (!imagePath) {
-    return NextResponse.json({ error: "Image path is required" }, { status: 400 })
-  }
-
-  const normalizedPath = normalizeImagePath(imagePath)
-
+export async function POST(request: Request) {
   try {
-    // For local development, we can check if the file exists in the public directory
-    if (process.env.NODE_ENV === "development") {
-      // In development, we can only verify images that are in the public directory
-      // We'll assume the image exists and let the client handle the actual verification
-      return NextResponse.json({ exists: true, path: normalizedPath })
+    const { imageUrl } = await request.json()
+
+    if (!imageUrl) {
+      return NextResponse.json({ error: "Image URL is required" }, { status: 400 })
     }
 
-    // For production, we can make a HEAD request to check if the image exists
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || ""
-    const fullUrl = normalizedPath.startsWith("http") ? normalizedPath : `${baseUrl}${normalizedPath}`
-
-    const response = await fetch(fullUrl, { method: "HEAD" })
-
-    return NextResponse.json({
-      exists: response.ok,
-      path: normalizedPath,
-      status: response.status,
-    })
+    const result = await verifyImage(imageUrl)
+    return NextResponse.json(result)
   } catch (error) {
     console.error("Error verifying image:", error)
-    return NextResponse.json({ error: "Failed to verify image", details: error }, { status: 500 })
+    return NextResponse.json({ error: "Failed to verify image" }, { status: 500 })
   }
 }

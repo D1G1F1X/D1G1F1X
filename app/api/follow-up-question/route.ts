@@ -1,23 +1,18 @@
 import { NextResponse } from "next/server"
+import { generateFollowUpQuestion } from "@/lib/openai-assistant"
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { question, context } = body
+    const { conversationHistory } = await request.json()
 
-    // Fallback response when Gemini API is not available
-    return NextResponse.json({
-      response: `This is a fallback response. The follow-up question API is currently disabled. Your question was: "${question}"`,
-      message: "Using fallback response - AI integration disabled",
-    })
+    if (!conversationHistory || !Array.isArray(conversationHistory)) {
+      return NextResponse.json({ error: "Conversation history is required and must be an array" }, { status: 400 })
+    }
+
+    const followUp = await generateFollowUpQuestion(conversationHistory)
+    return NextResponse.json({ followUpQuestion: followUp })
   } catch (error) {
-    console.error("Error processing follow-up question:", error)
-    return NextResponse.json(
-      {
-        error: "Failed to process follow-up question",
-        message: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 },
-    )
+    console.error("Error generating follow-up question:", error)
+    return NextResponse.json({ error: "Failed to generate follow-up question" }, { status: 500 })
   }
 }

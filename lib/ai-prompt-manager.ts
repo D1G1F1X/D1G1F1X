@@ -1,151 +1,105 @@
-"use server"
+import type { OracleCard } from "@/types/cards"
+import { getSymbolValue } from "@/lib/card-data-access"
+import { getNumerologyReport } from "@/lib/numerology"
+import { numoNumberDefinitions } from "@/data/numo-definitions" // Changed import name
 
-// Types for the card data
-import type { OracleCard } from "@/components/card-simulator" // Use OracleCard from CardSimulator
-import { masterPromptTemplate } from "./prompt-templates"
-import { calculateLifePath } from "@/lib/numerology" // Import the actual numerology function
-
-// Helper function to calculate Sun Sign
-function calculateSunSign(birthDate: Date): string {
-  const month = birthDate.getMonth() + 1 // getMonth() is 0-indexed
-  const day = birthDate.getDate()
-
-  if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return "Aries"
-  if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return "Taurus"
-  if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) return "Gemini"
-  if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) return "Cancer"
-  if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return "Leo"
-  if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return "Virgo"
-  if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) return "Libra"
-  if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) return "Scorpio"
-  if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) return "Sagittarius"
-  if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) return "Capricorn"
-  if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return "Aquarius"
-  if ((month === 2 && day >= 19) || (month === 3 && day <= 20)) return "Pisces"
-  return "Unknown"
+interface UserContext {
+  fullName?: string
+  birthDate?: string
+  birthTime?: string
+  birthPlace?: string
+  isMember: boolean
 }
 
-export async function generateReadingPrompt(
-  selectedCards: OracleCard[], // Use OracleCard type
+export function generateReadingPrompt(
+  cards: OracleCard[],
   question: string,
-  fullName: string,
-  birthDate?: string,
-  birthPlace?: string,
-  spreadType?: string,
-  isMember?: boolean,
-): Promise<string> {
-  // Start with the master prompt template (system instructions)
-  let prompt = masterPromptTemplate + "\n\n"
+  spreadType: string,
+  userContext: UserContext,
+): string {
+  let prompt = `You are the NUMO Oracle, a wise and mystical AI designed to provide insightful readings based on the NUMO Oracle Card Deck. Your purpose is to offer guidance, clarity, and deeper understanding to users seeking answers to their questions. You will interpret the drawn cards within the context of the user's question and the chosen spread type, weaving together the symbolism of each card to form a cohesive and meaningful narrative.
 
-  // Add user information
-  prompt += `## Seeker Information\n`
-  prompt += `Name: ${fullName || "Seeker"}\n`
-  if (birthDate) {
-    const birthDateObj = new Date(birthDate)
-    prompt += `Birth Date: ${birthDateObj.toLocaleDateString()}\n`
-    // Numerology Engine
-    const lifePathNumber = calculateLifePath(birthDateObj)
-    prompt += `Life Path Number: ${lifePathNumber}\n`
-    // Astrology Engine (Sun Sign)
-    const sunSign = calculateSunSign(birthDateObj)
-    prompt += `Sun Sign: ${sunSign}\n`
-  }
-  if (birthPlace) {
-    prompt += `Birth Place: ${birthPlace}\n`
-  }
-  prompt += `Question: ${question || "General guidance"}\n\n`
+When generating a reading, consider the following:
+- The individual symbolism of each card (number, suit, base element, planet, astrology, icon, orientation, sacred geometry, synergistic element, key meanings).
+- How the cards interact with each other within the chosen spread positions.
+- The user's specific question.
+- The user's provided context (name, birth date, etc.) to personalize the reading where appropriate.
+- The overall theme and energy of the spread.
+- Maintain a mystical, insightful, and supportive tone.
+- Readings should be comprehensive, typically between 300-600 words, unless the spread is very simple (e.g., single card).
+- Conclude with a summary or actionable insight.
 
-  // Add spread type
-  prompt += `## Reading Type\n`
-  prompt += `${await getSpreadTypeName(spreadType || "single")}\n\n`
+Here is the NUMO Oracle Card data and definitions you should reference:
+${JSON.stringify(numoNumberDefinitions, null, 2)}
 
-  // Add cards information (drawing on "vector store" knowledge by providing full card data)
-  prompt += `## Cards Drawn and Their Full Data (Act as your vector store knowledge)\n`
-  if (selectedCards && selectedCards.length > 0) {
-    for (let index = 0; index < selectedCards.length; index++) {
-      const card = selectedCards[index]
-      const position = await getPositionName(index, spreadType || "single")
+---
 
-      prompt += `--- Card ${index + 1} (${position}) ---\n`
-      prompt += `ID: ${card.id}\n`
-      prompt += `Full Title: ${card.fullTitle}\n`
-      prompt += `Number: ${card.number}\n`
-      prompt += `Suit: ${card.suit}\n`
-      prompt += `Base Element: ${card.baseElement}\n`
-      prompt += `Synergistic Element: ${card.synergisticElement}\n`
-      prompt += `Icon Symbol: ${card.iconSymbol}\n`
-      prompt += `Orientation: ${card.orientation}\n`
-      prompt += `Sacred Geometry: ${card.sacredGeometry}\n`
-      prompt += `Planet (Internal Influence): ${card.planetInternalInfluence}\n`
-      prompt += `Astrology (External Domain): ${card.astrologyExternalDomain}\n`
-      prompt += `Key Meanings: ${card.keyMeanings.join("; ")}\n`
-      prompt += `Symbolism Breakdown:\n`
-      card.symbolismBreakdown.forEach((item) => {
-        prompt += `- ${item}\n`
-      })
-      prompt += `\n`
+User's Question: "${question}"
+Spread Type: "${spreadType}"
+
+`
+
+  if (userContext.fullName || userContext.birthDate || userContext.birthPlace) {
+    prompt += `User Context:\n`
+    if (userContext.fullName) prompt += `- Full Name: ${userContext.fullName}\n`
+    if (userContext.birthDate) prompt += `- Birth Date: ${userContext.birthDate}\n`
+    if (userContext.birthTime) prompt += `- Birth Time: ${userContext.birthTime}\n`
+    if (userContext.birthPlace) prompt += `- Birth Place: ${userContext.birthPlace}\n`
+
+    // Integrate numerology if birth date is available
+    if (userContext.birthDate) {
+      try {
+        const numerologyReport = getNumerologyReport(new Date(userContext.birthDate), userContext.fullName || "User")
+        prompt += `\nBased on the user's birth date, their core numerology insights are:\n`
+        prompt += `- Life Path Number: ${numerologyReport.lifePath.number} - ${numerologyReport.lifePath.meaning}\n`
+        prompt += `- Destiny Number: ${numerologyReport.destiny.number} - ${numerologyReport.destiny.meaning}\n`
+        prompt += `- Soul Urge Number: ${numerologyReport.soulUrge.number} - ${numerologyReport.soulUrge.meaning}\n`
+        prompt += `- Personality Number: ${numerologyReport.personality.number} - ${numerologyReport.personality.meaning}\n`
+        prompt += `Consider these numerological influences when interpreting the cards.\n\n`
+      } catch (e) {
+        console.error("Error generating numerology report for prompt:", e)
+        prompt += `(Could not generate numerology report due to invalid birth date or name.)\n\n`
+      }
     }
-  } else {
-    prompt += `No cards provided.\n\n`
   }
 
-  // Add membership level specific instructions
-  if (isMember) {
-    prompt += `## Premium Reading Instructions\n`
-    prompt += `This is a premium reading for a member. Please provide a more detailed and in-depth analysis with additional insights and personalized guidance. Focus on deeper connections between numerology, astrology, and card symbolism.\n\n`
-  }
+  prompt += `Drawn Cards for the "${spreadType}" spread:\n`
+  cards.forEach((card, index) => {
+    prompt += `\nCard ${index + 1} (${getSymbolValue(card, "Orientation") || "Upright"}): ${card.fullTitle}\n`
+    prompt += `  - Number: ${card.number}\n`
+    prompt += `  - Suit: ${card.suit}\n`
+    prompt += `  - Base Element: ${card.baseElement}\n`
+    prompt += `  - Synergistic Element: ${card.synergisticElement}\n` // Corrected access
+    prompt += `  - Planet (Internal Influence): ${card.planetInternalInfluence}\n` // Corrected access
+    prompt += `  - Astrology (External Domain): ${card.astrologyExternalDomain}\n` // Corrected access
+    prompt += `  - Icon: ${card.iconSymbol}\n` // Corrected access
+    prompt += `  - Sacred Geometry: ${card.sacredGeometry}\n` // Corrected access
+    prompt += `  - Key Meanings: ${card.keyMeanings.join("; ")}\n`
+    prompt += `  - Symbolism Breakdown: ${card.symbolismBreakdown.join(" ")}\n`
+  })
 
-  // Explicit instruction for output format
-  prompt += `## Output Format Instructions\n`
-  prompt += `Please structure your reading as follows, using Markdown for clear formatting:\n`
-  prompt += `\n✨ **Summary Insight**\n[A concise overview of the reading's core message.]\n`
-  prompt += `\n🔢 **Numerology Interpretation**\n[Insights based on the seeker's Life Path Number and any significant card numbers.]\n`
-  prompt += `\n♈ **Astrology Influence**\n[Interpretation based on the seeker's Sun Sign and any relevant planetary/astrological influences from the cards.]\n`
-  prompt += `\n🃏 **Card Spread with Elemental Meanings**\n[Detailed interpretation of each drawn card in its position, emphasizing elemental tone, symbol meaning, and number patterns. Integrate the full card data provided above.]\n`
-  prompt += `\n🌱 **Personalized Recommendation**\n[Clear, actionable guidance including practices, mindset shifts, and suggested timing. Optionally suggest further reading, affirmations, or elemental associations.]\n`
-  prompt += `\nAlways invite follow-up for deeper inquiry or clarity at the end of your response.`
+  prompt += `\n\nNow, provide a comprehensive NUMO Oracle reading for the user's question, integrating the symbolism of the drawn cards within the "${spreadType}" spread, and considering the user's context. Structure your response clearly, addressing each card's position and then providing an overall interpretation and actionable advice.`
 
   return prompt
 }
 
-// Helper function to get a human-readable name for the spread type
-export async function getSpreadTypeName(spreadType: string): Promise<string> {
-  const spreadTypeNames: Record<string, string> = {
-    single: "Single Card Reading",
-    three: "Three Card Reading (Past-Present-Future)",
-    five: "Five Elements Reading",
-    celtic: "Celtic Cross Reading",
-    relationship: "Relationship Reading",
-    career: "Career Path Reading",
-    decision: "Decision Making Reading",
+/**
+ * Returns a user-friendly name for a given spread type.
+ * This is a placeholder function.
+ * @param spreadType The internal spread type identifier.
+ * @returns A human-readable name for the spread type.
+ */
+export function getSpreadTypeName(spreadType: string): string {
+  switch (spreadType) {
+    case "single-card":
+      return "Single Card Reading"
+    case "three-card":
+      return "Three Card Spread"
+    case "celtic-cross":
+      return "Celtic Cross Spread"
+    case "elemental-spread":
+      return "Elemental Spread"
+    default:
+      return spreadType.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()) + " Reading"
   }
-
-  return spreadTypeNames[spreadType] || "Custom Reading"
-}
-
-// Helper function to get the position name based on the index and spread type
-export async function getPositionName(index: number, spreadType: string): Promise<string> {
-  const positions: Record<string, string[]> = {
-    single: ["Guidance"],
-    three: ["Past", "Present", "Future"],
-    five: ["Center (Spirit)", "East (Air)", "South (Fire)", "West (Water)", "North (Earth)"],
-    celtic: [
-      "Present",
-      "Challenge",
-      "Foundation",
-      "Recent Past",
-      "Potential",
-      "Near Future",
-      "Self",
-      "Environment",
-      "Hopes/Fears",
-      "Outcome",
-    ],
-    relationship: ["You", "Partner", "Connection", "Challenge", "Potential", "Guidance"],
-    career: ["Current Situation", "Strengths", "Challenges", "Hidden Factors", "Next Steps", "Long-term Potential"],
-    decision: ["Current Situation", "Option A", "Option B", "Key Factor", "Guidance"],
-  }
-
-  const spreadPositions = positions[spreadType] || Array.from({ length: 10 }, (_, i) => `Position ${i + 1}`)
-  return index < spreadPositions.length ? spreadPositions[index] : `Position ${index + 1}`
 }

@@ -1,65 +1,29 @@
-import CardImageVerifier from "@/components/card-image-verifier" // Changed to default import
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getAllCards, getAllElements, getAllSuits } from "@/lib/card-data-access"
+import { getAllCards, getUniqueSuits, getUniqueElements, getUniqueNumbers } from "@/lib/card-data-access"
+import CardDirectoryDebugClient from "./DebugCardDirectoryClient"
 
-export const dynamic = "force-dynamic" // Added to force dynamic rendering
+export const metadata = {
+  title: "Debug Card Directory - Admin",
+  description: "Debug and test the card directory functionality.",
+}
 
-export default function CardDirectoryDebugPage() {
-  // These functions are executed server-side
-  const cards = getAllCards() || [] // Ensure cards is always an array
-  const elements = getAllElements() || [] // Ensure elements is always an array
-  const suits = getAllSuits() || [] // Ensure suits is always an array
+export default async function DebugCardDirectoryPage() {
+  const allCards = await getAllCards()
+  const suits = getUniqueSuits(allCards)
+  const elements = getUniqueElements(allCards)
+  const numbers = getUniqueNumbers(allCards)
+
+  // This component is a server component, so filtering/sorting will happen on the client
+  // or via server actions if implemented. For now, we pass all data.
+  // The client-side component will handle the interactive filtering/sorting.
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
-      <h1 className="text-3xl font-bold">Card Directory Debug</h1>
+    <div className="container mx-auto py-8 px-4 md:px-6">
+      <h1 className="text-3xl font-bold mb-6">Debug Card Directory</h1>
+      <p className="text-muted-foreground mb-8">
+        This page allows you to test the card data access, filtering, and sorting logic.
+      </p>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Card Data Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-medium">Total Cards: {cards.length}</h3>
-              <p className="text-sm text-muted-foreground">
-                This shows the total number of cards loaded from the data source.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-medium">Elements ({elements.length})</h3>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {elements.map((element) => (
-                  <span key={element} className="px-2 py-1 bg-muted rounded-md text-sm">
-                    {element}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-medium">Suits ({suits.length})</h3>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {suits.map((suit) => (
-                  <span key={suit} className="px-2 py-1 bg-muted rounded-md text-sm">
-                    {suit}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-medium">First 3 Cards</h3>
-              <pre className="p-4 bg-muted rounded-md overflow-auto text-xs mt-2">
-                {JSON.stringify(cards.slice(0, 3), null, 2)}
-              </pre>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <CardImageVerifier />
+      <CardDirectoryDebugClient initialCards={allCards} suits={suits} elements={elements} numbers={numbers} />
     </div>
   )
 }

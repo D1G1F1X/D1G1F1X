@@ -1,12 +1,10 @@
-import CardImageVerifier from "@/components/card-image-verifier" // Changed to default import
+import VerifyImagesClientPage from "./VerifyImagesClientPage"
 
-export const dynamic = "force-dynamic" // Added to force dynamic rendering
+export const metadata = {
+  title: "Verify Images - Admin",
+  description: "Verify all images in the public directory against blob storage.",
+}
 
 export default function VerifyImagesPage() {
-  return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Verify Card Images</h1>
-      <CardImageVerifier />
-    </div>
-  )
+  return <VerifyImagesClientPage />
 }

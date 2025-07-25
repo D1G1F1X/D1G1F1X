@@ -4,9 +4,9 @@ import type React from "react"
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Loader2 } from "lucide-react"
+import { Loader2 } from 'lucide-react'
 
-export default function AdminAuthCheck({ children }: { children: React.ReactNode }) {
+export function AdminAuthCheck({ children }: { children: React.ReactNode }) { // Changed to named export
   const router = useRouter()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isChecking, setIsChecking] = useState(true)

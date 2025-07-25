@@ -219,3 +219,43 @@ export const defaultBlogConfig: BlogSystemConfig = {
 
 // Singleton instance
 export const blogSystem = new EnhancedBlogSystem(defaultBlogConfig)
+
+// Export aliases for requested functions
+export const getPosts = (options?: Parameters<EnhancedBlogSystem["fetchPosts"]>[0]) => blogSystem.fetchPosts(options);
+export const getBlogPosts = getPosts; // Alias for getPosts
+
+export const getPostById = async (id: string): Promise<Post | undefined> => {
+  const { posts } = await blogSystem.fetchPosts();
+  return posts.find(post => post.id === id);
+};
+
+export const getBlogPostBySlug = async (slug: string): Promise<Post | undefined> => {
+  const { posts } = await blogSystem.fetchPosts();
+  return posts.find(post => post.slug === slug);
+};
+
+// Placeholder for createPost
+export async function createPost(post: Omit<Post, "id" | "createdAt" | "updatedAt">): Promise<Post> {
+  console.log("Simulating createPost:", post);
+  // In a real app, this would save to a database
+  return { ...post, id: `mock-post-${Date.now()}`, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+}
+export const createBlogPost = createPost; // Alias
+
+// Placeholder for updatePost
+export async function updatePost(id: string, updates: Partial<Post>): Promise<Post | null> {
+  console.log(`Simulating updatePost for ${id}:`, updates);
+  // In a real app, this would update in a database
+  const existingPost = await getPostById(id);
+  if (!existingPost) return null;
+  return { ...existingPost, ...updates, updatedAt: new Date().toISOString() };
+}
+export const updateBlogPost = updatePost; // Alias
+
+// Placeholder for deletePost
+export async function deletePost(id: string): Promise<{ success: boolean; message?: string }> {
+  console.log("Simulating deletePost:", id);
+  // In a real app, this would delete from a database
+  return { success: true, message: `Post ${id} deleted successfully (simulated).` };
+}
+export const deleteBlogPost = deletePost; // Alias

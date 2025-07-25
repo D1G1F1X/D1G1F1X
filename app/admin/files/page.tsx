@@ -1,19 +1,10 @@
-import { requireAuth } from "@/lib/auth"
-import { DashboardShell } from "@/components/admin/dashboard-shell"
-import { FileManager } from "@/components/admin/file-manager"
+import FileManagerPageClient from "./FileManagerPageClient"
 
-export default async function FilesPage() {
-  await requireAuth()
+export const metadata = {
+  title: "File Manager - Admin",
+  description: "Manage files and documents.",
+}
 
-  return (
-    <DashboardShell>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">File Manager</h1>
-        </div>
-
-        <FileManager />
-      </div>
-    </DashboardShell>
-  )
+export default function FileManagerPage() {
+  return <FileManagerPageClient />
 }

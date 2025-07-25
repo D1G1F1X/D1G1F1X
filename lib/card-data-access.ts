@@ -1,210 +1,149 @@
-import masterCardData from "../data/master-card-data.json"
-import type { OracleCard } from "@/types/cards"
+import type { OracleCard, CardSortOption } from "@/types/cards"
+import { listCardImages } from "@/lib/card-image-blob-handler"
+import rawCardData from "@/data/numo-oracle-card-data.json" // Directly import JSON data
 
-// Convert the imported array to properly typed OracleCard objects
-const allCards: OracleCard[] = Array.isArray(masterCardData)
-  ? masterCardData.map((card: any) => ({
-      ...card,
-      id: card.id || `${String(card.number).padStart(2, "0")}-${card.suit}`,
-      number: card.number || "0",
-      suit: card.suit || "Unknown",
-      fullTitle: card.fullTitle || `${card.number} ${card.suit}`,
-      baseElement: card.baseElement || "Spirit",
-      synergisticElement: card.synergisticElement || "Spirit",
-      iconSymbol: card.iconSymbol || "Unknown",
-      orientation: card.orientation || "Balanced",
-      sacredGeometry: card.sacredGeometry || "Circle",
-      keyMeanings: Array.isArray(card.keyMeanings) ? card.keyMeanings : ["Guidance and wisdom"],
-      symbols: Array.isArray(card.symbols) ? card.symbols : [],
-      symbolismBreakdown: Array.isArray(card.symbolismBreakdown) ? card.symbolismBreakdown : [],
-      planetInternalInfluence: card.planetInternalInfluence || "Universal guidance",
-      astrologyExternalDomain: card.astrologyExternalDomain || "All signs",
-      imageFileName: card.imageFileName || null, // Map the new field
-      imagePath: card.imageFileName
-        ? `/cards/${card.imageFileName}`
-        : `/cards/${String(card.number).padStart(2, "0")}-${(card.suit || "unknown").toLowerCase()}-${(card.baseElement || "spirit").toLowerCase()}.jpg`, // Use imageFileName for imagePath
-    }))
-  : [] // Fallback to an empty array if masterCardData is not an array
+// Convert the JSON data to OracleCard objects and enrich with image URLs
+const processCardData = async (rawData: any[]): Promise<OracleCard[]> => {
+  const cardImages = await listCardImages()
 
-/**
- * Get all oracle cards
- */
-export function getAllCards(): OracleCard[] {
-  return allCards
+  return rawData.map((card) => {
+    // Add safety checks for required properties
+    const suit = card.suit || "unknown"
+    const baseElement = card.baseElement || "spirit"
+    const number = card.number || "0"
+
+    // Find the corresponding image URL from blob storage
+    const cardImage = cardImages.find((img) => img.filename.includes(card.id))
+    // Fallback to a local path if no blob image is found
+    const imageUrl = cardImage?.url || `/public/cards/${number}-${suit.toLowerCase()}-${baseElement.toLowerCase()}.jpg`
+
+    return {
+      id: card.id || `${number}-${suit}`,
+      number: number,
+      suit: suit,
+      fullTitle: card.fullTitle || `${number} ${suit}`,
+      symbols: card.symbols || [],
+      symbolismBreakdown: card.symbolismBreakdown || [],
+      keyMeanings: card.keyMeanings || [],
+      baseElement: baseElement,
+      planetInternalInfluence: card.planetInternalInfluence || "unknown",
+      astrologyExternalDomain: card.astrologyExternalDomain || "unknown",
+      iconSymbol: card.iconSymbol || "unknown",
+      orientation: card.orientation || "unknown",
+      sacredGeometry: card.sacredGeometry || "unknown",
+      synergisticElement: card.synergisticElement || "unknown",
+      imageUrl: imageUrl,
+      numberMeaning: card.numberMeaning || "No meaning provided.", // Added from numo-definitions structure
+      keywords: card.keywords || [], // Added from numo-definitions structure
+    }
+  })
 }
 
-/**
- * Get a specific card by ID
- */
-export function getCardById(id: string): OracleCard | undefined {
-  return allCards.find((card) => card.id === id)
+// This function is now a server-side function
+export const getCardData = async (): Promise<OracleCard[]> => {
+  try {
+    const processedCards = await processCardData(rawCardData)
+    return processedCards
+  } catch (error) {
+    console.error("Error loading card data:", error)
+    return []
+  }
 }
 
-/**
- * Get cards by suit
- */
-export function getCardsBySuit(suit: string): OracleCard[] {
-  return allCards.filter((card) => card.suit.toLowerCase() === suit.toLowerCase())
+// Alias for getCardData to satisfy getOracleCards export
+export const getOracleCards = getCardData
+
+// This function is now a server-side function
+export const getCardById = async (id: string): Promise<OracleCard | undefined> => {
+  const cards = await getCardData() // Fetch all cards on the server
+  return cards.find((card) => card.id === id)
 }
 
-/**
- * Get cards by element (base or synergistic)
- */
-export function getCardsByElement(element: string): OracleCard[] {
-  return allCards.filter(
-    (card) =>
-      card.baseElement.toLowerCase() === element.toLowerCase() ||
-      card.synergisticElement.toLowerCase() === element.toLowerCase(),
-  )
-}
+// Alias for getCardById to satisfy getCardById export
+export const getOracleCardById = getCardById
 
 /**
- * Get a random card
+ * Generates the primary standardized image path for a card.
+ * Format: {number_padded}-{suit_lowercase}-{element_lowercase}.jpg
+ * Example: 01-cauldron-spirit.jpg
  */
-export function getRandomCard(): OracleCard {
-  const randomIndex = Math.floor(Math.random() * allCards.length)
-  return allCards[randomIndex]
+export function getCardImagePath(cardId: string, element: string): string {
+  const [number, suit] = cardId.split("-")
+  const paddedNumber = number.padStart(2, "0")
+  const lowerSuit = suit?.toLowerCase() || ""
+  const lowerElement = element.toLowerCase()
+  return `${paddedNumber}-${lowerSuit}-${lowerElement}.jpg`
 }
 
-/**
- * Get multiple random cards
- */
-export function getRandomCards(count: number): OracleCard[] {
-  const shuffled = [...allCards].sort(() => Math.random() - 0.5)
-  return shuffled.slice(0, Math.min(count, allCards.length))
-}
+// Re-export getSymbolValue from numerology.ts as it's used in card contexts
+//export const getSymbolValue = getNumerologySymbolValue
 
-/**
- * Search cards by title, meaning, or other text content
- */
-export function searchCards(query: string): OracleCard[] {
-  const lowerQuery = query.toLowerCase()
-  return allCards.filter(
-    (card) =>
-      card.fullTitle.toLowerCase().includes(lowerQuery) ||
-      card.keyMeanings.some((meaning) => meaning.toLowerCase().includes(lowerQuery)) ||
-      card.suit.toLowerCase().includes(lowerQuery) ||
-      card.baseElement.toLowerCase().includes(lowerQuery) ||
-      card.synergisticElement.toLowerCase().includes(lowerQuery) ||
-      card.symbolismBreakdown.some((breakdown) => breakdown.toLowerCase().includes(lowerQuery)),
-  )
-}
-
-/**
- * Get all unique suits
- */
-export function getAllSuits(): string[] {
-  const suits = new Set(allCards.map((card) => card.suit))
+// These functions now accept cards as an argument, making them pure and usable on client if data is passed
+export const getUniqueSuits = (cards: OracleCard[]): string[] => {
+  const suits = new Set<string>()
+  cards.forEach((card) => suits.add(card.suit))
   return Array.from(suits).sort()
 }
 
-/**
- * Get all unique elements
- */
-export function getAllElements(): string[] {
-  const elements = new Set([
-    ...allCards.map((card) => card.baseElement),
-    ...allCards.map((card) => card.synergisticElement),
-  ])
+export const getUniqueElements = (cards: OracleCard[]): string[] => {
+  const elements = new Set<string>()
+  cards.forEach((card) => {
+    elements.add(card.baseElement)
+    if (card.synergisticElement) {
+      elements.add(card.synergisticElement)
+    }
+  })
   return Array.from(elements).sort()
 }
 
-/**
- * Get card statistics
- */
-export function getCardStats(): {
-  totalCards: number
-  suitCounts: Record<string, number>
-  elementCounts: Record<string, number>
-} {
-  const suitCounts: Record<string, number> = {}
-  const elementCounts: Record<string, number> = {}
+export const getUniqueNumbers = (cards: OracleCard[]): string[] => {
+  const numbers = new Set<string>()
+  cards.forEach((card) => numbers.add(card.number))
+  return Array.from(numbers).sort((a, b) => Number.parseInt(a) - Number.parseInt(b))
+}
 
-  allCards.forEach((card) => {
-    // Count suits
-    suitCounts[card.suit] = (suitCounts[card.suit] || 0) + 1
+interface FilterOptions {
+  suit?: string
+  element?: string
+  number?: string
+  query?: string
+}
 
-    // Count elements
-    elementCounts[card.baseElement] = (elementCounts[card.baseElement] || 0) + 1
-    if (card.synergisticElement !== card.baseElement) {
-      elementCounts[card.synergisticElement] = (elementCounts[card.synergisticElement] || 0) + 1
-    }
+export const filterCards = (cards: OracleCard[], options: FilterOptions): OracleCard[] => {
+  return cards.filter((card) => {
+    const matchesSuit = !options.suit || card.suit.toLowerCase() === options.suit.toLowerCase()
+    const matchesElement =
+      !options.element ||
+      card.baseElement.toLowerCase() === options.element.toLowerCase() ||
+      card.synergisticElement.toLowerCase() === options.element.toLowerCase()
+    const matchesNumber = !options.number || card.number === options.number
+    const matchesQuery =
+      !options.query ||
+      card.fullTitle.toLowerCase().includes(options.query.toLowerCase()) ||
+      card.keyMeanings.some((meaning) => meaning.toLowerCase().includes(options.query!.toLowerCase())) ||
+      card.symbolismBreakdown.some((symbol) => symbol.toLowerCase().includes(options.query!.toLowerCase()))
+
+    return matchesSuit && matchesElement && matchesNumber && matchesQuery
   })
-
-  return {
-    totalCards: allCards.length,
-    suitCounts,
-    elementCounts,
-  }
 }
 
-/**
- * Get a symbol value by key from a card
- */
-export function getSymbolValue(card: OracleCard, key: string): string | undefined {
-  const symbol = card.symbols?.find((s) => s.key === key)
-  return symbol?.value
-}
-
-/**
- * Enhanced card image path generation with fallback support
- */
-export function getCardImagePath(card: OracleCard): string {
-  // Directly use the imagePath property which is now derived from imageFileName
-  return card.imagePath || "/placeholder.svg"
-}
-
-/**
- * Get all possible image paths for a card (for validation/checking)
- */
-export function getAllPossibleImagePaths(card: OracleCard): string[] {
-  // If imagePath is available, it's the primary path
-  if (card.imagePath) {
-    return [card.imagePath]
-  }
-
-  // Fallback to old logic if imagePath is not set (shouldn't happen with new data)
-  const cardNumber = String(card.number).padStart(2, "0")
-  const suit = card.suit.toLowerCase()
-  const baseElement = card.baseElement.toLowerCase()
-  const synergisticElement = card.synergisticElement.toLowerCase()
-
-  const paths: string[] = []
-  ;[baseElement, synergisticElement].forEach((element) => {
-    if (element) {
-      paths.push(
-        `/cards/${cardNumber}-${suit}-${element}.jpg`, // Zero-padded format
-        `/cards/${card.number}-${suit}-${element}.jpg`, // Single-digit format
-        `/cards/${cardNumber}${suit}-${element}.jpg`, // No hyphen format
-        `/cards/${card.id.toLowerCase()}-${element}.jpg`,
-      )
+export const sortCards = (cards: OracleCard[], sortBy: CardSortOption): OracleCard[] => {
+  return [...cards].sort((a, b) => {
+    if (sortBy === "number") {
+      return Number.parseInt(a.number) - Number.parseInt(b.number)
+    } else if (sortBy === "suit") {
+      return a.suit.localeCompare(b.suit)
+    } else if (sortBy === "title") {
+      return a.fullTitle.localeCompare(b.fullTitle)
+    } else if (sortBy === "element") {
+      return a.baseElement.localeCompare(b.baseElement)
     }
+    return 0
   })
-
-  return [...new Set(paths)] // Remove duplicates
 }
 
-/**
- * Get all card data (alias for getAllCards)
- */
-export function getCardData(): OracleCard[] {
-  return getAllCards()
-}
-
-/**
- * Check data integrity (placeholder for actual validation logic)
- */
-export function checkDataIntegrity(): { isValid: boolean; errors: string[] } {
-  // In a real application, this would perform thorough validation
-  // For now, it's a placeholder to satisfy the export requirement
-  return { isValid: true, errors: [] }
-}
-
-/**
- * Get comprehensive card data (can be an alias or combine data)
- */
-export function getComprehensiveCardData(): OracleCard[] {
-  // Since masterCardData is now the single source of truth,
-  // getComprehensiveCardData can simply return allCards.
-  return allCards
+export const debugCardLoading = (cards: OracleCard[]): number => {
+  // This function is intended for debugging purposes to confirm card loading.
+  // It returns the number of cards currently loaded.
+  return cards.length
 }

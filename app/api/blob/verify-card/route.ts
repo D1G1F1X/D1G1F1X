@@ -1,58 +1,18 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
+import { verifyCardImage } from "@/lib/card-image-blob-handler"
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const { imageUrl, filename } = await request.json()
+    const { cardId, imageUrl } = await request.json()
 
-    if (!imageUrl) {
-      return NextResponse.json({ error: "Image URL is required" }, { status: 400 })
+    if (!cardId || !imageUrl) {
+      return NextResponse.json({ error: "Card ID and image URL are required" }, { status: 400 })
     }
 
-    // Test image accessibility
-    const startTime = Date.now()
-
-    try {
-      const response = await fetch(imageUrl, {
-        method: "HEAD",
-        signal: AbortSignal.timeout(8000), // 8 second timeout
-      })
-
-      const loadTime = Date.now() - startTime
-      const isAccessible = response.ok
-
-      return NextResponse.json({
-        success: true,
-        filename: filename || "unknown",
-        url: imageUrl,
-        isAccessible,
-        loadTime,
-        status: response.status,
-        contentType: response.headers.get("content-type"),
-        contentLength: response.headers.get("content-length"),
-        timestamp: new Date().toISOString(),
-      })
-    } catch (fetchError) {
-      const loadTime = Date.now() - startTime
-
-      return NextResponse.json({
-        success: false,
-        filename: filename || "unknown",
-        url: imageUrl,
-        isAccessible: false,
-        loadTime,
-        error: fetchError instanceof Error ? fetchError.message : "Fetch failed",
-        timestamp: new Date().toISOString(),
-      })
-    }
+    const result = await verifyCardImage(cardId, imageUrl)
+    return NextResponse.json(result)
   } catch (error) {
-    console.error("❌ API: Failed to verify card image:", error)
-
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : "Unknown error",
-        timestamp: new Date().toISOString(),
-      },
-      { status: 500 },
-    )
+    console.error("Error verifying card image:", error)
+    return NextResponse.json({ error: "Failed to verify card image" }, { status: 500 })
   }
 }

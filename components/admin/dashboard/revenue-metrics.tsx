@@ -1,16 +1,7 @@
 "use client"
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-  ReferenceLine,
-} from "recharts"
+import { BarChart, ResponsiveContainer } from "recharts"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const data = [
   {
@@ -89,46 +80,11 @@ const data = [
 
 export function RevenueMetrics() {
   return (
-    <div className="h-60">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={data}
-          margin={{
-            top: 5,
-            right: 30,
-            left: 20,
-            bottom: 5,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-          <XAxis
-            dataKey="name"
-            stroke="rgba(255,255,255,0.5)"
-            tick={{ fill: "rgba(255,255,255,0.5)" }}
-            tickLine={{ stroke: "rgba(255,255,255,0.2)" }}
-          />
-          <YAxis
-            stroke="rgba(255,255,255,0.5)"
-            tick={{ fill: "rgba(255,255,255,0.5)" }}
-            tickLine={{ stroke: "rgba(255,255,255,0.2)" }}
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "rgba(23, 23, 23, 0.9)",
-              border: "1px solid rgba(139, 92, 246, 0.5)",
-              borderRadius: "6px",
-              color: "white",
-            }}
-            formatter={(value: number, name: string) => {
-              return [`$${value}`, name.charAt(0).toUpperCase() + name.slice(1)]
-            }}
-          />
-          <Legend />
-          <ReferenceLine y={3000} stroke="#f97316" strokeDasharray="3 3" />
-          <Bar dataKey="revenue" fill="#8b5cf6" name="Revenue" />
-          <Bar dataKey="profit" fill="#22c55e" name="Profit" />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  )
-}
+    <Card>
+      <CardHeader>
+        <CardTitle>Revenue Metrics</CardTitle>
+      </CardHeader>
+      <CardContent className="pl-2">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+\

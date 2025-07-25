@@ -41,6 +41,16 @@ export function login(username: string, password: string): boolean {
   return false
 }
 
+// Alias for login
+export const loginAdmin = login
+
+// Placeholder for verifyAdminCredentials
+export function verifyAdminCredentials(username: string, password: string): boolean {
+  // In a real application, this would involve hashing passwords and checking against a secure store.
+  // For demo purposes, it's a direct comparison.
+  return username === "admin" && password === "numoracle"
+}
+
 // Logout function
 export function logout(): void {
   setAuthenticated(false)

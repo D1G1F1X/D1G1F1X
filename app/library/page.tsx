@@ -1,11 +1,13 @@
-import type { Metadata } from "next"
 import LibraryClientPage from "./LibraryClientPage"
+import { getLibraryResources } from "@/lib/services/library-service"
 
-export const metadata: Metadata = {
-  title: "NUMO Oracle Library | Resources & Guides",
-  description: "Access a comprehensive library of resources, guides, and articles on NUMO Oracle and numerology.",
+export const metadata = {
+  title: "Library",
+  description: "Explore a collection of resources to enhance your understanding.",
 }
 
-export default function LibraryPage() {
-  return <LibraryClientPage />
+export default async function LibraryPage() {
+  const initialResources = await getLibraryResources()
+
+  return <LibraryClientPage initialResources={initialResources} />
 }

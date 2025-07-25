@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { list } from "@vercel/blob"
-import { generateCardImagePath, generateCardImagePathVariants } from "@/lib/card-image-blob-handler"
+import { generateCardImagePath, generateCardImagePathVariants } from "@/lib/card-image-blob-handler" // Ensure these are imported
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       // List all blobs in the cards directory
       const { blobs } = await list({
         prefix: "cards/",
-        limit: 1000,
+        limit: 1000, // Adjust limit as needed for your number of card images
       })
 
       // Try to find the image using variants (prioritizing the new format)
@@ -32,7 +32,10 @@ export async function GET(request: NextRequest) {
         matchingBlob = blobs.find((blob) => {
           if (!blob.pathname) return false
           const filename = blob.pathname.split("/").pop() || ""
-          return filename === variant || blob.pathname.endsWith(variant)
+          return (
+            filename.toLowerCase() === variant.toLowerCase() ||
+            blob.pathname.toLowerCase().endsWith(variant.toLowerCase())
+          )
         })
 
         if (matchingBlob) {
@@ -121,7 +124,7 @@ export async function POST(request: NextRequest) {
             const matchingBlob = blobs.find((blob) => {
               if (!blob.pathname) return false
               const filename = blob.pathname.split("/").pop() || ""
-              return filename === variant
+              return filename.toLowerCase() === variant.toLowerCase()
             })
 
             if (matchingBlob) {

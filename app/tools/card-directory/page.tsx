@@ -1,20 +1,11 @@
-import { CardDirectory } from "@/components/card-directory"
-import HeroSection from "@/components/hero-section" // Import HeroSection
+import CardDirectoryPageClient from "./CardDirectoryPageClient"
+import { getOracleCards, getUniqueSuits, getUniqueElements, getUniqueNumbers } from "@/lib/card-data-access"
 
-export const metadata = {
-  title: "NUMO Oracle Card Directory",
-  description: "Explore the complete collection of NUMO Oracle cards with detailed meanings and symbolism.",
-}
+export default async function CardDirectoryPage() {
+  const initialCards = await getOracleCards()
+  const suits = getUniqueSuits(initialCards)
+  const elements = getUniqueElements(initialCards)
+  const numbers = getUniqueNumbers(initialCards)
 
-export default function CardDirectoryPage() {
-  return (
-    <div className="relative min-h-screen bg-black">
-      <HeroSection
-        title="NUMO Oracle Card Directory"
-        description="Explore the complete collection of NUMO Oracle cards with detailed meanings and symbolism."
-        backgroundImage="/images/hero/oracle-card-archive.png"
-      />
-      <CardDirectory />
-    </div>
-  )
+  return <CardDirectoryPageClient initialCards={initialCards} suits={suits} elements={elements} numbers={numbers} />
 }

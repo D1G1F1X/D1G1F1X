@@ -1,26 +1,43 @@
-import { Suspense } from "react"
-import type { Metadata } from "next"
-import HeroSection from "@/components/hero-section" // Import HeroSection
+import { DashboardShell } from "@/components/admin/dashboard-shell"
+import { DashboardStats } from "@/components/admin/dashboard/dashboard-stats"
+import { SalesChart } from "@/components/admin/dashboard/sales-chart"
+import { UserGrowthChart } from "@/components/admin/dashboard/user-growth-chart"
+import { RecentOrders } from "@/components/admin/dashboard/recent-orders"
+import { TopProducts } from "@/components/admin/dashboard/top-products"
+import { RevenueMetrics } from "@/components/admin/dashboard/revenue-metrics"
+import { GeographicDistribution } from "@/components/admin/dashboard/geographic-distribution"
+import { ActivityFeed } from "@/components/admin/dashboard/activity-feed"
+import { RecentSalesLeads } from "@/components/admin/dashboard/recent-sales-leads"
+import { VisitorsChart } from "@/components/admin/dashboard/visitors-chart"
 
-export const metadata: Metadata = {
-  title: "Admin Panel | NUMO Oracle",
-  description: "Admin panel for NUMO Oracle.",
+export const metadata = {
+  title: "Admin Dashboard",
+  description: "Comprehensive dashboard for site administration.",
 }
 
-export default function AdminPage() {
+export default function AdminDashboardPage() {
   return (
-    <div className="relative min-h-screen bg-black">
-      <HeroSection
-        title="Admin Panel"
-        description="Manage your NUMO Oracle website content and users."
-        backgroundImage="/placeholder.svg?height=500&width=1500"
-      />
-      <Suspense fallback={<div className="text-center py-20 text-white">Loading admin panel...</div>}>
-        <div className="container mx-auto py-8">
-          <h1 className="text-3xl font-bold mb-6 text-center text-white">Admin Panel</h1>
-          <p className="text-center text-gray-300">Admin panel content goes here.</p>
-        </div>
-      </Suspense>
-    </div>
+    <DashboardShell>
+      <DashboardStats />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <SalesChart className="col-span-4" />
+        <RecentSalesLeads className="col-span-3" />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <UserGrowthChart className="col-span-4" />
+        <RecentOrders className="col-span-3" />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <RevenueMetrics className="col-span-4" />
+        <TopProducts className="col-span-3" />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <GeographicDistribution className="col-span-4" />
+        <ActivityFeed className="col-span-3" />
+      </div>
+      <div className="grid gap-4 md:grid-cols-1">
+        <VisitorsChart />
+      </div>
+    </DashboardShell>
   )
 }

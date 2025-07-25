@@ -1,51 +1,41 @@
 import { NextResponse } from "next/server"
-import { list, del } from "@vercel/blob"
+import { deleteBlob } from "@/lib/comprehensive-blob-manager"
 
-/**
- * API route to delete all card images from Vercel Blob Storage.
- * This route should be protected in a production environment.
- */
-export async function DELETE() {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return NextResponse.json({ success: false, error: "Blob storage token not configured." }, { status: 500 })
-  }
-
-  let deletedCount = 0
-  const errors: string[] = []
-
+export async function POST(request: Request) {
   try {
-    // List all blobs under the 'cards/' prefix
-    const { blobs } = await list({
-      prefix: "cards/",
-      token: process.env.BLOB_READ_WRITE_TOKEN,
-    })
+    const { urls } = await request.json()
 
-    console.log(`Initiating deletion of ${blobs.length} card images from Vercel Blob Storage...`)
-
-    // Delete each blob
-    for (const blob of blobs) {
-      try {
-        await del(blob.url, { token: process.env.BLOB_READ_WRITE_TOKEN })
-        deletedCount++
-        console.log(`Successfully deleted: ${blob.pathname}`)
-      } catch (deleteError) {
-        const errorMessage = `Failed to delete ${blob.pathname}: ${deleteError instanceof Error ? deleteError.message : String(deleteError)}`
-        console.error(errorMessage)
-        errors.push(errorMessage)
-      }
+    if (!Array.isArray(urls) || urls.length === 0) {
+      return NextResponse.json({ error: "No URLs provided for deletion" }, { status: 400 })
     }
 
-    console.log(`Deletion process complete. Deleted ${deletedCount} files.`)
+    const results = await Promise.all(
+      urls.map(async (url) => {
+        try {
+          await deleteBlob(url)
+          return { url, success: true }
+        } catch (error) {
+          console.error(`Failed to delete blob ${url}:`, error)
+          return { url, success: false, error: (error as Error).message }
+        }
+      }),
+    )
 
-    return NextResponse.json({
-      success: true,
-      deletedCount,
-      errors,
-      message: `Successfully initiated deletion of ${deletedCount} card images from Vercel Blob Storage.`,
-    })
-  } catch (listError) {
-    const errorMessage = `Failed to list blobs for deletion: ${listError instanceof Error ? listError.message : String(listError)}`
-    console.error(errorMessage)
-    return NextResponse.json({ success: false, error: errorMessage, deletedCount, errors }, { status: 500 })
+    const failedDeletions = results.filter((r) => !r.success)
+    if (failedDeletions.length > 0) {
+      return NextResponse.json(
+        {
+          message: "Some blobs failed to delete",
+          failed: failedDeletions,
+          successful: results.filter((r) => r.success),
+        },
+        { status: 207 }, // Multi-Status
+      )
+    }
+
+    return NextResponse.json({ message: "All specified blobs deleted successfully" })
+  } catch (error) {
+    console.error("Error in delete-card-blobs API:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

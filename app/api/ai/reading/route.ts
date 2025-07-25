@@ -1,106 +1,82 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { aiServiceManager } from "@/lib/ai/enhanced-ai-service-manager"
+import { generateReading } from "@/lib/actions/generate-reading"
+import { getCardById } from "@/lib/card-data-access"
+import { NextResponse } from "next/server"
+import { StreamingTextResponse } from "ai" // Import StreamingTextResponse
+import type { OracleCard, DrawnCardForAI, UserContext, SpreadType } from "@/types/cards"
 
-export async function POST(request: NextRequest) {
+export const runtime = "edge" // This is important for streaming with Vercel Edge Functions
+
+export async function POST(req: Request) {
   try {
-    console.log("🔮 AI Reading API called")
-
-    const body = await request.json()
-    console.log("📝 Request body:", {
-      hasCards: !!body.cards,
-      cardCount: body.cards?.length || 0,
-      hasQuestion: !!body.question,
-      spreadType: body.spread_type,
-    })
-
-    // Validate request
-    if (!body.cards || !Array.isArray(body.cards) || body.cards.length === 0) {
-      console.log("❌ Invalid cards array")
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Cards array is required and must not be empty",
-          reading: "Please select at least one card for your reading.",
-          interpretation: "No cards were provided for interpretation.",
-          guidance: "Choose cards that resonate with your question.",
-        },
-        { status: 400 },
-      )
+    const {
+      cards: drawnCardsInput,
+      question,
+      userContext,
+      spreadType,
+    } = (await req.json()) as {
+      cards: OracleCard[] // This is the input from the client, which might be partial
+      question: string
+      spreadType: SpreadType
+      userContext: UserContext
     }
 
-    if (!body.question || typeof body.question !== "string" || body.question.trim().length === 0) {
-      console.log("❌ Invalid question")
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Question is required",
-          reading: "Please provide a question for your reading.",
-          interpretation: "A focused question helps the Oracle provide better guidance.",
-          guidance: "Think about what specific guidance you seek.",
-        },
-        { status: 400 },
-      )
+    if (!drawnCardsInput || drawnCardsInput.length === 0) {
+      return new NextResponse(JSON.stringify({ error: "No cards provided for reading." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      })
+    }
+    if (!question) {
+      return new NextResponse(JSON.stringify({ error: "No question provided for reading." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      })
+    }
+    if (!spreadType) {
+      return new NextResponse(JSON.stringify({ error: "No spread type provided." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      })
     }
 
-    console.log("✅ Request validation passed")
+    // Re-fetch full card data and determine orientation for AI prompt
+    const fullDrawnCards: DrawnCardForAI[] = drawnCardsInput.map((dcInput) => {
+      const fullCard = getCardById(dcInput.card.id)
+      if (!fullCard) {
+        throw new Error(`Card with ID ${dcInput.card.id} not found.`)
+      }
 
-    // Generate reading using the AI service manager
-    const result = await aiServiceManager.generateReading({
-      cards: body.cards,
-      question: body.question,
-      spread_type: body.spread_type || "single",
-      user_context: body.user_context,
+      // Use the orientation passed from the client (which was randomly determined there)
+      // and map it to 'first' or 'second' end for the AI prompt.
+      const endUp: "first" | "second" =
+        (fullCard.firstEnd?.orientation === dcInput.orientation ||
+          (fullCard.firstEnd?.orientation === "Upright" && dcInput.orientation === "Upright")) &&
+        fullCard.firstEnd
+          ? "first"
+          : "second"
+
+      return {
+        card: fullCard,
+        endUp: endUp,
+      }
     })
 
-    console.log("✨ Reading generated:", {
-      success: result.success,
-      method: result.method,
-      hasReading: !!result.reading,
-      hasError: !!result.error,
-      readingLength: result.reading?.length || 0,
-    })
+    // Generate the reading using the AI service manager, which returns a StreamResult
+    const resultStream = await generateReading(fullDrawnCards, question, spreadType, userContext)
 
-    // Ensure we always return a properly formatted response
-    const response = {
-      success: result.success,
-      reading: result.reading || "Unable to generate reading at this time.",
-      interpretation: result.interpretation || "Please try again later.",
-      guidance: result.guidance || "The Oracle will provide guidance when the time is right.",
-      method: result.method || "fallback",
-      error: result.error || undefined,
-    }
-
-    console.log("📤 Sending response:", {
-      success: response.success,
-      hasReading: !!response.reading,
-      method: response.method,
-    })
-
-    return NextResponse.json(response, {
-      status: result.success ? 200 : 500,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-  } catch (error) {
-    console.error("💥 AI Reading API error:", error)
-
-    const errorResponse = {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error occurred",
-      reading: "I apologize, but I'm unable to provide a reading at this time due to a technical issue.",
-      interpretation: "The AI service encountered an unexpected error while processing your request.",
-      guidance: "Please try again in a few moments, or contact support if the issue persists.",
-      method: "error_fallback",
-    }
-
-    console.log("📤 Sending error response:", errorResponse)
-
-    return NextResponse.json(errorResponse, {
-      status: 500,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
+    // Return the streaming text response directly
+    return new StreamingTextResponse(resultStream.toTextStream())
+  } catch (error: any) {
+    console.error("Error generating AI reading:", error)
+    // Ensure error responses are always JSON
+    return new NextResponse(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Unknown error generating reading",
+        fallback: true, // Indicate that this is a fallback error response
+        // You might add a simple fallback reading here if the AI service fails completely
+        // reading: "Due to an unexpected error, the oracle cannot provide a full reading at this moment. Please try again later."
+      }),
+      { status: 500, headers: { "Content-Type": "application/json" } },
+    )
   }
 }

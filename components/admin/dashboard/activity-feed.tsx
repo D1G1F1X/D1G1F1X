@@ -1,66 +1,111 @@
-"use client"
-
-import type React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Activity } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Calendar, CheckCircle, MessageSquare, ShoppingCart, UserPlus } from "lucide-react"
 
-interface ActivityItem {
-  icon: React.ReactNode
-  title: string
-  description: string
-  date: string
-}
-
-const activityItems: ActivityItem[] = [
+const activities = [
   {
-    icon: <Activity className="h-4 w-4 text-purple-600" />,
-    title: "New User Registration",
-    description: "5 new users registered in the last 24 hours.",
-    date: "1 day ago",
+    id: "1",
+    timestamp: "2023-10-26T10:30:00",
+    type: "new_order",
+    user: {
+      name: "Olivia Martin",
+      image: "/placeholder-user.jpg",
+    },
+    description: "placed a new order",
+    amount: "$59.99",
   },
   {
-    icon: <Activity className="h-4 w-4 text-green-600" />,
-    title: "Payment Received",
-    description: "Payment of $129.00 received from customer #1234.",
-    date: "5 hours ago",
+    id: "2",
+    timestamp: "2023-10-26T09:15:00",
+    type: "new_user",
+    user: {
+      name: "Jackson Lee",
+      image: null,
+    },
+    description: "joined the platform",
   },
   {
-    icon: <Activity className="h-4 w-4 text-amber-600" />,
-    title: "Low Stock Alert",
-    description: 'Product "NUMOracle Deck" is running low on stock (5 remaining).',
-    date: "2 days ago",
+    id: "3",
+    timestamp: "2023-10-26T08:00:00",
+    type: "new_review",
+    user: {
+      name: "Sofia Miller",
+      image: "/placeholder-user.jpg",
+    },
+    description: "left a 5-star review on Numoracle Deck",
   },
   {
-    icon: <Activity className="h-4 w-4 text-blue-600" />,
-    title: "New Blog Post Published",
-    description: 'New blog post "Understanding Numerology" published.',
-    date: "3 days ago",
+    id: "4",
+    timestamp: "2023-10-25T18:45:00",
+    type: "new_subscriber",
+    user: {
+      name: "William Moore",
+      image: null,
+    },
+    description: "subscribed to the newsletter",
   },
   {
-    icon: <Activity className="h-4 w-4 text-purple-600" />,
-    title: "New Reading Request",
-    description: "New reading request received from customer #5678.",
-    date: "1 hour ago",
+    id: "5",
+    timestamp: "2023-10-25T12:00:00",
+    type: "order_shipped",
+    user: {
+      name: "Sofia Davis",
+      image: "/placeholder-user.jpg",
+    },
+    description: "order has been shipped",
+    orderId: "ORD001",
   },
 ]
 
+const activityIcons = {
+  new_order: <ShoppingCart className="h-4 w-4 text-green-500" />,
+  new_user: <UserPlus className="h-4 w-4 text-blue-500" />,
+  new_review: <MessageSquare className="h-4 w-4 text-yellow-500" />,
+  new_subscriber: <Calendar className="h-4 w-4 text-purple-500" />,
+  order_shipped: <CheckCircle className="h-4 w-4 text-green-500" />,
+}
+
 export function ActivityFeed() {
   return (
-    <div className="space-y-4">
-      {activityItems.map((item, index) => (
-        <Card key={index} className="bg-gray-800/50 border-gray-700">
-          <CardHeader className="flex items-center justify-between p-3">
-            <div className="flex items-center gap-2">
-              {item.icon}
-              <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
-            </div>
-            <div className="text-xs text-muted-foreground">{item.date}</div>
-          </CardHeader>
-          <CardContent className="p-3 pt-0">
-            <p className="text-sm text-muted-foreground">{item.description}</p>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Activity Feed</CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[100px]">Timestamp</TableHead>
+              <TableHead>Activity</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {activities.map((activity) => (
+              <TableRow key={activity.id}>
+                <TableCell className="font-medium">{activity.timestamp.substring(11, 16)}</TableCell>
+                <TableCell>
+                  <div className="flex items-center space-x-2">
+                    <Avatar>
+                      <AvatarImage src={activity.user.image || "/placeholder.svg"} alt={activity.user.name} />
+                      <AvatarFallback>{activity.user.name.substring(0, 2)}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-medium leading-none">{activity.user.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {activityIcons[activity.type]} {activity.description}
+                        {activity.orderId && ` (Order #${activity.orderId})`}
+                      </p>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">{activity.amount}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   )
 }

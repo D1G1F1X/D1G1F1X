@@ -1,10 +1,12 @@
 import { CardDataValidator } from "@/components/admin/card-data-validator"
+import { getAllCards } from "@/lib/card-data-access"
 
-export default function CardValidationPage() {
-  return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Card Data Validation</h1>
-      <CardDataValidator />
-    </div>
-  )
+export const metadata = {
+  title: "Card Data Validation - Admin",
+  description: "Validate the integrity of oracle card data.",
+}
+
+export default async function CardValidationPage() {
+  const allCards = await getAllCards()
+  return <CardDataValidator initialCards={allCards} />
 }

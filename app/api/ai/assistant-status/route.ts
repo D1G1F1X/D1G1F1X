@@ -3,28 +3,18 @@ import { aiServiceManager } from "@/lib/ai/enhanced-ai-service-manager"
 
 export async function GET() {
   try {
-    console.log("🔍 Checking AI service status...")
-
-    const status = await aiServiceManager.testConfiguration()
-
-    console.log("📊 AI Service Status:", status)
-
-    return NextResponse.json({
-      success: true,
-      ...status,
-      timestamp: new Date().toISOString(),
-    })
+    const status = await aiServiceManager.getServiceStatus()
+    return NextResponse.json(status)
   } catch (error) {
-    console.error("❌ Error checking AI service status:", error)
-
+    console.error("Failed to get AI service status:", error)
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
         assistant_configured: false,
         assistant_accessible: false,
         chat_completion_available: false,
         timestamp: new Date().toISOString(),
+        error: `Internal server error: ${error instanceof Error ? error.message : String(error)}`,
       },
       { status: 500 },
     )

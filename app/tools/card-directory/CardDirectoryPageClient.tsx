@@ -1,305 +1,331 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useMemo, useEffect } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Search, Filter, Grid, List, Eye } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getAllCards } from "@/lib/card-data-access"
-import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
-import type { OracleCard } from "@/types/cards"
+import { Search, Filter, Grid, List, ChevronRight, Sparkles, Eye, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import Link from "next/link"
+import Image from "next/image"
+import { filterCards, sortCards, debugCardLoading } from "@/lib/card-data-access"
+import type { OracleCard, CardSortOption } from "@/types/cards"
 
-export default function CardDirectoryPageClient() {
-  const [searchTerm, setSearchTerm] = useState("")
+interface CardDirectoryPageClientProps {
+  initialCards: OracleCard[]
+  suits: string[]
+  elements: string[]
+  numbers: string[]
+}
+
+export default function CardDirectoryPageClient({
+  initialCards,
+  suits,
+  elements,
+  numbers,
+}: CardDirectoryPageClientProps) {
+  const [cards, setCards] = useState<OracleCard[]>(initialCards) // Keep initialCards as the base
+  const [searchQuery, setSearchQuery] = useState("")
   const [selectedSuit, setSelectedSuit] = useState<string>("all")
   const [selectedElement, setSelectedElement] = useState<string>("all")
+  const [selectedNumber, setSelectedNumber] = useState<string>("all")
+  const [sortBy, setSortBy] = useState<CardSortOption>("number")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [sortBy, setSortBy] = useState<"number" | "suit" | "title">("number")
+  const [loading, setLoading] = useState(false) // This loading state might be less relevant now as data is server-fetched
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set())
 
-  // Get all cards from the master data
-  const allCards = useMemo(() => getAllCards(), [])
-
-  // Get unique suits and elements for filters
-  const suits = useMemo(() => {
-    const uniqueSuits = Array.from(new Set(allCards.map((card) => card.suit)))
-    return uniqueSuits.sort()
-  }, [allCards])
-
-  const elements = useMemo(() => {
-    const uniqueElements = Array.from(new Set(allCards.flatMap((card) => [card.baseElement, card.synergisticElement])))
-    return uniqueElements.sort()
-  }, [allCards])
+  // Debug card loading on mount
+  useEffect(() => {
+    const cardCount = debugCardLoading(initialCards)
+    console.log(`Card Directory initialized with ${cardCount} cards`)
+  }, [initialCards])
 
   // Filter and sort cards
-  const filteredCards = useMemo(() => {
-    const filtered = allCards.filter((card) => {
-      const matchesSearch =
-        searchTerm === "" ||
-        card.fullTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        card.suit.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        card.baseElement.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        card.synergisticElement.toLowerCase().includes(searchTerm.toLowerCase())
-
-      const matchesSuit = selectedSuit === "all" || card.suit === selectedSuit
-
-      const matchesElement =
-        selectedElement === "all" || card.baseElement === selectedElement || card.synergisticElement === selectedElement
-
-      return matchesSearch && matchesSuit && matchesElement
+  const filteredAndSortedCards = useMemo(() => {
+    const filtered = filterCards(initialCards, {
+      // Use initialCards for filtering
+      suit: selectedSuit === "all" ? undefined : selectedSuit,
+      element: selectedElement === "all" ? undefined : selectedElement,
+      number: selectedNumber === "all" ? undefined : selectedNumber,
+      query: searchQuery || undefined,
     })
+    return sortCards(filtered, sortBy)
+  }, [searchQuery, selectedSuit, selectedElement, selectedNumber, sortBy, initialCards])
 
-    // Sort cards
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "number":
-          return Number.parseInt(a.number) - Number.parseInt(b.number)
-        case "suit":
-          return a.suit.localeCompare(b.suit) || Number.parseInt(a.number) - Number.parseInt(b.number)
-        case "title":
-          return a.fullTitle.localeCompare(b.fullTitle)
-        default:
-          return 0
-      }
-    })
+  // Reset filters
+  const clearFilters = () => {
+    setSearchQuery("")
+    setSelectedSuit("all")
+    setSelectedElement("all")
+    setSelectedNumber("all")
+  }
 
-    return filtered
-  }, [allCards, searchTerm, selectedSuit, selectedElement, sortBy])
+  // Check if any filters are active
+  const hasActiveFilters =
+    searchQuery || selectedSuit !== "all" || selectedElement !== "all" || selectedNumber !== "all"
 
-  const CardGridView = ({ cards }: { cards: OracleCard[] }) => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {cards.map((card) => (
-        <Card key={card.id} className="bg-black/30 border-gray-800 hover:border-purple-500/50 transition-colors">
-          <CardContent className="p-4">
-            <div className="space-y-3">
-              <EnhancedCardImage
-                cardId={card.id}
-                cardTitle={card.fullTitle}
-                baseElement={card.baseElement}
-                synergisticElement={card.synergisticElement}
-                className="w-full"
-                showStatus={false}
-              />
+  // Handle image errors
+  const handleImageError = (cardId: string) => {
+    setImageErrors((prev) => new Set(prev).add(cardId))
+  }
 
-              <div className="space-y-2">
-                <h3 className="font-semibold text-sm line-clamp-2">{card.fullTitle}</h3>
+  // Get fallback image URL
+  const getFallbackImageUrl = (card: OracleCard) => {
+    return `/placeholder.svg?height=300&width=200&text=${encodeURIComponent(card.fullTitle)}`
+  }
 
-                <div className="flex flex-wrap gap-1">
-                  <Badge variant="outline" className="text-xs">
-                    {card.suit}
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">
-                    {card.baseElement}
-                  </Badge>
-                  <Badge variant="outline" className="text-xs bg-purple-900/30">
-                    {card.synergisticElement}
-                  </Badge>
-                </div>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 dark:from-slate-900 dark:to-purple-900">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
+            Oracle Card Directory
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Explore the complete collection of Numo Oracle cards. Each card contains ancient wisdom and elemental
+            insights to guide your spiritual journey.
+          </p>
+          <div className="mt-4">
+            <Badge variant="secondary" className="text-lg px-4 py-2">
+              {initialCards.length} Total Cards Available
+            </Badge>
+          </div>
+        </div>
 
-                <div className="text-xs text-gray-400 space-y-1">
-                  <p>
-                    <strong>Icon:</strong> {card.iconSymbol}
-                  </p>
-                  <p>
-                    <strong>Orientation:</strong> {card.orientation}
-                  </p>
-                </div>
+        {/* Debug Info */}
+        {process.env.NODE_ENV === "development" && (
+          <Alert className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Debug: Loaded {initialCards.length} cards from JSON data. Filtered results:{" "}
+              {filteredAndSortedCards.length} cards. Image errors: {imageErrors.size} cards.
+            </AlertDescription>
+          </Alert>
+        )}
 
-                <Link href={`/tools/card-directory/${card.id}`}>
-                  <Button variant="outline" size="sm" className="w-full mt-2">
-                    <Eye className="h-3 w-3 mr-1" />
-                    View Details
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  )
-
-  const CardListView = ({ cards }: { cards: OracleCard[] }) => (
-    <div className="space-y-4">
-      {cards.map((card) => (
-        <Card key={card.id} className="bg-black/30 border-gray-800 hover:border-purple-500/50 transition-colors">
-          <CardContent className="p-4">
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-20">
-                <EnhancedCardImage
-                  cardId={card.id}
-                  cardTitle={card.fullTitle}
-                  baseElement={card.baseElement}
-                  synergisticElement={card.synergisticElement}
-                  className="w-full"
-                  showStatus={false}
+        {/* Filters and Controls */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="h-5 w-5" />
+              Filters & Search
+            </CardTitle>
+            <CardDescription>Filter cards by suit, element, number, or search by keywords</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search cards..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
                 />
               </div>
 
-              <div className="flex-1 space-y-2">
-                <div className="flex items-start justify-between">
-                  <h3 className="font-semibold">{card.fullTitle}</h3>
-                  <Link href={`/tools/card-directory/${card.id}`}>
-                    <Button variant="outline" size="sm">
-                      <Eye className="h-3 w-3 mr-1" />
-                      View
-                    </Button>
-                  </Link>
-                </div>
+              {/* Suit Filter */}
+              <Select value={selectedSuit} onValueChange={setSelectedSuit}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Suits" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Suits ({suits.length})</SelectItem>
+                  {suits.map((suit) => (
+                    <SelectItem key={suit} value={suit}>
+                      {suit}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline" className="text-xs">
-                    {card.suit}
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">
-                    {card.baseElement}
-                  </Badge>
-                  <Badge variant="outline" className="text-xs bg-purple-900/30">
-                    {card.synergisticElement}
-                  </Badge>
-                </div>
+              {/* Element Filter */}
+              <Select value={selectedElement} onValueChange={setSelectedElement}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Elements" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Elements ({elements.length})</SelectItem>
+                  {elements.map((element) => (
+                    <SelectItem key={element} value={element}>
+                      {element}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-                <div className="grid grid-cols-2 gap-4 text-xs text-gray-400">
-                  <p>
-                    <strong>Icon:</strong> {card.iconSymbol}
-                  </p>
-                  <p>
-                    <strong>Orientation:</strong> {card.orientation}
-                  </p>
-                  <p>
-                    <strong>Sacred Geometry:</strong> {card.sacredGeometry}
-                  </p>
-                  <p>
-                    <strong>Number:</strong> {card.number}
-                  </p>
-                </div>
+              {/* Number Filter */}
+              <Select value={selectedNumber} onValueChange={setSelectedNumber}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Numbers" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Numbers</SelectItem>
+                  {numbers.map((number) => (
+                    <SelectItem key={number} value={number}>
+                      {number}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-                {card.keyMeanings && card.keyMeanings.length > 0 && (
-                  <p className="text-sm text-gray-300 line-clamp-2">{card.keyMeanings[0]}</p>
+            {/* Controls Row */}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+              <div className="flex gap-2">
+                {hasActiveFilters && (
+                  <Button variant="outline" size="sm" onClick={clearFilters}>
+                    Clear Filters
+                  </Button>
                 )}
+                <Badge variant="secondary">
+                  {filteredAndSortedCards.length} card{filteredAndSortedCards.length !== 1 ? "s" : ""} found
+                </Badge>
+              </div>
+
+              <div className="flex gap-2 items-center">
+                {/* Sort */}
+                <Select value={sortBy} onValueChange={(value) => setSortBy(value as CardSortOption)}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="number">By Number</SelectItem>
+                    <SelectItem value="suit">By Suit</SelectItem>
+                    <SelectItem value="title">By Title</SelectItem>
+                    <SelectItem value="element">By Element</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* View Mode */}
+                <div className="flex border rounded-lg">
+                  <Button
+                    variant={viewMode === "grid" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("grid")}
+                    className="rounded-r-none"
+                  >
+                    <Grid className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === "list" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("list")}
+                    className="rounded-l-none"
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
-      ))}
-    </div>
-  )
 
-  return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold">NUMO Oracle Card Directory</h1>
-        <p className="text-gray-400">Explore the complete collection of oracle cards</p>
-        <p className="text-sm text-gray-500">{allCards.length} cards available</p>
-      </div>
-
-      {/* Search and Filters */}
-      <Card className="bg-black/30 border-gray-800">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Search & Filter
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search cards by title, suit, or element..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+        {/* Cards Display */}
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="inline-flex items-center gap-2">
+              <Sparkles className="h-5 w-5 animate-spin" />
+              Loading cards...
+            </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Select value={selectedSuit} onValueChange={setSelectedSuit}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by Suit" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Suits</SelectItem>
-                {suits.map((suit) => (
-                  <SelectItem key={suit} value={suit}>
-                    {suit}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedElement} onValueChange={setSelectedElement}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by Element" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Elements</SelectItem>
-                {elements.map((element) => (
-                  <SelectItem key={element} value={element}>
-                    {element}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={sortBy} onValueChange={(value: "number" | "suit" | "title") => setSortBy(value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="number">Number</SelectItem>
-                <SelectItem value="suit">Suit</SelectItem>
-                <SelectItem value="title">Title</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Tabs value={viewMode} onValueChange={(value: "grid" | "list") => setViewMode(value)}>
-              <TabsList className="w-full">
-                <TabsTrigger value="grid" className="flex-1">
-                  <Grid className="h-4 w-4 mr-1" />
-                  Grid
-                </TabsTrigger>
-                <TabsTrigger value="list" className="flex-1">
-                  <List className="h-4 w-4 mr-1" />
-                  List
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Results */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">
-            {filteredCards.length} Card{filteredCards.length !== 1 ? "s" : ""} Found
-          </h2>
-        </div>
-
-        {filteredCards.length === 0 ? (
-          <Card className="bg-black/30 border-gray-800">
-            <CardContent className="p-8 text-center">
-              <p className="text-gray-400">No cards match your current filters.</p>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSearchTerm("")
-                  setSelectedSuit("all")
-                  setSelectedElement("all")
-                }}
-                className="mt-4"
-              >
-                Clear Filters
-              </Button>
+        ) : filteredAndSortedCards.length === 0 ? (
+          <Card>
+            <CardContent className="text-center py-8">
+              <p className="text-muted-foreground">No cards found matching your search criteria.</p>
+              {hasActiveFilters && (
+                <Button variant="outline" className="mt-4 bg-transparent" onClick={clearFilters}>
+                  Clear filters to see all cards
+                </Button>
+              )}
             </CardContent>
           </Card>
-        ) : viewMode === "grid" ? (
-          <CardGridView cards={filteredCards} />
         ) : (
-          <CardListView cards={filteredCards} />
+          <div
+            className={
+              viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-4"
+            }
+          >
+            {filteredAndSortedCards.map((card) => (
+              <Link key={card.id} href={`/tools/card-directory/${card.id}`}>
+                <Card
+                  className={`group hover:shadow-xl transition-all duration-300 cursor-pointer ${
+                    viewMode === "grid" ? "h-full" : ""
+                  }`}
+                >
+                  {viewMode === "grid" ? (
+                    <div className="relative overflow-hidden">
+                      <div className="aspect-[3/4] relative bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900">
+                        <Image
+                          src={imageErrors.has(card.id) ? getFallbackImageUrl(card) : card.imageUrl}
+                          alt={card.fullTitle}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                          onError={() => handleImageError(card.id)}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                        <div className="absolute bottom-4 left-4 right-4 text-white">
+                          <h3 className="font-bold text-lg mb-1 line-clamp-2">{card.fullTitle}</h3>
+                          <div className="flex gap-2 mb-2">
+                            <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                              {card.suit}
+                            </Badge>
+                            <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                              {card.baseElement}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-1 text-sm opacity-90">
+                            <Eye className="h-3 w-3" />
+                            View Details
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="w-16 h-20 relative bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900 rounded-lg overflow-hidden flex-shrink-0">
+                          <Image
+                            src={imageErrors.has(card.id) ? getFallbackImageUrl(card) : card.imageUrl}
+                            alt={card.fullTitle}
+                            fill
+                            className="object-cover"
+                            sizes="64px"
+                            onError={() => handleImageError(card.id)}
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-lg mb-2 group-hover:text-purple-600 transition-colors">
+                            {card.fullTitle}
+                          </h3>
+                          <div className="flex gap-2 mb-3">
+                            <Badge variant="outline">{card.suit}</Badge>
+                            <Badge variant="outline">{card.baseElement}</Badge>
+                            <Badge variant="outline">#{card.number}</Badge>
+                          </div>
+                          {card.keyMeanings && card.keyMeanings[0] && (
+                            <p className="text-muted-foreground text-sm line-clamp-2">
+                              {card.keyMeanings[0].split(":")[1]?.trim() || card.keyMeanings[0]}
+                            </p>
+                          )}
+                          <div className="mt-2 text-xs text-muted-foreground">
+                            <span className="font-medium">Sacred Geometry:</span> {card.sacredGeometry} •
+                            <span className="font-medium"> Orientation:</span> {card.orientation}
+                          </div>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-purple-600 transition-colors flex-shrink-0" />
+                      </div>
+                    </CardContent>
+                  )}
+                </Card>
+              </Link>
+            ))}
+          </div>
         )}
       </div>
     </div>

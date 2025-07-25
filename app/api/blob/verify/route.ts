@@ -3,6 +3,8 @@ import {
   testBlobStorageConnection,
   verifyBlobStorageAndListImages,
   getVerifiedImageMetrics,
+  verifyAllBlobs,
+  verifyBlob,
 } from "@/lib/verified-blob-handler"
 
 /**
@@ -58,6 +60,10 @@ export async function GET(request: Request) {
           timestamp: new Date().toISOString(),
         })
 
+      case "all":
+        const verificationResults = await verifyAllBlobs()
+        return NextResponse.json(verificationResults)
+
       default:
         return NextResponse.json({ success: false, error: "Invalid action parameter" }, { status: 400 })
     }
@@ -78,7 +84,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { action, cardId, element } = body
+    const { action, cardId, element, url } = body
 
     if (action === "verify-card") {
       if (!cardId || !element) {
@@ -103,6 +109,15 @@ export async function POST(request: Request) {
         },
         timestamp: new Date().toISOString(),
       })
+    }
+
+    if (action === "verify-blob") {
+      if (!url) {
+        return NextResponse.json({ error: "URL is required" }, { status: 400 })
+      }
+
+      const result = await verifyBlob(url)
+      return NextResponse.json(result)
     }
 
     return NextResponse.json({ success: false, error: "Invalid action" }, { status: 400 })

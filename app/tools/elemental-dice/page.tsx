@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
-import { ElementalDiceRoller } from "@/components/elemental-dice-roller"
-import HeroSection from "@/components/hero-section" // Import HeroSection
+import ElementalDiceRoller from "@/components/elemental-dice-roller" // Corrected import to default
+import HeroSection from "@/components/hero-section"
 
 export const metadata: Metadata = {
   title: "Elemental Dice Oracle | Numoracle",

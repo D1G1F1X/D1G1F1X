@@ -15,7 +15,8 @@ import { generateReading } from "@/lib/actions/generate-reading"
 import { useToast } from "@/components/ui/use-toast"
 import type { ReadingData } from "@/types/readings"
 import { cn } from "@/lib/utils"
-import { getSymbolValue, getCardData } from "@/lib/card-data-access" // Import getCardData
+import { getSymbolValue, getOracleCards } from "@/lib/card-data-access" // Changed getCardData to getOracleCards
+import { parseCardImageFilename } from "@/lib/card-image-utils" // Import parseCardImageFilename
 import { Badge } from "@/components/ui/badge"
 import { calculateLifePath } from "@/lib/numerology"
 import { useMembership } from "@/lib/membership-context"
@@ -240,22 +241,8 @@ const advancedSpreadTypes: SpreadType[] = [
   },
 ]
 
-const getElementIcon = (element: string) => {
-  switch (element.toLowerCase()) {
-    case "earth":
-      return "⊕"
-    case "water":
-      return "≈"
-    case "fire":
-      return "△"
-    case "air":
-      return "≋"
-    case "spirit":
-      return "✧"
-    default:
-      return "★"
-  }
-}
+// Removed getElementIcon as it's redundant with getElementSymbol
+// Removed getDynamicSynergisticElement as it's replaced by filename parsing
 
 interface EnhancedCardDealerProps {
   onReadingGenerated?: (reading: ReadingData) => void
@@ -333,7 +320,11 @@ export default function EnhancedCardDealer({
 
   useEffect(() => {
     // Load all cards from the central data access layer
-    setAllCards(getCardData())
+    const loadCards = async () => {
+      const cards = await getOracleCards() // Await the async function
+      setAllCards(cards)
+    }
+    loadCards()
   }, [])
 
   useEffect(() => {
@@ -642,11 +633,17 @@ I've consulted the NUMO Oracle cards to provide guidance on your question. The $
         // Use the correct number from the card data - directly from the number field
         const cardNumber = card.number || "0"
 
+        // Dynamically determine the synergistic element from the filename
+        const filename = card.imageUrl.split("/").pop() || ""
+        const parsedImage = parseCardImageFilename(filename)
+        // Use the element from the filename, fallback to baseElement if parsing fails
+        const elementForReading = parsedImage.isValid ? parsedImage.element : card.baseElement
+
         return `
 ### ${position.name}: ${card.fullTitle} (${card.baseElement})
 
 **Card Number:** ${cardNumber}
-**Element:** ${endUp === "first" ? card.baseElement : card.synergisticElement}
+**Element:** ${elementForReading}
 
 This ${card.baseElement} card in the ${position.name} position reveals:
 - **Key Meanings:** ${card.keyMeanings?.join(", ") || "N/A"}
@@ -841,6 +838,11 @@ Remember that you have the power to shape your path forward. These cards offer g
     // Use the correct numerical value from the card - directly from the number field
     const cardNumber = card.number || "0"
 
+    // Dynamically determine the synergistic element from the filename
+    const filename = card.imageUrl.split("/").pop() || ""
+    const parsedImage = parseCardImageFilename(filename)
+    const dynamicSynergisticElement = parsedImage.isValid ? parsedImage.element : card.synergisticElement // Fallback to existing if parsing fails
+
     return (
       <div
         key={`${card.id}-${index}`}
@@ -879,7 +881,7 @@ Remember that you have the power to shape your path forward. These cards offer g
                   cardId={card.id} // Use card.id, which now correctly maps to imagePath
                   cardTitle={card.fullTitle}
                   baseElement={card.baseElement}
-                  synergisticElement={card.synergisticElement}
+                  synergisticElement={dynamicSynergisticElement} // Use the dynamically derived element
                   className="w-full h-full"
                   onImageLoad={(success) => {
                     if (!success) handleImageError(card.id)
@@ -917,6 +919,11 @@ Remember that you have the power to shape your path forward. These cards offer g
     const { card, endUp } = selectedCard
     const cardNumber = card.number || "0"
 
+    // Dynamically determine the synergistic element for the expanded view
+    const filename = card.imageUrl.split("/").pop() || ""
+    const parsedImage = parseCardImageFilename(filename)
+    const dynamicSynergisticElement = parsedImage.isValid ? parsedImage.element : card.synergisticElement // Fallback to existing if parsing fails
+
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 p-4">
         <div className="bg-gray-900 border border-purple-500/30 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -928,7 +935,7 @@ Remember that you have the power to shape your path forward. These cards offer g
                   cardId={card.id} // Use card.id, which now correctly maps to imagePath
                   cardTitle={card.fullTitle}
                   baseElement={card.baseElement}
-                  synergisticElement={card.synergisticElement}
+                  synergisticElement={dynamicSynergisticElement} // Use the dynamically derived element
                   className="w-[300px] h-[420px]"
                 />
               </div>
@@ -957,7 +964,8 @@ Remember that you have the power to shape your path forward. These cards offer g
                     <strong>Orientation:</strong> {card.orientation}
                   </div>
                   <div>
-                    <strong>Synergistic Element:</strong> {card.synergisticElement}
+                    <strong>Synergistic Element:</strong> {dynamicSynergisticElement}{" "}
+                    {/* Display the dynamically derived element */}
                   </div>
                   <div>
                     <strong>Icon:</strong> {card.iconSymbol}
@@ -1038,7 +1046,7 @@ Remember that you have the power to shape your path forward. These cards offer g
 
               <div className="absolute w-full h-full backface-hidden rotate-y-180">
                 <Image
-                  src={card.imagePath || "/placeholder.svg"} // Use card.imagePath directly
+                  src={card.imageUrl || "/placeholder.svg"} // Use card.imageUrl directly
                   alt={card.fullTitle}
                   width={300}
                   height={450}

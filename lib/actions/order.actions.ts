@@ -62,6 +62,32 @@ export async function createOrderAction(
   }
 }
 
-// Add other order-related actions here, e.g.:
-// export async function getOrderDetailsAction(orderId: string) { ... }
-// export async function updateOrderStatusAction(orderId: string, status: string) { ... }
+// Placeholder for submitPaidOrder
+export async function submitPaidOrder(
+  prevState: CreateOrderState | null,
+  formData: FormData,
+): Promise<CreateOrderState> {
+  console.log("Simulating paid order submission:", formData)
+  // Implement actual payment processing and order creation logic here
+  await new Promise((resolve) => setTimeout(resolve, 1500)) // Simulate API call
+  return {
+    success: true,
+    message: "Paid order submitted successfully! (Simulated)",
+    orderId: `paid_order_${Date.now()}`,
+  }
+}
+
+// Placeholder for submitManualOrder
+export async function submitManualOrder(
+  prevState: CreateOrderState | null,
+  formData: FormData,
+): Promise<CreateOrderState> {
+  console.log("Simulating manual order submission:", formData)
+  // Implement actual manual order creation logic here
+  await new Promise((resolve) => setTimeout(resolve, 1500)) // Simulate API call
+  return {
+    success: true,
+    message: "Manual order submitted successfully! (Simulated)",
+    orderId: `manual_order_${Date.now()}`,
+  }
+}

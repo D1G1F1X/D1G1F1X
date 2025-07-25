@@ -1,26 +1,16 @@
-import { Suspense } from "react"
-import { CardDataEditor } from "@/components/admin/card-data-editor"
-import { DashboardShell } from "@/components/admin/dashboard-shell"
+import { OracleCardManager } from "@/components/admin/oracle-card-manager"
+import { getAllCards, getUniqueSuits, getUniqueElements, getUniqueNumbers } from "@/lib/card-data-access"
 
 export const metadata = {
-  title: "Card Data Editor",
-  description: "Manage NUMO Oracle card data",
+  title: "Card Data Editor - Admin",
+  description: "Edit and manage oracle card data.",
 }
 
-export default function CardDataEditorPage() {
-  return (
-    <DashboardShell>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Card Data Editor</h1>
-      </div>
-      <div className="space-y-4">
-        <p className="text-muted-foreground">
-          Edit the NUMO Oracle card data in JSON format or using the visual editor.
-        </p>
-        <Suspense fallback={<div>Loading card data editor...</div>}>
-          <CardDataEditor />
-        </Suspense>
-      </div>
-    </DashboardShell>
-  )
+export default async function CardDataEditorPage() {
+  const allCards = await getAllCards()
+  const suits = getUniqueSuits(allCards)
+  const elements = getUniqueElements(allCards)
+  const numbers = getUniqueNumbers(allCards)
+
+  return <OracleCardManager initialCards={allCards} suits={suits} elements={elements} numbers={numbers} />
 }
