@@ -14,7 +14,7 @@ export interface OracleCard {
   number: string // Stored as string to handle "00" or other non-numeric representations if needed
   suit: CardSuit
   fullTitle: string
-  symbols: { key: string; value: string }[]
+  symbols: CardSymbol[]
   symbolismBreakdown: string[]
   keyMeanings: string[]
   baseElement: CardElement

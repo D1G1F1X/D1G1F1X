@@ -1,6 +1,7 @@
 import type { OracleCard, CardSortOption } from "@/types/cards"
 import { listCardImages } from "@/lib/card-image-blob-handler"
 import rawCardData from "@/data/numo-oracle-card-data.json" // Directly import JSON data
+import { getSymbolValue } from "./numerology" // Corrected import path
 
 // Convert the JSON data to OracleCard objects and enrich with image URLs
 const processCardData = async (rawData: any[]): Promise<OracleCard[]> => {
@@ -149,4 +150,4 @@ export const debugCardLoading = (cards: OracleCard[]): number => {
 }
 
 // Re-export getSymbolValue from numerology.ts to satisfy the missing export error
-export { getSymbolValue } from "@/lib/numerology"
+export { getSymbolValue }
