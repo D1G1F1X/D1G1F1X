@@ -14,7 +14,8 @@ interface TestCardImagesClientPageProps {
   initialCards: OracleCard[]
 }
 
-export function TestCardImagesClientPage({ initialCards }: TestCardImagesClientPageProps) {
+export default function TestCardImagesClientPage({ initialCards }: TestCardImagesClientPageProps) {
+  // Changed to default export
   const [cardId, setCardId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 

@@ -83,6 +83,10 @@ export function calculateDestinyNumber(name: string): number {
   }
 }
 
+// Export aliases for compatibility
+export const calculateExpressionNumber = calculateExpression
+export const calculateDestinyNumberFromName = calculateDestinyNumber
+
 /**
  * Calculates the Soul Urge (Heart's Desire) number from the vowels in a name.
  * @param fullName The full name.
@@ -111,6 +115,9 @@ export function calculateSoulUrge(fullName: string): number {
   }
 }
 
+// Export alias for compatibility
+export const calculateSoulUrgeNumber = calculateSoulUrge
+
 /**
  * Calculates the Personality number from the consonants in a name.
  * @param fullName The full name.
@@ -138,6 +145,9 @@ export function calculatePersonality(fullName: string): number {
     return 0
   }
 }
+
+// Export alias for compatibility
+export const calculatePersonalityNumber = calculatePersonality
 
 /**
  * Calculates the Maturity number from the Life Path and Expression numbers.

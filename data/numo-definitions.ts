@@ -497,3 +497,6 @@ export const numoNumberDefinitions: {
     },
   },
 }
+
+// Export the definitions under the requested alias
+export const numoDefinitions = numoNumberDefinitions

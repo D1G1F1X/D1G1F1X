@@ -5,10 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { CheckCircle, XCircle, Loader2 } from "lucide-react"
+import { verifyAllBlobs, verifyBlob } from "@/lib/verified-blob-handler" // Import the new exports
 
 type VerifyImagesClientPageProps = {}
 
-export function VerifyImagesClientPage({}: VerifyImagesClientPageProps) {
+export default function VerifyImagesClientPage({}: VerifyImagesClientPageProps) {
+  // Changed to default export
   const [verificationResults, setVerificationResults] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -17,10 +19,27 @@ export function VerifyImagesClientPage({}: VerifyImagesClientPageProps) {
     setVerificationResults([])
     try {
       // Simulate API call for image verification
+      // Replace with actual calls to verifyAllBlobs and verifyBlob
+      const allBlobsResult = await verifyAllBlobs()
+      const singleBlobResult = await verifyBlob("some-test-blob-id") // Example call
+
       const simulatedResults = [
         { filename: "image1.jpg", existsInBlob: true, matchesData: true, error: null },
         { filename: "image2.png", existsInBlob: false, matchesData: false, error: "File not found" },
         { filename: "image3.svg", existsInBlob: true, matchesData: true, error: null },
+        // Add results from actual API calls here
+        {
+          filename: "all_blobs_status",
+          existsInBlob: allBlobsResult.success,
+          matchesData: true,
+          error: allBlobsResult.error || null,
+        },
+        {
+          filename: "single_blob_status",
+          existsInBlob: singleBlobResult.success,
+          matchesData: true,
+          error: singleBlobResult.error || null,
+        },
       ]
       setVerificationResults(simulatedResults)
     } catch (error) {

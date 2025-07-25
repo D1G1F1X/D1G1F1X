@@ -36,3 +36,6 @@ export function createClient() {
 
 // Export getServerClient for compatibility
 export const getServerClient = createClient
+
+// Export createServerClient directly as requested
+export { createServerClient }

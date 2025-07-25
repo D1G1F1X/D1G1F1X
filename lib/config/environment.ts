@@ -1,7 +1,8 @@
 import { createEnv } from "@t3-oss/env-nextjs"
 import { z } from "zod"
 
-export const environmentManager = createEnv({ // Renamed to environmentManager
+export const environmentManager = createEnv({
+  // Renamed to environmentManager
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]),
     AUTH_SECRET: z.string().min(1),
@@ -76,3 +77,6 @@ export const environmentManager = createEnv({ // Renamed to environmentManager
   },
   skipValidation: !!process.env.CI || !!process.env.VERCEL_URL,
 })
+
+// Export env as an alias for environmentManager
+export const env = environmentManager

@@ -43,6 +43,7 @@ import {
   Copy,
   ExternalLink,
 } from "lucide-react"
+import { getShareAnalytics } from "@/lib/services/share-analytics-service" // Import the new export
 
 // Platform colors for charts
 const PLATFORM_COLORS = {
@@ -110,13 +111,14 @@ const getContentTypeName = (type: string) => {
   return names[type] || type
 }
 
-export default function ShareAnalyticsDashboard() {
+export function ShareAnalyticsDashboard() {
+  // Changed to named export
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [stats, setStats] = useState<ShareStats | null>(null)
   const [dateRange, setDateRange] = useState<{ start?: Date; end?: Date }>({})
-  const [platform, setPlatform] = useState<string>("") // Updated default value
-  const [contentType, setContentType] = useState<string>("") // Updated default value
+  const [platform, setPlatform] = useState<string>("all") // Updated default value
+  const [contentType, setContentType] = useState<string>("all") // Updated default value
   const [topUsers, setTopUsers] = useState<Array<{ userId: string; shares: number }>>([])
   const [activeTab, setActiveTab] = useState("overview")
 
@@ -126,23 +128,13 @@ export default function ShareAnalyticsDashboard() {
     setError(null)
 
     try {
-      // In a real implementation, this would be an API call
-      const response = await fetch("/api/admin/share-analytics", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          startDate: dateRange.start?.toISOString(),
-          endDate: dateRange.end?.toISOString(),
-          platform,
-          contentType,
-        }),
+      const data = await getShareAnalytics({
+        // Use the imported function
+        startDate: dateRange.start?.toISOString(),
+        endDate: dateRange.end?.toISOString(),
+        platform,
+        contentType,
       })
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch share analytics")
-      }
-
-      const data = await response.json()
       setStats(data.stats)
       setTopUsers(data.topUsers || [])
     } catch (err) {
@@ -384,7 +376,7 @@ export default function ShareAnalyticsDashboard() {
               <SelectValue placeholder="All platforms" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All platforms</SelectItem>
+              <SelectItem value="all">All platforms</SelectItem>
               <SelectItem value="facebook">Facebook</SelectItem>
               <SelectItem value="twitter">Twitter</SelectItem>
               <SelectItem value="linkedin">LinkedIn</SelectItem>
@@ -403,7 +395,7 @@ export default function ShareAnalyticsDashboard() {
               <SelectValue placeholder="All content" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All content</SelectItem>
+              <SelectItem value="all">All content</SelectItem>
               <SelectItem value="reading">Card Reading</SelectItem>
               <SelectItem value="report">Numerology Report</SelectItem>
               <SelectItem value="card">Card</SelectItem>

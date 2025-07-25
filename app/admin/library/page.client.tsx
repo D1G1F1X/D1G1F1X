@@ -5,15 +5,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { PlusCircle, Edit, Trash2, BookOpen, FileText, Search } from 'lucide-react'
+import { PlusCircle, Edit, Trash2, BookOpen, FileText, Search } from "lucide-react"
 import Link from "next/link"
 import { LibraryService } from "@/lib/services/library-service" // Import LibraryService
 import type { LibraryDocument } from "@/types/library" // Import LibraryDocument type
 import { useToast } from "@/hooks/use-toast"
 import { useState, useEffect, useCallback } from "react"
-import { Loader2 } from 'lucide-react'
+import { Loader2 } from "lucide-react"
 
-export default function LibraryManagementPageClient() { // Changed to default export
+export default function LibraryManagementPageClient() {
+  // Changed to default export
   const [documents, setDocuments] = useState<LibraryDocument[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")

@@ -273,7 +273,14 @@ export class LibraryService {
     try {
       const { data, error } = await supabase
         .from("reading_sessions")
-        .insert([{ user_id: userId, document_id: documentId, duration_minutes: durationMinutes, started_at: new Date().toISOString() }])
+        .insert([
+          {
+            user_id: userId,
+            document_id: documentId,
+            duration_minutes: durationMinutes,
+            started_at: new Date().toISOString(),
+          },
+        ])
         .select()
         .single()
       if (error) throw error
@@ -287,8 +294,12 @@ export class LibraryService {
   static async getLibraryStats(): Promise<any> {
     // Placeholder for library statistics.
     try {
-      const { count: totalDocuments, error: docError } = await supabase.from("library_documents").select("*", { count: "exact" })
-      const { count: totalReadingListItems, error: listItemError } = await supabase.from("user_reading_lists").select("*", { count: "exact" })
+      const { count: totalDocuments, error: docError } = await supabase
+        .from("library_documents")
+        .select("*", { count: "exact" })
+      const { count: totalReadingListItems, error: listItemError } = await supabase
+        .from("user_reading_lists")
+        .select("*", { count: "exact" })
 
       if (docError) throw docError
       if (listItemError) throw listItemError
@@ -310,24 +321,29 @@ export class LibraryService {
     try {
       const { data, error } = await supabase.from("user_reading_lists").select("*").eq("id", id).single()
       if (error) throw error
-      return data ? {
-        id: data.id,
-        userId: data.user_id,
-        documentId: data.document_id,
-        status: data.status,
-        progress: data.progress,
-        notes: data.notes,
-        rating: data.rating,
-        addedAt: data.added_at,
-        completedAt: data.completed_at,
-      } : null
+      return data
+        ? {
+            id: data.id,
+            userId: data.user_id,
+            documentId: data.document_id,
+            status: data.status,
+            progress: data.progress,
+            notes: data.notes,
+            rating: data.rating,
+            addedAt: data.added_at,
+            completedAt: data.completed_at,
+          }
+        : null
     } catch (error) {
       console.error("Error fetching reading list item by ID:", error)
       return null
     }
   }
 
-  static async updateReadingList(id: string, updates: Partial<UserReadingListItem>): Promise<UserReadingListItem | null> {
+  static async updateReadingList(
+    id: string,
+    updates: Partial<UserReadingListItem>,
+  ): Promise<UserReadingListItem | null> {
     return this.updateReadingListItem(id, updates)
   }
 

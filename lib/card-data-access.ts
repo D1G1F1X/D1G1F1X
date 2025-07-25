@@ -53,6 +53,9 @@ export const getCardData = async (): Promise<OracleCard[]> => {
 // Alias for getCardData to satisfy getOracleCards export
 export const getOracleCards = getCardData
 
+// Export getAllCards as an alias for getCardData
+export const getAllCards = getCardData
+
 // This function is now a server-side function
 export const getCardById = async (id: string): Promise<OracleCard | undefined> => {
   const cards = await getCardData() // Fetch all cards on the server
