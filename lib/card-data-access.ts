@@ -147,3 +147,6 @@ export const debugCardLoading = (cards: OracleCard[]): number => {
   // It returns the number of cards currently loaded.
   return cards.length
 }
+
+// Re-export getSymbolValue from numerology.ts to satisfy the missing export error
+export { getSymbolValue } from "@/lib/numerology"

@@ -1,51 +1,69 @@
-import OpenAI from "openai"
+// lib/openai-assistant.ts
+// This file provides functions for interacting with an OpenAI Assistant,
+// including managing conversations and generating follow-up questions.
 
-// Use separate API key for ChatGPT Assistant
-const openaiClient = new OpenAI({
-  apiKey: process.env.OPENAI_ASSISTANT_API_KEY || process.env.OPENAI_API_KEY,
-  defaultHeaders: {
-    "OpenAI-Beta": "assistants=v2",
-  },
-})
+import { generateText, streamText } from "ai"
+import { openai } from "@ai-sdk/openai"
+import { createStreamableValue } from "ai/rsc"
 
-// Add validation for the assistant-specific API key
-export function validateAssistantConfig(): boolean {
-  const hasApiKey = !!(process.env.OPENAI_ASSISTANT_API_KEY || process.env.OPENAI_API_KEY)
-  const hasAssistantId = !!process.env.OPENAI_ASSISTANT_ID
-
-  if (!hasApiKey) {
-    console.warn("⚠️ OpenAI Assistant API key not configured")
-  }
-  if (!hasAssistantId) {
-    console.warn("⚠️ OpenAI Assistant ID not configured")
-  }
-
-  return hasApiKey && hasAssistantId
+export interface Message {
+  role: "user" | "assistant" | "system" | "tool"
+  content: string
 }
 
-/** Utility: create a chat completion with sensible defaults. */
-export async function createCustomOpenAIResponse(prompt: string): Promise<string> {
+/**
+ * Continues a conversation with the OpenAI assistant, streaming the response.
+ * @param history The conversation history.
+ * @param systemPrompt An optional system prompt to guide the assistant's behavior.
+ * @returns An object containing the updated messages and a streamable value for the new message.
+ */
+export async function continueConversation(history: Message[], systemPrompt?: string) {
+  const stream = createStreamableValue()
+  ;(async () => {
+    try {
+      const { textStream } = await streamText({
+        model: openai(process.env.OPENAI_MODEL || "gpt-4o"), // Use model from env or default
+        system: systemPrompt || "You are a helpful assistant.",
+        messages: history,
+        maxTokens: Number.parseInt(process.env.OPENAI_MAX_TOKENS || "1024"),
+        temperature: Number.parseFloat(process.env.OPENAI_TEMPERATURE || "0.7"),
+      })
+
+      for await (const text of textStream) {
+        stream.update(text)
+      }
+      stream.done()
+    } catch (error) {
+      console.error("Error in continueConversation:", error)
+      stream.error(error)
+    }
+  })()
+
+  return {
+    messages: history, // Return the history as is, new message will be streamed
+    newMessage: stream.value,
+  }
+}
+
+/**
+ * Generates a follow-up question based on the last message in the conversation.
+ * This is a simplified example and can be enhanced with more sophisticated logic.
+ * @param lastMessage The last message in the conversation.
+ * @returns A generated follow-up question.
+ */
+export async function generateFollowUpQuestion(lastMessage: string): Promise<string> {
   try {
-    const { choices } = await openaiClient.chat.completions.create({
-      model: process.env.OPENAI_MODEL || "gpt-4o",
-      max_tokens: 800,
-      temperature: 0.7,
-      messages: [{ role: "user", content: prompt }],
+    const { text } = await generateText({
+      model: openai(process.env.OPENAI_MODEL || "gpt-4o"),
+      prompt: `Based on the following statement, generate a concise and relevant follow-up question. Do not provide any other text, just the question.
+      Statement: "${lastMessage}"
+      Follow-up question:`,
+      maxTokens: 50,
+      temperature: 0.8,
     })
-    return choices?.[0]?.message?.content ?? ""
-  } catch (err) {
-    console.error("createCustomOpenAIResponse failed", err)
-    return "⚠️ AI unavailable at the moment."
+    return text.trim()
+  } catch (error) {
+    console.error("Error generating follow-up question:", error)
+    return "Is there anything else I can help you with?"
   }
 }
-
-/** Higher-level helper used by oracle endpoints */
-export async function generateOracleReading(cardSpread: unknown): Promise<string> {
-  const systemPrompt =
-    "You are Numoracle, a mystical oracle. Provide a concise, insightful reading based on the spread that follows."
-  const prompt = `${systemPrompt}\n\nSpread JSON:\n${JSON.stringify(cardSpread)}`
-  return createCustomOpenAIResponse(prompt)
-}
-
-/* re-export the client so other modules can reuse the configured instance */
-export { openaiClient }

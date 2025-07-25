@@ -35,6 +35,13 @@ export interface ShareAnalyticsOptions {
   sampleRate?: number // 0-1, percentage of events to track
 }
 
+export interface ShareAnalyticsData {
+  totalShares: number
+  sharesByPlatform: { name: string; value: number }[]
+  sharesOverTime: { date: string; shares: number }[]
+  topSharedReadings: { title: string; shares: number }[]
+}
+
 /**
  * Records a share event in the analytics system
  */
@@ -283,6 +290,70 @@ export async function clearShareAnalytics(): Promise<boolean> {
   }
 }
 
+/**
+ * Retrieves comprehensive share analytics data.
+ * This is a mock implementation. In a real application, this data would come from a database
+ * where share events are logged.
+ * @returns A promise that resolves to ShareAnalyticsData.
+ */
+export async function getShareAnalytics(): Promise<ShareAnalyticsData> {
+  // Simulate fetching data from a database or analytics service
+  await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate network delay
+
+  const mockData: ShareAnalyticsData = {
+    totalShares: 1250,
+    sharesByPlatform: [
+      { name: "Facebook", value: 400 },
+      { name: "Twitter", value: 300 },
+      { name: "WhatsApp", value: 250 },
+      { name: "Email", value: 150 },
+      { name: "LinkedIn", value: 100 },
+      { name: "Other", value: 50 },
+    ],
+    sharesOverTime: [
+      { date: "2024-07-01", shares: 20 },
+      { date: "2024-07-02", shares: 25 },
+      { date: "2024-07-03", shares: 30 },
+      { date: "2024-07-04", shares: 35 },
+      { date: "2024-07-05", shares: 40 },
+      { date: "2024-07-06", shares: 45 },
+      { date: "2024-07-07", shares: 50 },
+      { date: "2024-07-08", shares: 55 },
+      { date: "2024-07-09", shares: 60 },
+      { date: "2024-07-10", shares: 65 },
+      { date: "2024-07-11", shares: 70 },
+      { date: "2024-07-12", shares: 75 },
+      { date: "2024-07-13", shares: 80 },
+      { date: "2024-07-14", shares: 85 },
+      { date: "2024-07-15", shares: 90 },
+    ],
+    topSharedReadings: [
+      { title: "Your Life Path Unveiled", shares: 120 },
+      { title: "Daily Oracle Insight", shares: 95 },
+      { title: "Relationship Compatibility Reading", shares: 80 },
+      { title: "Career Path Numerology", shares: 70 },
+      { title: "Spiritual Growth Reading", shares: 60 },
+    ],
+  }
+
+  return mockData
+}
+
+/**
+ * Logs a share event.
+ * In a real application, this would save the share event to a database.
+ * @param platform The platform where the share occurred (e.g., "Facebook", "Twitter").
+ * @param readingId The ID of the reading that was shared.
+ * @param userId The ID of the user who shared (optional).
+ */
+export async function logShareEvent(platform: string, readingId: string, userId?: string): Promise<void> {
+  console.log(`Share event logged: Platform=${platform}, ReadingId=${readingId}, UserId=${userId || "N/A"}`)
+  // Here you would typically insert a record into a 'share_events' table in your database.
+  // Example (pseudo-code for Supabase):
+  // const supabase = createServerClient(cookies());
+  // await supabase.from('share_events').insert({ platform, reading_id: readingId, user_id: userId });
+}
+
 // Export the share analytics service
 const shareAnalyticsService = {
   recordShareEvent,
@@ -291,6 +362,8 @@ const shareAnalyticsService = {
   getUserShareStats,
   getTopSharingUsers,
   clearShareAnalytics,
+  getShareAnalytics,
+  logShareEvent,
 }
 
 export default shareAnalyticsService

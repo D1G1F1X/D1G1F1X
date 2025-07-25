@@ -1,13 +1,20 @@
-import { createClient } from "@supabase/supabase-js"
-import type { LibraryDocument, UserReadingListItem, LibrarySearchFilters } from "@/types/library"
+import { createClient, createServerClient } from "@supabase/supabase-js"
+import { cookies } from "next/headers"
+import type {
+  LibraryDocument,
+  UserReadingListItem,
+  LibrarySearchFilters,
+  ReadingList,
+  ReadingSession,
+} from "@/types/library"
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+const supabaseClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
 
 export class LibraryService {
   // Document management
   static async getAllDocuments(filters?: LibrarySearchFilters): Promise<LibraryDocument[]> {
     try {
-      let query = supabase.from("library_documents").select("*").order("created_at", { ascending: false })
+      let query = supabaseClient.from("library_documents").select("*").order("created_at", { ascending: false })
 
       if (filters?.query) {
         query = query.or(
@@ -44,7 +51,7 @@ export class LibraryService {
 
   static async getDocumentById(id: string): Promise<LibraryDocument | null> {
     try {
-      const { data, error } = await supabase.from("library_documents").select("*").eq("id", id).single()
+      const { data, error } = await supabaseClient.from("library_documents").select("*").eq("id", id).single()
 
       if (error) throw error
 
@@ -59,7 +66,7 @@ export class LibraryService {
     document: Omit<LibraryDocument, "id" | "createdAt" | "updatedAt">,
   ): Promise<LibraryDocument> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from("library_documents")
         .insert([this.mapDocumentToDb(document)])
         .select()
@@ -83,7 +90,7 @@ export class LibraryService {
 
   static async updateDocument(id: string, updates: Partial<LibraryDocument>): Promise<LibraryDocument | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from("library_documents")
         .update(this.mapDocumentToDb(updates))
         .eq("id", id)
@@ -101,7 +108,7 @@ export class LibraryService {
 
   static async deleteDocument(id: string): Promise<boolean> {
     try {
-      const { error } = await supabase.from("library_documents").delete().eq("id", id)
+      const { error } = await supabaseClient.from("library_documents").delete().eq("id", id)
 
       if (error) throw error
 
@@ -115,7 +122,7 @@ export class LibraryService {
   // Reading list management
   static async getUserReadingList(userId: string): Promise<UserReadingListItem[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from("user_reading_lists")
         .select(`
           *,
@@ -152,7 +159,7 @@ export class LibraryService {
     status: "to_read" | "reading" | "completed" = "to_read",
   ): Promise<UserReadingListItem | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from("user_reading_lists")
         .insert([
           {
@@ -190,7 +197,7 @@ export class LibraryService {
     updates: Partial<UserReadingListItem>,
   ): Promise<UserReadingListItem | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from("user_reading_lists")
         .update({
           status: updates.status,
@@ -224,7 +231,7 @@ export class LibraryService {
 
   static async removeFromReadingList(id: string): Promise<boolean> {
     try {
-      const { error } = await supabase.from("user_reading_lists").delete().eq("id", id)
+      const { error } = await supabaseClient.from("user_reading_lists").delete().eq("id", id)
 
       if (error) throw error
 
@@ -259,7 +266,7 @@ export class LibraryService {
   static async getReadingSessions(userId: string): Promise<any[]> {
     // Placeholder for reading sessions. Assuming a 'reading_sessions' table.
     try {
-      const { data, error } = await supabase.from("reading_sessions").select("*").eq("user_id", userId)
+      const { data, error } = await supabaseClient.from("reading_sessions").select("*").eq("user_id", userId)
       if (error) throw error
       return data || []
     } catch (error) {
@@ -271,7 +278,7 @@ export class LibraryService {
   static async createReadingSession(userId: string, documentId: string, durationMinutes: number): Promise<any | null> {
     // Placeholder for creating a reading session.
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from("reading_sessions")
         .insert([
           {
@@ -291,35 +298,39 @@ export class LibraryService {
     }
   }
 
-  static async getLibraryStats(): Promise<any> {
-    // Placeholder for library statistics.
-    try {
-      const { count: totalDocuments, error: docError } = await supabase
-        .from("library_documents")
-        .select("*", { count: "exact" })
-      const { count: totalReadingListItems, error: listItemError } = await supabase
-        .from("user_reading_lists")
-        .select("*", { count: "exact" })
+  static async getLibraryStats(
+    userId: string,
+  ): Promise<{ totalDocuments: number; totalReadingLists: number; totalSessions: number }> {
+    const supabase = createServerClient(cookies())
 
-      if (docError) throw docError
-      if (listItemError) throw listItemError
+    const { count: totalDocuments, error: docError } = await supabase
+      .from("library_documents")
+      .select("*", { count: "exact", head: true })
+    if (docError) console.error("Error fetching document count:", docError)
 
-      return {
-        totalDocuments: totalDocuments || 0,
-        totalReadingListItems: totalReadingListItems || 0,
-        // Add more stats as needed
-      }
-    } catch (error) {
-      console.error("Error fetching library stats:", error)
-      return { totalDocuments: 0, totalReadingListItems: 0 }
+    const { count: totalReadingLists, error: listError } = await supabase
+      .from("reading_lists")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", userId)
+    if (listError) console.error("Error fetching reading list count:", listError)
+
+    const { count: totalSessions, error: sessionError } = await supabase
+      .from("reading_sessions")
+      .select("*", { count: "exact", head: true })
+    if (sessionError) console.error("Error fetching session count:", sessionError)
+
+    return {
+      totalDocuments: totalDocuments || 0,
+      totalReadingLists: totalReadingLists || 0,
+      totalSessions: totalSessions || 0,
     }
   }
 
-  static async getReadingListById(id: string): Promise<UserReadingListItem | null> {
+  static async getReadingListById(listId: string): Promise<UserReadingListItem | null> {
     // This might be redundant with getUserReadingList if the ID is a list item ID.
     // Assuming it refers to a specific item in a user's reading list.
     try {
-      const { data, error } = await supabase.from("user_reading_lists").select("*").eq("id", id).single()
+      const { data, error } = await supabaseClient.from("user_reading_lists").select("*").eq("id", listId).single()
       if (error) throw error
       return data
         ? {
@@ -515,4 +526,128 @@ export class LibraryService {
       return true
     })
   }
+}
+
+export async function getLibraryResources(): Promise<LibraryDocument[]> {
+  const supabase = createServerClient(cookies())
+  const { data, error } = await supabase.from("library_documents").select("*")
+  if (error) {
+    console.error("Error fetching library resources:", error)
+    return []
+  }
+  return data || []
+}
+
+export async function getAllReadingLists(userId: string): Promise<ReadingList[]> {
+  const supabase = createServerClient(cookies())
+  const { data, error } = await supabase.from("reading_lists").select("*").eq("user_id", userId)
+  if (error) {
+    console.error("Error fetching reading lists:", error)
+    return []
+  }
+  return data || []
+}
+
+export async function createReadingList(
+  userId: string,
+  title: string,
+  description?: string,
+): Promise<ReadingList | null> {
+  const supabase = createServerClient(cookies())
+  const { data, error } = await supabase
+    .from("reading_lists")
+    .insert({ user_id: userId, title, description })
+    .select()
+    .single()
+  if (error) {
+    console.error("Error creating reading list:", error)
+    return null
+  }
+  return data
+}
+
+export async function getReadingSessions(readingListId: string): Promise<ReadingSession[]> {
+  const supabase = createServerClient(cookies())
+  const { data, error } = await supabase.from("reading_sessions").select("*").eq("reading_list_id", readingListId)
+  if (error) {
+    console.error("Error fetching reading sessions:", error)
+    return []
+  }
+  return data || []
+}
+
+export async function createReadingSession(
+  readingListId: string,
+  readingId: string,
+  notes?: string,
+): Promise<ReadingSession | null> {
+  const supabase = createServerClient(cookies())
+  const { data, error } = await supabase
+    .from("reading_sessions")
+    .insert({ reading_list_id: readingListId, reading_id: readingId, notes })
+    .select()
+    .single()
+  if (error) {
+    console.error("Error creating reading session:", error)
+    return null
+  }
+  return data
+}
+
+export async function getLibraryStats(
+  userId: string,
+): Promise<{ totalDocuments: number; totalReadingLists: number; totalSessions: number }> {
+  const supabase = createServerClient(cookies())
+
+  const { count: totalDocuments, error: docError } = await supabase
+    .from("library_documents")
+    .select("*", { count: "exact", head: true })
+  if (docError) console.error("Error fetching document count:", docError)
+
+  const { count: totalReadingLists, error: listError } = await supabase
+    .from("reading_lists")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId)
+  if (listError) console.error("Error fetching reading list count:", listError)
+
+  const { count: totalSessions, error: sessionError } = await supabase
+    .from("reading_sessions")
+    .select("*", { count: "exact", head: true })
+  if (sessionError) console.error("Error fetching session count:", sessionError)
+
+  return {
+    totalDocuments: totalDocuments || 0,
+    totalReadingLists: totalReadingLists || 0,
+    totalSessions: totalSessions || 0,
+  }
+}
+
+export async function getReadingListById(listId: string): Promise<ReadingList | null> {
+  const supabase = createServerClient(cookies())
+  const { data, error } = await supabase.from("reading_lists").select("*").eq("id", listId).single()
+  if (error) {
+    console.error("Error fetching reading list by ID:", error)
+    return null
+  }
+  return data
+}
+
+export async function updateReadingList(listId: string, updates: Partial<ReadingList>): Promise<ReadingList | null> {
+  const supabase = createServerClient(cookies())
+  const { data, error } = await supabase.from("reading_lists").update(updates).eq("id", listId).select().single()
+  if (error) {
+    console.error("Error updating reading list:", error)
+    return null
+  }
+  return data
+}
+
+export async function deleteReadingList(listId: string): Promise<boolean> {
+  const supabase = createServerClient(cookies())
+  const { error } = await supabase.from("reading_lists").delete().eq("id", listId)
+  if (error) {
+    console.error("Error deleting reading list:", error)
+    return false
+  }
+  return true
 }

@@ -4,46 +4,68 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { CheckCircle, XCircle, Loader2 } from "lucide-react"
-import { verifyAllBlobs, verifyBlob } from "@/lib/verified-blob-handler" // Import the new exports
+import { Loader2, CheckCircle, XCircle, RefreshCw } from "lucide-react"
+import { toast } from "@/components/ui/use-toast"
+import { verifyAllBlobs, verifyBlob } from "@/lib/verified-blob-handler" // Assuming these services exist
 
-type VerifyImagesClientPageProps = {}
+interface BlobVerificationResult {
+  pathname: string
+  url: string
+  exists: boolean
+  verified: boolean
+  message: string
+}
 
-export default function VerifyImagesClientPage({}: VerifyImagesClientPageProps) {
-  // Changed to default export
-  const [verificationResults, setVerificationResults] = useState<any[]>([])
+export default function VerifyImagesClientPage() {
+  const [verificationResults, setVerificationResults] = useState<BlobVerificationResult[]>([])
   const [loading, setLoading] = useState(false)
 
-  const runVerification = async () => {
+  const handleVerifyAllImages = async () => {
     setLoading(true)
-    setVerificationResults([])
     try {
-      // Simulate API call for image verification
-      // Replace with actual calls to verifyAllBlobs and verifyBlob
-      const allBlobsResult = await verifyAllBlobs()
-      const singleBlobResult = await verifyBlob("some-test-blob-id") // Example call
-
-      const simulatedResults = [
-        { filename: "image1.jpg", existsInBlob: true, matchesData: true, error: null },
-        { filename: "image2.png", existsInBlob: false, matchesData: false, error: "File not found" },
-        { filename: "image3.svg", existsInBlob: true, matchesData: true, error: null },
-        // Add results from actual API calls here
-        {
-          filename: "all_blobs_status",
-          existsInBlob: allBlobsResult.success,
-          matchesData: true,
-          error: allBlobsResult.error || null,
-        },
-        {
-          filename: "single_blob_status",
-          existsInBlob: singleBlobResult.success,
-          matchesData: true,
-          error: singleBlobResult.error || null,
-        },
-      ]
-      setVerificationResults(simulatedResults)
+      const results = await verifyAllBlobs() // Call the backend API to verify all blobs
+      setVerificationResults(results)
+      toast({
+        title: "Verification Complete",
+        description: `Verified ${results.length} images.`,
+      })
     } catch (error) {
-      console.error("Failed to run image verification:", error)
+      console.error("Error verifying all images:", error)
+      toast({
+        title: "Verification Failed",
+        description: `Failed to verify images: ${error.message}`,
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Optional: Function to verify a single image if needed
+  const handleVerifySingleImage = async (pathname: string) => {
+    setLoading(true)
+    try {
+      const result = await verifyBlob(pathname)
+      setVerificationResults((prev) => {
+        const existingIndex = prev.findIndex((r) => r.pathname === pathname)
+        if (existingIndex > -1) {
+          const newResults = [...prev]
+          newResults[existingIndex] = result
+          return newResults
+        }
+        return [...prev, result]
+      })
+      toast({
+        title: "Single Image Verified",
+        description: `Verification for ${pathname} complete.`,
+      })
+    } catch (error) {
+      console.error(`Error verifying image ${pathname}:`, error)
+      toast({
+        title: "Verification Failed",
+        description: `Failed to verify ${pathname}: ${error.message}`,
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }
@@ -51,65 +73,80 @@ export default function VerifyImagesClientPage({}: VerifyImagesClientPageProps) 
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
-      <h1 className="text-3xl font-bold mb-6">Verify Images</h1>
-      <p className="text-muted-foreground mb-8">
-        This page verifies all images in the public directory against blob storage.
-      </p>
+      <h1 className="text-3xl font-bold mb-6 text-center">Image Verification Dashboard</h1>
 
-      <Card>
+      <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Image Verification Results</CardTitle>
+          <CardTitle>Verify All Blob Storage Images</CardTitle>
         </CardHeader>
         <CardContent>
-          <Button onClick={runVerification} disabled={loading} className="w-full mb-4">
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Verifying...
-              </>
-            ) : (
-              "Run Image Verification"
-            )}
+          <p className="mb-4 text-muted-foreground">
+            This tool checks the existence and integrity of all images stored in your Vercel Blob Storage.
+          </p>
+          <Button onClick={handleVerifyAllImages} disabled={loading}>
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+            {loading ? "Verifying..." : "Verify All Images"}
           </Button>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Filename</TableHead>
-                <TableHead>Exists in Blob</TableHead>
-                <TableHead>Matches Data</TableHead>
-                <TableHead>Error</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {verificationResults.length > 0 ? (
-                verificationResults.map((result, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="text-xs">{result.filename}</TableCell>
-                    <TableCell>
-                      {result.existsInBlob ? (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-red-500" />
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {result.matchesData ? (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-red-500" />
-                      )}
-                    </TableCell>
-                    <TableCell className="text-xs text-red-500">{result.error || "N/A"}</TableCell>
+
+          {verificationResults.length > 0 && (
+            <div className="mt-6 max-h-[600px] overflow-y-auto border rounded-md">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Pathname</TableHead>
+                    <TableHead>URL</TableHead>
+                    <TableHead>Exists</TableHead>
+                    <TableHead>Verified</TableHead>
+                    <TableHead>Message</TableHead>
+                    {/* <TableHead className="text-right">Actions</TableHead> */}
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground">
-                    Run verification to see results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                  {verificationResults.map((result) => (
+                    <TableRow key={result.pathname}>
+                      <TableCell className="font-medium">{result.pathname}</TableCell>
+                      <TableCell className="text-xs truncate max-w-[200px]">
+                        <a
+                          href={result.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:underline"
+                        >
+                          {result.url}
+                        </a>
+                      </TableCell>
+                      <TableCell>
+                        {result.exists ? (
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        ) : (
+                          <XCircle className="h-5 w-5 text-red-500" />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {result.verified ? (
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        ) : (
+                          <XCircle className="h-5 w-5 text-red-500" />
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{result.message}</TableCell>
+                      {/* <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleVerifySingleImage(result.pathname)}
+                          disabled={loading}
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                          <span className="sr-only">Re-verify</span>
+                        </Button>
+                      </TableCell> */}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

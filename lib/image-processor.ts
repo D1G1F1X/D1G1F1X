@@ -17,6 +17,12 @@ export interface ProcessedImage {
   format: string
 }
 
+interface ImageVerificationResponse {
+  exists: boolean
+  verified: boolean
+  message: string
+}
+
 // Define standard image sizes
 const IMAGE_SIZES: Record<Exclude<ImageSize, "original">, ImageDimensions> = {
   thumbnail: { width: 150 },
@@ -158,4 +164,37 @@ export function getResponsiveImageUrl(
   }
 
   return result as Record<ImageSize, string>
+}
+
+/**
+ * Verifies if an image exists at a given URL and optionally checks its integrity.
+ * This is a placeholder function. In a real scenario, you might:
+ * - Make a HEAD request to check for existence.
+ * - Download a small portion to check content type or basic integrity.
+ * - Use a dedicated image processing library (e.g., Sharp on a serverless function) for deeper validation.
+ * @param imageUrl The URL of the image to verify.
+ * @returns A promise that resolves to an ImageVerificationResponse.
+ */
+export async function verifyImage(imageUrl: string): Promise<ImageVerificationResponse> {
+  try {
+    const response = await fetch(imageUrl, { method: "HEAD" }) // Use HEAD to avoid downloading full image
+    if (response.ok) {
+      // Basic check: if it exists and is accessible
+      const contentType = response.headers.get("content-type")
+      if (contentType && contentType.startsWith("image/")) {
+        return { exists: true, verified: true, message: "Image exists and is a valid image type." }
+      } else {
+        return { exists: true, verified: false, message: "URL exists but is not an image." }
+      }
+    } else {
+      return {
+        exists: false,
+        verified: false,
+        message: `Image not found or inaccessible (Status: ${response.status}).`,
+      }
+    }
+  } catch (error) {
+    console.error(`Error during image verification for ${imageUrl}:`, error)
+    return { exists: false, verified: false, message: `Network or server error: ${error.message}` }
+  }
 }

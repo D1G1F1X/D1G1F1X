@@ -727,3 +727,49 @@ export function exportCacheData(): any {
     performance: performanceMetrics,
   }
 }
+
+// New functions for blob management
+import { list, del } from "@vercel/blob"
+
+interface BlobInfo {
+  url: string
+  pathname: string
+  size: number
+  uploadedAt: Date
+  contentType?: string
+}
+
+/**
+ * Lists all blobs in the storage.
+ * @param prefix Optional prefix to filter blobs (e.g., "cards/").
+ * @returns A promise that resolves to an array of BlobInfo.
+ */
+export async function listAllBlobs(prefix?: string): Promise<BlobInfo[]> {
+  try {
+    const { blobs } = await list({ prefix })
+    return blobs.map((blob) => ({
+      url: blob.url,
+      pathname: blob.pathname,
+      size: blob.size,
+      uploadedAt: new Date(blob.uploadedAt),
+      contentType: blob.contentType,
+    }))
+  } catch (error) {
+    console.error("Error listing blobs:", error)
+    throw new Error(`Failed to list blobs: ${error.message}`)
+  }
+}
+
+/**
+ * Deletes a blob from the storage.
+ * @param url The URL or pathname of the blob to delete.
+ * @returns A promise that resolves when the blob is deleted.
+ */
+export async function deleteBlob(url: string | string[]): Promise<void> {
+  try {
+    await del(url)
+  } catch (error) {
+    console.error("Error deleting blob:", error)
+    throw new Error(`Failed to delete blob: ${error.message}`)
+  }
+}

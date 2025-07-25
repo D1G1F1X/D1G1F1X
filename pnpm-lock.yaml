@@ -115,7 +115,7 @@ importers:
         version: 9.2.0(@types/react@18.0.0)(expo-asset@11.1.7(expo@53.0.20(@babel/core@7.27.4)(react-native@0.80.2(@babel/core@7.27.4)(@types/react@18.0.0)(react@18.0.0))(react@18.0.0))(react-native@0.80.2(@babel/core@7.27.4)(@types/react@18.0.0)(react@18.0.0))(react@18.0.0))(expo-file-system@18.1.11(expo@53.0.20(@babel/core@7.27.4)(react-native@0.80.2(@babel/core@7.27.4)(@types/react@18.0.0)(react@18.0.0))(react@18.0.0))(react-native@0.80.2(@babel/core@7.27.4)(@types/react@18.0.0)(react@18.0.0)))(expo-gl@15.1.7(expo@53.0.20(@babel/core@7.27.4)(react-native@0.80.2(@babel/core@7.27.4)(@types/react@18.0.0)(react@18.0.0))(react@18.0.0))(react-native@0.80.2(@babel/core@7.27.4)(@types/react@18.0.0)(react@18.0.0))(react@18.0.0))(expo@53.0.20(@babel/core@7.27.4)(react-native@0.80.2(@babel/core@7.27.4)(@types/react@18.0.0)(react@18.0.0))(react@18.0.0))(immer@10.1.1)(react-dom@18.0.0(react@18.0.0))(react-native@0.80.2(@babel/core@7.27.4)(@types/react@18.0.0)(react@18.0.0))(react@18.0.0)(three@0.178.0)
       '@remix-run/react':
         specifier: latest
-        version: 2.16.8(react-dom@18.0.0(react@18.0.0))(react@18.0.0)(typescript@5.0.2)
+        version: 2.17.0(react-dom@18.0.0(react@18.0.0))(react@18.0.0)(typescript@5.0.2)
       '@supabase/auth-helpers-nextjs':
         specifier: latest
         version: 0.10.0(@supabase/supabase-js@2.52.1)
@@ -127,13 +127,10 @@ importers:
         version: 2.52.1
       '@sveltejs/kit':
         specifier: latest
-        version: 2.26.0(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0)))(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0))
-      '@t3-oss/env-nextjs':
-        specifier: latest
-        version: 0.13.8(arktype@2.1.20)(typescript@5.0.2)(valibot@1.1.0(typescript@5.0.2))(zod@4.0.10)
+        version: 2.26.1(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0)))(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0))
       '@vercel/analytics':
         specifier: latest
-        version: 1.5.0(@remix-run/react@2.16.8(react-dom@18.0.0(react@18.0.0))(react@18.0.0)(typescript@5.0.2))(@sveltejs/kit@2.26.0(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0)))(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0)))(next@14.2.16(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(react-dom@18.0.0(react@18.0.0))(react@18.0.0))(react@18.0.0)(svelte@5.36.16)(vue-router@4.5.1(vue@3.5.18(typescript@5.0.2)))(vue@3.5.18(typescript@5.0.2))
+        version: 1.5.0(@remix-run/react@2.17.0(react-dom@18.0.0(react@18.0.0))(react@18.0.0)(typescript@5.0.2))(@sveltejs/kit@2.26.1(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0)))(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0)))(next@14.2.16(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(react-dom@18.0.0(react@18.0.0))(react@18.0.0))(react@18.0.0)(svelte@5.36.16)(vue-router@4.5.1(vue@3.5.18(typescript@5.0.2)))(vue@3.5.18(typescript@5.0.2))
       '@vercel/blob':
         specifier: latest
         version: 1.1.1
@@ -143,9 +140,6 @@ importers:
       ai:
         specifier: latest
         version: 4.3.19(react@18.0.0)(zod@4.0.10)
-      arktype:
-        specifier: latest
-        version: 2.1.20
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.5.0)
@@ -269,9 +263,6 @@ importers:
       uuid:
         specifier: latest
         version: 11.1.0
-      valibot:
-        specifier: latest
-        version: 1.1.0(typescript@5.0.2)
       vaul:
         specifier: latest
         version: 1.1.2(@types/react-dom@18.0.0)(@types/react@18.0.0)(react-dom@18.0.0(react@18.0.0))(react@18.0.0)
@@ -368,12 +359,6 @@ packages:
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
-
-  '@ark/schema@0.46.0':
-    resolution: {integrity: sha512-c2UQdKgP2eqqDArfBqQIJppxJHvNNXuQPeuSPlDML4rjw+f1cu0qAlzOG4b8ujgm9ctIDWwhpyw6gjG5ledIVQ==}
-
-  '@ark/util@0.46.0':
-    resolution: {integrity: sha512-JPy/NGWn/lvf1WmGCPw2VGpBg5utZraE84I7wli18EDF3p3zc/e9WolT35tINeZO3l7C77SjqRJeAUoT0CvMRg==}
 
   '@babel/code-frame@7.10.4':
     resolution: {integrity: sha512-vG6SvB6oYEhvgisZNFRmRCUkLz11c7rp+tbNTynGqc6mS1d5ATd/sGyV6W0KZZnXRKMTzZDRgQT3Ou9jhpAfUg==}
@@ -2159,8 +2144,8 @@ packages:
       react-redux:
         optional: true
 
-  '@remix-run/react@2.16.8':
-    resolution: {integrity: sha512-JmoBUnEu/nPLkU6NGNIG7rfLM97gPpr1LYRJeV680hChr0/2UpfQQwcRLtHz03w1Gz1i/xONAAVOvRHVcXkRlA==}
+  '@remix-run/react@2.17.0':
+    resolution: {integrity: sha512-muOLHqcimMCrIk6VOuqIn51P3buYjKpdYc6qpNy6zE5HlKfyaKEY00a5pzdutRmevYTQy7FiEF/LK4M8sxk70Q==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^18.0.0
@@ -2174,8 +2159,8 @@ packages:
     resolution: {integrity: sha512-O3rHJzAQKamUz1fvE0Qaw0xSFqsA/yafi2iqeE0pvdFtCO1viYx8QL6f3Ln/aCCTLxs68SLf0KPM9eSeM8yBnA==}
     engines: {node: '>=14.0.0'}
 
-  '@remix-run/server-runtime@2.16.8':
-    resolution: {integrity: sha512-ZwWOam4GAQTx10t+wK09YuYctd2Koz5Xy/klDgUN3lmTXmwbV0tZU0baiXEqZXrvyD+WDZ4b0ADDW9Df3+dpzA==}
+  '@remix-run/server-runtime@2.17.0':
+    resolution: {integrity: sha512-X0zfGLgvukhuTIL0tdWKnlvHy4xUe7Z17iQ0KMQoITK0SkTZPSud/6cJCsKhPqC8kfdYT1GNFLJKRhHz7Aapmw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       typescript: ^5.1.0
@@ -2342,8 +2327,8 @@ packages:
     peerDependencies:
       acorn: ^8.9.0
 
-  '@sveltejs/kit@2.26.0':
-    resolution: {integrity: sha512-TUxMYoK6Yim4uRIW0L7TXtlEtyLchy90PmInI7d1lPAPMchkBEvN3nVMkn5iTMUobxdLE5nR/YEU/4aYqezMuQ==}
+  '@sveltejs/kit@2.26.1':
+    resolution: {integrity: sha512-FwDhHAoXYUGnYndrrEzEYcKdYWpSoRKq4kli29oMe83hLri4/DOGQk3xUgwjDo0LKpSmj5M/Sj29/Ug3wO0Cbg==}
     engines: {node: '>=18.13'}
     hasBin: true
     peerDependencies:
@@ -2371,40 +2356,6 @@ packages:
 
   '@swc/helpers@0.5.5':
     resolution: {integrity: sha512-KGYxvIOXcceOAbEk4bi/dVLEK9z8sZ0uBB3Il5b1rhfClSpcX0yfRO0KmTkqR2cnQDymwLB+25ZyMzICg/cm/A==}
-
-  '@t3-oss/env-core@0.13.8':
-    resolution: {integrity: sha512-L1inmpzLQyYu4+Q1DyrXsGJYCXbtXjC4cICw1uAKv0ppYPQv656lhZPU91Qd1VS6SO/bou1/q5ufVzBGbNsUpw==}
-    peerDependencies:
-      arktype: ^2.1.0
-      typescript: '>=5.0.0'
-      valibot: ^1.0.0-beta.7 || ^1.0.0
-      zod: ^3.24.0 || ^4.0.0-beta.0
-    peerDependenciesMeta:
-      arktype:
-        optional: true
-      typescript:
-        optional: true
-      valibot:
-        optional: true
-      zod:
-        optional: true
-
-  '@t3-oss/env-nextjs@0.13.8':
-    resolution: {integrity: sha512-QmTLnsdQJ8BiQad2W2nvV6oUpH4oMZMqnFEjhVpzU0h3sI9hn8zb8crjWJ1Amq453mGZs6A4v4ihIeBFDOrLeQ==}
-    peerDependencies:
-      arktype: ^2.1.0
-      typescript: '>=5.0.0'
-      valibot: ^1.0.0-beta.7 || ^1.0.0
-      zod: ^3.24.0 || ^4.0.0-beta.0
-    peerDependenciesMeta:
-      arktype:
-        optional: true
-      typescript:
-        optional: true
-      valibot:
-        optional: true
-      zod:
-        optional: true
 
   '@tweenjs/tween.js@23.1.3':
     resolution: {integrity: sha512-vJmvvwFxYuGnF2axRtPYocag6Clbb5YS7kLL+SO/TeVFzHqDIWrNKYtcsPMibjDx9O+bu+psAy9NKfWklassUA==}
@@ -2732,9 +2683,6 @@ packages:
   aria-query@5.3.2:
     resolution: {integrity: sha512-COROpnaoap1E2F000S62r6A60uHZnmlvomhfyT2DlTcrY1OrBKn2UhH7qn5wTC9zMvD0AY7csdPSNwKP+7WiQw==}
     engines: {node: '>= 0.4'}
-
-  arktype@2.1.20:
-    resolution: {integrity: sha512-IZCEEXaJ8g+Ijd59WtSYwtjnqXiwM8sWQ5EjGamcto7+HVN9eK0C4p0zDlCuAwWhpqr6fIBkxPuYDl4/Mcj/+Q==}
 
   asap@2.0.6:
     resolution: {integrity: sha512-BSHWgDSAiKs50o2Re8ppvp3seVHXSRM44cdSsT9FfNEUUZLOGWVCsiWaRPWM1Znn+mqZ1OfVZ3z3DWEzSp7hRA==}
@@ -5466,14 +5414,6 @@ packages:
     resolution: {integrity: sha512-DPSke0pXhTZgoF/d+WSt2QaKMCFSfx7QegxEWT+JOuHF5aWrKEn0G+ztjuJg/gG8/ItK+rbPCD/yNv8yyih6Cg==}
     hasBin: true
 
-  valibot@1.1.0:
-    resolution: {integrity: sha512-Nk8lX30Qhu+9txPYTwM0cFlWLdPFsFr6LblzqIySfbZph9+BFsAHsNvHOymEviUepeIW6KFHzpX8TKhbptBXXw==}
-    peerDependencies:
-      typescript: '>=5'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
   validate-npm-package-name@5.0.1:
     resolution: {integrity: sha512-OljLrQ9SQdOUqTaQxqL5dEfZWrXExyyWsozYlAWFawPVNuD83igl7uJD2RTkNMbniIYgt8l81eCJGIdQF7avLQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
@@ -5802,12 +5742,6 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@ark/schema@0.46.0':
-    dependencies:
-      '@ark/util': 0.46.0
-
-  '@ark/util@0.46.0': {}
-
   '@babel/code-frame@7.10.4':
     dependencies:
       '@babel/highlight': 7.25.9
@@ -5894,7 +5828,7 @@ snapshots:
   '@babel/helper-member-expression-to-functions@7.27.1':
     dependencies:
       '@babel/traverse': 7.27.4
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
     transitivePeerDependencies:
       - supports-color
 
@@ -5916,7 +5850,7 @@ snapshots:
 
   '@babel/helper-optimise-call-expression@7.27.1':
     dependencies:
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
 
   '@babel/helper-plugin-utils@7.27.1': {}
 
@@ -5941,7 +5875,7 @@ snapshots:
   '@babel/helper-skip-transparent-expression-wrappers@7.27.1':
     dependencies:
       '@babel/traverse': 7.27.4
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
     transitivePeerDependencies:
       - supports-color
 
@@ -5955,7 +5889,7 @@ snapshots:
     dependencies:
       '@babel/template': 7.27.2
       '@babel/traverse': 7.27.4
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
     transitivePeerDependencies:
       - supports-color
 
@@ -6388,9 +6322,9 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.27.1
       '@babel/generator': 7.27.5
-      '@babel/parser': 7.27.5
+      '@babel/parser': 7.28.0
       '@babel/template': 7.27.2
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
       debug: 4.4.1
       globals: 11.12.0
     transitivePeerDependencies:
@@ -7904,10 +7838,10 @@ snapshots:
       react: 18.0.0
       react-redux: 9.2.0(@types/react@18.0.0)(react@18.0.0)(redux@5.0.1)
 
-  '@remix-run/react@2.16.8(react-dom@18.0.0(react@18.0.0))(react@18.0.0)(typescript@5.0.2)':
+  '@remix-run/react@2.17.0(react-dom@18.0.0(react@18.0.0))(react@18.0.0)(typescript@5.0.2)':
     dependencies:
       '@remix-run/router': 1.23.0
-      '@remix-run/server-runtime': 2.16.8(typescript@5.0.2)
+      '@remix-run/server-runtime': 2.17.0(typescript@5.0.2)
       react: 18.0.0
       react-dom: 18.0.0(react@18.0.0)
       react-router: 6.30.0(react@18.0.0)
@@ -7918,7 +7852,7 @@ snapshots:
 
   '@remix-run/router@1.23.0': {}
 
-  '@remix-run/server-runtime@2.16.8(typescript@5.0.2)':
+  '@remix-run/server-runtime@2.17.0(typescript@5.0.2)':
     dependencies:
       '@remix-run/router': 1.23.0
       '@types/cookie': 0.6.0
@@ -8067,7 +8001,7 @@ snapshots:
     dependencies:
       acorn: 8.15.0
 
-  '@sveltejs/kit@2.26.0(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0)))(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0))':
+  '@sveltejs/kit@2.26.1(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0)))(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0))':
     dependencies:
       '@sveltejs/acorn-typescript': 1.0.5(acorn@8.15.0)
       '@sveltejs/vite-plugin-svelte': 5.1.0(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0))
@@ -8114,22 +8048,6 @@ snapshots:
       '@swc/counter': 0.1.3
       tslib: 2.8.1
 
-  '@t3-oss/env-core@0.13.8(arktype@2.1.20)(typescript@5.0.2)(valibot@1.1.0(typescript@5.0.2))(zod@4.0.10)':
-    optionalDependencies:
-      arktype: 2.1.20
-      typescript: 5.0.2
-      valibot: 1.1.0(typescript@5.0.2)
-      zod: 4.0.10
-
-  '@t3-oss/env-nextjs@0.13.8(arktype@2.1.20)(typescript@5.0.2)(valibot@1.1.0(typescript@5.0.2))(zod@4.0.10)':
-    dependencies:
-      '@t3-oss/env-core': 0.13.8(arktype@2.1.20)(typescript@5.0.2)(valibot@1.1.0(typescript@5.0.2))(zod@4.0.10)
-    optionalDependencies:
-      arktype: 2.1.20
-      typescript: 5.0.2
-      valibot: 1.1.0(typescript@5.0.2)
-      zod: 4.0.10
-
   '@tweenjs/tween.js@23.1.3': {}
 
   '@types/babel__core@7.20.5':
@@ -8142,16 +8060,16 @@ snapshots:
 
   '@types/babel__generator@7.27.0':
     dependencies:
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
 
   '@types/babel__template@7.4.4':
     dependencies:
-      '@babel/parser': 7.27.5
-      '@babel/types': 7.27.6
+      '@babel/parser': 7.28.0
+      '@babel/types': 7.28.2
 
   '@types/babel__traverse@7.20.7':
     dependencies:
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
 
   '@types/cookie@0.6.0': {}
 
@@ -8306,10 +8224,10 @@ snapshots:
       '@use-gesture/core': 10.3.1
       react: 18.0.0
 
-  '@vercel/analytics@1.5.0(@remix-run/react@2.16.8(react-dom@18.0.0(react@18.0.0))(react@18.0.0)(typescript@5.0.2))(@sveltejs/kit@2.26.0(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0)))(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0)))(next@14.2.16(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(react-dom@18.0.0(react@18.0.0))(react@18.0.0))(react@18.0.0)(svelte@5.36.16)(vue-router@4.5.1(vue@3.5.18(typescript@5.0.2)))(vue@3.5.18(typescript@5.0.2))':
+  '@vercel/analytics@1.5.0(@remix-run/react@2.17.0(react-dom@18.0.0(react@18.0.0))(react@18.0.0)(typescript@5.0.2))(@sveltejs/kit@2.26.1(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0)))(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0)))(next@14.2.16(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(react-dom@18.0.0(react@18.0.0))(react@18.0.0))(react@18.0.0)(svelte@5.36.16)(vue-router@4.5.1(vue@3.5.18(typescript@5.0.2)))(vue@3.5.18(typescript@5.0.2))':
     optionalDependencies:
-      '@remix-run/react': 2.16.8(react-dom@18.0.0(react@18.0.0))(react@18.0.0)(typescript@5.0.2)
-      '@sveltejs/kit': 2.26.0(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0)))(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0))
+      '@remix-run/react': 2.17.0(react-dom@18.0.0(react@18.0.0))(react@18.0.0)(typescript@5.0.2)
+      '@sveltejs/kit': 2.26.1(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0)))(svelte@5.36.16)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.43.1)(yaml@2.8.0))
       next: 14.2.16(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(react-dom@18.0.0(react@18.0.0))(react@18.0.0)
       react: 18.0.0
       svelte: 5.36.16
@@ -8460,11 +8378,6 @@ snapshots:
 
   aria-query@5.3.2: {}
 
-  arktype@2.1.20:
-    dependencies:
-      '@ark/schema': 0.46.0
-      '@ark/util': 0.46.0
-
   asap@2.0.6: {}
 
   async-limiter@1.0.1: {}
@@ -8513,7 +8426,7 @@ snapshots:
   babel-plugin-jest-hoist@29.6.3:
     dependencies:
       '@babel/template': 7.27.2
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
       '@types/babel__core': 7.20.5
       '@types/babel__traverse': 7.20.7
 
@@ -10141,8 +10054,8 @@ snapshots:
     dependencies:
       '@babel/core': 7.27.4
       '@babel/generator': 7.27.5
-      '@babel/parser': 7.27.5
-      '@babel/types': 7.27.6
+      '@babel/parser': 7.28.0
+      '@babel/types': 7.28.2
       flow-enums-runtime: 0.0.6
       metro: 0.82.4
       metro-babel-transformer: 0.82.4
@@ -11669,10 +11582,6 @@ snapshots:
   uuid@11.1.0: {}
 
   uuid@7.0.3: {}
-
-  valibot@1.1.0(typescript@5.0.2):
-    optionalDependencies:
-      typescript: 5.0.2
 
   validate-npm-package-name@5.0.1: {}
 

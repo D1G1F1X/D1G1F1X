@@ -10,7 +10,7 @@ interface CardDetailPageClientProps {
   card: OracleCard
 }
 
-export function CardDetailPageClient({ card }: CardDetailPageClientProps) {
+export default function CardDetailPageClient({ card }: CardDetailPageClientProps) {
   if (!card) {
     return (
       <div className="container mx-auto py-8 px-4 md:px-6 text-center text-lg text-muted-foreground">

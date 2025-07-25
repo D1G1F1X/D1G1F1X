@@ -1,93 +1,111 @@
 "use server"
 
-import { z } from "zod"
+import { createServerClient } from "@/lib/supabase/server"
+import { cookies } from "next/headers"
+import { revalidatePath } from "next/cache"
+import { sendReadingEmail } from "@/lib/services/brevo-email-service"
+import { getReadingById } from "@/lib/services/reading-service"
+import { getProductById } from "@/lib/services/product-service"
+import { getProfileById } from "@/lib/services/profile-service"
+import { createOrder } from "@/lib/services/order-service"
 
-// Placeholder for order creation state
-interface CreateOrderState {
-  success: boolean
-  message: string
-  orderId?: string
-  errors?: Record<string, string[] | undefined>
-}
+export async function submitPaidOrder(formData: FormData) {
+  const cookieStore = cookies()
+  const supabase = createServerClient(cookieStore)
 
-// Placeholder schema for order data - adjust as needed
-const orderSchema = z.object({
-  productId: z.string().min(1, "Product ID is required."),
-  quantity: z.coerce.number().min(1, "Quantity must be at least 1."),
-  // Add other fields like customer details, shipping, etc.
-  customerName: z.string().min(1, "Customer name is required."),
-  customerEmail: z.string().email("Invalid email address."),
-})
+  const userId = formData.get("userId") as string
+  const productId = formData.get("productId") as string
+  const readingId = formData.get("readingId") as string
+  const paymentStatus = formData.get("paymentStatus") as string
+  const transactionId = formData.get("transactionId") as string
+  const amount = Number.parseFloat(formData.get("amount") as string)
+  const currency = formData.get("currency") as string
 
-export async function createOrderAction(
-  prevState: CreateOrderState | null,
-  formData: FormData,
-): Promise<CreateOrderState> {
-  const rawFormData = {
-    productId: formData.get("productId"),
-    quantity: formData.get("quantity"),
-    customerName: formData.get("customerName"),
-    customerEmail: formData.get("customerEmail"),
+  if (!userId || !productId || !readingId || !paymentStatus || !transactionId || isNaN(amount) || !currency) {
+    return { success: false, message: "Missing required order fields." }
   }
-
-  const validation = orderSchema.safeParse(rawFormData)
-
-  if (!validation.success) {
-    return {
-      success: false,
-      message: "Validation failed. Please check the form for errors.",
-      errors: validation.error.flatten().fieldErrors,
-    }
-  }
-
-  const orderData = validation.data
 
   try {
-    // Simulate order creation
-    console.log("Creating order with data:", orderData)
-    await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call
-    const mockOrderId = `order_${Date.now()}`
+    const newOrder = await createOrder({
+      userId,
+      productId,
+      readingId,
+      paymentStatus,
+      transactionId,
+      amount,
+      currency,
+      orderType: "paid",
+    })
 
-    return {
-      success: true,
-      message: "Order created successfully! (Simulated)",
-      orderId: mockOrderId,
+    if (!newOrder) {
+      throw new Error("Failed to create order.")
     }
+
+    // Fetch reading and product details for email
+    const reading = await getReadingById(readingId)
+    const product = await getProductById(productId)
+    const userProfile = await getProfileById(userId)
+
+    if (reading && product && userProfile?.email) {
+      await sendReadingEmail(userProfile.email, reading, product)
+    }
+
+    revalidatePath("/user/dashboard")
+    revalidatePath("/admin/orders")
+
+    return { success: true, message: "Paid order submitted successfully!", order: newOrder }
   } catch (error) {
-    console.error("Error creating order:", error)
-    return {
-      success: false,
-      message: "Failed to create order. Please try again.",
+    console.error("Error submitting paid order:", error)
+    return { success: false, message: `Failed to submit paid order: ${error.message}` }
+  }
+}
+
+export async function submitManualOrder(formData: FormData) {
+  const cookieStore = cookies()
+  const supabase = createServerClient(cookieStore)
+
+  const userId = formData.get("userId") as string
+  const productId = formData.get("productId") as string
+  const readingId = formData.get("readingId") as string
+  const notes = formData.get("notes") as string
+
+  if (!userId || !productId || !readingId) {
+    return { success: false, message: "Missing required manual order fields." }
+  }
+
+  try {
+    const newOrder = await createOrder({
+      userId,
+      productId,
+      readingId,
+      paymentStatus: "manual", // Default for manual orders
+      transactionId: `MANUAL-${Date.now()}`, // Generate a unique ID
+      amount: 0, // Manual orders typically have 0 amount
+      currency: "USD", // Default currency
+      orderType: "manual",
+      notes: notes,
+    })
+
+    if (!newOrder) {
+      throw new Error("Failed to create manual order.")
     }
-  }
-}
 
-// Placeholder for submitPaidOrder
-export async function submitPaidOrder(
-  prevState: CreateOrderState | null,
-  formData: FormData,
-): Promise<CreateOrderState> {
-  console.log("Simulating paid order submission:", formData)
-  // Implement actual payment processing and order creation logic here
-  await new Promise((resolve) => setTimeout(resolve, 1500)) // Simulate API call
-  return {
-    success: true,
-    message: "Paid order submitted successfully! (Simulated)",
-    orderId: `paid_order_${Date.now()}`,
-  }
-}
+    // Fetch reading and product details for email (optional for manual)
+    const reading = await getReadingById(readingId)
+    const product = await getProductById(productId)
+    const userProfile = await getProfileById(userId)
 
-// Placeholder for submitManualOrder
-export async function submitManualOrder(
-  prevState: CreateOrderState | null,
-  formData: FormData,
-): Promise<CreateOrderState> {
-  console.log("Simulating manual order submission:", formData)
-  // Implement actual manual order creation logic here
-  await new Promise((resolve) => setTimeout(resolve, 1500)) // Simulate API call
-  return {
-    success: true,
-    message: "Manual order submitted successfully! (Simulated)",
-    orderId: `manual_order_${Date.now()}`,
+    if (reading && product && userProfile?.email) {
+      // Optionally send an email for manual orders
+      // await sendReadingEmail(userProfile.email, reading, product, "manual_order_confirmation");
+    }
+
+    revalidatePath("/user/dashboard")
+    revalidatePath("/admin/orders")
+
+    return { success: true, message: "Manual order submitted successfully!", order: newOrder }
+  } catch (error) {
+    console.error("Error submitting manual order:", error)
+    return { success: false, message: `Failed to submit manual order: ${error.message}` }
   }
 }

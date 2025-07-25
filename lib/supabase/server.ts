@@ -1,41 +1,33 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr"
-import { cookies } from "next/headers"
-import type { Database } from "./types"
+import { createServerClient as createClient } from "@supabase/ssr"
+import type { cookies } from "next/headers"
+import { env } from "@/lib/config/environment"
 
-export function createClient() {
-  const cookieStore = cookies()
-
-  return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!, // Use service role key for server-side operations
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            // The `cookies().set()` method can only be called from a Server Component or Server Action.
-            // This error is typically ignored if we're only reading cookies on a Server Component.
-            // console.warn("Could not set cookie from server component:", error);
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: "", ...options })
-          } catch (error) {
-            // console.warn("Could not remove cookie from server component:", error);
-          }
-        },
+export function createServerClient(cookieStore: ReturnType<typeof cookies>) {
+  return createClient({
+    supabaseUrl: env.NEXT_PUBLIC_SUPABASE_URL,
+    supabaseKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    cookies: {
+      get(name: string) {
+        return cookieStore.get(name)?.value
+      },
+      set(name: string, value: string, options: any) {
+        try {
+          cookieStore.set({ name, value, ...options })
+        } catch (error) {
+          // The `cookies().set()` method can only be called in a Server Context.
+          // We're only concerned about this error when we're on the client.
+          // console.warn("Failed to set cookie in server client:", error);
+        }
+      },
+      remove(name: string, options: any) {
+        try {
+          cookieStore.set({ name, value: "", ...options })
+        } catch (error) {
+          // The `cookies().set()` method can only be called in a Server Context.
+          // We're only concerned about this error when we're on the client.
+          // console.warn("Failed to remove cookie in server client:", error);
+        }
       },
     },
-  )
+  })
 }
-
-// Export getServerClient for compatibility
-export const getServerClient = createClient
-
-// Export createServerClient directly as requested
-export { createServerClient }

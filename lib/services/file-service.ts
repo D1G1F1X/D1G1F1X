@@ -3,6 +3,8 @@
 // This would normally interact with a database or file storage service
 // For this demo, we'll use in-memory storage
 
+import { put } from "@vercel/blob"
+
 interface FileMetadata {
   id: string
   name: string
@@ -24,6 +26,12 @@ interface FolderMetadata {
   path: string
   createdAt: string
   updatedAt: string
+}
+
+interface FileUploadResult {
+  url: string
+  pathname: string
+  contentType: string
 }
 
 // In-memory storage
@@ -320,5 +328,30 @@ export async function getFileStatistics(): Promise<{
     totalSize,
     filesByCategory,
     filesByType,
+  }
+}
+
+/**
+ * Handles a file upload to Vercel Blob Storage.
+ * @param file The file to upload.
+ * @param pathname The desired path/filename for the uploaded file in blob storage.
+ * @param access The access level for the blob (e.g., 'public', 'private').
+ * @returns A promise that resolves to the upload result.
+ */
+export async function handleFileUpload(
+  file: File,
+  pathname: string,
+  access: "public" | "private" = "public",
+): Promise<FileUploadResult> {
+  try {
+    const blob = await put(pathname, file, { access })
+    return {
+      url: blob.url,
+      pathname: blob.pathname,
+      contentType: blob.contentType || file.type,
+    }
+  } catch (error) {
+    console.error("Error uploading file to Vercel Blob:", error)
+    throw new Error(`Failed to upload file: ${error.message}`)
   }
 }

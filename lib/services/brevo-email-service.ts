@@ -1,4 +1,7 @@
+import { env } from "@/lib/config/environment"
 import { getEnv, getAdminEmail, validateAdminEmail } from "@/lib/env"
+import type { Reading } from "@/types/readings"
+import type { Product } from "@/lib/products" // Assuming a Product type exists
 
 // Brevo API types
 interface BrevoSender {
@@ -74,6 +77,17 @@ interface RateLimitConfig {
   maxRequests: number
   windowMs: number
   retryAfter?: number
+}
+
+interface SendSmtpEmail {
+  sender: { email: string; name: string }
+  to: { email: string; name?: string }[]
+  subject: string
+  htmlContent: string
+  textContent?: string
+  replyTo?: { email: string; name?: string }
+  headers?: { [key: string]: string }
+  params?: { [key: string]: any }
 }
 
 class BrevoEmailService {
@@ -1234,3 +1248,84 @@ Visit us at ${getEnv("NEXT_PUBLIC_APP_URL")}
 
 // Export singleton instance
 export const brevoEmailService = new BrevoEmailService()
+
+export async function sendReadingEmail(
+  recipientEmail: string,
+  reading: Reading,
+  product: Product,
+  templateType: "reading_confirmation" | "manual_order_confirmation" = "reading_confirmation",
+): Promise<{ success: boolean; message?: string }> {
+  const brevoApiKey = env.BREVO_API_KEY
+  const senderEmail = env.BREVO_SENDER_EMAIL
+  const senderName = env.BREVO_SENDER_NAME
+  const adminEmailForNotifications = env.ADMIN_EMAIL_FOR_NOTIFICATIONS
+
+  if (!brevoApiKey || !senderEmail || !senderName) {
+    console.error("Brevo API keys or sender details are not configured.")
+    return { success: false, message: "Email service not configured." }
+  }
+
+  let subject = ""
+  let htmlContent = ""
+  let textContent = ""
+
+  if (templateType === "reading_confirmation") {
+    subject = `Your NUMO Oracle Reading: ${reading.title}`
+    htmlContent = `
+      <h1>Hello!</h1>
+      <p>Thank you for your purchase from NUMO Oracle. Here is your reading:</p>
+      <h2>${reading.title}</h2>
+      <p>${reading.reading_content}</p>
+      <p>Product: ${product.name} - $${product.price}</p>
+      <p>We hope you find insight and guidance.</p>
+      <p>Sincerely,<br>The NUMO Oracle Team</p>
+    `
+    textContent = `Your NUMO Oracle Reading: ${reading.title}\n\nThank you for your purchase from NUMO Oracle. Here is your reading:\n\n${reading.title}\n${reading.reading_content}\n\nProduct: ${product.name} - $${product.price}\n\nWe hope you find insight and guidance.\n\nSincerely,\nThe NUMO Oracle Team`
+  } else if (templateType === "manual_order_confirmation") {
+    subject = `Manual Order Confirmation: ${product.name}`
+    htmlContent = `
+      <h1>Hello!</h1>
+      <p>This is a confirmation for your manual order from NUMO Oracle.</p>
+      <h2>Order Details:</h2>
+      <p>Product: ${product.name}</p>
+      <p>Reading ID: ${reading.id}</p>
+      <p>Notes: ${reading.reading_content}</p>
+      <p>We will process your order shortly.</p>
+      <p>Sincerely,<br>The NUMO Oracle Team</p>
+    `
+    textContent = `Manual Order Confirmation: ${product.name}\n\nHello!\nThis is a confirmation for your manual order from NUMO Oracle.\n\nOrder Details:\nProduct: ${product.name}\nReading ID: ${reading.id}\nNotes: ${reading.reading_content}\n\nWe will process your order shortly.\n\nSincerely,\nThe NUMO Oracle Team`
+  }
+
+  const emailData: SendSmtpEmail = {
+    sender: { email: senderEmail, name: senderName },
+    to: [{ email: recipientEmail }],
+    subject: subject,
+    htmlContent: htmlContent,
+    textContent: textContent,
+    replyTo: { email: adminEmailForNotifications, name: "NUMO Oracle Support" },
+  }
+
+  try {
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "api-key": brevoApiKey,
+      },
+      body: JSON.stringify(emailData),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      console.error("Brevo API error:", errorData)
+      return { success: false, message: `Failed to send email: ${errorData.message || response.statusText}` }
+    }
+
+    console.log(`Email sent successfully to ${recipientEmail}`)
+    return { success: true, message: "Email sent successfully." }
+  } catch (error) {
+    console.error("Error sending email via Brevo:", error)
+    return { success: false, message: `An unexpected error occurred: ${error.message}` }
+  }
+}

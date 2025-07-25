@@ -3,7 +3,7 @@
  * URL: https://hebbkx1anhila5yf.public.blob.vercel-storage.com/
  */
 
-import { list } from "@vercel/blob"
+import { list, head } from "@vercel/blob"
 
 // Verified blob storage configuration
 const VERIFIED_BLOB_URL = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com"
@@ -63,6 +63,86 @@ const CACHE_DURATION = 15 * 60 * 1000 // 15 minutes
 const REQUEST_TIMEOUT = 8000 // 8 seconds
 const MAX_RETRY_ATTEMPTS = 3
 const SUPPORTED_FORMATS = ["jpg", "jpeg", "png", "webp"]
+
+interface BlobVerificationResult {
+  pathname: string
+  url: string
+  exists: boolean
+  verified: boolean
+  message: string
+}
+
+/**
+ * Verifies the existence and basic integrity of a single blob.
+ * @param pathname The pathname of the blob to verify (e.g., "cards/my-card.jpg").
+ * @returns A promise that resolves to a BlobVerificationResult.
+ */
+export async function verifyBlob(pathname: string): Promise<BlobVerificationResult> {
+  try {
+    const blob = await head(pathname) // Use head to get metadata without downloading content
+    if (blob) {
+      // Check if it's an image based on content-type
+      const isImage = blob.contentType?.startsWith("image/")
+      return {
+        pathname: blob.pathname,
+        url: blob.url,
+        exists: true,
+        verified: isImage, // Consider it "verified" if it's an image type
+        message: isImage ? "Blob exists and is an image." : "Blob exists but is not an image.",
+      }
+    } else {
+      return {
+        pathname: pathname,
+        url: `https://blob.vercel-storage.com/v1/assets/${pathname}`, // Construct potential URL
+        exists: false,
+        verified: false,
+        message: "Blob does not exist.",
+      }
+    }
+  } catch (error) {
+    console.error(`Error verifying blob ${pathname}:`, error)
+    return {
+      pathname: pathname,
+      url: `https://blob.vercel-storage.com/v1/assets/${pathname}`,
+      exists: false,
+      verified: false,
+      message: `Verification failed: ${error.message}`,
+    }
+  }
+}
+
+/**
+ * Verifies all blobs in the storage, optionally filtered by a prefix.
+ * @param prefix Optional prefix to filter blobs (e.g., "cards/").
+ * @returns A promise that resolves to an array of BlobVerificationResult.
+ */
+export async function verifyAllBlobs(prefix?: string): Promise<BlobVerificationResult[]> {
+  const results: BlobVerificationResult[] = []
+  try {
+    const { blobs } = await list({ prefix })
+
+    for (const blob of blobs) {
+      const isImage = blob.contentType?.startsWith("image/")
+      results.push({
+        pathname: blob.pathname,
+        url: blob.url,
+        exists: true,
+        verified: isImage,
+        message: isImage ? "Blob exists and is an image." : "Blob exists but is not an image.",
+      })
+    }
+  } catch (error) {
+    console.error("Error listing or verifying all blobs:", error)
+    results.push({
+      pathname: "N/A",
+      url: "N/A",
+      exists: false,
+      verified: false,
+      message: `Failed to list blobs: ${error.message}`,
+    })
+  }
+  return results
+}
 
 /**
  * Verifies the blob storage URL and lists available images

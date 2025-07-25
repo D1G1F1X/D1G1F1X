@@ -27,9 +27,10 @@ export const numoNumberDefinitions: {
 } = {
   singleDigits: {
     "1": {
-      title: "The Leader",
-      description: "Represents new beginnings, independence, leadership, and individuality.",
-      keywords: ["Initiation", "Independence", "Leadership", "Innovation", "Self-starter"],
+      title: "The Initiator",
+      description:
+        "Represents leadership, independence, originality, and self-confidence. It's the number of new beginnings and pioneering spirit.",
+      keywords: ["leadership", "independence", "new beginnings", "originality", "self-confidence"],
       positiveTraits: ["Ambitious", "Determined", "Original", "Courageous", "Self-reliant"],
       negativeTraits: ["Dominating", "Egotistical", "Impulsive", "Stubborn", "Lonely"],
       lifePathMeaning: "A path of leadership, independence, and pioneering. You are meant to forge your own way.",
@@ -55,8 +56,9 @@ export const numoNumberDefinitions: {
     },
     "2": {
       title: "The Harmonizer",
-      description: "Symbolizes balance, cooperation, diplomacy, and partnership.",
-      keywords: ["Cooperation", "Harmony", "Diplomacy", "Partnership", "Sensitivity"],
+      description:
+        "Symbolizes cooperation, diplomacy, patience, and sensitivity. It's about balance, partnership, and intuition.",
+      keywords: ["cooperation", "diplomacy", "patience", "sensitivity", "balance", "partnership", "intuition"],
       positiveTraits: ["Peacemaker", "Supportive", "Empathetic", "Patient", "Tactful"],
       negativeTraits: ["Shy", "Indecisive", "Overly sensitive", "Dependent", "Passive"],
       lifePathMeaning: "A path of cooperation, diplomacy, and partnership. You thrive in harmonious environments.",
@@ -82,8 +84,9 @@ export const numoNumberDefinitions: {
     },
     "3": {
       title: "The Communicator",
-      description: "Represents self-expression, creativity, joy, and social interaction.",
-      keywords: ["Creativity", "Expression", "Joy", "Communication", "Optimism"],
+      description:
+        "Associated with self-expression, creativity, joy, and social interaction. It's the number of optimism and inspiration.",
+      keywords: ["self-expression", "creativity", "joy", "social interaction", "optimism", "inspiration"],
       positiveTraits: ["Artistic", "Charismatic", "Optimistic", "Social", "Inspirational"],
       negativeTraits: ["Scattered", "Superficial", "Gossip", "Overly dramatic", "Undisciplined"],
       lifePathMeaning: "A path of creative expression, communication, and joy. You are meant to inspire others.",
@@ -109,8 +112,9 @@ export const numoNumberDefinitions: {
     },
     "4": {
       title: "The Builder",
-      description: "Symbolizes stability, practicality, organization, and hard work.",
-      keywords: ["Structure", "Order", "Discipline", "Hard work", "Foundation"],
+      description:
+        "Represents stability, practicality, organization, and hard work. It's about laying solid foundations and discipline.",
+      keywords: ["stability", "practicality", "organization", "hard work", "foundation", "discipline"],
       positiveTraits: ["Practical", "Reliable", "Organized", "Loyal", "Diligent"],
       negativeTraits: ["Rigid", "Stubborn", "Workaholic", "Narrow-minded", "Fearful"],
       lifePathMeaning: "A path of building, stability, and hard work. You are meant to create lasting foundations.",
@@ -136,8 +140,9 @@ export const numoNumberDefinitions: {
     },
     "5": {
       title: "The Adventurer",
-      description: "Represents freedom, change, adventure, and versatility.",
-      keywords: ["Freedom", "Change", "Adventure", "Versatility", "Curiosity"],
+      description:
+        "Symbolizes freedom, change, adventure, and versatility. It's about adaptability, progress, and exploration.",
+      keywords: ["freedom", "change", "adventure", "versatility", "adaptability", "progress", "exploration"],
       positiveTraits: ["Adaptable", "Resourceful", "Energetic", "Curious", "Magnetic"],
       negativeTraits: ["Restless", "Impulsive", "Irresponsible", "Scattered", "Addictive"],
       lifePathMeaning: "A path of freedom, change, and adventure. You are meant to experience life fully.",
@@ -163,8 +168,9 @@ export const numoNumberDefinitions: {
     },
     "6": {
       title: "The Nurturer",
-      description: "Symbolizes harmony, responsibility, nurturing, and service.",
-      keywords: ["Responsibility", "Harmony", "Nurturing", "Service", "Family"],
+      description:
+        "Associated with harmony, responsibility, nurturing, and service. It's the number of family, community, and compassion.",
+      keywords: ["harmony", "responsibility", "nurturing", "service", "family", "community", "compassion"],
       positiveTraits: ["Caring", "Responsible", "Compassionate", "Protective", "Artistic"],
       negativeTraits: ["Self-sacrificing", "Controlling", "Anxious", "Martyrdom", "Interfering"],
       lifePathMeaning: "A path of responsibility, nurturing, and service to others. You are meant to create harmony.",
@@ -190,8 +196,9 @@ export const numoNumberDefinitions: {
     },
     "7": {
       title: "The Seeker",
-      description: "Represents analysis, wisdom, spirituality, and introspection.",
-      keywords: ["Analysis", "Wisdom", "Spirituality", "Introspection", "Truth-seeking"],
+      description:
+        "Represents analysis, wisdom, spirituality, and introspection. It's about truth-seeking, research, and inner knowing.",
+      keywords: ["analysis", "wisdom", "spirituality", "introspection", "truth-seeking", "research", "inner knowing"],
       positiveTraits: ["Analytical", "Intuitive", "Spiritual", "Philosophical", "Independent"],
       negativeTraits: ["Aloof", "Secretive", "Cynical", "Pessimistic", "Isolated"],
       lifePathMeaning: "A path of introspection, spiritual growth, and seeking truth. You are meant to gain wisdom.",
@@ -217,8 +224,9 @@ export const numoNumberDefinitions: {
     },
     "8": {
       title: "The Achiever",
-      description: "Symbolizes ambition, authority, power, and material success.",
-      keywords: ["Power", "Authority", "Success", "Ambition", "Materialism"],
+      description:
+        "Symbolizes ambition, authority, power, and material success. It's about leadership in business, abundance, and karma.",
+      keywords: ["ambition", "authority", "power", "material success", "leadership", "abundance", "karma"],
       positiveTraits: ["Ambitious", "Authoritative", "Efficient", "Resilient", "Prosperous"],
       negativeTraits: ["Controlling", "Materialistic", "Workaholic", "Impatient", "Ruthless"],
       lifePathMeaning:
@@ -245,8 +253,9 @@ export const numoNumberDefinitions: {
     },
     "9": {
       title: "The Humanitarian",
-      description: "Represents compassion, humanitarianism, idealism, and completion.",
-      keywords: ["Compassion", "Humanitarianism", "Idealism", "Completion", "Wisdom"],
+      description:
+        "Associated with compassion, humanitarianism, idealism, and completion. It's the number of universal love and endings that lead to new beginnings.",
+      keywords: ["compassion", "humanitarianism", "idealism", "completion", "universal love", "endings"],
       positiveTraits: ["Altruistic", "Compassionate", "Tolerant", "Generous", "Wise"],
       negativeTraits: ["Self-pitying", "Martyrdom", "Impractical", "Overly emotional", "Resentful"],
       lifePathMeaning: "A path of service to humanity, compassion, and universal love. You are meant to inspire.",
@@ -272,8 +281,16 @@ export const numoNumberDefinitions: {
     },
     "11": {
       title: "The Master Intuitor",
-      description: "A Master Number representing intuition, inspiration, spiritual insight, and enlightenment.",
-      keywords: ["Intuition", "Inspiration", "Spirituality", "Enlightenment", "Visionary"],
+      description:
+        "A Master Number representing intuition, inspiration, spiritual insight, and enlightenment. It's about higher spiritual awareness and serving humanity through inspiration.",
+      keywords: [
+        "intuition",
+        "inspiration",
+        "spiritual insight",
+        "enlightenment",
+        "master number",
+        "spiritual awareness",
+      ],
       positiveTraits: ["Highly intuitive", "Charismatic", "Inspirational", "Idealistic", "Perceptive"],
       negativeTraits: ["Anxious", "Overly sensitive", "Impractical", "Self-destructive", "Nervous"],
       lifePathMeaning: "A path of spiritual awakening and inspiring others. You are meant to be a visionary.",
@@ -299,8 +316,16 @@ export const numoNumberDefinitions: {
     },
     "22": {
       title: "The Master Builder",
-      description: "A Master Number representing practical idealism, large-scale undertakings, and manifestation.",
-      keywords: ["Mastery", "Building", "Practicality", "Manifestation", "Global impact"],
+      description:
+        "A Master Number representing practical idealism, large-scale undertakings, and the ability to manifest grand visions into reality. It's about building for the collective good.",
+      keywords: [
+        "master builder",
+        "practical idealism",
+        "large-scale undertakings",
+        "manifestation",
+        "collective good",
+        "master number",
+      ],
       positiveTraits: ["Visionary", "Practical", "Disciplined", "Powerful", "Transformative"],
       negativeTraits: ["Overwhelmed", "Demanding", "Ruthless", "Unrealistic", "Self-destructive"],
       lifePathMeaning: "A path of building and manifesting on a grand scale. You are meant to achieve great things.",
@@ -325,9 +350,18 @@ export const numoNumberDefinitions: {
       },
     },
     "33": {
-      title: "The Master Healer/Teacher",
-      description: "A Master Number representing altruism, compassion, and spiritual uplifting of humanity.",
-      keywords: ["Compassion", "Healing", "Teaching", "Altruism", "Universal love"],
+      title: "The Master Healer",
+      description:
+        "A Master Number representing altruism, compassion, and the spiritual uplifting of humanity. It's about unconditional love and healing on a grand scale.",
+      keywords: [
+        "master teacher",
+        "altruism",
+        "compassion",
+        "spiritual uplifting",
+        "unconditional love",
+        "healing",
+        "master number",
+      ],
       positiveTraits: ["Selfless", "Compassionate", "Inspirational", "Nurturing", "Visionary"],
       negativeTraits: ["Self-sacrificing", "Overwhelmed", "Martyrdom", "Unrealistic", "Codependent"],
       lifePathMeaning: "A path of universal love and service. You are meant to be a spiritual guide and healer.",
@@ -355,145 +389,335 @@ export const numoNumberDefinitions: {
   },
   compoundNumbers: {
     "10": {
-      title: "The Wheel of Fortune",
+      title: "Self-Determination",
       description:
-        "A number of honor, faith, and self-confidence, indicating cycles of rise and fall. One's name will be known for good or evil, according to one's desires. It is a fortunate number.",
-      keywords: ["Fortune", "Cycles", "Destiny", "Reputation", "Self-confidence"],
+        "A number of self-determination and independence. It signifies a strong will and the ability to stand alone.",
+      keywords: ["self-determination", "independence", "strong will", "stand alone"],
     },
     "11": {
       title: "The Master Intuitor",
-      description: "A Master Number representing intuition, inspiration, spiritual insight, and enlightenment.",
-      keywords: ["Intuition", "Inspiration", "Spirituality", "Enlightenment", "Visionary"],
+      description:
+        "A Master Number representing intuition, inspiration, spiritual insight, and enlightenment. It's about higher spiritual awareness and serving humanity through inspiration.",
+      keywords: [
+        "intuition",
+        "inspiration",
+        "spiritual insight",
+        "enlightenment",
+        "master number",
+        "spiritual awareness",
+      ],
     },
     "12": {
-      title: "The Sacrifice",
+      title: "Sacrifice and Understanding",
       description:
-        "Symbolizes sacrifice, understanding, and a period of suspension or transition before a new beginning. It often involves letting go of old ways for spiritual growth.",
-      keywords: ["Sacrifice", "Transition", "Understanding", "Suspension", "Letting go"],
+        "Represents sacrifice and understanding. It suggests learning through challenges and gaining wisdom from experience.",
+      keywords: ["sacrifice", "understanding", "learning", "wisdom", "experience"],
     },
     "13": {
-      title: "Transformation",
+      title: "Transformation and Rebirth",
       description:
-        "A number of transformation and rebirth. It indicates significant change, often through challenges, leading to a new and improved state.",
-      keywords: ["Transformation", "Rebirth", "Change", "Restructuring", "Renewal"],
+        "Associated with transformation and rebirth. It indicates significant changes and new beginnings after a period of ending.",
+      keywords: ["transformation", "rebirth", "significant changes", "new beginnings", "ending"],
     },
     "14": {
       title: "Movement and Change",
       description:
-        "Denotes movement, change, and adaptability. It suggests a need for balance and moderation to navigate life's shifts successfully.",
-      keywords: ["Movement", "Adaptability", "Change", "Balance", "Versatility"],
+        "A number of movement and change. It suggests adaptability and a need for flexibility in life's journey.",
+      keywords: ["movement", "change", "adaptability", "flexibility", "life's journey"],
     },
     "15": {
       title: "Magic and Mystery",
       description:
-        "Associated with magic, mystery, and the allure of the unknown. It can signify powerful attractions and the need to understand hidden influences.",
-      keywords: ["Magic", "Mystery", "Allure", "Hidden forces", "Attraction"],
+        "Represents magic and mystery. It can indicate a connection to the unseen and a life filled with intriguing experiences.",
+      keywords: ["magic", "mystery", "connection", "unseen", "intriguing experiences"],
     },
     "16": {
-      title: "The Awakening",
+      title: "Awakening and Warning",
       description:
-        "A number of awakening and warning. It often signifies a sudden revelation or a necessary breakdown that leads to spiritual growth and a new perspective.",
-      keywords: ["Awakening", "Warning", "Revelation", "Breakdown", "Spiritual growth"],
+        "A number of awakening and warning. It often signifies a spiritual awakening or a need to pay attention to impending challenges.",
+      keywords: ["awakening", "warning", "spiritual awakening", "impending challenges"],
     },
     "17": {
       title: "Immortality and Spiritual Consciousness",
       description:
-        "A highly spiritual number, symbolized by the 8-pointed Star of Venus. It signifies rising superior in spirit to life's trials, immortality, and a name that lives after one. Fortunate if not associated with 4s and 8s.",
-      keywords: ["Immortality", "Spirituality", "Consciousness", "Victory", "Legacy"],
+        "Symbolizes immortality and spiritual consciousness. It suggests a lasting legacy and a deep connection to spiritual truths.",
+      keywords: ["immortality", "spiritual consciousness", "lasting legacy", "deep connection", "spiritual truths"],
     },
     "18": {
       title: "Materialism and Spiritual Conflict",
       description:
-        "A difficult number pictured as a grayed moon with blood, wolf, dog, and crab. Symbolic of materialism striving to destroy the spiritual side. Warns of quarrels, war, deception, and danger from elements.",
-      keywords: ["Conflict", "Materialism", "Treachery", "Danger", "Deception"],
+        "Represents materialism striving to destroy the spiritual side of nature. It can indicate bitter quarrels, social upheavals, and warnings of treachery.",
+      keywords: ["materialism", "spiritual conflict", "bitter quarrels", "social upheavals", "warnings", "treachery"],
     },
     "19": {
       title: "The Sun / Prince of Heaven",
       description:
-        "Regarded as fortunate and extremely favorable. Symbolized as 'the Sun', promising happiness, success, esteem, and honor. Promises success in one's plans for the future.",
-      keywords: ["Happiness", "Success", "Honor", "Optimism", "Fulfillment"],
+        "Regarded as fortunate and extremely favorable. It is symbolized as 'the Sun' and is called 'the Prince of Heaven.' It promises happiness, success, esteem, and honor, and success in one's plans for the future.",
+      keywords: [
+        "sun",
+        "prince of heaven",
+        "fortune",
+        "favorable",
+        "happiness",
+        "success",
+        "esteem",
+        "honor",
+        "plans",
+        "future",
+      ],
     },
     "20": {
       title: "The Awakening / The Judgment",
       description:
-        "Symbolized by a winged angel sounding a trumpet, with figures rising from a tomb. Represents awakening, judgment, and a call to spiritual rebirth.",
-      keywords: ["Awakening", "Judgment", "Rebirth", "Spiritual call", "New perspective"],
+        "Called 'the Awakening' and 'the Judgment.' It is symbolized by a winged angel sounding a trumpet, with figures rising from a tomb in prayer. It signifies a period of profound realization and reckoning.",
+      keywords: [
+        "awakening",
+        "judgment",
+        "winged angel",
+        "trumpet",
+        "figures rising",
+        "tomb",
+        "prayer",
+        "profound realization",
+        "reckoning",
+      ],
     },
     "21": {
       title: "The Universe",
       description:
-        "Symbolizes success, fulfillment, and completion. It represents the culmination of efforts and the achievement of one's goals, often leading to a new cycle.",
-      keywords: ["Completion", "Fulfillment", "Success", "Achievement", "New cycle"],
+        "Represents success, fulfillment, and completion. It signifies the culmination of efforts and the achievement of one's goals.",
+      keywords: ["universe", "success", "fulfillment", "completion", "culmination", "efforts", "goals"],
     },
     "22": {
       title: "The Master Builder",
-      description: "A Master Number representing practical idealism, large-scale undertakings, and manifestation.",
-      keywords: ["Mastery", "Building", "Practicality", "Manifestation", "Global impact"],
+      description:
+        "A Master Number representing practical idealism, large-scale undertakings, and the ability to manifest grand visions into reality. It's about building for the collective good.",
+      keywords: [
+        "master builder",
+        "practical idealism",
+        "large-scale undertakings",
+        "manifestation",
+        "collective good",
+        "master number",
+      ],
     },
     "23": {
       title: "The Royal Star of the Lion",
       description:
-        "A promise of success, help from superiors, and protection from those in high places. A most fortunate number in dealing with future events and a promise of success of one's plans.",
-      keywords: ["Success", "Protection", "Assistance", "Royalty", "Fortune"],
+        "Called 'the Royal Star of the Lion.' It is a promise of success, help from superiors, and protection from those in high places. It is a most fortunate number for future events and promises success in one's plans.",
+      keywords: [
+        "royal star of the lion",
+        "success",
+        "help from superiors",
+        "protection",
+        "high places",
+        "fortunate",
+        "future events",
+        "plans",
+      ],
     },
     "24": {
       title: "Assistance and Association",
       description:
-        "Also fortunate; promises assistance and association of those of rank and position with one's plans. Denotes gain through love and the opposite sex. Favorable for future events.",
-      keywords: ["Assistance", "Partnership", "Gain", "Love", "Support"],
+        "Also fortunate; it promises the assistance and association of those of rank and position with one's plans; it also denotes gain through love and the opposite sex; it is a favorable number when it comes out in relation to future events.",
+      keywords: [
+        "assistance",
+        "association",
+        "rank",
+        "position",
+        "plans",
+        "gain",
+        "love",
+        "opposite sex",
+        "favorable",
+        "future events",
+      ],
     },
     "25": {
       title: "Strength Through Experience",
       description:
-        "Denotes strength gained through experience, and benefits obtained through observation of people and things. Not exactly 'lucky', as its success is given through strife and trials in an earlier life. Favorable for the future.",
-      keywords: ["Strength", "Experience", "Observation", "Wisdom", "Resilience"],
+        "A number denoting strength gained through experience, and benefits obtained through observation of people and things. It is not deemed exactly 'lucky', as its success is given through strife and trials in an earlier life. It is favorable when it appears in regard to the future.",
+      keywords: [
+        "strength",
+        "experience",
+        "benefits",
+        "observation",
+        "people",
+        "things",
+        "success",
+        "strife",
+        "trials",
+        "earlier life",
+        "future",
+      ],
     },
     "26": {
       title: "Gravest Warnings",
       description:
-        "Full of the gravest warnings for the future. Foreshadows disasters brought about by association with others; ruin by bad speculations, partnerships, unions, and bad advice. Caution advised.",
-      keywords: ["Warning", "Disaster", "Treachery", "Bad advice", "Caution"],
+        "This number is full of the gravest warnings for the future. It foreshadows disasters brought about by association with others; ruin by bad speculations, by partnerships, unions, and bad advice. If it comes out in connection with future events, one should carefully consider the path one is treading.",
+      keywords: [
+        "gravest warnings",
+        "future",
+        "disasters",
+        "association",
+        "others",
+        "ruin",
+        "bad speculations",
+        "partnerships",
+        "unions",
+        "bad advice",
+        "path",
+        "consideration",
+      ],
     },
     "27": {
       title: "The Scepter",
       description:
-        "A good number symbolized as 'the Scepter'. A promise of authority, power, and command. Indicates reward from productive intellect; creative faculties reaping a harvest. Fortunate for future events.",
-      keywords: ["Authority", "Power", "Command", "Intellect", "Reward"],
+        "A good number and is symbolized as 'the Scepter.' It is a promise of authority, power, and command. It indicates that reward will come from the productive intellect; that the creative faculties have sown good seeds that will reap a harvest. Persons with this 'command' number at their back should carry out their own ideas and plans. It is a fortunate number if it appears in any connection with future events.",
+      keywords: [
+        "scepter",
+        "good number",
+        "symbolized",
+        "authority",
+        "power",
+        "command",
+        "productive intellect",
+        "creative faculties",
+        "harvest",
+        "ideas",
+        "plans",
+        "fortunate",
+        "future events",
+      ],
     },
     "28": {
-      title: "Contradictions",
+      title: "Contradictions and Potential Loss",
       description:
-        "Full of contradictions. Indicates a person of great promise likely to lose all unless careful. Loss through trust in others, opposition in trade, danger of loss through law, and likelihood of starting over.",
-      keywords: ["Contradiction", "Loss", "Opposition", "Reversal", "New beginnings"],
+        "This number is full of contradictions. It indicates a person of great promise and possibilities who is likely to see all taken away from him unless he carefully provides for the future. It indicates loss through trust in others, opposition and competition in trade, danger of loss through law, and the likelihood of having to begin life's road over and over again.",
+      keywords: [
+        "contradictions",
+        "potential loss",
+        "great promise",
+        "possibilities",
+        "taken away",
+        "carefully provides",
+        "future",
+        "loss",
+        "trust",
+        "others",
+        "opposition",
+        "competition",
+        "trade",
+        "danger",
+        "law",
+        "begin life's road",
+        "over again",
+      ],
     },
     "29": {
       title: "Difficulties Leading to Success",
       description:
-        "Indicates difficulties, trials, and unexpected dangers from others. However, if overcome, it promises success and a position of power. Requires great strength and faith.",
-      keywords: ["Difficulties", "Trials", "Success", "Power", "Faith"],
+        "Indicates difficulties that can ultimately lead to success through perseverance and overcoming obstacles.",
+      keywords: ["difficulties", "success", "perseverance", "overcoming obstacles"],
     },
     "30": {
       title: "Thoughtful Deduction",
       description:
-        "Associated with thoughtful deduction, retrospection, and mental power. It suggests a period of deep thought and planning before action.",
-      keywords: ["Thought", "Deduction", "Retrospection", "Mental power", "Planning"],
+        "Associated with thoughtful deduction and retrospection. It suggests a period of deep thought and analysis.",
+      keywords: ["thoughtful deduction", "retrospection", "deep thought", "analysis"],
     },
     "31": {
       title: "The Recluse",
       description:
-        "Symbolizes introspection, solitude, and a need for inner reflection. It suggests a period of withdrawal to gain wisdom and clarity.",
-      keywords: ["Introspection", "Solitude", "Reflection", "Wisdom", "Clarity"],
+        "This number is very similar to the preceding one, except that the person it represents is even more self-contacted, lonely, and isolated from his fellows. It is not a fortunate number from a worldly or material standpoint.",
+      keywords: [
+        "recluse",
+        "self-contacted",
+        "lonely",
+        "isolated",
+        "fellows",
+        "fortunate",
+        "worldly",
+        "material standpoint",
+      ],
     },
     "32": {
-      title: "Communication and Versatility",
+      title: "Magical Power and Judgment",
       description:
-        "Represents communication, versatility, and adaptability. It suggests a need for clear expression and flexibility in navigating situations.",
-      keywords: ["Communication", "Versatility", "Adaptability", "Expression", "Flexibility"],
+        "This number has a magical power like the single 5, or the 'command' numbers 14 and 23. It is usually associated with combinations of people or nations. It is a fortunate number if the person it represents holds to his own judgment and opinions; if not, his plans are likely to be wrecked by the stubbornness and stupidity of others. It is a favorable number if it appears in connection with future events.",
+      keywords: [
+        "magical power",
+        "judgment",
+        "single 5",
+        "command numbers",
+        "14",
+        "23",
+        "combinations",
+        "people",
+        "nations",
+        "fortunate",
+        "judgment",
+        "opinions",
+        "stubbornness",
+        "stupidity",
+        "future events",
+      ],
     },
     "33": {
-      title: "The Master Healer/Teacher",
-      description: "A Master Number representing altruism, compassion, and spiritual uplifting of humanity.",
-      keywords: ["Compassion", "Healing", "Teaching", "Altruism", "Universal love"],
+      title: "Master Teacher (Compound)",
+      description:
+        "This number has no potency of its own and consequently has the same meaning as 24 which is also a 6 and the next to it in its own series of 'compound' numbers.",
+      keywords: ["master teacher", "potency", "meaning", "24", "6", "compound numbers"],
+    },
+    "34": {
+      title: "Strength Through Experience (Compound)",
+      description:
+        "Has the same meaning as the number 25, which is the one next to it in its own series of 'compound' numbers.",
+      keywords: ["strength", "experience", "meaning", "25", "compound numbers"],
+    },
+    "35": {
+      title: "Warning of Potential Challenges (Compound)",
+      description:
+        "Has the same meaning as the number 26, which is the one next to it in its own series of 'compound' numbers.",
+      keywords: ["warning", "potential challenges", "meaning", "26", "compound numbers"],
+    },
+    "36": {
+      title: "Authority and Command (Compound)",
+      description:
+        "Has the same meaning as the number 27, which is the one next to it in its own series of 'compound' numbers.",
+      keywords: ["authority", "command", "meaning", "27", "compound numbers"],
+    },
+    "37": {
+      title: "Good and Fortunate Friendships",
+      description:
+        "This number has a distinct potency of its own. It is a number of good and fortunate friendships in love, and in combinations connected with the opposite sex. It is also good for partnerships of all kinds. It is a fortunate indication if it appears in connection with future events.",
+      keywords: [
+        "good friendships",
+        "fortunate friendships",
+        "love",
+        "opposite sex",
+        "partnerships",
+        "fortunate indication",
+        "future events",
+      ],
+    },
+    "38": {
+      title: "Contradictions and Potential Loss (Compound)",
+      description:
+        "Has the same meaning as the number 29, which is the one next to it in its own series of 'compound' numbers.",
+      keywords: ["contradictions", "potential loss", "meaning", "29", "compound numbers"],
+    },
+    "39": {
+      title: "Difficulties Leading to Success (Compound)",
+      description:
+        "Has the same meaning as the number 30, which is the one next to it in its own series of 'compound' numbers.",
+      keywords: ["difficulties", "success", "meaning", "30", "compound numbers"],
+    },
+    "40": {
+      title: "The Recluse (Compound)",
+      description:
+        "Has the same meaning as the number 31, which is the one next to it in its own series of 'compound' numbers.",
+      keywords: ["recluse", "meaning", "31", "compound numbers"],
     },
   },
 }
