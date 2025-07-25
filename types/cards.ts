@@ -1,6 +1,6 @@
 // Base types for card system
 export type CardSuit = "Cauldron" | "Sword" | "Cord" | "Spear" | "Stone"
-export type CardElement = "Air" | "Earth" | "Fire" | "Spirit" | "Water"
+export type CardElement = "Air" | "Earth" | "Fire" | "Water" | "Spirit"
 
 // Symbol interface for card symbols
 export interface CardSymbol {
@@ -11,19 +11,19 @@ export interface CardSymbol {
 // Main Oracle Card interface
 export interface OracleCard {
   id: string
-  number: string
-  suit: string
+  number: string // Stored as string to handle "00" or other non-numeric representations if needed
+  suit: CardSuit
   fullTitle: string
-  symbols: Array<{ key: string; value: string }>
+  symbols: { key: string; value: string }[]
   symbolismBreakdown: string[]
   keyMeanings: string[]
-  baseElement: string
+  baseElement: CardElement
   planetInternalInfluence: string
   astrologyExternalDomain: string
   iconSymbol: string
   orientation: string
   sacredGeometry: string
-  synergisticElement: string
+  synergisticElement: CardElement
   imageUrl: string
   numberMeaning: string // Added from numo-definitions structure
   keywords: string[] // Added from numo-definitions structure
@@ -45,7 +45,7 @@ export interface CardMetadata {
 }
 
 // Filter options interface
-export interface CardFilters {
+export interface CardFilterOptions {
   suit?: string
   element?: string
   number?: string
@@ -112,7 +112,7 @@ export interface CardSearchResult {
   cards: OracleCard[]
   totalFound: number
   query: string
-  filters: CardFilters
+  filters: CardFilterOptions
 }
 
 // Card collection interface
