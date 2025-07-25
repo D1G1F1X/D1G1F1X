@@ -1,6 +1,19 @@
 // Base types for card system
 export type CardSuit = "Cauldron" | "Sword" | "Cord" | "Spear" | "Stone"
 export type CardElement = "Air" | "Earth" | "Fire" | "Water" | "Spirit"
+export type CardOrientation =
+  | "Cooking"
+  | "Pouring"
+  | "Edge First"
+  | "Point First"
+  | "Knot Before You"
+  | "Knot Away"
+  | "Shaft First"
+  | "Tip First"
+  | "Rough Side"
+  | "Smooth Side"
+  | "Upright" // General upright for cards without specific orientation names
+  | "Reversed" // General reversed for cards without specific orientation names
 
 // Symbol interface for card symbols
 export interface CardSymbol {
@@ -11,7 +24,7 @@ export interface CardSymbol {
 // Main Oracle Card interface
 export interface OracleCard {
   id: string
-  number: string // Stored as string to handle "00" or other non-numeric representations if needed
+  number: string // Stored as string to handle "0" and potential future non-numeric identifiers
   suit: CardSuit
   fullTitle: string
   symbols: CardSymbol[]
@@ -21,12 +34,11 @@ export interface OracleCard {
   planetInternalInfluence: string
   astrologyExternalDomain: string
   iconSymbol: string
-  orientation: string
+  orientation: CardOrientation
   sacredGeometry: string
   synergisticElement: CardElement
-  imageUrl: string
-  numberMeaning: string // Added from numo-definitions structure
-  keywords: string[] // Added from numo-definitions structure
+  imagePath?: string // Optional: path to the card image
+  compoundMeaning?: boolean // Indicates if it's a compound number with special meaning
 }
 
 // Validation result interface
@@ -144,3 +156,14 @@ export interface CardSpread {
   }>
   description: string
 }
+
+export type CardSymbolKey =
+  | "Number"
+  | "Suit"
+  | "Element (Base)"
+  | "Planet (Internal Influence)"
+  | "Astrology (External Domain)"
+  | "Icon"
+  | "Orientation"
+  | "Sacred Geometry"
+  | "Synergistic Element"

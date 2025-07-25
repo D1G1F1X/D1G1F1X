@@ -1,7 +1,7 @@
 import type { OracleCard } from "@/types/cards"
 import { getSymbolValue } from "@/lib/card-data-access"
 import { getNumerologyReport } from "@/lib/numerology"
-import { numoNumberDefinitions } from "@/data/numo-definitions" // Changed import name
+import { numoNumberDefinitions } from "@/data/numo-definitions"
 
 interface UserContext {
   fullName?: string
@@ -69,11 +69,11 @@ Spread Type: "${spreadType}"
     prompt += `  - Number: ${card.number}\n`
     prompt += `  - Suit: ${card.suit}\n`
     prompt += `  - Base Element: ${card.baseElement}\n`
-    prompt += `  - Synergistic Element: ${card.synergisticElement}\n` // Corrected access
-    prompt += `  - Planet (Internal Influence): ${card.planetInternalInfluence}\n` // Corrected access
-    prompt += `  - Astrology (External Domain): ${card.astrologyExternalDomain}\n` // Corrected access
-    prompt += `  - Icon: ${card.iconSymbol}\n` // Corrected access
-    prompt += `  - Sacred Geometry: ${card.sacredGeometry}\n` // Corrected access
+    prompt += `  - Synergistic Element: ${card.synergisticElement}\n`
+    prompt += `  - Planet (Internal Influence): ${card.planetInternalInfluence}\n`
+    prompt += `  - Astrology (External Domain): ${card.astrologyExternalDomain}\n`
+    prompt += `  - Icon: ${card.iconSymbol}\n`
+    prompt += `  - Sacred Geometry: ${card.sacredGeometry}\n`
     prompt += `  - Key Meanings: ${card.keyMeanings.join("; ")}\n`
     prompt += `  - Symbolism Breakdown: ${card.symbolismBreakdown.join(" ")}\n`
   })
@@ -89,8 +89,11 @@ Spread Type: "${spreadType}"
  * @param spreadType The internal spread type identifier.
  * @returns A human-readable name for the spread type.
  */
-export function getSpreadTypeName(spreadType: string): string {
-  switch (spreadType) {
+export function getSpreadTypeName(spreadType: string | undefined | null): string {
+  // Ensure spreadType is a string before performing string operations
+  const safeSpreadType = spreadType ?? ""
+
+  switch (safeSpreadType) {
     case "single-card":
       return "Single Card Reading"
     case "three-card":
@@ -100,6 +103,9 @@ export function getSpreadTypeName(spreadType: string): string {
     case "elemental-spread":
       return "Elemental Spread"
     default:
-      return spreadType.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()) + " Reading"
+      // Only perform replace if safeSpreadType is not empty
+      return safeSpreadType
+        ? safeSpreadType.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()) + " Reading"
+        : "Unknown Spread Type" // Fallback for empty or unrecognized types
   }
 }

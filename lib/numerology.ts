@@ -1,4 +1,5 @@
 import { numoNumberDefinitions } from "@/data/numo-definitions"
+import type { CompoundNumberMeaning, SingleDigitMeaning, NumerologyReport } from "@/types/numerology" // Assuming you have these types
 
 /**
  * Calculates the Life Path number from a birth date.
@@ -248,67 +249,6 @@ export function calculateCompoundNumber(name: string): number {
 }
 
 /**
- * Gets the meaning of a compound number
- * @param number Compound number
- * @returns Description of the compound number's meaning
- */
-export function getCompoundNumberMeaning(number: number): string {
-  // This is a simplified version - in a real system, you'd have meanings for many compound numbers
-  const meanings: Record<number, string> = {
-    10: "Self-determination and independence.",
-    11: "Spiritual insight and enlightenment.",
-    12: "Sacrifice and understanding.",
-    13: "Transformation and rebirth.",
-    14: "Movement and change.",
-    15: "Magic and mystery.",
-    16: "Awakening and warning.",
-    17: "Immortality and spiritual consciousness.",
-    18: "Materialism and spiritual conflict.",
-    19: "The Sun; success and happiness.",
-    20: "Awakening and judgment.",
-    21: "The Universe; success, fulfillment, and completion.",
-    22: "Master builder, practical idealism, and large-scale undertakings.",
-    23: "The Royal Star of the Lion; success through help from superiors.",
-    24: "Success through assistance from others.",
-    25: "Strength gained through experience.",
-    26: "Warning of potential challenges.",
-    27: "The Scepter; authority and command.",
-    28: "Contradictions and potential loss.",
-    29: "Difficulties that can lead to success.",
-    30: "Thoughtful deduction and retrospection.",
-    31: "The Recluse; introspection and solitude.",
-    32: "Communication and versatility.",
-    33: "Master teacher, altruism, and spiritual uplifting of humanity.",
-    // Add more as needed
-  }
-
-  return meanings[number] || "This compound number represents a unique combination of energies."
-}
-
-/**
- * Calculates all core numerology numbers for a given birth date and full name.
- * @param birthDate The birth date as a Date object.
- * @param fullName The full birth name.
- * @returns An object containing life path, expression, soul urge, and personality numbers.
- */
-export function getNumerologyReport(
-  birthDate: Date,
-  fullName: string,
-): {
-  lifePath: number
-  expression: number
-  soulUrge: number
-  personality: number
-} {
-  const lifePath = calculateLifePath(birthDate)
-  const expression = calculateExpression(fullName)
-  const soulUrge = calculateSoulUrge(fullName)
-  const personality = calculatePersonality(fullName)
-
-  return { lifePath, expression, soulUrge, personality }
-}
-
-/**
  * Retrieves the descriptive value for a given symbol key.
  * This function uses the numoNumberDefinitions to provide detailed explanations.
  * @param symbolKey The key of the symbol (e.g., "Eye", "Dot", "Pluto", "Aries").
@@ -316,13 +256,15 @@ export function getNumerologyReport(
  */
 export const getSymbolDescription = (symbolKey: string): string => {
   // Check single digit meanings
-  if (numoNumberDefinitions.singleDigits[symbolKey]) {
-    return `${symbolKey} - ${numoNumberDefinitions.singleDigits[symbolKey].title}: ${numoNumberDefinitions.singleDigits[symbolKey].description}`
+  const singleDigitMeaning = numoNumberDefinitions.find((def) => def.number === symbolKey && !def.compoundMeaning)
+  if (singleDigitMeaning) {
+    return `${symbolKey} - ${singleDigitMeaning.title}: ${singleDigitMeaning.description}`
   }
 
   // Check compound number meanings
-  if (numoNumberDefinitions.compoundNumbers[symbolKey]) {
-    return `${symbolKey} - ${numoNumberDefinitions.compoundNumbers[symbolKey].title}: ${numoNumberDefinitions.compoundNumbers[symbolKey].description}`
+  const compoundNumberMeaning = numoNumberDefinitions.find((def) => def.number === symbolKey && def.compoundMeaning)
+  if (compoundNumberMeaning) {
+    return `${symbolKey} - ${compoundNumberMeaning.title}: ${compoundNumberMeaning.description}`
   }
 
   // Check if it's a known sacred geometry, planet, astrology, or orientation from card metadata
@@ -505,25 +447,145 @@ export function getNumberMeaning(number: number): string {
   return meanings[number] || "Unknown number meaning"
 }
 
-/**
- * Retrieves the meaning of a single digit number.
- */
-export const getSingleDigitMeaning = (digit: number) => {
-  return numoNumberDefinitions.singleDigits[String(digit)]
+// Helper function to calculate the numerological sum of a number
+function calculateNumerologicalSum(num: number): number {
+  let sum = 0
+  let strNum = num.toString()
+  while (strNum.length > 1 && sum !== 11 && sum !== 22 && sum !== 33) {
+    sum = strNum.split("").reduce((acc, digit) => acc + Number.parseInt(digit), 0)
+    strNum = sum.toString()
+  }
+  return sum
+}
+
+// Helper function to calculate the numerological sum of a name
+function calculateNameSum(name: string): number {
+  const alphabetMap: { [key: string]: number } = {
+    A: 1,
+    J: 1,
+    S: 1,
+    B: 2,
+    K: 2,
+    T: 2,
+    C: 3,
+    L: 3,
+    U: 3,
+    D: 4,
+    M: 4,
+    V: 4,
+    E: 5,
+    N: 5,
+    W: 5,
+    F: 6,
+    O: 6,
+    X: 6,
+    G: 7,
+    P: 7,
+    Y: 7,
+    H: 8,
+    Q: 8,
+    Z: 8,
+    I: 9,
+    R: 9,
+  }
+
+  let sum = 0
+  for (const char of name.toUpperCase()) {
+    if (alphabetMap[char]) {
+      sum += alphabetMap[char]
+    }
+  }
+  return calculateNumerologicalSum(sum)
 }
 
 /**
- * Placeholder for compatibility calculation.
- * In a real application, this would involve more complex logic
- * based on numerology principles.
+ * Retrieves the meaning for a single-digit numerology number.
+ * @param number The single-digit number (1-9, or master numbers 11, 22, 33).
+ * @returns The meaning object for the number, or undefined if not found.
  */
-export function calculateCompatibility(num1: number, num2: number): string {
-  // Simple placeholder logic
-  if (num1 === num2) {
-    return "Highly compatible: strong resonance and understanding."
-  } else if (Math.abs(num1 - num2) === 1) {
-    return "Moderately compatible: good balance with some complementary differences."
-  } else {
-    return "Challenging but growth-oriented: opportunities for learning and expansion."
+export function getSingleDigitMeaning(number: number): SingleDigitMeaning | undefined {
+  return numoNumberDefinitions.find((def) => def.number === number.toString() && !def.compoundMeaning) as
+    | SingleDigitMeaning
+    | undefined
+}
+
+/**
+ * Retrieves the meaning for a compound numerology number.
+ * @param number The compound number.
+ * @returns The meaning object for the compound number, or undefined if not found.
+ */
+export function getCompoundNumberMeaning(number: number): CompoundNumberMeaning | undefined {
+  return numoNumberDefinitions.find((def) => def.number === number.toString() && def.compoundMeaning) as
+    | CompoundNumberMeaning
+    | undefined
+}
+
+/**
+ * Generates a basic numerology report based on birth date and full name.
+ * This is a simplified example and can be expanded with more calculations.
+ * @param birthDate The user's birth date.
+ * @param fullName The user's full name.
+ * @returns A NumerologyReport object.
+ */
+export function getNumerologyReport(birthDate: Date, fullName: string): NumerologyReport {
+  // Life Path Number: Sum of birth date (MM/DD/YYYY)
+  const month = birthDate.getMonth() + 1
+  const day = birthDate.getDate()
+  const year = birthDate.getFullYear()
+
+  const lifePathNumber = calculateNumerologicalSum(
+    calculateNumerologicalSum(month) + calculateNumerologicalSum(day) + calculateNumerologicalSum(year),
+  )
+
+  // Destiny Number (Expression Number): Sum of full name
+  const destinyNumber = calculateNameSum(fullName)
+
+  // Soul Urge Number (Heart's Desire Number): Sum of vowels in full name
+  const vowels = "AEIOU"
+  let soulUrgeSum = 0
+  for (const char of fullName.toUpperCase()) {
+    if (vowels.includes(char)) {
+      soulUrgeSum += calculateNameSum(char) // Re-use name sum for individual vowel
+    }
+  }
+  const soulUrgeNumber = calculateNumerologicalSum(soulUrgeSum)
+
+  // Personality Number: Sum of consonants in full name
+  const consonants = "BCDFGHJKLMNPQRSTVWXYZ"
+  let personalitySum = 0
+  for (const char of fullName.toUpperCase()) {
+    if (consonants.includes(char)) {
+      personalitySum += calculateNameSum(char) // Re-use name sum for individual consonant
+    }
+  }
+  const personalityNumber = calculateNumerologicalSum(personalitySum)
+
+  // Retrieve meanings from numoNumberDefinitions
+  const lifePathMeaning = getSingleDigitMeaning(lifePathNumber) ||
+    getCompoundNumberMeaning(lifePathNumber) || { meaning: "N/A" }
+  const destinyMeaning = getSingleDigitMeaning(destinyNumber) ||
+    getCompoundNumberMeaning(destinyNumber) || { meaning: "N/A" }
+  const soulUrgeMeaning = getSingleDigitMeaning(soulUrgeNumber) ||
+    getCompoundNumberMeaning(soulUrgeNumber) || { meaning: "N/A" }
+  const personalityMeaning = getSingleDigitMeaning(personalityNumber) ||
+    getCompoundNumberMeaning(personalityNumber) || { meaning: "N/A" }
+
+  return {
+    lifePath: {
+      number: lifePathNumber,
+      meaning: lifePathMeaning.meaning,
+    },
+    destiny: {
+      number: destinyNumber,
+      meaning: destinyMeaning.meaning,
+    },
+    soulUrge: {
+      number: soulUrgeNumber,
+      meaning: soulUrgeMeaning.meaning,
+    },
+    personality: {
+      number: personalityNumber,
+      meaning: personalityMeaning.meaning,
+    },
   }
 }

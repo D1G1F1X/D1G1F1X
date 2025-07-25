@@ -1,32 +1,30 @@
-import { list } from "@vercel/blob"
+import { del, list, put } from "@vercel/blob"
+import { customAlphabet } from "nanoid"
 
-export interface CardImage {
-  filename: string
-  url: string
+const nanoid = customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 7) // 7-character random string
+
+export async function uploadCardImage(file: File): Promise<{ url: string; pathname: string }> {
+  const filename = `${nanoid()}-${file.name}`
+  const blob = await put(filename, file, {
+    access: "public",
+    addRandomSuffix: false, // We add our own nanoid prefix
+  })
+  return { url: blob.url, pathname: blob.pathname }
 }
 
-export async function listCardImages(): Promise<CardImage[]> {
-  try {
-    const { blobs } = await list({ prefix: "cards/", limit: 1000 }) // Adjust limit as needed
-    return blobs.map((blob) => ({
-      filename: blob.pathname.replace("cards/", ""), // Remove the 'cards/' prefix
-      url: blob.url,
-    }))
-  } catch (error) {
-    console.error("Error listing card images from Vercel Blob:", error)
-    return []
-  }
+export async function deleteCardImage(pathname: string): Promise<void> {
+  await del(pathname)
 }
 
-export async function getCardImageUrl(filename: string): Promise<string | null> {
-  try {
-    const { blobs } = await list({ prefix: `cards/${filename}`, limit: 1 })
-    if (blobs.length > 0) {
-      return blobs[0].url
-    }
-    return null
-  } catch (error) {
-    console.error(`Error getting image URL for ${filename}:`, error)
-    return null
+export async function listCardImages(): Promise<{ url: string; pathname: string }[]> {
+  const { blobs } = await list()
+  return blobs.map((blob) => ({ url: blob.url, pathname: blob.pathname }))
+}
+
+export async function getCardImage(pathname: string): Promise<{ url: string; pathname: string } | null> {
+  const { blobs } = await list({ prefix: pathname })
+  if (blobs.length > 0) {
+    return { url: blobs[0].url, pathname: blobs[0].pathname }
   }
+  return null
 }
