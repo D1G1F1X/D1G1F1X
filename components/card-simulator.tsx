@@ -10,7 +10,7 @@ import { Sparkles, RefreshCw, Share2, Download } from "lucide-react"
 import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
 import { ShareReadingDialog } from "@/components/share-reading-dialog"
 import type { OracleCard } from "@/types/cards"
-import { getSymbolValue } from "@/lib/numerology" // Corrected import path
+import { getSymbolValue } from "@/lib/numerology" // Correct import path
 import { filterCards } from "@/lib/card-data-access"
 
 interface CardSimulatorProps {

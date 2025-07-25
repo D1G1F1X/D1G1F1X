@@ -75,9 +75,6 @@ export function getCardImagePath(cardId: string, element: string): string {
   return `${paddedNumber}-${lowerSuit}-${lowerElement}.jpg`
 }
 
-// Re-export getSymbolValue from numerology.ts as it's used in card contexts
-//export const getSymbolValue = getNumerologySymbolValue
-
 // These functions now accept cards as an argument, making them pure and usable on client if data is passed
 export const getUniqueSuits = (cards: OracleCard[]): string[] => {
   const suits = new Set<string>()

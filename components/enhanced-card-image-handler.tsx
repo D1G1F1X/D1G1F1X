@@ -5,12 +5,14 @@ import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { RefreshCw, AlertCircle, CheckCircle } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { getSymbolValue } from "@/lib/numerology" // Corrected import path
 
 interface CardImageProps {
   cardId: string
   cardTitle: string
   baseElement: string
-  synergisticElement: string
+  synergisticElement?: string
   className?: string
   showStatus?: boolean
   onImageLoad?: (success: boolean) => void
@@ -169,7 +171,7 @@ export function EnhancedCardImage({
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={cn("relative", className)}>
       <div className="relative w-full aspect-[2/3] rounded-lg overflow-hidden border border-gray-700">
         {imageStatus.url ? (
           <Image
@@ -220,10 +222,24 @@ export function EnhancedCardImage({
       {/* Retry button for failed images */}
       {imageStatus.error && (
         <div className="mt-2 text-center">
-          <Button variant="outline" size="sm" onClick={loadCardImage} disabled={isRetrying} className="text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadCardImage}
+            disabled={isRetrying}
+            className="text-xs bg-transparent"
+          >
             <RefreshCw className={`h-3 w-3 mr-1 ${isRetrying ? "animate-spin" : ""}`} />
             Retry
           </Button>
+        </div>
+      )}
+
+      {/* Example usage of getSymbolValue if needed within this component */}
+      {/* This line is illustrative; remove if not actually used for display/logic here. */}
+      {showStatus && (
+        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+          Status: Loaded (Example Symbol Value: {getSymbolValue(baseElement)})
         </div>
       )}
     </div>
@@ -231,7 +247,7 @@ export function EnhancedCardImage({
 }
 
 // Hook for batch image loading
-export function useCardImageBatch(cards: Array<{ id: string; baseElement: string; synergisticElement: string }>) {
+export function useCardImageBatch(cards: Array<{ id: string; baseElement: string; synergisticElement?: string }>) {
   const [loadingStatus, setLoadingStatus] = useState<Record<string, boolean>>({})
   const [loadedCount, setLoadedCount] = useState(0)
   const [totalCount] = useState(cards.length)
