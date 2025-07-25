@@ -92,9 +92,6 @@ export function getCardByNumberAndSuit(number: string, suit: string): OracleCard
   return numoNumberDefinitions.find((card) => card.number === number && card.suit === suit) as OracleCard | undefined
 }
 
-// Placeholder for filterCards and sortCards, assuming they exist elsewhere or need to be added.
-// If these functions are not defined, they would cause errors.
-// For now, I'll add a basic implementation to prevent errors.
 export function filterCards(
   cards: OracleCard[],
   filters: { suit?: string; element?: string; number?: string; query?: string },

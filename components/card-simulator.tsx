@@ -10,7 +10,7 @@ import { Sparkles, RefreshCw, Share2, Download } from "lucide-react"
 import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
 import { ShareReadingDialog } from "@/components/share-reading-dialog"
 import type { OracleCard } from "@/types/cards"
-import { filterCards } from "@/lib/card-data-access" // Corrected import path for getSymbolValue
+import { filterCards, getSymbolValue } from "@/lib/card-data-access" // Corrected import path for getSymbolValue
 
 interface CardSimulatorProps {
   allCards: OracleCard[]
@@ -77,20 +77,10 @@ export function CardSimulator({ allCards, suits, elements, numbers }: CardSimula
     }
   }
 
-  // Use a safe wrapper for getSymbolValue to handle any potential errors
-  const getSymbolValueSafe = (symbol: string | undefined): string => {
-    if (!symbol) return "N/A"
-    try {
-      // getSymbolValue now expects an OracleCard and a key, not just a string symbol
-      // This part needs to be re-evaluated based on what 'symbol' is here.
-      // If 'symbol' is meant to be a key like "Icon", then `getSymbolValue(drawnCard, symbol)` would be correct.
-      // If 'symbol' is the actual value (e.g., "Pentagon"), then this function is redundant or needs a lookup.
-      // Assuming it's meant to display the raw symbol value for now.
-      return symbol.toString()
-    } catch (error) {
-      console.error(`Error getting symbol value for ${symbol}:`, error)
-      return "N/A"
-    }
+  // Use the imported getSymbolValue from lib/card-data-access
+  const getSymbolValueSafe = (card: OracleCard, key: keyof OracleCard | string): string => {
+    const value = getSymbolValue(card, key as any) // Cast to any because CardSymbolKey is more specific
+    return value !== undefined ? value : "N/A"
   }
 
   if (loading && !drawnCard) {
@@ -148,12 +138,12 @@ export function CardSimulator({ allCards, suits, elements, numbers }: CardSimula
                   </Badge>
                   {drawnCard.sacredGeometry && (
                     <Badge variant="secondary" className="bg-purple-600 text-white">
-                      Sacred Geometry: {drawnCard.sacredGeometry}
+                      Sacred Geometry: {getSymbolValueSafe(drawnCard, "Sacred Geometry")}
                     </Badge>
                   )}
                   {drawnCard.iconSymbol && (
                     <Badge variant="secondary" className="bg-purple-600 text-white">
-                      Symbol Value: {getSymbolValueSafe(drawnCard.iconSymbol)}
+                      Icon: {getSymbolValueSafe(drawnCard, "Icon")}
                     </Badge>
                   )}
                 </div>
