@@ -37,7 +37,7 @@ export interface OracleCard {
   orientation: CardOrientation
   sacredGeometry: string
   synergisticElement: CardElement
-  imageUrl: string // Changed from imagePath to imageUrl for direct use
+  imagePath?: string // Optional: path to the card image
   compoundMeaning?: boolean // Indicates if it's a compound number with special meaning
 }
 
@@ -156,29 +156,6 @@ export interface CardSpread {
   }>
   description: string
 }
-
-export type DrawnCardForAI = {
-  card: OracleCard
-  endUp: "first" | "second" // Represents upright/reversed for AI interpretation
-}
-
-export type UserContext = {
-  fullName?: string
-  birthDate?: string
-  birthTime?: string
-  birthPlace?: string
-  isMember: boolean
-}
-
-export type SpreadType =
-  | "single-card"
-  | "three-card"
-  | "celtic-cross"
-  | "five-elements"
-  | "relationship"
-  | "career"
-  | "decision"
-  | string // Allow custom spread types
 
 export type CardSymbolKey =
   | "Number"

@@ -123,25 +123,3 @@ export function sortCards(cards: OracleCard[], sortBy: CardSortOption): OracleCa
     return 0
   })
 }
-
-// Helper functions for unique values, used in CardDirectoryPageClient and CardSimulatorPage
-export function getUniqueSuits(cards: OracleCard[]): string[] {
-  return [...new Set(cards.map((card) => card.suit))].sort()
-}
-
-export function getUniqueElements(cards: OracleCard[]): string[] {
-  return [...new Set(cards.map((card) => card.baseElement))].sort()
-}
-
-export function getUniqueNumbers(cards: OracleCard[]): string[] {
-  return [...new Set(cards.map((card) => card.number))].sort((a, b) => Number.parseInt(a) - Number.parseInt(b))
-}
-
-export function getCardById(id: string): OracleCard | undefined {
-  return numoNumberDefinitions.find((card) => card.id === id) as OracleCard | undefined
-}
-
-export function debugCardLoading(cards: OracleCard[]): number {
-  console.log(`Debug: Loaded ${cards.length} cards.`)
-  return cards.length
-}

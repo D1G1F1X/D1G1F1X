@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Sparkles, RefreshCw, Share2, Download } from "lucide-react"
 import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
 import { ShareReadingDialog } from "@/components/share-reading-dialog"
-import type { OracleCard, CardSymbolKey } from "@/types/cards"
-import { filterCards, getSymbolValue } from "@/lib/card-data-access"
+import type { OracleCard } from "@/types/cards"
+import { filterCards } from "@/lib/card-data-access"
 
 interface CardSimulatorProps {
   allCards: OracleCard[]
@@ -19,7 +19,7 @@ interface CardSimulatorProps {
   numbers: string[]
 }
 
-export function CardSimulatorPageClient({ allCards, suits, elements, numbers }: CardSimulatorProps) {
+export function CardSimulator({ allCards, suits, elements, numbers }: CardSimulatorProps) {
   const [drawnCard, setDrawnCard] = useState<OracleCard | null>(null)
   const [selectedSuit, setSelectedSuit] = useState<string>("any")
   const [selectedElement, setSelectedElement] = useState<string>("any")
@@ -27,39 +27,40 @@ export function CardSimulatorPageClient({ allCards, suits, elements, numbers }: 
   const [loading, setLoading] = useState(false)
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
 
-  // Use useCallback for drawRandomCard to prevent unnecessary re-renders
-  const drawRandomCard = useCallback(
-    (cardsToDrawFrom: OracleCard[], suitFilter: string, elementFilter: string, numberFilter: string) => {
-      setLoading(true)
-
-      try {
-        const filtered = filterCards(cardsToDrawFrom, {
-          suit: suitFilter === "any" ? undefined : suitFilter,
-          element: elementFilter === "any" ? undefined : elementFilter,
-          number: numberFilter === "any" ? undefined : numberFilter,
-        })
-
-        if (filtered.length > 0) {
-          const randomIndex = Math.floor(Math.random() * filtered.length)
-          setDrawnCard(filtered[randomIndex])
-        } else {
-          setDrawnCard(null)
-        }
-      } catch (error) {
-        console.error("Error drawing card:", error)
-        setDrawnCard(null)
-      } finally {
-        setLoading(false)
-      }
-    },
-    [], // Empty dependency array means this function is created once
-  )
-
   useEffect(() => {
     if (allCards.length > 0 && !drawnCard) {
       drawRandomCard(allCards, "any", "any", "any")
     }
-  }, [allCards, drawnCard, drawRandomCard]) // Add drawRandomCard to dependencies
+  }, [allCards, drawnCard])
+
+  const drawRandomCard = (
+    cardsToDrawFrom: OracleCard[],
+    suitFilter: string,
+    elementFilter: string,
+    numberFilter: string,
+  ) => {
+    setLoading(true)
+
+    try {
+      const filtered = filterCards(cardsToDrawFrom, {
+        suit: suitFilter === "any" ? undefined : suitFilter,
+        element: elementFilter === "any" ? undefined : elementFilter,
+        number: numberFilter === "any" ? undefined : numberFilter,
+      })
+
+      if (filtered.length > 0) {
+        const randomIndex = Math.floor(Math.random() * filtered.length)
+        setDrawnCard(filtered[randomIndex])
+      } else {
+        setDrawnCard(null)
+      }
+    } catch (error) {
+      console.error("Error drawing card:", error)
+      setDrawnCard(null)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleDrawCard = () => {
     drawRandomCard(allCards, selectedSuit, selectedElement, selectedNumber)
@@ -76,10 +77,18 @@ export function CardSimulatorPageClient({ allCards, suits, elements, numbers }: 
     }
   }
 
-  // Use the imported getSymbolValue from lib/card-data-access
-  const getSymbolValueSafe = (card: OracleCard, key: CardSymbolKey): string => {
-    const value = getSymbolValue(card, key)
-    return value !== undefined ? value : "N/A"
+  const getSymbolValueSafe = (card: OracleCard, key: keyof OracleCard): string => {
+    if (!card || !card[key]) return "N/A"
+    try {
+      // Directly access the property if it's a simple string/number
+      if (typeof card[key] === "string" || typeof card[key] === "number") {
+        return card[key]?.toString() || "N/A"
+      }
+      return card.iconSymbol // Assuming iconSymbol is directly the value
+    } catch (error) {
+      console.error(`Error getting symbol value for ${key}:`, error)
+      return "N/A"
+    }
   }
 
   if (loading && !drawnCard) {
@@ -137,12 +146,12 @@ export function CardSimulatorPageClient({ allCards, suits, elements, numbers }: 
                   </Badge>
                   {drawnCard.sacredGeometry && (
                     <Badge variant="secondary" className="bg-purple-600 text-white">
-                      Sacred Geometry: {getSymbolValueSafe(drawnCard, "Sacred Geometry")}
+                      Sacred Geometry: {drawnCard.sacredGeometry}
                     </Badge>
                   )}
                   {drawnCard.iconSymbol && (
                     <Badge variant="secondary" className="bg-purple-600 text-white">
-                      Icon: {getSymbolValueSafe(drawnCard, "Icon")}
+                      Symbol Value: {getSymbolValueSafe(drawnCard, "iconSymbol")}
                     </Badge>
                   )}
                 </div>
@@ -285,16 +294,11 @@ export function CardSimulatorPageClient({ allCards, suits, elements, numbers }: 
       {drawnCard && (
         <ShareReadingDialog
           open={isShareDialogOpen}
-          onOpenChange={setIsShareDialogOpen}
-          reading={{
-            id: drawnCard.id,
-            title: drawnCard.fullTitle,
-            summary: drawnCard.keyMeanings?.[0] || "No summary available.",
-            imageUrl: drawnCard.imageUrl,
-            createdAt: new Date().toISOString(),
-            type: "single-card",
-            cards: [drawnCard],
-          }}
+          onClose={() => setIsShareDialogOpen(false)}
+          readingText={drawnCard.keyMeanings?.[0] || "No summary available."} // Using first key meaning as summary
+          question="Oracle Card Simulator Draw" // Default question for simulator
+          spreadType="Single Card Draw" // Default spread type for simulator
+          cards={[drawnCard]}
         />
       )}
     </div>

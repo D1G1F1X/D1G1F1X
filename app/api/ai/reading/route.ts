@@ -1,10 +1,10 @@
 import { generateReading } from "@/lib/actions/generate-reading"
 import { getCardById } from "@/lib/card-data-access"
 import { NextResponse } from "next/server"
-import { StreamingTextResponse } from "ai"
-import type { OracleCard, DrawnCardForAI, UserContext, SpreadType } from "@/types/cards"
+import { StreamingTextResponse } from "ai" // Import StreamingTextResponse
+import type { DrawnCardForAI, UserContext, SpreadType } from "@/types/cards"
 
-// Removed: export const runtime = "edge" as per user instructions
+export const runtime = "edge" // This is important for streaming with Vercel Edge Functions
 
 export async function POST(req: Request) {
   try {
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       userContext,
       spreadType,
     } = (await req.json()) as {
-      cards: OracleCard[] // This is the input from the client, which might be partial
+      cards: { card: { id: string; fullTitle: string; imageUrl: string; orientation?: string }; orientation?: string }[] // This is the input from the client, which might be partial
       question: string
       spreadType: SpreadType
       userContext: UserContext
@@ -41,16 +41,21 @@ export async function POST(req: Request) {
 
     // Re-fetch full card data and determine orientation for AI prompt
     const fullDrawnCards: DrawnCardForAI[] = drawnCardsInput.map((dcInput) => {
-      const fullCard = getCardById(dcInput.card.id) // Using getCardById from lib/card-data-access
+      const fullCard = getCardById(dcInput.card.id)
       if (!fullCard) {
         throw new Error(`Card with ID ${dcInput.card.id} not found.`)
       }
 
       // Use the orientation passed from the client (which was randomly determined there)
       // and map it to 'first' or 'second' end for the AI prompt.
-      // Note: The OracleCard type doesn't have 'firstEnd' or 'secondEnd' directly.
-      // Assuming dcInput.orientation is either "Upright" or "Reversed"
-      const endUp: "first" | "second" = dcInput.orientation === "Upright" ? "first" : "second"
+      // This logic needs to be robust to handle cases where orientation might not perfectly match
+      // or if the card itself doesn't have explicit 'firstEnd'/'secondEnd' orientations.
+      const endUp: "first" | "second" =
+        (fullCard.firstEnd?.orientation === dcInput.orientation ||
+          (fullCard.firstEnd?.orientation === "Upright" && dcInput.orientation === "Upright")) &&
+        fullCard.firstEnd
+          ? "first"
+          : "second"
 
       return {
         card: fullCard,
