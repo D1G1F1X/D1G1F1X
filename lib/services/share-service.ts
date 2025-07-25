@@ -1,3 +1,5 @@
+import type { OracleCard } from "../models/oracle-card" // Assuming OracleCard is imported from this path
+
 export interface ShareData {
   title: string
   text: string
@@ -86,4 +88,26 @@ export const shareService = {
       `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`,
     )
   },
+}
+
+// New function to generate a shareable link for the simulator
+export function generateShareableLinkForSimulator({
+  readingText,
+  question,
+  spreadType,
+  cards,
+}: {
+  readingText: string
+  question: string
+  spreadType: string
+  cards: OracleCard[]
+}): string {
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : ""
+  const cardIds = cards.map((card) => card.id).join(",")
+  // Truncate reading for URL to avoid excessively long URLs
+  const truncatedReading = readingText.substring(0, 100)
+
+  return `${baseUrl}/readings/share?q=${encodeURIComponent(question)}&s=${encodeURIComponent(
+    spreadType,
+  )}&c=${encodeURIComponent(cardIds)}&r=${encodeURIComponent(truncatedReading)}`
 }

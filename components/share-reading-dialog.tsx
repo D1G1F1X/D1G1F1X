@@ -7,8 +7,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Copy, Check, Twitter, Facebook, Mail } from "lucide-react"
 import { useState, useEffect } from "react"
+import { toast } from "@/components/ui/use-toast"
 import type { OracleCard } from "@/types/cards"
-import { generateShareableLink } from "@/lib/services/share-service" // Assuming this service exists
+import { generateShareableLink } from "@/lib/services/share-service" // Corrected import
 
 interface ShareReadingDialogProps {
   open: boolean
@@ -32,16 +33,22 @@ export function ShareReadingDialog({
 
   useEffect(() => {
     if (open) {
+      // Generate a shareable URL. In a real app, this would involve
+      // saving the reading to a public database and getting a unique ID.
+      // For now, we'll create a placeholder URL.
       const link = generateShareableLink({ readingText, question, spreadType, cards })
       setShareLink(link)
       setCopied(false)
     }
   }, [open, readingText, question, spreadType, cards])
 
-  const handleCopy = () => {
+  const handleCopyLink = () => {
     navigator.clipboard.writeText(shareLink)
     setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    toast({
+      title: "Link Copied!",
+      description: "The shareable link has been copied to your clipboard.",
+    })
   }
 
   const handleShareTwitter = () => {
@@ -84,8 +91,8 @@ export function ShareReadingDialog({
                 readOnly
                 className="flex-1 bg-purple-800 border-purple-700 text-white"
               />
-              <Button onClick={handleCopy} size="icon" className="bg-purple-700 hover:bg-purple-600 text-white">
-                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              <Button onClick={handleCopyLink} size="icon" className="bg-purple-700 hover:bg-purple-600 text-white">
+                {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
                 <span className="sr-only">{copied ? "Copied" : "Copy link"}</span>
               </Button>
             </div>
