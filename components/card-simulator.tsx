@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Sparkles, RefreshCw, Share2, Download } from "lucide-react"
 import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
 import { ShareReadingDialog } from "@/components/share-reading-dialog"
-import type { OracleCard } from "@/types/cards"
-import { filterCards } from "@/lib/card-data-access" // Corrected import for getSymbolValue
+import type { OracleCard, CardSymbolKey } from "@/types/cards"
+import { filterCards, getSymbolValue } from "@/lib/card-data-access"
 
 interface CardSimulatorProps {
   allCards: OracleCard[]
@@ -27,40 +27,38 @@ export function CardSimulator({ allCards, suits, elements, numbers }: CardSimula
   const [loading, setLoading] = useState(false)
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
 
+  // Use useCallback for drawRandomCard to prevent unnecessary re-renders
+  const drawRandomCard = useCallback(
+    (cardsToDrawFrom: OracleCard[], suitFilter: string, elementFilter: string, numberFilter: string) => {
+      setLoading(true)
+      try {
+        const filtered = filterCards(cardsToDrawFrom, {
+          suit: suitFilter === "any" ? undefined : suitFilter,
+          element: elementFilter === "any" ? undefined : elementFilter,
+          number: numberFilter === "any" ? undefined : numberFilter,
+        })
+
+        if (filtered.length > 0) {
+          const randomIndex = Math.floor(Math.random() * filtered.length)
+          setDrawnCard(filtered[randomIndex])
+        } else {
+          setDrawnCard(null)
+        }
+      } catch (error) {
+        console.error("Error drawing card:", error)
+        setDrawnCard(null)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [], // Empty dependency array means this function is created once
+  )
+
   useEffect(() => {
     if (allCards.length > 0 && !drawnCard) {
       drawRandomCard(allCards, "any", "any", "any")
     }
-  }, [allCards, drawnCard])
-
-  const drawRandomCard = (
-    cardsToDrawFrom: OracleCard[],
-    suitFilter: string,
-    elementFilter: string,
-    numberFilter: string,
-  ) => {
-    setLoading(true)
-
-    try {
-      const filtered = filterCards(cardsToDrawFrom, {
-        suit: suitFilter === "any" ? undefined : suitFilter,
-        element: elementFilter === "any" ? undefined : elementFilter,
-        number: numberFilter === "any" ? undefined : numberFilter,
-      })
-
-      if (filtered.length > 0) {
-        const randomIndex = Math.floor(Math.random() * filtered.length)
-        setDrawnCard(filtered[randomIndex])
-      } else {
-        setDrawnCard(null)
-      }
-    } catch (error) {
-      console.error("Error drawing card:", error)
-      setDrawnCard(null)
-    } finally {
-      setLoading(false)
-    }
-  }
+  }, [allCards, drawnCard, drawRandomCard]) // Add drawRandomCard to dependencies
 
   const handleDrawCard = () => {
     drawRandomCard(allCards, selectedSuit, selectedElement, selectedNumber)
@@ -77,26 +75,10 @@ export function CardSimulator({ allCards, suits, elements, numbers }: CardSimula
     }
   }
 
-  // Use a safe wrapper for getSymbolValue to handle any potential errors
-  const getSymbolValueSafe = (card: OracleCard, key: keyof OracleCard): string => {
-    if (!card || !card[key]) return "N/A"
-    try {
-      // Directly access the property if it's a simple string/number
-      if (typeof card[key] === "string" || typeof card[key] === "number") {
-        return card[key]?.toString() || "N/A"
-      }
-      // For complex symbols array, use the getSymbolValue from card-data-access
-      // This assumes `key` here is one of the `CardSymbolKey` types.
-      // If `key` is literally "iconSymbol", then `card.iconSymbol` is already the value.
-      // The original `getSymbolValue(symbol)` was problematic because `symbol` was a string like "Pentagon"
-      // and `getSymbolValue` expects an OracleCard and a key.
-      // Re-evaluating based on how `iconSymbol` is used in the badge.
-      // It seems `drawnCard.iconSymbol` already holds the value.
-      return card.iconSymbol // Assuming iconSymbol is directly the value
-    } catch (error) {
-      console.error(`Error getting symbol value for ${key}:`, error)
-      return "N/A"
-    }
+  // Use the imported getSymbolValue from lib/card-data-access
+  const getSymbolValueSafe = (card: OracleCard, key: CardSymbolKey): string => {
+    const value = getSymbolValue(card, key)
+    return value !== undefined ? value : "N/A"
   }
 
   if (loading && !drawnCard) {
@@ -154,12 +136,12 @@ export function CardSimulator({ allCards, suits, elements, numbers }: CardSimula
                   </Badge>
                   {drawnCard.sacredGeometry && (
                     <Badge variant="secondary" className="bg-purple-600 text-white">
-                      Sacred Geometry: {drawnCard.sacredGeometry}
+                      Sacred Geometry: {getSymbolValueSafe(drawnCard, "Sacred Geometry")}
                     </Badge>
                   )}
                   {drawnCard.iconSymbol && (
                     <Badge variant="secondary" className="bg-purple-600 text-white">
-                      Symbol Value: {getSymbolValueSafe(drawnCard, "iconSymbol")}
+                      Icon: {getSymbolValueSafe(drawnCard, "Icon")}
                     </Badge>
                   )}
                 </div>

@@ -1,8 +1,8 @@
-import { getCardData, getUniqueSuits, getUniqueElements, getUniqueNumbers } from "@/lib/card-data-access"
+import { getAllOracleCards, getUniqueSuits, getUniqueElements, getUniqueNumbers } from "@/lib/card-data-access"
 import { CardSimulatorPageClient } from "./CardSimulatorPageClient"
 
 export default async function CardSimulatorPage() {
-  const allCards = await getCardData()
+  const allCards = getAllOracleCards() // Corrected to use getAllOracleCards
   const suits = getUniqueSuits(allCards)
   const elements = getUniqueElements(allCards)
   const numbers = getUniqueNumbers(allCards)

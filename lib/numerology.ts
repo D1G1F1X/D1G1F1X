@@ -1,5 +1,5 @@
 import { numoNumberDefinitions } from "@/data/numo-definitions"
-import type { CompoundNumberMeaning, SingleDigitMeaning, NumerologyReport } from "@/types/numerology" // Assuming you have these types
+import type { CompoundNumberMeaning, SingleDigitMeaning } from "@/types/numerology" // Assuming you have these types
 
 /**
  * Calculates the Life Path number from a birth date.
@@ -8,46 +8,25 @@ import type { CompoundNumberMeaning, SingleDigitMeaning, NumerologyReport } from
  */
 export function calculateLifePath(birthDate: Date): number {
   const year = birthDate.getFullYear()
-  const month = birthDate.getMonth() + 1 // getMonth() is 0-indexed
+  const month = birthDate.getMonth() + 1
   const day = birthDate.getDate()
 
-  const reducedMonth = reduceToSingleDigit(month)
-  const reducedDay = reduceToSingleDigit(day)
-  const reducedYear = reduceToSingleDigit(year)
-
-  return reduceToSingleDigit(reducedMonth + reducedDay + reducedYear)
-}
-
-/**
- * Calculates the Life Path number from a date of birth
- * @param dateString Date string in format YYYY-MM-DD
- * @returns Life path number (1-9)
- */
-export function calculateLifePathNumber(dateString: string): number {
-  try {
-    const date = new Date(dateString)
-    if (isNaN(date.getTime())) {
-      throw new Error("Invalid date format")
+  const reduce = (num: number): number => {
+    while (num > 9 && num !== 11 && num !== 22 && num !== 33) {
+      num = num
+        .toString()
+        .split("")
+        .reduce((sum, digit) => sum + Number.parseInt(digit, 10), 0)
     }
-
-    const day = date.getDate()
-    const month = date.getMonth() + 1 // JavaScript months are 0-indexed
-    const year = date.getFullYear()
-
-    // Calculate sum of all digits
-    const daySum = sumDigits(day)
-    const monthSum = sumDigits(month)
-    const yearSum = sumDigits(year)
-
-    // Sum the reduced numbers
-    const totalSum = daySum + monthSum + yearSum
-
-    // Reduce to a single digit (unless it's a master number)
-    return reduceToSingleDigit(totalSum)
-  } catch (error) {
-    console.error("Error calculating life path number:", error)
-    return 0
+    return num
   }
+
+  const reducedMonth = reduce(month)
+  const reducedDay = reduce(day)
+  const reducedYear = reduce(year)
+
+  const lifePath = reducedMonth + reducedDay + reducedYear
+  return reduce(lifePath)
 }
 
 /**
@@ -56,7 +35,7 @@ export function calculateLifePathNumber(dateString: string): number {
  * @returns The Expression number.
  */
 export function calculateExpression(fullName: string): number {
-  return calculateDestinyNumber(fullName) // Same calculation method
+  return calculateExpressionNumber(fullName) // Same calculation method
 }
 
 /**
@@ -65,23 +44,7 @@ export function calculateExpression(fullName: string): number {
  * @returns Destiny number (1-9)
  */
 export function calculateDestinyNumber(name: string): number {
-  try {
-    if (!name || name.trim() === "") {
-      return 0
-    }
-
-    const normalizedName = name.toLowerCase().replace(/[^a-z]/g, "")
-    let sum = 0
-
-    for (let i = 0; i < normalizedName.length; i++) {
-      sum += getLetterValue(normalizedName[i])
-    }
-
-    return reduceToSingleDigit(sum)
-  } catch (error) {
-    console.error("Error calculating destiny number:", error)
-    return 0
-  }
+  return calculateExpressionNumber(name) // Same calculation method
 }
 
 // Export aliases for compatibility
@@ -94,30 +57,41 @@ export const calculateDestinyNumberFromName = calculateDestinyNumber
  * @returns The Soul Urge number.
  */
 export function calculateSoulUrge(fullName: string): number {
-  try {
-    if (!fullName || fullName.trim() === "") {
-      return 0
-    }
-
-    const normalizedName = fullName.toLowerCase()
-    let sum = 0
-
-    for (let i = 0; i < normalizedName.length; i++) {
-      const char = normalizedName[i]
-      if (/[aeiou]/.test(char)) {
-        sum += getLetterValue(char)
-      }
-    }
-
-    return reduceToSingleDigit(sum)
-  } catch (error) {
-    console.error("Error calculating soul urge number:", error)
-    return 0
-  }
+  return calculateSoulUrgeNumber(fullName) // Same calculation method
 }
 
-// Export alias for compatibility
-export const calculateSoulUrgeNumber = calculateSoulUrge
+/**
+ * Calculates the soul urge number from a name
+ * @param name Full name
+ * @returns Soul urge number (1-9)
+ */
+export function calculateSoulUrgeNumber(fullName: string): number {
+  const vowelValues: { [key: string]: number } = {
+    A: 1,
+    E: 5,
+    I: 9,
+    O: 6,
+    U: 3,
+  }
+
+  const reduce = (num: number): number => {
+    while (num > 9 && num !== 11 && num !== 22 && num !== 33) {
+      num = num
+        .toString()
+        .split("")
+        .reduce((sum, digit) => sum + Number.parseInt(digit, 10), 0)
+    }
+    return num
+  }
+
+  let total = 0
+  for (const char of fullName.toUpperCase()) {
+    if (vowelValues[char]) {
+      total += vowelValues[char]
+    }
+  }
+  return reduce(total)
+}
 
 /**
  * Calculates the Personality number from the consonants in a name.
@@ -125,30 +99,60 @@ export const calculateSoulUrgeNumber = calculateSoulUrge
  * @returns The Personality number.
  */
 export function calculatePersonality(fullName: string): number {
-  try {
-    if (!fullName || fullName.trim() === "") {
-      return 0
-    }
+  return calculatePersonalityNumber(fullName) // Same calculation method
+}
 
-    const normalizedName = fullName.toLowerCase()
-    let sum = 0
-
-    for (let i = 0; i < normalizedName.length; i++) {
-      const char = normalizedName[i]
-      if (!/[aeiou]/.test(char) && getLetterValue(char) !== 0) {
-        sum += getLetterValue(char)
-      }
-    }
-
-    return reduceToSingleDigit(sum)
-  } catch (error) {
-    console.error("Error calculating personality number:", error)
-    return 0
+/**
+ * Calculates the personality number from a name
+ * @param name Full name
+ * @returns Personality number (1-9)
+ */
+export function calculatePersonalityNumber(fullName: string): number {
+  const consonantValues: { [key: string]: number } = {
+    B: 2,
+    C: 3,
+    D: 4,
+    F: 6,
+    G: 7,
+    H: 8,
+    J: 1,
+    K: 2,
+    L: 3,
+    M: 4,
+    N: 5,
+    P: 7,
+    Q: 8,
+    R: 9,
+    S: 1,
+    T: 2,
+    V: 4,
+    W: 5,
+    X: 6,
+    Y: 7, // Y can be a vowel or consonant, here treated as consonant for personality
+    Z: 8,
   }
+
+  const reduce = (num: number): number => {
+    while (num > 9 && num !== 11 && num !== 22 && num !== 33) {
+      num = num
+        .toString()
+        .split("")
+        .reduce((sum, digit) => sum + Number.parseInt(digit, 10), 0)
+    }
+    return num
+  }
+
+  let total = 0
+  for (const char of fullName.toUpperCase()) {
+    if (consonantValues[char]) {
+      total += consonantValues[char]
+    }
+  }
+  return reduce(total)
 }
 
 // Export alias for compatibility
-export const calculatePersonalityNumber = calculatePersonality
+export const calculatePersonalityNumberFromName = calculatePersonalityNumber
 
 /**
  * Calculates the Maturity number from the Life Path and Expression numbers.
@@ -254,79 +258,28 @@ export function calculateCompoundNumber(name: string): number {
  * @param symbolKey The key of the symbol (e.g., "Eye", "Dot", "Pluto", "Aries").
  * @returns The descriptive text for the symbol, or the original key if not found.
  */
-export const getSymbolDescription = (symbolKey: string): string => {
-  // Check single digit meanings
-  const singleDigitMeaning = numoNumberDefinitions.find((def) => def.number === symbolKey && !def.compoundMeaning)
-  if (singleDigitMeaning) {
-    return `${symbolKey} - ${singleDigitMeaning.title}: ${singleDigitMeaning.description}`
+export function getSymbolDescription(symbolKey: string): string {
+  // Find the card that contains this symbol key in its symbolism breakdown
+  const foundCard = numoNumberDefinitions.find((card) => card.symbolismBreakdown.some((s) => s.includes(symbolKey)))
+
+  if (foundCard) {
+    // Extract the relevant part of the symbolism breakdown
+    const relevantBreakdown = foundCard.symbolismBreakdown.find((s) => s.includes(symbolKey))
+    if (relevantBreakdown) {
+      // Attempt to parse out just the description part after the key
+      const parts = relevantBreakdown.split(" – ")
+      if (parts.length > 1) {
+        return parts.slice(1).join(" – ").trim()
+      }
+    }
   }
 
-  // Check compound number meanings
-  const compoundNumberMeaning = numoNumberDefinitions.find((def) => def.number === symbolKey && def.compoundMeaning)
-  if (compoundNumberMeaning) {
-    return `${symbolKey} - ${compoundNumberMeaning.title}: ${compoundNumberMeaning.description}`
-  }
-
-  // Check if it's a known sacred geometry, planet, astrology, or orientation from card metadata
-  // This part would ideally be driven by a more structured lookup for these specific types of symbols.
-  // For now, we can hardcode some common ones or return the key itself.
-  const cardMetadataMeanings: { [key: string]: string } = {
-    Eye: "The Eye: Represents perception, insight, and spiritual vision. It sees beyond the obvious, revealing hidden truths and understanding.",
-    Dot: "The Dot: The spark of origin—the first point from which all things emerge. It is the singularity, the concentrated seed of potential, the initial impulse of consciousness before expansion into dimension and form. A symbol of unity and wholeness.",
-    Pluto:
-      "Pluto: Deep, transformative forces working behind the scenes. Pluto governs the subconscious realms, instigating profound metamorphosis by unearthing hidden truths, dismantling old structures, and facilitating regeneration and rebirth from the ashes of what was.",
-    Scorpio:
-      "Scorpio: Reflects external themes of rebirth, secrecy, and shedding of old layers. Scorpio navigates the depths of existence, confronting power dynamics, intense emotions, and the mysteries of life and death, ultimately leading to profound healing and empowerment.",
-    Fire: "Fire: The combustion of Spirit and Water—the ignition of creation and passion. Fire is the activating, dynamic principle that fuels transformation, provides courage, and illuminates the path, turning inspiration (Spirit) and emotional depth (Water) into tangible manifestation.",
-    Hourglass:
-      "Hourglass: Symbolizes the passage of time, the finite nature of cycles, and the urgency of the present moment. It represents the culmination of events and the inevitability of change.",
-    "Finite Symbol":
-      "Finite Symbol: The edge of infinity-what is bounded must resolve. This likely refers to a symbol representing a closed loop or a defined boundary (perhaps the infinity symbol itself, representing cycles), indicating that within any given framework, resolution or completion is sought.",
-    Jupiter:
-      "Jupiter: Inner expansion through boundaries and endings. Jupiter brings growth, optimism, and a search for meaning. Even as a cycle concludes, Jupiter's influence ensures that this ending paves the way for greater understanding and future opportunities.",
-    Sagittarius:
-      "Sagittarius: External truth-seeking mission concluding a cycle. Sagittarius is associated with exploration, higher learning, and a quest for truth. This indicates that a particular journey of discovery or understanding is reaching a point of culmination.",
-    Spirit:
-      "Spirit: Earth giving rise to release and ascension. Spirit here connects to the ethereal, the transcendent. As the earthly cycle (represented by the cord and its binding) completes, there's an opportunity for a release of energy or understanding to a higher level.",
-    "Knot Before":
-      "Knot Before: Suggests the binding is imminent—preparation for conclusion. A knot tied signifies commitment, a decision made, or a process being secured. 'Knot Before' implies the final actions leading up to this sealing.",
-    "Infinity Symbol":
-      "Infinity Symbol: Represents endlessness, eternity, and the cyclical nature of existence. It signifies boundless potential and the continuous flow of energy.",
-    Saturn:
-      "Saturn: Responsibility, karmic patterns, mastery through boundaries. Saturn governs discipline, structure, and the lessons learned through limitations. It emphasizes long-term goals and integrity.",
-    Capricorn:
-      "Capricorn: Structure, long-term goals, integrity. Capricorn is associated with ambition, discipline, and the pursuit of practical achievements. It embodies resilience and a strong sense of duty.",
-    "Smooth Side":
-      "Smooth Side: Indicates a state of flow, ease, and unhindered progress. It suggests that the current situation is unfolding smoothly, without significant obstacles or friction.",
-    Pentagon:
-      "Pentagon: A symbol of protection, balance, and the five elements (Earth, Air, Fire, Water, Spirit). It represents the human microcosm and the connection between the spiritual and material worlds.",
-    Mars: "Mars: Assertion, willpower, protection. Mars governs drive, courage, and the initiation of action. It represents the force that pushes through obstacles and defends boundaries.",
-    Aries:
-      "Aries: Direct action, courage, and leadership in ending cycles. Aries initiates with boldness. In the context of 9, this energy is applied to courageously finalize a chapter, leading the way towards resolution and preparing for new ventures.",
-    Earth:
-      "Earth: Where Air unveils patterns and possibilities, Earth gives those patterns substance—turning vision into ritual, ideas into foundations, and fleeting clarity into enduring wisdom. Earth grounds the insights (Air) into tangible, lasting understanding and solidifies the completion.",
-    Cooking:
-      "Cooking: Indicates that the creation is in progress, not yet released. This highlights a phase of internal development, gestation, and careful preparation, where the transformative work is happening beneath the surface, shielded from external view until ready.",
-    "Shaft First":
-      "Shaft First: Represents directness, focus, and intentionality. It suggests a clear path forward, with energy and purpose directed towards a specific goal, emphasizing the initial thrust of an endeavor.",
-    "Direction Arrows":
-      "Direction Arrows: Symbolize guidance, movement, and the choices available on one's path. They indicate a need for clarity in direction or a journey towards a specific destination.",
-    Uranus:
-      "Uranus: Revolution, innovation, and personal awakening. Uranus governs sudden changes, breakthroughs, and the pursuit of freedom. It encourages breaking tradition and embracing individuality.",
-    Aquarius:
-      "Aquarius: Humanitarian focus, idealism, breaking tradition. Aquarius is associated with innovation, social justice, and a forward-thinking mindset. It embodies collective consciousness and progressive ideals.",
-    Ladder:
-      "Ladder: Represents ascent, progress, and connection between different levels of existence (e.g., earthly and spiritual). It symbolizes growth, reaching higher understanding, and overcoming challenges step by step.",
-    Air: "Air: The element of intellect, communication, and thought. It represents clarity, objectivity, and the ability to perceive patterns and possibilities. Air is associated with mental processes and the realm of ideas.",
-    "Knot Away":
-      "Knot Away: Suggests the release or untying of a binding, indicating a conclusion or the loosening of a commitment. It implies moving away from a sealed agreement or the completion of a fated resolution.",
-  }
-
-  return cardMetadataMeanings[symbolKey] || symbolKey
+  // Fallback to the original key if no specific description is found
+  return symbolKey
 }
 
 /**
- * Gets the numerological value of a letter (A=1, B=2, etc.)
+ * Retrieves the numerological value of a letter (A=1, B=2, etc.)
  * @param letter Single letter
  * @returns Numerical value
  */
@@ -364,22 +317,6 @@ export function getLetterValue(letter: string): number {
 }
 
 /**
- * Sums all digits in a number
- * @param num Number to sum digits of
- * @returns Sum of all digits
- */
-export function sumDigits(num: number): number {
-  let sum = 0
-  const numStr = num.toString()
-
-  for (let i = 0; i < numStr.length; i++) {
-    sum += Number.parseInt(numStr[i])
-  }
-
-  return sum
-}
-
-/**
  * Reduces a number to a single digit (1-9)
  * @param num Number to reduce
  * @returns Single digit (1-9)
@@ -391,7 +328,10 @@ export function reduceToSingleDigit(num: number): number {
   }
 
   while (num > 9) {
-    num = sumDigits(num)
+    num = num
+      .toString()
+      .split("")
+      .reduce((sum, digit) => sum + Number.parseInt(digit, 10), 0)
   }
 
   return num
@@ -409,7 +349,7 @@ export function getNumberMeaning(number: number): string {
     3: "Self-expression, creativity, joy, and social interaction.",
     4: "Stability, practicality, organization, and hard work.",
     5: "Freedom, change, adventure, and versatility.",
-    6: "Harmony, responsibility, nurturing, and service.",
+    6: "Harmony, responsibility, nurturing, and service to others.",
     7: "Analysis, wisdom, spirituality, and introspection.",
     8: "Ambition, authority, power, and material success.",
     9: "Compassion, humanitarianism, idealism, and completion.",
@@ -421,55 +361,164 @@ export function getNumberMeaning(number: number): string {
   return meanings[number] || "Unknown number meaning"
 }
 
-// Helper function to calculate the numerological sum of a number
-function calculateNumerologicalSum(num: number): number {
-  let sum = 0
-  let strNum = num.toString()
-  while (strNum.length > 1 && sum !== 11 && sum !== 22 && sum !== 33) {
-    sum = strNum.split("").reduce((acc, digit) => acc + Number.parseInt(digit), 0)
-    strNum = sum.toString()
-  }
-  return sum
+// Numerology report generation
+export interface NumerologyReportInterface {
+  lifePath: { number: number; meaning: string }
+  destiny: { number: number; meaning: string }
+  soulUrge: { number: number; meaning: string }
+  personality: { number: number; meaning: string }
+  // Add more numerology aspects as needed
 }
 
-// Helper function to calculate the numerological sum of a name
-function calculateNameSum(name: string): number {
-  const alphabetMap: { [key: string]: number } = {
-    A: 1,
-    J: 1,
-    S: 1,
-    B: 2,
-    K: 2,
-    T: 2,
-    C: 3,
-    L: 3,
-    U: 3,
-    D: 4,
-    M: 4,
-    V: 4,
-    E: 5,
-    N: 5,
-    W: 5,
-    F: 6,
-    O: 6,
-    X: 6,
-    G: 7,
-    P: 7,
-    Y: 7,
-    H: 8,
-    Q: 8,
-    Z: 8,
-    I: 9,
-    R: 9,
-  }
+export function getNumerologyReport(birthDate: Date, fullName: string): NumerologyReportInterface {
+  const lifePathNumber = calculateLifePath(birthDate)
+  const expressionNumber = calculateExpressionNumber(fullName)
+  const soulUrgeNumber = calculateSoulUrgeNumber(fullName)
+  const personalityNumber = calculatePersonalityNumber(fullName)
 
-  let sum = 0
-  for (const char of name.toUpperCase()) {
-    if (alphabetMap[char]) {
-      sum += alphabetMap[char]
-    }
+  return {
+    lifePath: {
+      number: lifePathNumber,
+      meaning: getLifePathMeaning(lifePathNumber),
+    },
+    destiny: {
+      number: expressionNumber, // Expression number is often referred to as Destiny number
+      meaning: getExpressionMeaning(expressionNumber),
+    },
+    soulUrge: {
+      number: soulUrgeNumber,
+      meaning: getSoulUrgeMeaning(soulUrgeNumber),
+    },
+    personality: {
+      number: personalityNumber,
+      meaning: getPersonalityMeaning(personalityNumber),
+    },
   }
-  return calculateNumerologicalSum(sum)
+}
+
+// Meanings for numerology numbers (simplified for example)
+function getLifePathMeaning(num: number): string {
+  switch (num) {
+    case 1:
+      return "The Leader: Independence, innovation, and pioneering spirit."
+    case 2:
+      return "The Peacemaker: Cooperation, diplomacy, and sensitivity."
+    case 3:
+      return "The Communicator: Creativity, self-expression, and joy."
+    case 4:
+      return "The Builder: Stability, hard work, and practical foundation."
+    case 5:
+      return "The Free Spirit: Change, adventure, and adaptability."
+    case 6:
+      return "The Nurturer: Responsibility, harmony, and service to others."
+    case 7:
+      return "The Seeker: Spirituality, analysis, and inner wisdom."
+    case 8:
+      return "The Powerhouse: Abundance, authority, and material success."
+    case 9:
+      return "The Humanitarian: Compassion, universal love, and completion."
+    case 11:
+      return "The Master Intuitive: Spiritual insight, inspiration, and illumination."
+    case 22:
+      return "The Master Builder: Practical mastery, large-scale creation, and service to humanity."
+    case 33:
+      return "The Master Healer: Selfless service and spiritual teaching."
+    default:
+      return "A path of unique personal growth."
+  }
+}
+
+function getExpressionMeaning(num: number): string {
+  switch (num) {
+    case 1:
+      return "Expresses leadership and originality."
+    case 2:
+      return "Expresses cooperation and diplomacy."
+    case 3:
+      return "Expresses creativity and communication."
+    case 4:
+      return "Expresses practicality and order."
+    case 5:
+      return "Expresses freedom and versatility."
+    case 6:
+      return "Expresses responsibility and harmony."
+    case 7:
+      return "Expresses analytical and spiritual depth."
+    case 8:
+      return "Expresses power and material achievement."
+    case 9:
+      return "Expresses compassion and universal understanding."
+    case 11:
+      return "Expresses intuitive insights and inspiration."
+    case 22:
+      return "Expresses mastery in practical endeavors."
+    case 33:
+      return "Expresses selfless service and spiritual guidance."
+    default:
+      return "Expresses unique talents and abilities."
+  }
+}
+
+function getSoulUrgeMeaning(num: number): string {
+  switch (num) {
+    case 1:
+      return "Desires independence and to be a pioneer."
+    case 2:
+      return "Desires harmony and partnership."
+    case 3:
+      return "Desires creative expression and joy."
+    case 4:
+      return "Desires stability and security."
+    case 5:
+      return "Desires freedom and adventure."
+    case 6:
+      return "Desires to nurture and serve others."
+    case 7:
+      return "Desires spiritual understanding and truth."
+    case 8:
+      return "Desires power, control, and material success."
+    case 9:
+      return "Desires to serve humanity and achieve completion."
+    case 11:
+      return "Desires spiritual awakening and inspiration."
+    case 22:
+      return "Desires to build something significant for the world."
+    case 33:
+      return "Desires to be a master healer and teacher."
+    default:
+      return "Desires personal fulfillment."
+  }
+}
+
+function getPersonalityMeaning(num: number): string {
+  switch (num) {
+    case 1:
+      return "Appears independent and confident."
+    case 2:
+      return "Appears gentle and cooperative."
+    case 3:
+      return "Appears charming and expressive."
+    case 4:
+      return "Appears reliable and disciplined."
+    case 5:
+      return "Appears adventurous and adaptable."
+    case 6:
+      return "Appears responsible and caring."
+    case 7:
+      return "Appears mysterious and intellectual."
+    case 8:
+      return "Appears powerful and authoritative."
+    case 9:
+      return "Appears compassionate and wise."
+    case 11:
+      return "Appears intuitive and inspiring."
+    case 22:
+      return "Appears capable and influential."
+    case 33:
+      return "Appears selfless and charismatic."
+    default:
+      return "Appears unique and multifaceted."
+  }
 }
 
 /**
@@ -492,74 +541,4 @@ export function getCompoundNumberMeaning(number: number): CompoundNumberMeaning 
   return numoNumberDefinitions.find((def) => def.number === number.toString() && def.compoundMeaning) as
     | CompoundNumberMeaning
     | undefined
-}
-
-/**
- * Generates a basic numerology report based on birth date and full name.
- * This is a simplified example and can be expanded with more calculations.
- * @param birthDate The user's birth date.
- * @param fullName The user's full name.
- * @returns A NumerologyReport object.
- */
-export function getNumerologyReport(birthDate: Date, fullName: string): NumerologyReport {
-  // Life Path Number: Sum of birth date (MM/DD/YYYY)
-  const month = birthDate.getMonth() + 1
-  const day = birthDate.getDate()
-  const year = birthDate.getFullYear()
-
-  const lifePathNumber = calculateNumerologicalSum(
-    calculateNumerologicalSum(month) + calculateNumerologicalSum(day) + calculateNumerologicalSum(year),
-  )
-
-  // Destiny Number (Expression Number): Sum of full name
-  const destinyNumber = calculateNameSum(fullName)
-
-  // Soul Urge Number (Heart's Desire Number): Sum of vowels in full name
-  const vowels = "AEIOU"
-  let soulUrgeSum = 0
-  for (const char of fullName.toUpperCase()) {
-    if (vowels.includes(char)) {
-      soulUrgeSum += calculateNameSum(char) // Re-use name sum for individual vowel
-    }
-  }
-  const soulUrgeNumber = calculateNumerologicalSum(soulUrgeSum)
-
-  // Personality Number: Sum of consonants in full name
-  const consonants = "BCDFGHJKLMNPQRSTVWXYZ"
-  let personalitySum = 0
-  for (const char of fullName.toUpperCase()) {
-    if (consonants.includes(char)) {
-      personalitySum += calculateNameSum(char) // Re-use name sum for individual consonant
-    }
-  }
-  const personalityNumber = calculateNumerologicalSum(personalitySum)
-
-  // Retrieve meanings from numoNumberDefinitions
-  const lifePathMeaning = getSingleDigitMeaning(lifePathNumber) ||
-    getCompoundNumberMeaning(lifePathNumber) || { meaning: "N/A" }
-  const destinyMeaning = getSingleDigitMeaning(destinyNumber) ||
-    getCompoundNumberMeaning(destinyNumber) || { meaning: "N/A" }
-  const soulUrgeMeaning = getSingleDigitMeaning(soulUrgeNumber) ||
-    getCompoundNumberMeaning(soulUrgeNumber) || { meaning: "N/A" }
-  const personalityMeaning = getSingleDigitMeaning(personalityNumber) ||
-    getCompoundNumberMeaning(personalityNumber) || { meaning: "N/A" }
-
-  return {
-    lifePath: {
-      number: lifePathNumber,
-      meaning: lifePathMeaning.meaning,
-    },
-    destiny: {
-      number: destinyNumber,
-      meaning: destinyMeaning.meaning,
-    },
-    soulUrge: {
-      number: soulUrgeNumber,
-      meaning: soulUrgeMeaning.meaning,
-    },
-    personality: {
-      number: personalityNumber,
-      meaning: personalityMeaning.meaning,
-    },
-  }
 }

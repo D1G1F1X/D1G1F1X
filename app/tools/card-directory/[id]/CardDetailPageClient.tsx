@@ -3,8 +3,9 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
-import type { OracleCard } from "@/types/cards"
-import { getSymbolDescription } from "@/lib/numerology" // Keep getSymbolDescription from numerology
+import { getSymbolValue } from "@/lib/card-data-access"
+import type { OracleCard, CardSymbolKey } from "@/types/cards"
+import { getSymbolDescription } from "@/lib/numerology"
 
 interface CardDetailPageClientProps {
   card: OracleCard
@@ -19,26 +20,10 @@ export default function CardDetailPageClient({ card }: CardDetailPageClientProps
     )
   }
 
-  // Use a safe wrapper for getSymbolValue to handle any potential errors
-  const getSymbolValueSafe = (card: OracleCard, key: keyof OracleCard): string => {
-    if (!card || !card[key]) return "N/A"
-    try {
-      // Directly access the property if it's a simple string/number
-      if (typeof card[key] === "string" || typeof card[key] === "number") {
-        return card[key]?.toString() || "N/A"
-      }
-      // For complex symbols array, use the getSymbolValue from card-data-access
-      // This assumes `key` here is one of the `CardSymbolKey` types.
-      // If `key` is literally "iconSymbol", then `card.iconSymbol` is already the value.
-      // The original `getSymbolValue(symbol)` was problematic because `symbol` was a string like "Pentagon"
-      // and `getSymbolValue` expects an OracleCard and a key.
-      // Re-evaluating based on how `iconSymbol` is used in the badge.
-      // It seems `card.iconSymbol` already holds the value.
-      return card.iconSymbol // Assuming iconSymbol is directly the value
-    } catch (error) {
-      console.error(`Error getting symbol value for ${key}:`, error)
-      return "N/A"
-    }
+  // Use the imported getSymbolValue from lib/card-data-access
+  const getSymbolValueSafe = (card: OracleCard, key: CardSymbolKey): string => {
+    const value = getSymbolValue(card, key)
+    return value !== undefined ? value : "N/A"
   }
 
   return (
@@ -82,12 +67,12 @@ export default function CardDetailPageClient({ card }: CardDetailPageClientProps
               </Badge>
               {card.sacredGeometry && (
                 <Badge variant="secondary" className="bg-purple-600 text-white">
-                  Sacred Geometry: {card.sacredGeometry}
+                  Sacred Geometry: {getSymbolValueSafe(card, "Sacred Geometry")}
                 </Badge>
               )}
               {card.iconSymbol && (
                 <Badge variant="secondary" className="bg-purple-600 text-white">
-                  Symbol Value: {getSymbolValueSafe(card, "iconSymbol")}
+                  Icon: {getSymbolValueSafe(card, "Icon")}
                 </Badge>
               )}
             </div>
@@ -97,10 +82,10 @@ export default function CardDetailPageClient({ card }: CardDetailPageClientProps
           <div className="space-y-6">
             {card.keyMeanings && card.keyMeanings.length > 0 && (
               <div>
-                <h4 className="font-semibold text-purple-200 mb-2">Key Meanings:</h4>
+                <h4 className="font-semibold text-purple-200 mb-2 text-xl">Key Meanings:</h4>
                 <ul className="space-y-1">
                   {card.keyMeanings.map((meaning, index) => (
-                    <li key={index} className="text-sm text-purple-100">
+                    <li key={index} className="text-base">
                       • {meaning}
                     </li>
                   ))}
@@ -110,11 +95,11 @@ export default function CardDetailPageClient({ card }: CardDetailPageClientProps
 
             {card.symbolismBreakdown && card.symbolismBreakdown.length > 0 && (
               <div>
-                <h4 className="font-semibold text-purple-200 mb-2">Symbolism Breakdown:</h4>
+                <h4 className="font-semibold text-purple-200 mb-2 text-xl">Symbolism Breakdown:</h4>
                 <ul className="space-y-1">
-                  {card.symbolismBreakdown.map((symbolism, index) => (
-                    <li key={index} className="text-sm text-purple-100">
-                      • {symbolism}
+                  {card.symbolismBreakdown.map((breakdown, index) => (
+                    <li key={index} className="text-base">
+                      • {breakdown}
                     </li>
                   ))}
                 </ul>
