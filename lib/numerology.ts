@@ -1,6 +1,5 @@
 import { numoNumberDefinitions } from "@/data/numo-definitions"
 import type { CompoundNumberMeaning, SingleDigitMeaning, NumerologyReport } from "@/types/numerology" // Assuming you have these types
-import type { OracleCard } from "@/types/cards"
 
 /**
  * Calculates the Life Path number from a birth date.
@@ -20,17 +19,58 @@ export function calculateLifePath(birthDate: Date): number {
 }
 
 /**
- * Calculates the Destiny number from a full name.
- * @param fullName The full name.
- * @returns The Destiny number.
+ * Calculates the Life Path number from a date of birth
+ * @param dateString Date string in format YYYY-MM-DD
+ * @returns Life path number (1-9)
  */
-export function calculateDestinyNumber(fullName: string): number {
+export function calculateLifePathNumber(dateString: string): number {
   try {
-    if (!fullName || fullName.trim() === "") {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      throw new Error("Invalid date format")
+    }
+
+    const day = date.getDate()
+    const month = date.getMonth() + 1 // JavaScript months are 0-indexed
+    const year = date.getFullYear()
+
+    // Calculate sum of all digits
+    const daySum = sumDigits(day)
+    const monthSum = sumDigits(month)
+    const yearSum = sumDigits(year)
+
+    // Sum the reduced numbers
+    const totalSum = daySum + monthSum + yearSum
+
+    // Reduce to a single digit (unless it's a master number)
+    return reduceToSingleDigit(totalSum)
+  } catch (error) {
+    console.error("Error calculating life path number:", error)
+    return 0
+  }
+}
+
+/**
+ * Calculates the Expression (Destiny) number from a full name.
+ * @param fullName The full name.
+ * @returns The Expression number.
+ */
+export function calculateExpression(fullName: string): number {
+  return calculateDestinyNumber(fullName) // Same calculation method
+}
+
+/**
+ * Calculates the destiny number from a name
+ * @param name Full name
+ * @returns Destiny number (1-9)
+ */
+export function calculateDestinyNumber(name: string): number {
+  try {
+    if (!name || name.trim() === "") {
       return 0
     }
 
-    const normalizedName = fullName.toLowerCase().replace(/[^a-z]/g, "")
+    const normalizedName = name.toLowerCase().replace(/[^a-z]/g, "")
     let sum = 0
 
     for (let i = 0; i < normalizedName.length; i++) {
@@ -45,7 +85,7 @@ export function calculateDestinyNumber(fullName: string): number {
 }
 
 // Export aliases for compatibility
-export const calculateExpressionNumber = calculateDestinyNumber
+export const calculateExpressionNumber = calculateExpression
 export const calculateDestinyNumberFromName = calculateDestinyNumber
 
 /**
@@ -111,13 +151,13 @@ export function calculatePersonality(fullName: string): number {
 export const calculatePersonalityNumber = calculatePersonality
 
 /**
- * Calculates the Maturity number from the Life Path and Destiny numbers.
+ * Calculates the Maturity number from the Life Path and Expression numbers.
  * @param lifePath The Life Path number.
- * @param destiny The Destiny number.
+ * @param expression The Expression number.
  * @returns The Maturity number.
  */
-export function calculateMaturityNumber(lifePath: number, destiny: number): number {
-  return reduceToSingleDigit(lifePath + destiny)
+export function calculateMaturityNumber(lifePath: number, expression: number): number {
+  return reduceToSingleDigit(lifePath + expression)
 }
 
 /**
@@ -522,114 +562,4 @@ export function getNumerologyReport(birthDate: Date, fullName: string): Numerolo
       meaning: personalityMeaning.meaning,
     },
   }
-}
-
-/**
- * Retrieves the numerology definition for a given number.
- * @param number The numerology number (1-9, 11, 22, 33).
- * @returns The definition object, or null if not found.
- */
-export function getNumerologyDefinition(number: string) {
-  // Assuming numoNumberDefinitions contains objects with a 'number' property
-  return numoNumberDefinitions.find((def) => def.number === number) || null
-}
-
-/**
- * Generates a comprehensive numerology report based on name and birth date.
- * @param name The user's name.
- * @param birthDate The user's birth date (MM/DD/YYYY).
- * @returns A report object containing life path and name numerology details.
- */
-export function generateNumerologyReport(name: string, birthDate: string) {
-  const lifePath = calculateLifePathNumber(birthDate)
-  const nameNumerology = calculateNameSum(name) // Assuming calculateNameNumerology is meant to be calculateNameSum
-
-  const lifePathDefinition = getNumerologyDefinition(lifePath)
-  const nameNumerologyDefinition = getNumerologyDefinition(nameNumerology.toString())
-
-  return {
-    name,
-    birthDate,
-    lifePath,
-    lifePathDefinition,
-    nameNumerology,
-    nameNumerologyDefinition,
-  }
-}
-
-/**
- * Retrieves a specific symbol value from an OracleCard based on its key.
- * This function is designed to safely access nested properties or properties
- * that might be represented differently across card data.
- *
- * @param card The OracleCard object.
- * @param key The key of the symbol to retrieve (e.g., "Orientation", "Planet (Internal Influence)").
- * @returns The string value of the symbol, or undefined if not found.
- */
-export function getSymbolValue(card: OracleCard, key: string): string | undefined {
-  // Direct access for common top-level properties
-  switch (key) {
-    case "Number":
-      return card.number?.toString()
-    case "Suit":
-      return card.suit
-    case "Element (Base)":
-      return card.baseElement
-    case "Planet (Internal Influence)":
-      return card.planetInternalInfluence
-    case "Astrology (External Domain)":
-      return card.astrologyExternalDomain
-    case "Icon":
-      return card.iconSymbol
-    case "Orientation":
-      return card.orientation
-    case "Sacred Geometry":
-      return card.sacredGeometry
-    case "Synergistic Element":
-      return card.synergisticElement
-    default:
-      // For other keys, iterate through the 'symbols' array if it exists
-      if (card.symbols && Array.isArray(card.symbols)) {
-        const symbolEntry = card.symbols.find((s) => s.key === key)
-        return symbolEntry?.value
-      }
-      return undefined
-  }
-}
-
-/**
- * Calculates the life path number from a birth date.
- * The date (MM/DD/YYYY) is reduced to a single digit or master number.
- *
- * @param birthDate The birth date in MM/DD/YYYY format.
- * @returns The life path number as a string (e.g., "7", "11").
- */
-export function calculateLifePathNumber(birthDate: string): string {
-  const parts = birthDate.split("/")
-  if (parts.length !== 3) {
-    throw new Error("Invalid date format. Please use MM/DD/YYYY.")
-  }
-
-  let month = Number.parseInt(parts[0])
-  let day = Number.parseInt(parts[1])
-  let year = Number.parseInt(parts[2])
-
-  const reduceNumber = (num: number): number => {
-    while (num > 9 && num !== 11 && num !== 22 && num !== 33) {
-      num = num
-        .toString()
-        .split("")
-        .reduce((sum, digit) => sum + Number.parseInt(digit), 0)
-    }
-    return num
-  }
-
-  month = reduceNumber(month)
-  day = reduceNumber(day)
-  year = reduceNumber(year)
-
-  let total = month + day + year
-  total = reduceNumber(total)
-
-  return total.toString()
 }

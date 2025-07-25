@@ -56,12 +56,7 @@ export function getComprehensiveCardData(cardId: string): OracleCard | undefined
 
   // Optionally, enrich the card with numerology report if it has a number and is relevant
   // This part is illustrative and might need adjustment based on how numerology is linked to cards
-  if (card.number) {
-    // Example: You might want to generate a numerology report for the card's number
-    // This would depend on whether the card's number directly maps to a numerology concept
-    // For now, we'll just return the card as is, assuming numoNumberDefinitions already has all needed data.
-  }
-
+  // For now, we'll just return the card as is, assuming numoNumberDefinitions already has all needed data.
   return card as OracleCard // Cast to OracleCard as numoNumberDefinitions items are OracleCard-like
 }
 

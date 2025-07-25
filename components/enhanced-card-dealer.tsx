@@ -3,16 +3,19 @@
 import type React from "react"
 
 import { useRef } from "react"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
+import { Textarea } from "@/components/ui/textarea"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { Skeleton } from "@/components/ui/skeleton"
 import { generateReading } from "@/lib/actions/generate-reading"
 import { useToast } from "@/components/ui/use-toast"
 import type { ReadingData } from "@/types/readings"
 import { cn } from "@/lib/utils"
-import { getSymbolValue, getAllOracleCards as getOracleCards, filterCards } from "@/lib/card-data-access" // Corrected import for getOracleCards
+import { getSymbolValue, getAllOracleCards as getOracleCards } from "@/lib/card-data-access" // Corrected import for getOracleCards
 import { parseCardImageFilename } from "@/lib/card-image-utils"
 import { Badge } from "@/components/ui/badge"
 import { calculateLifePath } from "@/lib/numerology"
@@ -20,9 +23,6 @@ import { useMembership } from "@/lib/membership-context"
 import type { SavedReading } from "@/types/saved-readings"
 import type { OracleCard } from "@/types/cards"
 import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Sparkles, RefreshCw, Share2, Download } from "lucide-react"
-import { ShareReadingDialog } from "@/components/share-reading-dialog"
 
 interface SpreadType {
   id: string
@@ -250,10 +250,6 @@ interface EnhancedCardDealerProps {
   allowFreeReading?: boolean
   maxCards?: number
   defaultSpread?: "single" | "three"
-  allCards?: OracleCard[]
-  suits?: string[]
-  elements?: string[]
-  numbers?: string[]
 }
 
 export default function EnhancedCardDealer({
@@ -262,10 +258,6 @@ export default function EnhancedCardDealer({
   allowFreeReading = false,
   maxCards = 3,
   defaultSpread = "three",
-  allCards: propAllCards,
-  suits,
-  elements,
-  numbers,
 }: EnhancedCardDealerProps) {
   const [allCards, setAllCards] = useState<OracleCard[]>([]) // Use allCards from central data
   const [selectedCards, setSelectedCards] = useState<OracleCard[]>([])
@@ -321,11 +313,6 @@ export default function EnhancedCardDealer({
   const [drawnCards, setDrawnCards] = useState<any[]>([])
   const [selectedElement, setSelectedElement] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("overview")
-  const [drawnCard, setDrawnCard] = useState<OracleCard | null>(null)
-  const [selectedSuit, setSelectedSuit] = useState<string>("any")
-  const [selectedNumber, setSelectedNumber] = useState<string>("any")
-  const [loading, setLoading] = useState(false)
-  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
 
   const context = useMembership()
   const { isAuthenticated, checkMembership } = context
@@ -333,12 +320,12 @@ export default function EnhancedCardDealer({
 
   useEffect(() => {
     // Load all cards from the central data access layer
-    const loadCards = async () => {
-      const cards = propAllCards || getOracleCards() // Await the async function
+    const loadCards = () => {
+      const cards = getOracleCards() // Correctly using getOracleCards (which is getAllOracleCards)
       setAllCards(cards)
     }
     loadCards()
-  }, [propAllCards])
+  }, [])
 
   useEffect(() => {
     setIsAdvancedModeAvailable(isAuthenticated)
@@ -1000,274 +987,159 @@ Remember that you have the power to shape your path forward. These cards offer g
     )
   }
 
-  const drawRandomCard = useCallback(
-    (cardsToDrawFrom: OracleCard[], suitFilter: string, elementFilter: string, numberFilter: string) => {
-      setLoading(true)
-      try {
-        const filtered = filterCards(cardsToDrawFrom, {
-          suit: suitFilter === "any" ? undefined : suitFilter,
-          element: elementFilter === "any" ? undefined : elementFilter,
-          number: numberFilter === "any" ? undefined : numberFilter,
-        })
-
-        if (filtered.length > 0) {
-          const randomIndex = Math.floor(Math.random() * filtered.length)
-          setDrawnCard(filtered[randomIndex])
-        } else {
-          setDrawnCard(null)
-        }
-      } catch (error) {
-        console.error("Error drawing card:", error)
-        setDrawnCard(null)
-      } finally {
-        setLoading(false)
-      }
-    },
-    [],
-  )
-
-  useEffect(() => {
-    if (allCards.length > 0 && !drawnCard) {
-      drawRandomCard(allCards, "any", "any", "any")
-    }
-  }, [allCards, drawnCard, drawRandomCard])
-
-  const handleDrawCard = () => {
-    drawRandomCard(allCards, selectedSuit, selectedElement, selectedNumber)
-  }
-
-  const handleDownloadImage = () => {
-    if (drawnCard) {
-      const link = document.createElement("a")
-      link.href = drawnCard.imageUrl
-      link.download = `${drawnCard.fullTitle.replace(/\s/g, "-")}.jpg`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    }
-  }
-
-  // Use the imported getSymbolValue from lib/card-data-access
-  const getSymbolValueSafe = (card: OracleCard, key: keyof OracleCard | string): string => {
-    const value = getSymbolValue(card, key as any) // Cast to any because CardSymbolKey is more specific
-    return value !== undefined ? value : "N/A"
-  }
-
-  if (loading && !drawnCard) {
-    return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-64px)] text-lg text-muted-foreground">
-        <Sparkles className="h-6 w-6 animate-spin mr-2" />
-        Loading cards for dealer...
-      </div>
-    )
-  }
-
   return (
-    <div className="container mx-auto py-8 px-4 md:px-6 min-h-[calc(100vh-64px)]">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
-          Enhanced Oracle Card Dealer
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Draw a random card from the deck, or filter by suit, element, or number to get a specific insight.
-        </p>
-      </div>
-
-      <Card className="max-w-3xl mx-auto bg-gradient-to-br from-purple-900 to-indigo-900 text-white shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Draw Your Card</CardTitle>
-        </CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-8">
-          {/* Card Display */}
-          <div className="flex flex-col items-center justify-center">
-            {drawnCard ? (
-              <>
-                <EnhancedCardImage
-                  cardId={drawnCard.id}
-                  cardTitle={drawnCard.fullTitle}
-                  baseElement={drawnCard.baseElement}
-                  synergisticElement={drawnCard.synergisticElement}
-                  className="w-full max-w-[270px] mb-4"
-                  showStatus={true}
-                />
-                <h3 className="text-xl font-bold text-center mb-2">{drawnCard.fullTitle}</h3>
-                <div className="flex flex-wrap gap-2 justify-center">
-                  <Badge variant="secondary" className="bg-purple-600 text-white">
-                    {drawnCard.suit}
-                  </Badge>
-                  <Badge variant="secondary" className="bg-purple-600 text-white">
-                    {drawnCard.baseElement}
-                  </Badge>
-                  {drawnCard.synergisticElement && drawnCard.synergisticElement !== drawnCard.baseElement && (
-                    <Badge variant="secondary" className="bg-purple-600 text-white">
-                      {drawnCard.synergisticElement}
-                    </Badge>
-                  )}
-                  <Badge variant="secondary" className="bg-purple-600 text-white">
-                    Number: {drawnCard.number}
-                  </Badge>
-                  {drawnCard.sacredGeometry && (
-                    <Badge variant="secondary" className="bg-purple-600 text-white">
-                      Sacred Geometry: {getSymbolValueSafe(drawnCard, "Sacred Geometry")}
-                    </Badge>
-                  )}
-                  {drawnCard.iconSymbol && (
-                    <Badge variant="secondary" className="bg-purple-600 text-white">
-                      Icon: {getSymbolValueSafe(drawnCard, "Icon")}
-                    </Badge>
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className="w-full max-w-[270px] h-[360px] bg-purple-800 rounded-lg flex items-center justify-center text-purple-300 text-center">
-                {loading ? (
-                  <div className="flex flex-col items-center">
-                    <Sparkles className="h-8 w-8 animate-spin mb-2" />
-                    <span>Drawing card...</span>
-                  </div>
-                ) : (
-                  "Draw a card to begin"
-                )}
-              </div>
-            )}
+    <div className={cn("flex flex-col items-center gap-6", className)} ref={dealerRef}>
+      {allowFreeReading && (
+        <div className="w-full max-w-md space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="question">Your Question</Label>
+            <Textarea
+              id="question"
+              placeholder="What would you like to ask the oracle?"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              className="min-h-24"
+            />
           </div>
 
-          {/* Controls */}
-          <div className="space-y-6">
-            <div className="grid gap-4">
-              <Label htmlFor="suit-filter" className="text-purple-200">
-                Filter by Suit
-              </Label>
-              <Select value={selectedSuit} onValueChange={setSelectedSuit}>
-                <SelectTrigger id="suit-filter" className="bg-purple-800 border-purple-700 text-white">
-                  <SelectValue placeholder="Any Suit" />
-                </SelectTrigger>
-                <SelectContent className="bg-purple-900 border-purple-700 text-white">
-                  <SelectItem value="any">Any Suit</SelectItem>
-                  {suits.map((suit) => (
-                    <SelectItem key={suit} value={suit}>
-                      {suit}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Label htmlFor="element-filter" className="text-purple-200">
-                Filter by Element
-              </Label>
-              <Select value={selectedElement} onValueChange={setSelectedElement}>
-                <SelectTrigger id="element-filter" className="bg-purple-800 border-purple-700 text-white">
-                  <SelectValue placeholder="Any Element" />
-                </SelectTrigger>
-                <SelectContent className="bg-purple-900 border-purple-700 text-white">
-                  <SelectItem value="any">Any Element</SelectItem>
-                  {elements.map((element) => (
-                    <SelectItem key={element} value={element}>
-                      {element}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Label htmlFor="number-filter" className="text-purple-200">
-                Filter by Number
-              </Label>
-              <Select value={selectedNumber} onValueChange={setSelectedNumber}>
-                <SelectTrigger id="number-filter" className="bg-purple-800 border-purple-700 text-white">
-                  <SelectValue placeholder="Any Number" />
-                </SelectTrigger>
-                <SelectContent className="bg-purple-900 border-purple-700 text-white">
-                  <SelectItem value="any">Any Number</SelectItem>
-                  {numbers.map((number) => (
-                    <SelectItem key={number} value={number}>
-                      {number}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button
-              onClick={handleDrawCard}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              disabled={loading}
+          <div className="space-y-2">
+            <Label>Reading Type</Label>
+            <RadioGroup
+              defaultValue={spreadType}
+              onValueChange={(value) => setSpreadType(value as "single" | "three")}
+              className="flex space-x-4"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-              {loading ? "Drawing..." : "Draw Card"}
-            </Button>
-
-            <div className="flex gap-4">
-              <Button
-                variant="outline"
-                className="flex-1 bg-purple-700 hover:bg-purple-600 text-white border-purple-600"
-                onClick={() => setIsShareDialogOpen(true)}
-                disabled={!drawnCard || loading}
-              >
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </Button>
-              <Button
-                variant="outline"
-                className="flex-1 bg-purple-700 hover:bg-purple-600 text-white border-purple-600"
-                onClick={handleDownloadImage}
-                disabled={!drawnCard || loading}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {drawnCard && (
-        <div className="mt-8 max-w-3xl mx-auto">
-          <Card className="bg-gradient-to-br from-indigo-900 to-purple-900 text-white">
-            <CardHeader>
-              <CardTitle className="text-xl">Card Insights</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {drawnCard.keyMeanings && drawnCard.keyMeanings.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold text-purple-200 mb-2">Key Meanings:</h4>
-                    <ul className="space-y-1">
-                      {drawnCard.keyMeanings.slice(0, 3).map((meaning, index) => (
-                        <li key={index} className="text-sm text-purple-100">
-                          • {meaning}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {drawnCard.symbolismBreakdown && drawnCard.symbolismBreakdown.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold text-purple-200 mb-2">Symbolism:</h4>
-                    <p className="text-sm text-purple-100">{drawnCard.symbolismBreakdown[0]}</p>
-                  </div>
-                )}
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="single" id="single" />
+                <Label htmlFor="single">Single Card</Label>
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="three" id="three" />
+                <Label htmlFor="three">Three Card Spread</Label>
+              </div>
+            </RadioGroup>
+          </div>
         </div>
       )}
 
-      {drawnCard && (
-        <ShareReadingDialog
-          open={isShareDialogOpen}
-          onOpenChange={setIsShareDialogOpen}
-          reading={{
-            id: drawnCard.id,
-            title: drawnCard.fullTitle,
-            summary: drawnCard.keyMeanings?.[0] || "No summary available.",
-            imageUrl: drawnCard.imageUrl,
-            createdAt: new Date().toISOString(),
-            type: "single-card",
-            cards: [drawnCard],
-          }}
-        />
+      <div className="flex flex-wrap justify-center gap-4">
+        {selectedCards.map((card, index) => (
+          <div
+            key={index}
+            className={`relative w-64 h-96 perspective-1000 cursor-pointer transition-transform duration-500 transform hover:scale-105`}
+            onClick={() => flipCard(index)}
+          >
+            <div
+              className={`absolute w-full h-full transition-transform duration-500 transform-style-3d ${
+                flippedCards[index] ? "rotate-y-180" : ""
+              }`}
+            >
+              <div className="absolute w-full h-full backface-hidden">
+                <Image
+                  src="/back.jpg"
+                  alt="Card Back"
+                  width={300}
+                  height={450}
+                  className="rounded-lg object-cover w-64 h-96"
+                />
+              </div>
+
+              <div className="absolute w-full h-full backface-hidden rotate-y-180">
+                <Image
+                  src={card.imageUrl || "/placeholder.svg"} // Use card.imageUrl directly
+                  alt={card.fullTitle}
+                  width={300}
+                  height={450}
+                  className="rounded-lg object-cover w-64 h-96"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-center">
+                  <div className="text-sm font-medium text-white">{card.fullTitle}</div>
+                  <div className="text-xs text-gray-300">
+                    {card.number} • {card.baseElement}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {isDealing && (
+          <div className="w-64 h-96 flex items-center justify-center">
+            <Skeleton className="w-64 h-96 rounded-lg" />
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-wrap gap-4 justify-center mt-4">
+        <Button onClick={dealCards} disabled={isDealing || isGenerating} size="lg">
+          {selectedCards.length === 0 ? "Deal Cards" : "Redeal"}
+        </Button>
+
+        {selectedCards.length > 0 && (
+          <Button
+            onClick={generateReadingFromCards}
+            disabled={isGenerating || !selectedCards.length || !flippedCards.every((flipped) => flipped)}
+            size="lg"
+            variant="secondary"
+          >
+            {isGenerating ? "Generating..." : "Generate Reading"}
+          </Button>
+        )}
+      </div>
+
+      {error && <div className="text-red-500 mt-4">{error}</div>}
+
+      {reading && (
+        <Card className="w-full max-w-3xl mt-8">
+          <CardContent className="p-6">
+            <h3 className="text-2xl font-bold mb-4">Your Reading</h3>
+            <div className="prose dark:prose-invert">
+              <div dangerouslySetInnerHTML={{ __html: reading.content }} />
+            </div>
+          </CardContent>
+        </Card>
       )}
+
+      {drawnCards.length > 0 && (
+        <div className="space-y-8">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-purple-300 mb-4">Reading Interpretation</h3>
+            <p className="text-gray-300 mb-6">Your cards have been drawn. Here's what they reveal:</p>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-6 mb-8">
+            {drawnCards.map((drawnCard, index) => renderCard(drawnCard, index))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {drawnCards.map((drawnCard, index) => {
+              const { card } = drawnCard
+              // Use the direct number field from the card data
+              const cardNumber = card.number || "0"
+
+              return (
+                <Card key={index} className="bg-gray-800/50 border-purple-500/30">
+                  <CardContent className="p-4">
+                    <h4 className="text-lg font-semibold text-purple-300 mb-2">
+                      Card {index + 1}: {card.fullTitle}
+                    </h4>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <Badge variant="secondary">{card.suit}</Badge>
+                      <Badge variant="outline">Number: {cardNumber}</Badge>
+                      <Badge variant="destructive">{card.baseElement}</Badge>
+                    </div>
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      {card.keyMeanings?.[0] || "This card brings wisdom and guidance for your journey."}
+                    </p>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {renderExpandedCardReading()}
     </div>
   )
 }
