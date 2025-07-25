@@ -25,18 +25,18 @@ export interface CardSymbol {
 export interface OracleCard {
   id: string
   number: string // Stored as string to handle "0" and potential future non-numeric identifiers
-  suit: CardSuit
+  suit: string
   fullTitle: string
-  symbols: CardSymbol[]
+  symbols: { key: string; value: string }[]
   symbolismBreakdown: string[]
   keyMeanings: string[]
-  baseElement: CardElement
+  baseElement: string
   planetInternalInfluence: string
   astrologyExternalDomain: string
   iconSymbol: string
-  orientation: CardOrientation
+  orientation: string
   sacredGeometry: string
-  synergisticElement: CardElement
+  synergisticElement: string
   imagePath?: string // Optional: path to the card image
   compoundMeaning?: boolean // Indicates if it's a compound number with special meaning
 }
@@ -59,9 +59,14 @@ export interface CardMetadata {
 // Filter options interface
 export interface CardFilterOptions {
   suit?: string
-  element?: string
   number?: string
-  query?: string
+  baseElement?: string
+  planetInternalInfluence?: string
+  astrologyExternalDomain?: string
+  iconSymbol?: string
+  orientation?: string
+  sacredGeometry?: string
+  synergisticElement?: string
 }
 
 // Sort options type

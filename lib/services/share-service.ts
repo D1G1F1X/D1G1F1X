@@ -1,4 +1,4 @@
-import type { OracleCard } from "../models/oracle-card" // Assuming OracleCard is imported from this path
+import type { OracleCard } from "@/types/cards" // Assuming OracleCard is imported from this path
 
 export interface ShareData {
   title: string
@@ -53,7 +53,7 @@ export const shareService = {
     }
   },
 
-  // Generate shareable link
+  // Generate shareable link (for general reports, if applicable)
   generateShareableLink(reportId: string): string {
     const baseUrl = typeof window !== "undefined" ? window.location.origin : ""
     return `${baseUrl}/numerology-report/${reportId}`
@@ -90,7 +90,7 @@ export const shareService = {
   },
 }
 
-// New function to generate a shareable link for the simulator
+// New function to generate a shareable link specifically for the simulator readings
 export function generateShareableLinkForSimulator({
   readingText,
   question,
