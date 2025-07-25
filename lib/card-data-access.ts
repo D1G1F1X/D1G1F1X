@@ -123,3 +123,19 @@ export function sortCards(cards: OracleCard[], sortBy: CardSortOption): OracleCa
     return 0
   })
 }
+
+/**
+ * Extracts unique suits, elements, and numbers from a list of OracleCards.
+ * @param cards An array of OracleCard objects.
+ * @returns An object containing arrays of unique suits, elements, and numbers.
+ */
+export function getUniqueCardProperties(cards: OracleCard[]) {
+  const suits = Array.from(new Set(cards.map((card) => card.suit))).sort()
+  const elements = Array.from(new Set(cards.map((card) => card.baseElement))).sort()
+  const numbers = Array.from(new Set(cards.map((card) => card.number))).sort((a, b) => {
+    const numA = Number.parseInt(a, 10)
+    const numB = Number.parseInt(b, 10)
+    return numA - numB
+  })
+  return { suits, elements, numbers }
+}
