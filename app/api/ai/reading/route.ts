@@ -2,7 +2,7 @@ import { generateReading } from "@/lib/actions/generate-reading"
 import { getCardById } from "@/lib/card-data-access"
 import { NextResponse } from "next/server"
 import { StreamingTextResponse } from "ai" // Import StreamingTextResponse
-import type { OracleCard, DrawnCardForAI, UserContext, SpreadType } from "@/types/cards"
+import type { DrawnCardForAI, UserContext, SpreadType } from "@/types/cards"
 
 export const runtime = "edge" // This is important for streaming with Vercel Edge Functions
 
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       userContext,
       spreadType,
     } = (await req.json()) as {
-      cards: OracleCard[] // This is the input from the client, which might be partial
+      cards: { card: { id: string; fullTitle: string; imageUrl: string; orientation?: string }; orientation?: string }[] // This is the input from the client, which might be partial
       question: string
       spreadType: SpreadType
       userContext: UserContext
@@ -48,6 +48,8 @@ export async function POST(req: Request) {
 
       // Use the orientation passed from the client (which was randomly determined there)
       // and map it to 'first' or 'second' end for the AI prompt.
+      // This logic needs to be robust to handle cases where orientation might not perfectly match
+      // or if the card itself doesn't have explicit 'firstEnd'/'secondEnd' orientations.
       const endUp: "first" | "second" =
         (fullCard.firstEnd?.orientation === dcInput.orientation ||
           (fullCard.firstEnd?.orientation === "Upright" && dcInput.orientation === "Upright")) &&
