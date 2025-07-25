@@ -1,5 +1,5 @@
 import { CardSimulatorPageClient } from "./CardSimulatorPageClient"
-import { getAllOracleCards } from "@/lib/card-data-access" // Corrected import
+import { getAllOracleCards } from "@/lib/card-data-access"
 
 export default async function CardSimulatorPage() {
   const allCards = getAllOracleCards()

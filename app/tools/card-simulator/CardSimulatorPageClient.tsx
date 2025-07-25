@@ -12,14 +12,14 @@ import { ShareReadingDialog } from "@/components/share-reading-dialog"
 import type { OracleCard } from "@/types/cards"
 import { filterCards } from "@/lib/card-data-access"
 
-interface CardSimulatorProps {
+interface CardSimulatorPageClientProps {
   allCards: OracleCard[]
   suits: string[]
   elements: string[]
   numbers: string[]
 }
 
-export function CardSimulator({ allCards, suits, elements, numbers }: CardSimulatorProps) {
+export function CardSimulatorPageClient({ allCards, suits, elements, numbers }: CardSimulatorPageClientProps) {
   const [drawnCard, setDrawnCard] = useState<OracleCard | null>(null)
   const [selectedSuit, setSelectedSuit] = useState<string>("any")
   const [selectedElement, setSelectedElement] = useState<string>("any")
