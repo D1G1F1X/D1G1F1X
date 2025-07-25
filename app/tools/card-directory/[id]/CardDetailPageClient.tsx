@@ -1,55 +1,34 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Share2, Download, Sparkles } from "lucide-react"
 import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
-import { ShareReadingDialog } from "@/components/share-reading-dialog"
 import type { OracleCard } from "@/types/cards"
-import { getSymbolValue, getSymbolDescription } from "@/lib/numerology" // Corrected import path
+import { getSymbolValue, getSymbolDescription } from "@/lib/numerology" // Correct import path
 
 interface CardDetailPageClientProps {
-  card: OracleCard | null
+  card: OracleCard
 }
 
 export function CardDetailPageClient({ card }: CardDetailPageClientProps) {
-  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    if (card) {
-      setLoading(false)
-    }
-  }, [card])
-
-  const handleDownloadImage = () => {
-    if (card) {
-      const link = document.createElement("a")
-      link.href = card.imageUrl
-      link.download = `${card.fullTitle.replace(/\s/g, "-")}.jpg`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-64px)] text-lg text-muted-foreground">
-        <Sparkles className="h-6 w-6 animate-spin mr-2" />
-        Loading card details...
-      </div>
-    )
-  }
-
   if (!card) {
     return (
-      <div className="container mx-auto py-8 px-4 md:px-6 text-center text-xl text-muted-foreground min-h-[calc(100vh-64px)]">
+      <div className="container mx-auto py-8 px-4 md:px-6 text-center text-lg text-muted-foreground">
         Card not found.
       </div>
     )
+  }
+
+  // Use a safe wrapper for getSymbolValue to handle any potential errors
+  const getSymbolValueSafe = (symbol: string | undefined): string => {
+    if (!symbol) return "N/A"
+    try {
+      const value = getSymbolValue(symbol)
+      return value.toString()
+    } catch (error) {
+      console.error(`Error getting symbol value for ${symbol}:`, error)
+      return "N/A"
+    }
   }
 
   return (
@@ -59,7 +38,7 @@ export function CardDetailPageClient({ card }: CardDetailPageClientProps) {
           {card.fullTitle}
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Deep dive into the symbolism and meanings of this Oracle Card.
+          A deep dive into the meaning and symbolism of this Oracle Card.
         </p>
       </div>
 
@@ -72,10 +51,11 @@ export function CardDetailPageClient({ card }: CardDetailPageClientProps) {
               cardTitle={card.fullTitle}
               baseElement={card.baseElement}
               synergisticElement={card.synergisticElement}
-              className="w-full max-w-[300px] mb-4"
+              className="w-full max-w-[270px] mb-4"
               showStatus={true}
             />
-            <div className="flex flex-wrap gap-2 justify-center mt-4">
+            <h3 className="text-xl font-bold text-center mb-2">{card.fullTitle}</h3>
+            <div className="flex flex-wrap gap-2 justify-center">
               <Badge variant="secondary" className="bg-purple-600 text-white">
                 {card.suit}
               </Badge>
@@ -90,35 +70,29 @@ export function CardDetailPageClient({ card }: CardDetailPageClientProps) {
               <Badge variant="secondary" className="bg-purple-600 text-white">
                 Number: {card.number}
               </Badge>
-            </div>
-            <div className="flex gap-4 mt-6 w-full max-w-[300px]">
-              <Button
-                variant="outline"
-                className="flex-1 bg-purple-700 hover:bg-purple-600 text-white border-purple-600"
-                onClick={() => setIsShareDialogOpen(true)}
-              >
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </Button>
-              <Button
-                variant="outline"
-                className="flex-1 bg-purple-700 hover:bg-purple-600 text-white border-purple-600"
-                onClick={handleDownloadImage}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
+              {card.sacredGeometry && (
+                <Badge variant="secondary" className="bg-purple-600 text-white">
+                  Sacred Geometry: {card.sacredGeometry}
+                </Badge>
+              )}
+              {card.iconSymbol && (
+                <Badge variant="secondary" className="bg-purple-600 text-white">
+                  Symbol Value: {getSymbolValueSafe(card.iconSymbol)}
+                </Badge>
+              )}
             </div>
           </div>
 
-          {/* Card Details */}
+          {/* Detailed Insights */}
           <div className="space-y-6">
             {card.keyMeanings && card.keyMeanings.length > 0 && (
               <div>
-                <h3 className="text-xl font-bold text-purple-200 mb-2">Key Meanings</h3>
-                <ul className="list-disc list-inside space-y-1 text-purple-100">
+                <h4 className="font-semibold text-purple-200 mb-2">Key Meanings:</h4>
+                <ul className="space-y-1">
                   {card.keyMeanings.map((meaning, index) => (
-                    <li key={index}>{meaning}</li>
+                    <li key={index} className="text-sm text-purple-100">
+                      • {meaning}
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -126,74 +100,47 @@ export function CardDetailPageClient({ card }: CardDetailPageClientProps) {
 
             {card.symbolismBreakdown && card.symbolismBreakdown.length > 0 && (
               <div>
-                <h3 className="text-xl font-bold text-purple-200 mb-2">Symbolism Breakdown</h3>
-                <ul className="list-disc list-inside space-y-1 text-purple-100">
-                  {card.symbolismBreakdown.map((item, index) => (
-                    <li key={index}>{item}</li>
+                <h4 className="font-semibold text-purple-200 mb-2">Symbolism Breakdown:</h4>
+                <ul className="space-y-1">
+                  {card.symbolismBreakdown.map((symbolism, index) => (
+                    <li key={index} className="text-sm text-purple-100">
+                      • {symbolism}
+                    </li>
                   ))}
                 </ul>
               </div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {card.planetInternalInfluence && (
-                <div>
-                  <h4 className="font-semibold text-purple-200">Planet (Internal Influence)</h4>
-                  <p className="text-sm text-purple-100">{getSymbolDescription(card.planetInternalInfluence)}</p>
-                </div>
-              )}
-              {card.astrologyExternalDomain && (
-                <div>
-                  <h4 className="font-semibold text-purple-200">Astrology (External Domain)</h4>
-                  <p className="text-sm text-purple-100">{getSymbolDescription(card.astrologyExternalDomain)}</p>
-                </div>
-              )}
-              {card.iconSymbol && (
-                <div>
-                  <h4 className="font-semibold text-purple-200">Icon Symbol</h4>
-                  <p className="text-sm text-purple-100">
-                    {getSymbolDescription(card.iconSymbol)} (Value: {getSymbolValue(card.iconSymbol)})
-                  </p>
-                </div>
-              )}
-              {card.orientation && (
-                <div>
-                  <h4 className="font-semibold text-purple-200">Orientation</h4>
-                  <p className="text-sm text-purple-100">{getSymbolDescription(card.orientation)}</p>
-                </div>
-              )}
-              {card.sacredGeometry && (
-                <div>
-                  <h4 className="font-semibold text-purple-200">Sacred Geometry</h4>
-                  <p className="text-sm text-purple-100">{getSymbolDescription(card.sacredGeometry)}</p>
-                </div>
-              )}
-              {card.synergisticElement && (
-                <div>
-                  <h4 className="font-semibold text-purple-200">Synergistic Element</h4>
-                  <p className="text-sm text-purple-100">{getSymbolDescription(card.synergisticElement)}</p>
-                </div>
-              )}
-            </div>
+            {card.numberMeaning && (
+              <div>
+                <h4 className="font-semibold text-purple-200 mb-2">Number Meaning:</h4>
+                <p className="text-sm text-purple-100">{card.numberMeaning}</p>
+              </div>
+            )}
+
+            {card.planetInternalInfluence && (
+              <div>
+                <h4 className="font-semibold text-purple-200 mb-2">Internal Influence (Planet):</h4>
+                <p className="text-sm text-purple-100">{getSymbolDescription(card.planetInternalInfluence)}</p>
+              </div>
+            )}
+
+            {card.astrologyExternalDomain && (
+              <div>
+                <h4 className="font-semibold text-purple-200 mb-2">External Domain (Astrology):</h4>
+                <p className="text-sm text-purple-100">{getSymbolDescription(card.astrologyExternalDomain)}</p>
+              </div>
+            )}
+
+            {card.orientation && (
+              <div>
+                <h4 className="font-semibold text-purple-200 mb-2">Orientation:</h4>
+                <p className="text-sm text-purple-100">{getSymbolDescription(card.orientation)}</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
-
-      {card && (
-        <ShareReadingDialog
-          open={isShareDialogOpen}
-          onOpenChange={setIsShareDialogOpen}
-          reading={{
-            id: card.id,
-            title: card.fullTitle,
-            summary: card.keyMeanings?.[0] || "No summary available.",
-            imageUrl: card.imageUrl,
-            createdAt: new Date().toISOString(),
-            type: "card-detail",
-            cards: [card],
-          }}
-        />
-      )}
     </div>
   )
 }
