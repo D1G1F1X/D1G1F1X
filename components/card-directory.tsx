@@ -11,8 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, ChevronLeft, ChevronRight, Printer, ExternalLink } from "lucide-react"
+// Import the updated getCardImagePath from card-data-access
 import { getCardData, getAllElements, getAllSuits, getCardImagePath } from "@/lib/card-data-access"
 import type { OracleCard } from "@/types/cards"
+import { getElementColor, getElementSymbol } from "@/lib/card-image-utils" // Re-import these if they were removed
 
 export function CardDirectory() {
   const [cards, setCards] = useState<OracleCard[]>([])
@@ -31,6 +33,7 @@ export function CardDirectory() {
     const loadCards = async () => {
       try {
         setIsLoading(true)
+        // getCardData is synchronous. getCardImagePath now uses the initialized singleton.
         const allCards = getCardData()
         setCards(allCards)
         setElements(getAllElements())
@@ -84,60 +87,28 @@ export function CardDirectory() {
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, card: OracleCard, endUp: "first" | "second") => {
     const target = e.target as HTMLImageElement
     if (!target.src.includes("placeholder")) {
-      const element = endUp === "first" ? card.baseElement : card.synergisticElement
-      const elementVariations = [
-        element?.toLowerCase(),
-        element?.toUpperCase(),
-        element?.charAt(0).toUpperCase() + element?.slice(1).toLowerCase(),
-      ]
-      for (const elementVar of elementVariations) {
-        const altPath = `/cards/${card.number}${card.suit?.toLowerCase()}-${elementVar || "spirit"}.jpg`
-        if (target.src !== altPath) {
-          target.src = altPath
-          return
-        }
+      // Fallback logic for image errors, using the local path convention
+      const numberStr = card.number?.toString().padStart(2, "0") || "00"
+      const suitStr = card.suit?.toLowerCase() || "unknown"
+      const elementStr =
+        endUp === "first"
+          ? card.baseElement?.toLowerCase() || "spirit"
+          : card.synergisticElement?.toLowerCase() || "spirit"
+      const altPath = `/cards/${numberStr}-${suitStr}-${elementStr}.jpg`
+
+      if (target.src !== altPath) {
+        target.src = altPath
+        return
       }
       target.src = `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
     }
     setImageErrors((prev) => ({ ...prev, [`${card.id}-${endUp}`]: true }))
   }
 
-  const getElementColor = (element: string) => {
-    switch (element?.toLowerCase()) {
-      case "earth":
-        return "bg-green-900/20 border-green-500/30 text-green-300"
-      case "water":
-        return "bg-blue-900/20 border-blue-500/30 text-blue-300"
-      case "fire":
-        return "bg-red-900/20 border-red-500/30 text-red-300"
-      case "air":
-        return "bg-yellow-900/20 border-yellow-500/30 text-yellow-300"
-      case "spirit":
-        return "bg-purple-900/20 border-purple-500/30 text-purple-300"
-      default:
-        return "bg-gray-900/20 border-gray-500/30 text-gray-300"
-    }
-  }
-
-  const getElementSymbol = (element: string) => {
-    switch (element?.toLowerCase()) {
-      case "earth":
-        return "⊕"
-      case "water":
-        return "≈"
-      case "fire":
-        return "△"
-      case "air":
-        return "≋"
-      case "spirit":
-        return "✧"
-      default:
-        return "★"
-    }
-  }
-
+  // getCardImage is now synchronous as getCardImagePath from lib/card-data-access is synchronous
   const getCardImage = (card: OracleCard, endUp: "first" | "second") => {
     const hasImageError = imageErrors[`${card.id}-${endUp}`]
+    // Use the updated getCardImagePath from lib/card-data-access
     const imagePath = getCardImagePath(card, endUp)
     const fallbackPath = `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
 

@@ -1,6 +1,17 @@
 import masterCardData from "@/data/master-card-data.json"
 import type { OracleCard } from "@/types/cards"
 
+// Singleton for image paths
+let _imagePaths: Record<string, string> = {}
+
+/**
+ * Initializes the image paths. This should be called once, e.g., in a layout or a top-level component.
+ * @param paths The image paths data.
+ */
+export function initializeImagePaths(paths: Record<string, string>) {
+  _imagePaths = paths
+}
+
 /**
  * Utility functions for accessing card data consistently across the application
  * Directly uses the master card data structure.
@@ -51,19 +62,30 @@ export function getRandomCards(count: number): OracleCard[] {
 
 /**
  * Gets the image path for a card based on its number, suit, and element.
+ * It first tries to find a blob URL from the initialized imagePaths, then falls back to a local path.
  * The 'end' parameter determines whether to use the baseElement or synergisticElement for the path.
+ * This function is synchronous.
  */
 export function getCardImagePath(card: OracleCard, end: "first" | "second"): string {
   if (!card) return "/placeholder.svg"
 
-  // Use the direct number field from the card data
-  const number = card.number?.toString().padStart(2, "0") || "00"
-  const suit = card.suit?.toLowerCase() || "unknown"
-  const element =
+  const numberStr = card.number?.toString().padStart(2, "0") || "00"
+  const suitStr = card.suit?.toLowerCase() || "unknown"
+  const elementStr =
     end === "first" ? card.baseElement?.toLowerCase() || "spirit" : card.synergisticElement?.toLowerCase() || "spirit"
 
-  // Changed from `${number}${suit}-${element}.jpg` to `${number}-${suit}-${element}.jpg`
-  return `/cards/${number}-${suit}-${element}.jpg`
+  // Construct the descriptive key used in card-image-paths.json
+  // Example: "01cauldron-spirit.jpg"
+  const descriptiveKey = `${numberStr}${suitStr}-${elementStr}.jpg`
+
+  // If blob URL is found in the initialized paths, use it
+  if (_imagePaths[descriptiveKey]) {
+    return _imagePaths[descriptiveKey]
+  }
+
+  // Fallback to local path if blob URL not found
+  // Example: "/cards/01-cauldron-spirit.jpg"
+  return `/cards/${numberStr}-${suitStr}-${elementStr}.jpg`
 }
 
 /**

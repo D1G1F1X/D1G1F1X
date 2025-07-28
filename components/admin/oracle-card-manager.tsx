@@ -11,7 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useToast } from "@/components/ui/use-toast"
 import { Save, RefreshCw, AlertCircle, ImageIcon } from "lucide-react"
-import { getCardImagePath } from "@/lib/card-image-utils" // For displaying current image
+// Import getCardImagePath from lib/card-data-access, which now handles blob URLs
+import { getCardImagePath } from "@/lib/card-data-access"
 
 // Define types based on comprehensive-card-data.json structure (numeric keys)
 interface CardElementData {
@@ -20,7 +21,7 @@ interface CardElementData {
   baseElementNote?: boolean
 }
 interface ComprehensiveCard {
-  number: number
+  number: string // Changed to string to match JSON data
   suit: string
   name: string
   pair: string
@@ -38,6 +39,12 @@ interface ComprehensiveCard {
   keywords?: string[]
   // This 'id' will be the numeric key from the parent object, e.g., "0", "1"
   id: string
+  fullTitle: string // Added to match OracleCard type
+  baseElement?: string // Added to match OracleCard type
+  synergisticElement?: string // Added to match OracleCard type
+  iconSymbol?: string // Added to match OracleCard type
+  keyMeanings: string[] // Added to match OracleCard type
+  symbolismBreakdown: string[] // Added to match OracleCard type
 }
 
 type ComprehensiveCardData = Record<string, Omit<ComprehensiveCard, "id">> // API returns this
@@ -45,7 +52,7 @@ type CardImagePathsData = Record<string, string>
 
 export function OracleCardManager() {
   const [cardDetails, setCardDetails] = useState<ComprehensiveCard[]>([])
-  const [imagePaths, setImagePaths] = useState<CardImagePathsData>({})
+  const [imagePaths, setImagePaths] = useState<CardImagePathsData>({}) // Keep this state for editing/saving
   const [isLoading, setIsLoading] = useState(true)
   const [isSavingCardDetails, setIsSavingCardDetails] = useState(false)
   const [isSavingImagePaths, setIsSavingImagePaths] = useState(false)
@@ -76,7 +83,7 @@ export function OracleCardManager() {
         .sort((a, b) => Number.parseInt(a.id) - Number.parseInt(b.id)) // Sort by numeric ID
 
       setCardDetails(detailsArray)
-      setImagePaths(pathsData)
+      setImagePaths(pathsData) // Set the fetched image paths for local management
     } catch (err: any) {
       console.error("Error fetching card management data:", err)
       setError(err.message || "Failed to load data.")
@@ -107,12 +114,23 @@ export function OracleCardManager() {
     const baseElementStr = getBaseElement(card)?.toLowerCase()
 
     if (!numberStr || !suitStr || !baseElementStr) return null
-    return `${numberStr}${suitStr}-${baseElementStr}`
+    return `${numberStr}${suitStr}-${baseElementStr}` // This is the key part, without .jpg
   }
 
   const handleDetailChange = (
     cardId: string,
-    field: keyof Omit<ComprehensiveCard, "id" | "elements" | "keywords">,
+    field: keyof Omit<
+      ComprehensiveCard,
+      | "id"
+      | "elements"
+      | "keywords"
+      | "fullTitle"
+      | "baseElement"
+      | "synergisticElement"
+      | "iconSymbol"
+      | "keyMeanings"
+      | "symbolismBreakdown"
+    >,
     value: string | number,
   ) => {
     setCardDetails((prevDetails) =>
@@ -235,10 +253,14 @@ export function OracleCardManager() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cardDetails.map((card) => {
-          const descriptiveKey = getDescriptiveImageKey(card)
-          const currentImagePathKey = descriptiveKey ? `${descriptiveKey}.jpg` : null
+          const descriptiveKey = getDescriptiveImageKey(card) // e.g., "01cauldron-spirit"
+          const currentImagePathKey = descriptiveKey ? `${descriptiveKey}.jpg` : null // e.g., "01cauldron-spirit.jpg"
+          // This `currentImagePathValue` is the blob URL if it exists in imagePaths state (the one being edited)
           const currentImagePathValue = currentImagePathKey ? imagePaths[currentImagePathKey] : undefined
-          const displayImageUrl = getCardImagePath(descriptiveKey, card.name)
+
+          // The URL to display: prioritize the one from the editable state,
+          // otherwise use the globally resolved path (which also uses the singleton)
+          const displayImageUrl = currentImagePathValue || getCardImagePath(card, "first")
 
           return (
             <Card key={card.id} className="flex flex-col">
@@ -251,7 +273,7 @@ export function OracleCardManager() {
                 <div className="relative w-full aspect-[270/420] border rounded overflow-hidden bg-slate-800">
                   {displayImageUrl ? (
                     <Image
-                      src={displayImageUrl || "/placeholder.svg"}
+                      src={displayImageUrl || "/placeholder.svg"} // Use the resolved URL
                       alt={card.name}
                       fill
                       className="object-contain"
@@ -268,7 +290,7 @@ export function OracleCardManager() {
                     Image Path in Manifest (e.g., public/cards/01cauldron-spirit.jpg)
                   </label>
                   <Input
-                    value={currentImagePathValue || ""}
+                    value={currentImagePathValue || ""} // Display the actual blob URL or empty
                     onChange={(e) => descriptiveKey && handleImagePathChange(descriptiveKey, e.target.value)}
                     placeholder="public/cards/..."
                     disabled={!descriptiveKey}

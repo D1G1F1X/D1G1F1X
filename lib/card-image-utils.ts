@@ -1,80 +1,156 @@
+import type React from "react"
 /**
  * Utility functions for handling card images
  */
+import type { OracleCard } from "@/types/cards"
 
 /**
- * Gets the image path for a card based on its descriptive key or name
+ * Gets the image path for a card based on its number, suit, and element.
+ * This function is primarily for internal use within card-image-utils
+ * and for generating fallback paths. The main image resolution for components
+ * should now come from `lib/card-data-access.ts`.
  */
-export function getCardImagePath(descriptiveKey: string | null, cardName: string): string {
-  if (!descriptiveKey) {
-    // Fallback to a placeholder if no descriptive key is available
-    return `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardName || "oracle card")}`
+export function getCardImagePath(card: OracleCard, end: "first" | "second"): string {
+  if (!card) return "/placeholder.svg"
+
+  const numberStr = card.number?.toString().padStart(2, "0") || "00"
+  const suitStr = card.suit?.toLowerCase() || "unknown"
+  const elementStr =
+    end === "first" ? card.baseElement?.toLowerCase() || "spirit" : card.synergisticElement?.toLowerCase() || "spirit"
+
+  // This function now only returns the local path, as the blob resolution
+  // is handled by `getCardImagePath` in `lib/card-data-access.ts`
+  return `/cards/${numberStr}-${suitStr}-${elementStr}.jpg`
+}
+
+/**
+ * Creates a fallback image URL for when a card image fails to load
+ */
+export function getCardFallbackUrl(card: any): string {
+  if (!card) return "/placeholder.svg?height=280&width=180"
+
+  let queryText = ""
+
+  if (typeof card === "string") {
+    queryText = card
+  } else if (card.fullTitle) {
+    queryText = `${card.fullTitle} card`
+  } else if (card.name) {
+    queryText = `${card.name} card`
+  } else if (card.suit && card.baseElement) {
+    queryText = `${card.suit} of ${card.baseElement}`
+  } else {
+    queryText = "oracle card"
   }
 
-  // Return the path to the card image
-  return `/cards/${descriptiveKey}.jpg`
+  return `/placeholder.svg?height=280&width=180&query=${encodeURIComponent(queryText)}`
 }
 
 /**
- * Creates a fallback URL for when a card image is not found
+ * Handles image loading errors by providing a fallback
  */
-export function createCardFallbackUrl(cardName: string): string {
-  return `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardName || "oracle card")}`
+export function handleCardImageError(event: React.SyntheticEvent<HTMLImageElement, Event>, card: OracleCard): void {
+  const img = event.currentTarget
+  const cardName = card?.fullTitle || card?.name || "Unknown Card"
+  const element = card?.baseElement || "spirit"
+
+  console.warn(`Failed to load image for card: ${cardName} (${element})`)
+
+  // Set a placeholder image
+  img.src = getCardFallbackUrl(card)
+
+  // Add a class to indicate error
+  img.classList.add("image-load-error")
 }
 
 /**
- * Validates if a card image exists
+ * Preloads common card images to improve user experience
  */
-export async function validateCardImage(imagePath: string): Promise<boolean> {
+export function preloadCommonCardImages(): void {
+  if (typeof window === "undefined") return
+
+  const commonElements = ["fire", "water", "air", "earth", "spirit"]
+  const commonTypes = ["cauldron", "sword", "spear", "stone", "cord"]
+
+  // Preload a subset of common cards
+  for (const type of commonTypes) {
+    for (const element of commonElements) {
+      const img = new Image()
+      img.src = `/cards/01${type}-${element}.jpg`
+    }
+  }
+}
+
+/**
+ * Gets the Tailwind CSS classes for an element's color.
+ */
+export function getElementColor(element: string) {
+  switch (element?.toLowerCase()) {
+    case "earth":
+      return "bg-green-900/20 border-green-500/30 text-green-300"
+    case "water":
+      return "bg-blue-900/20 border-blue-500/30 text-blue-300"
+    case "fire":
+      return "bg-red-900/20 border-red-500/30 text-red-300"
+    case "air":
+      return "bg-yellow-900/20 border-yellow-500/30 text-yellow-300"
+    case "spirit":
+      return "bg-purple-900/20 border-purple-500/30 text-purple-300"
+    default:
+      return "bg-gray-900/20 border-gray-500/30 text-gray-300"
+  }
+}
+
+/**
+ * Gets a symbolic icon for a given suit.
+ */
+export function getSuitIcon(suit: string) {
+  switch (suit?.toLowerCase()) {
+    case "cauldron":
+      return "⚗️" // Alchemical symbol for distillation/cauldron
+    case "sword":
+      return "⚔️" // Crossed swords
+    case "spear":
+      return "🔱" // Trident/spear
+    case "stone":
+      return "🪨" // Rock/stone
+    case "cord":
+      return "➰" // Loop/knot
+    default:
+      return "✨" // Sparkle for unknown
+  }
+}
+
+/**
+ * Gets a symbolic icon for a given element.
+ */
+export function getElementSymbol(element: string) {
+  switch (element?.toLowerCase()) {
+    case "earth":
+      return "⊕" // Earth symbol
+    case "water":
+      return "≈" // Water waves
+    case "fire":
+      return "△" // Fire triangle
+    case "air":
+      return "≋" // Air waves
+    case "spirit":
+      return "✧" // Star/sparkle
+    default:
+      return "★" // Generic star
+  }
+}
+
+// This function is not directly used in the current context but kept for completeness
+export async function verifyCardImage(cardId: string): Promise<boolean> {
+  // This function would need to be updated to use the new getCardImagePath from lib/card-data-access
+  // if it's intended to verify blob URLs. For now, it's left as is.
+  const imagePath = `/cards/${cardId}.jpg` // This assumes a simple cardId to image mapping
   try {
     const response = await fetch(imagePath, { method: "HEAD" })
     return response.ok
   } catch (error) {
-    console.error(`Error validating image at ${imagePath}:`, error)
+    console.error(`Failed to verify card image for ${cardId}:`, error)
     return false
-  }
-}
-
-/**
- * Gets the element color class for styling
- */
-export function getElementColorClass(element: string | undefined): string {
-  if (!element) return "bg-gray-500/20 text-gray-400 border-gray-500/30"
-
-  switch (element.toLowerCase()) {
-    case "fire":
-      return "bg-red-500/20 text-red-400 border-red-500/30"
-    case "water":
-      return "bg-blue-500/20 text-blue-400 border-blue-500/30"
-    case "air":
-      return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-    case "earth":
-      return "bg-green-500/20 text-green-400 border-green-500/30"
-    case "spirit":
-      return "bg-purple-500/20 text-purple-400 border-purple-500/30"
-    default:
-      return "bg-gray-500/20 text-gray-400 border-gray-500/30"
-  }
-}
-
-/**
- * Gets the suit icon for display
- */
-export function getSuitIcon(suit: string | undefined): string {
-  if (!suit) return "✧"
-
-  switch (suit.toLowerCase()) {
-    case "cauldron":
-      return "🔮"
-    case "sword":
-      return "⚔️"
-    case "spear":
-      return "🔱"
-    case "stone":
-      return "🪨"
-    case "cord":
-      return "⚝"
-    default:
-      return "✧"
   }
 }
