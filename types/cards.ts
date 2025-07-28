@@ -1,11 +1,10 @@
 export interface OracleCard {
   id: string
-  number: string // Changed from number to string to match JSON data
+  number: string // Changed to string to match JSON data
   suit: string
   fullTitle: string
-  name: string // Added name as it's used in OracleCardManager
-  pair: string
   description: string
+  pair: string
   numberMeaning: string
   sacredGeometryName: string
   sacredGeometryMeaning: string
@@ -15,15 +14,44 @@ export interface OracleCard {
   planetMeaning: string
   astroSignName: string
   astroSignMeaning: string
+  baseElement: string
+  synergisticElement: string
+  iconSymbol: string
+  orientation: string
+  sacredGeometry: string
+  keyMeanings: string[]
+  symbolismBreakdown: string[]
+  symbols: { key: string; value: string }[]
   elements: Record<string, { influence: string; guidance: string; baseElementNote?: boolean }>
   keywords?: string[]
-  baseElement?: string // Added to match data structure
-  synergisticElement?: string // Added to match data structure
-  iconSymbol?: string // Added to match data structure
-  keyMeanings: string[] // Added to match data structure
-  symbolismBreakdown: string[] // Added to match data structure
-  orientation?: string // Added to match data structure
-  sacredGeometry?: string // Added to match data structure
-  planetInternalInfluence?: string // Added to match data structure
-  astrologyExternalDomain?: string // Added to match data structure
+}
+
+export interface CardSpread {
+  id: string
+  name: string
+  description: string
+  numCards: number
+  layout: { x: number; y: number; label: string }[]
+}
+
+export interface CardReading {
+  id: string
+  userId: string
+  spreadId: string
+  timestamp: string
+  cards: {
+    cardId: string
+    position: number
+    label: string
+    meaning: string
+  }[]
+  readingText: string
+  title?: string
+  notes?: string
+  isPublic?: boolean
+  shareUrl?: string
+}
+
+export interface CardImagePaths {
+  [key: string]: string // e.g., "01cauldron-fire.jpg": "https://blob.vercel-storage.com/..."
 }

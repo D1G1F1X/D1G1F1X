@@ -10,6 +10,7 @@ let _imagePaths: Record<string, string> = {}
  */
 export function initializeImagePaths(paths: Record<string, string>) {
   _imagePaths = paths
+  console.log("Image paths initialized. Total paths:", Object.keys(_imagePaths).length)
 }
 
 /**
@@ -67,7 +68,10 @@ export function getRandomCards(count: number): OracleCard[] {
  * This function is synchronous.
  */
 export function getCardImagePath(card: OracleCard, end: "first" | "second"): string {
-  if (!card) return "/placeholder.svg"
+  if (!card) {
+    console.warn("getCardImagePath called with undefined card. Returning placeholder.")
+    return "/placeholder.svg"
+  }
 
   const numberStr = card.number?.toString().padStart(2, "0") || "00"
   const suitStr = card.suit?.toLowerCase() || "unknown"
@@ -80,12 +84,15 @@ export function getCardImagePath(card: OracleCard, end: "first" | "second"): str
 
   // If blob URL is found in the initialized paths, use it
   if (_imagePaths[descriptiveKey]) {
+    console.log(`Found blob URL for ${descriptiveKey}: ${_imagePaths[descriptiveKey]}`)
     return _imagePaths[descriptiveKey]
   }
 
   // Fallback to local path if blob URL not found
   // Example: "/cards/01-cauldron-spirit.jpg"
-  return `/cards/${numberStr}-${suitStr}-${elementStr}.jpg`
+  const localPath = `/cards/${numberStr}-${suitStr}-${elementStr}.jpg`
+  console.warn(`Blob URL not found for ${descriptiveKey}. Falling back to local path: ${localPath}`)
+  return localPath
 }
 
 /**
