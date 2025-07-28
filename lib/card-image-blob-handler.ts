@@ -68,23 +68,38 @@ export async function getCardImageUrl(cardId: string, baseElement: string): Prom
 
   try {
     const response = await fetch(`/api/blob/card-images?cardId=${cardId}&element=${baseElement}`)
+
+    let responseBodyText: string | null = null
+    try {
+      responseBodyText = await response.text() // Always read as text first
+    } catch (e) {
+      console.warn(`Failed to read response body for ${cardId}-${baseElement}:`, e)
+    }
+
     if (!response.ok) {
       let errorMessage = `API call failed with status: ${response.status}`
-      try {
-        // Attempt to read response as text to get more details for non-JSON errors
-        const errorText = await response.text()
-        errorMessage += ` - Response: ${errorText.substring(0, 200)}...` // Limit length for logs
-      } catch (e) {
-        errorMessage += " - Could not read response body."
+      if (responseBodyText) {
+        errorMessage += ` - Response: ${responseBodyText.substring(0, 200)}...` // Limit length for logs
       }
       throw new Error(errorMessage)
     }
-    const data = await response.json()
+
+    // Attempt to parse as JSON
+    let data: any
+    try {
+      data = JSON.parse(responseBodyText || "{}") // Parse the text as JSON
+    } catch (e) {
+      // If JSON parsing fails, it means the response was not valid JSON.
+      // Treat this as an error, using the raw text as the message.
+      throw new Error(`Invalid JSON response from API. Raw response: ${responseBodyText?.substring(0, 200)}...`)
+    }
+
     if (data.success && data.imageUrl) {
       imageUrlCache.set(cacheKey, data.imageUrl)
       return data.imageUrl
     } else {
-      throw new Error(data.message || "Failed to get image URL from API")
+      // This handles cases where response.ok is true, but data.success is false (e.g., 404 from our API route)
+      throw new Error(data.message || "Failed to get image URL from API (success: false)")
     }
   } catch (error) {
     console.warn(
