@@ -116,25 +116,39 @@ export function memoize<T extends (...args: any[]) => any>(func: T): T {
   }) as T
 }
 
+interface RetryOptions {
+  maxRetries?: number
+  initialDelay?: number // in ms
+  factor?: number
+  onRetry?: (attempt: number, error: Error) => void
+}
+
 /**
  * Retries a failed API request with exponential backoff
  * @param fetchFunc The fetch function to retry
  * @param maxRetries Maximum number of retries
  * @param baseDelay Base delay in milliseconds
  */
-export async function retryWithBackoff<T>(fetchFunc: () => Promise<T>, maxRetries = 3, baseDelay = 300): Promise<T> {
-  let lastError: Error | null = null
+export async function retryWithBackoff<T>(fn: () => Promise<T>, options?: RetryOptions): Promise<T> {
+  const { maxRetries = 3, initialDelay = 100, factor = 2, onRetry } = options || {}
+  let attempt = 0
+  let delay = initialDelay
 
-  for (let i = 0; i < maxRetries; i++) {
+  while (attempt < maxRetries) {
     try {
-      return await fetchFunc()
-    } catch (error) {
-      lastError = error as Error
-      // Exponential backoff
-      const delay = baseDelay * Math.pow(2, i)
+      return await fn()
+    } catch (error: any) {
+      attempt++
+      if (attempt >= maxRetries) {
+        throw new Error(`Request failed after ${maxRetries} retries: ${error.message || error}`)
+      }
+
+      onRetry?.(attempt, error)
+      console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms. Error: ${error.message || error}`)
       await new Promise((resolve) => setTimeout(resolve, delay))
+      delay *= factor
     }
   }
-
-  throw lastError || new Error("Request failed after retries")
+  // This line should theoretically not be reached due to the throw inside the loop
+  throw new Error("Unexpected error: retryWithBackoff loop exited without success or throwing.")
 }
