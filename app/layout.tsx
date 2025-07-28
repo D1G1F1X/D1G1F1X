@@ -3,23 +3,23 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import Navbar from "@/components/navbar" // Re-import Navbar
-import Footer from "@/components/footer" // Re-import Footer
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
 import { Toaster } from "@/components/ui/toaster"
 import BugReport from "@/components/bug-report"
 import SiteAssistant from "@/components/site-assistant"
-import ConstellationBackground from "@/components/constellation-background" // Re-import
-import DeepOceanWaves from "@/components/deep-ocean-waves" // Re-import
-import GeometricOverlay from "@/components/geometric-overlay" // Re-import
-import ElementalEffects from "@/components/elemental-effects" // Re-import
-import StarfieldBackground from "@/components/starfield-background" // Re-import
+import { AuthProvider } from "@/contexts/auth-context" // Corrected import path
+import { ManualCartProvider } from "@/contexts/manual-cart-context" // Corrected import path
+import ConstellationBackground from "@/components/constellation-background"
+import DeepOceanWaves from "@/components/deep-ocean-waves"
+import GeometricOverlay from "@/components/geometric-overlay"
+import ElementalEffects from "@/components/elemental-effects"
+import StarfieldBackground from "@/components/starfield-background"
 import { ErrorBoundary } from "@/components/error-boundary"
 import SiteNewsBanner from "@/components/site-news-banner"
 import { Analytics } from "@vercel/analytics/react"
 import { Suspense } from "react"
-import { initializeImagePaths } from "@/lib/card-data-access" // Import the initializer
-import AuthProvider from "@/components/auth-provider" // Import AuthProvider
-import ManualCartProvider from "@/components/manual-cart-provider" // Import ManualCartProvider
+import { initializeImagePaths } from "@/lib/card-data-access"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -99,11 +99,11 @@ export default async function RootLayout({
                   <GeometricOverlay />
                   <ElementalEffects />
                 </Suspense>
-                <Navbar /> {/* Re-added Navbar */}
+                <Navbar />
                 <div className="relative z-10 flex flex-col min-h-[calc(100vh-80px)] mt-20">
                   <SiteNewsBanner />
                   <main className="flex-grow">{children}</main>
-                  <Footer /> {/* Re-added Footer */}
+                  <Footer />
                 </div>
                 <DeepOceanWaves />
                 <BugReport />
