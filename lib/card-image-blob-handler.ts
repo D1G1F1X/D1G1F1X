@@ -69,7 +69,15 @@ export async function getCardImageUrl(cardId: string, baseElement: string): Prom
   try {
     const response = await fetch(`/api/blob/card-images?cardId=${cardId}&element=${baseElement}`)
     if (!response.ok) {
-      throw new Error(`API call failed with status: ${response.status}`)
+      let errorMessage = `API call failed with status: ${response.status}`
+      try {
+        // Attempt to read response as text to get more details for non-JSON errors
+        const errorText = await response.text()
+        errorMessage += ` - Response: ${errorText.substring(0, 200)}...` // Limit length for logs
+      } catch (e) {
+        errorMessage += " - Could not read response body."
+      }
+      throw new Error(errorMessage)
     }
     const data = await response.json()
     if (data.success && data.imageUrl) {

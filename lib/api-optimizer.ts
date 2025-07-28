@@ -125,9 +125,8 @@ interface RetryOptions {
 
 /**
  * Retries a failed API request with exponential backoff
- * @param fetchFunc The fetch function to retry
- * @param maxRetries Maximum number of retries
- * @param baseDelay Base delay in milliseconds
+ * @param fn The function to retry
+ * @param options Retry options
  */
 export async function retryWithBackoff<T>(fn: () => Promise<T>, options?: RetryOptions): Promise<T> {
   const { maxRetries = 3, initialDelay = 100, factor = 2, onRetry } = options || {}
@@ -139,14 +138,16 @@ export async function retryWithBackoff<T>(fn: () => Promise<T>, options?: RetryO
       return await fn()
     } catch (error: any) {
       attempt++
+      onRetry?.(attempt, error) // Call the onRetry callback
+
       if (attempt >= maxRetries) {
+        // If max retries reached, rethrow the last error
         throw new Error(`Request failed after ${maxRetries} retries: ${error.message || error}`)
       }
 
-      onRetry?.(attempt, error)
-      console.warn(`Attempt ${attempt} failed. Retrying in ${delay}ms. Error: ${error.message || error}`)
+      // Wait before retrying
       await new Promise((resolve) => setTimeout(resolve, delay))
-      delay *= factor
+      delay *= factor // Increase delay exponentially
     }
   }
   // This line should theoretically not be reached due to the throw inside the loop
