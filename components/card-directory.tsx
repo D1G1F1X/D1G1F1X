@@ -1,321 +1,268 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { getAllCards, getCardById } from "@/lib/card-data-access"
+import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, ChevronLeft, ChevronRight, Printer, ExternalLink } from "lucide-react"
-import { getCardData, getAllElements, getAllSuits, getCardImagePath } from "@/lib/card-data-access"
-import type { OracleCard } from "@/types/cards"
-import { getElementColor, getElementSymbol } from "@/lib/card-image-utils"
+import { ChevronLeft, ChevronRight, ExternalLink, Printer } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function CardDirectory() {
-  const [cards, setCards] = useState<OracleCard[]>([])
-  const [filteredCards, setFilteredCards] = useState<OracleCard[]>([])
+  const allCards = getAllCards()
   const [searchTerm, setSearchTerm] = useState("")
-  const [elementFilter, setElementFilter] = useState<string>("all")
-  const [suitFilter, setSuitFilter] = useState<string>("all")
-  const [selectedCardId, setSelectedCardId] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({})
-  const [elements, setElements] = useState<string[]>([])
-  const [suits, setSuits] = useState<string[]>([])
-  const [activeTab, setActiveTab] = useState("overview")
+  const [selectedElement, setSelectedElement] = useState("All Elements")
+  const [selectedSuit, setSelectedSuit] = useState("All Suits")
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(allCards.length > 0 ? allCards[0].id : null)
+
+  const filteredCards = allCards.filter((card) => {
+    const matchesSearch =
+      searchTerm === "" ||
+      card.fullTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      card.keyMeanings.some((meaning) => meaning.toLowerCase().includes(searchTerm.toLowerCase()))
+
+    const matchesElement =
+      selectedElement === "All Elements" ||
+      card.baseElement.toLowerCase() === selectedElement.toLowerCase() ||
+      card.synergisticElement.toLowerCase() === selectedElement.toLowerCase()
+
+    const matchesSuit = selectedSuit === "All Suits" || card.suit.toLowerCase() === selectedSuit.toLowerCase()
+
+    return matchesSearch && matchesElement && matchesSuit
+  })
 
   useEffect(() => {
-    const loadCards = async () => {
-      try {
-        setIsLoading(true)
-        const allCards = getCardData()
-        setCards(allCards)
-        setElements(getAllElements())
-        setSuits(getAllSuits())
-        if (allCards.length > 0) {
-          setSelectedCardId(allCards[0].id)
-        }
-      } catch (error) {
-        console.error("Error loading cards:", error)
-      } finally {
-        setIsLoading(false)
-      }
+    if (filteredCards.length > 0 && !filteredCards.some((card) => card.id === selectedCardId)) {
+      setSelectedCardId(filteredCards[0].id)
+    } else if (filteredCards.length === 0) {
+      setSelectedCardId(null)
     }
-    loadCards()
-  }, [])
+  }, [filteredCards, selectedCardId])
 
-  useEffect(() => {
-    let result = [...cards]
+  const selectedCard = selectedCardId ? getCardById(selectedCardId) : null
 
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase()
-      result = result.filter(
-        (card) =>
-          card.fullTitle?.toLowerCase().includes(term) ||
-          card.number?.toString().includes(term) ||
-          card.suit?.toLowerCase().includes(term) ||
-          card.baseElement?.toLowerCase().includes(term) ||
-          card.synergisticElement?.toLowerCase().includes(term) ||
-          card.symbolismBreakdown?.some((item) => item.toLowerCase().includes(term)) ||
-          card.keyMeanings?.some((meaning) => meaning.toLowerCase().includes(term)),
-      )
-    }
-
-    if (elementFilter !== "all") {
-      result = result.filter(
-        (card) =>
-          card.baseElement?.toLowerCase() === elementFilter.toLowerCase() ||
-          card.synergisticElement?.toLowerCase() === elementFilter.toLowerCase(),
-      )
-    }
-
-    if (suitFilter !== "all") {
-      result = result.filter((card) => card.suit?.toLowerCase() === suitFilter.toLowerCase())
-    }
-
-    setFilteredCards(result)
-  }, [searchTerm, elementFilter, suitFilter, cards])
-
-  const selectedCard = filteredCards.find((card) => card.id === selectedCardId) || null
-
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, card: OracleCard, endUp: "first" | "second") => {
-    const target = e.target as HTMLImageElement
-    if (!target.src.includes("placeholder")) {
-      const numberStr = card.number?.toString().padStart(2, "0") || "00"
-      const suitStr = card.suit?.toLowerCase() || "unknown"
-      const elementStr =
-        endUp === "first"
-          ? card.baseElement?.toLowerCase() || "spirit"
-          : card.synergisticElement?.toLowerCase() || "spirit"
-      const altPath = `/cards/${numberStr}-${suitStr}-${elementStr}.jpg`
-
-      if (target.src !== altPath) {
-        target.src = altPath
-        return
-      }
-      target.src = `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
-    }
-    setImageErrors((prev) => ({ ...prev, [`${card.id}-${endUp}`]: true }))
-  }
-
-  const getCardImage = (card: OracleCard, endUp: "first" | "second") => {
-    const hasImageError = imageErrors[`${card.id}-${endUp}`]
-    const imagePath = getCardImagePath(card, endUp)
-    const fallbackPath = `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
-
-    if (hasImageError) {
-      return (
-        <div
-          className={`w-full h-full ${getElementColor(card.baseElement).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4 rounded-md`}
-        >
-          <div className="text-center mb-2 text-sm font-medium text-white">{card.fullTitle}</div>
-          <div className="w-24 h-24 my-4 rounded-full bg-gray-800/50 border border-gray-300/30 flex items-center justify-center">
-            <span className={getElementColor(card.baseElement).split(" ").slice(2).join(" ") + " text-4xl"}>
-              {getElementSymbol(card.baseElement)}
-            </span>
-          </div>
-          <div className="text-xs text-center text-white/80 mt-2">
-            {card.suit} • {card.baseElement}
-          </div>
-          <div className="text-lg font-bold text-white mt-2">{card.number}</div>
-        </div>
-      )
-    }
-
-    return (
-      <Image
-        src={imagePath || fallbackPath}
-        alt={`${card.fullTitle} - ${endUp === "first" ? "Base Element" : "Synergistic Element"}`}
-        fill
-        className="object-contain rounded-md"
-        onError={(e) => handleImageError(e, card, endUp)}
-        priority
-      />
-    )
-  }
-
-  const handleNavigation = (direction: "prev" | "next") => {
+  const handlePrevCard = () => {
     if (!selectedCard) return
     const currentIndex = filteredCards.findIndex((card) => card.id === selectedCard.id)
-    let newIndex = currentIndex
-    if (direction === "next") {
-      newIndex = (currentIndex + 1) % filteredCards.length
-    } else {
-      newIndex = (currentIndex - 1 + filteredCards.length) % filteredCards.length
+    if (currentIndex > 0) {
+      setSelectedCardId(filteredCards[currentIndex - 1].id)
     }
-    setSelectedCardId(filteredCards[newIndex].id)
   }
 
-  const handlePrint = () => {
+  const handleNextCard = () => {
+    if (!selectedCard) return
+    const currentIndex = filteredCards.findIndex((card) => card.id === selectedCard.id)
+    if (currentIndex < filteredCards.length - 1) {
+      setSelectedCardId(filteredCards[currentIndex + 1].id)
+    }
+  }
+
+  const handlePrintCard = () => {
     if (selectedCard) {
       window.print()
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-gradient-to-br from-purple-900 to-gray-900 text-white">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 to-gray-900 text-white p-6 md:p-10 relative overflow-hidden">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+    <div className="container mx-auto py-8 px-4 md:px-6 min-h-[calc(100vh-64px)]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Sidebar: Card List */}
-        <Card className="md:col-span-1 bg-gray-900/50 border-purple-500/20 shadow-lg flex flex-col">
+        <Card className="lg:col-span-1 bg-gradient-to-br from-purple-900 to-indigo-900 text-white shadow-lg">
           <CardHeader className="pb-4">
-            <CardTitle className="text-xl text-purple-300">Cards ({filteredCards.length})</CardTitle>
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col space-y-4 p-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Search cards..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-400"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Select value={elementFilter} onValueChange={setElementFilter}>
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
-                  <SelectValue placeholder="All Elements" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                  <SelectItem value="all">All Elements</SelectItem>
-                  {elements.map((element) => (
-                    <SelectItem key={element} value={element.toLowerCase()}>
-                      {element}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={suitFilter} onValueChange={setSuitFilter}>
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
-                  <SelectValue placeholder="All Suits" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                  <SelectItem value="all">All Suits</SelectItem>
-                  {suits.map((suit) => (
-                    <SelectItem key={suit} value={suit.toLowerCase()}>
-                      {suit}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex-1 overflow-y-auto pr-2 -mr-2 custom-scrollbar">
-              {filteredCards.length > 0 ? (
-                filteredCards.map((card) => (
-                  <div
-                    key={card.id}
-                    className={`flex items-center gap-3 p-3 mb-2 rounded-lg cursor-pointer transition-colors ${
-                      selectedCardId === card.id
-                        ? "bg-purple-700/40 border border-purple-500/50"
-                        : "hover:bg-gray-800/50"
-                    }`}
-                    onClick={() => setSelectedCardId(card.id)}
+            <CardTitle className="text-2xl font-bold flex items-center justify-between">
+              Cards ({filteredCards.length})
+            </CardTitle>
+            <Input
+              placeholder="Search cards..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="mt-4 bg-purple-800 border-purple-700 text-white placeholder:text-purple-300 focus:ring-purple-500 focus:border-purple-500"
+            />
+            <div className="flex gap-2 mt-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex-1 bg-purple-800 border-purple-700 text-white hover:bg-purple-700"
                   >
-                    <div className="relative h-10 w-10 flex-shrink-0">
-                      {card.iconSymbol ? (
-                        <div className="h-full w-full bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-300">
-                          {card.iconSymbol.charAt(0).toUpperCase()}
-                        </div>
-                      ) : (
-                        <div className="h-full w-full bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-300">
-                          {card.suit?.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-sm text-white">{card.fullTitle}</h3>
-                      <p className="text-xs text-gray-400">{card.suit}</p>
-                    </div>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getElementColor(card.baseElement || "spirit")}`}
-                    >
-                      {card.baseElement}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center p-4 text-gray-400">No cards found matching your criteria.</div>
-              )}
+                    {selectedElement}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-purple-900 border-purple-700 text-white">
+                  <DropdownMenuLabel>Filter by Element</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {getAllCards()
+                    .map((card) => card.baseElement)
+                    .filter((value, index, self) => self.indexOf(value) === index)
+                    .sort()
+                    .map((element) => (
+                      <DropdownMenuItem
+                        key={element}
+                        onClick={() => setSelectedElement(element)}
+                        className="hover:bg-purple-700"
+                      >
+                        {element}
+                      </DropdownMenuItem>
+                    ))}
+                  <DropdownMenuItem onClick={() => setSelectedElement("All Elements")} className="hover:bg-purple-700">
+                    All Elements
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex-1 bg-purple-800 border-purple-700 text-white hover:bg-purple-700"
+                  >
+                    {selectedSuit}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-purple-900 border-purple-700 text-white">
+                  <DropdownMenuLabel>Filter by Suit</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {getAllCards()
+                    .map((card) => card.suit)
+                    .filter((value, index, self) => self.indexOf(value) === index)
+                    .sort()
+                    .map((suit) => (
+                      <DropdownMenuItem
+                        key={suit}
+                        onClick={() => setSelectedSuit(suit)}
+                        className="hover:bg-purple-700"
+                      >
+                        {suit}
+                      </DropdownMenuItem>
+                    ))}
+                  <DropdownMenuItem onClick={() => setSelectedSuit("All Suits")} className="hover:bg-purple-700">
+                    All Suits
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
+          </CardHeader>
+          <CardContent className="space-y-2 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-purple-950">
+            {filteredCards.length > 0 ? (
+              filteredCards.map((card) => (
+                <div
+                  key={card.id}
+                  className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
+                    selectedCardId === card.id ? "bg-purple-700" : "hover:bg-purple-800"
+                  }`}
+                  onClick={() => setSelectedCardId(card.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Placeholder for icon based on suit */}
+                    {card.suit === "Cauldron" && <span className="text-xl">🍲</span>}
+                    {card.suit === "Sword" && <span className="text-xl">⚔️</span>}
+                    {card.suit === "Cord" && <span className="text-xl">🔗</span>}
+                    {card.suit === "Spear" && <span className="text-xl">🔱</span>}
+                    {card.suit === "Stone" && <span className="text-xl">🪨</span>}
+                    <div>
+                      <p className="font-medium">
+                        {card.number} {card.suit} - {card.fullTitle}
+                      </p>
+                      <p className="text-sm text-purple-200">{card.suit}</p>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="bg-purple-600 text-white">
+                    {card.baseElement}
+                  </Badge>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-purple-300 py-4">No cards found matching your criteria.</p>
+            )}
           </CardContent>
         </Card>
 
-        {/* Right Section: Card Detail View */}
-        <Card className="md:col-span-2 bg-gray-900/50 border-purple-500/20 shadow-lg flex flex-col">
+        {/* Right Panel: Card Detail View */}
+        <div className="lg:col-span-2">
           {selectedCard ? (
-            <>
-              <CardHeader className="pb-4">
-                <div className="flex justify-between items-center mb-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleNavigation("prev")}
-                    className="text-purple-300 hover:bg-purple-900/30"
-                  >
-                    <ChevronLeft className="h-6 w-6" />
-                  </Button>
-                  <CardTitle className="text-2xl text-purple-300 text-center flex-1">
-                    {selectedCard.fullTitle}
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleNavigation("next")}
-                    className="text-purple-300 hover:bg-purple-900/30"
-                  >
-                    <ChevronRight className="h-6 w-6" />
-                  </Button>
-                </div>
-                <div className="flex flex-wrap justify-center gap-2 mb-4">
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${getElementColor(selectedCard.suit || "unknown")}`}
-                  >
-                    {selectedCard.suit}
-                  </span>
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${getElementColor(selectedCard.baseElement || "spirit")}`}
-                  >
-                    {selectedCard.baseElement}
-                  </span>
-                  <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-800 text-gray-300">
-                    Number: {selectedCard.number}
-                  </span>
-                  <Link href={`/tools/card-directory/${selectedCard.id}`} passHref>
-                    <Button variant="ghost" size="sm" className="text-purple-300 hover:bg-purple-900/30">
-                      View Full Page <ExternalLink className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
+            <Card className="bg-gradient-to-br from-purple-900 to-indigo-900 text-white shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between pb-4">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handlePrevCard}
+                  disabled={filteredCards.findIndex((card) => card.id === selectedCard.id) === 0}
+                  className="text-purple-300 hover:text-white"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </Button>
+                <CardTitle className="text-3xl font-bold text-center flex-1">
+                  {selectedCard.number} {selectedCard.suit} - {selectedCard.fullTitle}
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleNextCard}
+                  disabled={filteredCards.findIndex((card) => card.id === selectedCard.id) === filteredCards.length - 1}
+                  className="text-purple-300 hover:text-white"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </Button>
               </CardHeader>
-              <CardContent className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="relative w-48 h-72 border border-gray-700 rounded-md overflow-hidden shadow-xl">
-                    {getCardImage(selectedCard, "first")}
-                  </div>
-                  <Button
-                    variant="outline"
-                    onClick={handlePrint}
-                    className="w-48 bg-gray-800 border-gray-700 text-white hover:bg-gray-700"
-                  >
-                    <Printer className="mr-2 h-4 w-4" /> Print Card
+              <CardContent className="grid md:grid-cols-2 gap-6 p-6">
+                <div className="flex flex-col items-center">
+                  <EnhancedCardImage
+                    cardId={selectedCard.id} // Use selectedCard.id directly
+                    cardTitle={selectedCard.fullTitle}
+                    baseElement={selectedCard.baseElement}
+                    synergisticElement={selectedCard.synergisticElement}
+                    className="w-full max-w-[270px]"
+                    showStatus={true}
+                  />
+                  <Button onClick={handlePrintCard} className="mt-4 bg-purple-700 hover:bg-purple-600 text-white">
+                    <Printer className="h-4 w-4 mr-2" />
+                    Print Card
                   </Button>
                 </div>
-                <div className="space-y-6">
-                  <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="grid grid-cols-3 w-full bg-gray-800/50 border border-gray-700 rounded-md">
+                <div>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <Badge variant="secondary" className="bg-purple-600 text-white">
+                      {selectedCard.suit}
+                    </Badge>
+                    <Badge variant="secondary" className="bg-purple-600 text-white">
+                      {selectedCard.baseElement}
+                    </Badge>
+                    {selectedCard.synergisticElement &&
+                      selectedCard.synergisticElement !== selectedCard.baseElement && (
+                        <Badge variant="secondary" className="bg-purple-purple-600 text-white">
+                          {selectedCard.synergisticElement}
+                        </Badge>
+                      )}
+                    <Badge variant="secondary" className="bg-purple-600 text-white">
+                      Number: {selectedCard.number}
+                    </Badge>
+                    {selectedCard.sacredGeometry && (
+                      <Badge variant="secondary" className="bg-purple-600 text-white">
+                        Sacred Geometry: {selectedCard.sacredGeometry}
+                      </Badge>
+                    )}
+                    <a href={`/cards/${selectedCard.id}`} target="_blank" rel="noopener noreferrer">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-purple-800 border-purple-700 text-white hover:bg-purple-700"
+                      >
+                        View Full Page <ExternalLink className="ml-2 h-4 w-4" />
+                      </Button>
+                    </a>
+                  </div>
+
+                  <Tabs defaultValue="overview" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3 bg-purple-800">
                       <TabsTrigger
                         value="overview"
                         className="data-[state=active]:bg-purple-700 data-[state=active]:text-white"
@@ -335,96 +282,73 @@ export function CardDirectory() {
                         Symbolism
                       </TabsTrigger>
                     </TabsList>
-                    <TabsContent value="overview" className="mt-4 space-y-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Key Meanings</h3>
-                        <ul className="list-disc pl-5 text-gray-300">
-                          {selectedCard.keyMeanings.map((meaning, i) => (
-                            <li key={i}>{meaning}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Number</h3>
-                        <p className="text-gray-300">{selectedCard.number}</p>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Suit</h3>
-                        <p className="text-gray-300">{selectedCard.suit}</p>
-                      </div>
+                    <TabsContent value="overview" className="mt-4 text-purple-100">
+                      <h3 className="text-xl font-semibold mb-2">Key Meanings</h3>
+                      <ul className="list-disc list-inside space-y-1">
+                        {selectedCard.keyMeanings.map((meaning, index) => (
+                          <li key={index}>{meaning}</li>
+                        ))}
+                      </ul>
+                      <h3 className="text-xl font-semibold mt-4 mb-2">Number Meaning</h3>
+                      <p>{selectedCard.numberMeaning}</p>
+                      <h3 className="text-xl font-semibold mt-4 mb-2">Keywords</h3>
+                      <p>
+                        {selectedCard.keywords && selectedCard.keywords.length > 0
+                          ? selectedCard.keywords.join(", ")
+                          : "No keywords"}
+                      </p>
                     </TabsContent>
-                    <TabsContent value="elements" className="mt-4 space-y-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-purple-300 mb-2">
-                          Base Element: {selectedCard.baseElement}
-                        </h3>
-                        <p className="text-gray-300">The primary elemental energy of the card.</p>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-purple-300 mb-2">
-                          Synergistic Element: {selectedCard.synergisticElement}
-                        </h3>
-                        <p className="text-gray-300">
-                          The complementary elemental energy that influences the card's meaning.
+                    <TabsContent value="elements" className="mt-4 text-purple-100">
+                      <h3 className="text-xl font-semibold mb-2">Elemental Influences</h3>
+                      <p>
+                        <strong>Base Element:</strong> {selectedCard.baseElement}
+                      </p>
+                      <p>
+                        <strong>Synergistic Element:</strong> {selectedCard.synergisticElement}
+                      </p>
+                      {selectedCard.planetInternalInfluence && (
+                        <p>
+                          <strong>Planet/Internal Influence:</strong> {selectedCard.planetInternalInfluence}
                         </p>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Elemental Symbolism</h3>
-                        <div className="p-4 bg-purple-900/20 border border-purple-500/30 rounded-lg">
-                          {selectedCard.symbolismBreakdown
-                            .filter((item) => item.includes("Element"))
-                            .map((item, i) => (
-                              <p key={i} className="text-gray-300 mb-2">
-                                {item}
-                              </p>
-                            ))}
-                        </div>
-                      </div>
+                      )}
+                      {selectedCard.astrologyExternalDomain && (
+                        <p>
+                          <strong>Astrology/External Domain:</strong> {selectedCard.astrologyExternalDomain}
+                        </p>
+                      )}
                     </TabsContent>
-                    <TabsContent value="symbolism" className="mt-4 space-y-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Symbolism Breakdown</h3>
-                        {selectedCard.symbolismBreakdown && selectedCard.symbolismBreakdown.length > 0 ? (
-                          <ul className="list-disc pl-5 text-gray-300 space-y-1">
-                            {selectedCard.symbolismBreakdown.map((item, i) => (
-                              <li key={i}>{item}</li>
+                    <TabsContent value="symbolism" className="mt-4 text-purple-100">
+                      <h3 className="text-xl font-semibold mb-2">Symbolism Breakdown</h3>
+                      <ul className="list-disc list-inside space-y-1">
+                        {selectedCard.symbolismBreakdown.map((symbol, index) => (
+                          <li key={index}>{symbol}</li>
+                        ))}
+                      </ul>
+                      {selectedCard.symbols && selectedCard.symbols.length > 0 && (
+                        <>
+                          <h3 className="text-xl font-semibold mt-4 mb-2">Key Symbols</h3>
+                          <ul className="list-disc list-inside space-y-1">
+                            {selectedCard.symbols.map((symbol, index) => (
+                              <li key={index}>
+                                <strong>{symbol.key}:</strong> {symbol.value}
+                              </li>
                             ))}
                           </ul>
-                        ) : (
-                          <p className="text-gray-400 italic">No detailed symbolism available.</p>
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Sacred Geometry</h3>
-                        <p className="text-gray-300">{selectedCard.sacredGeometry || "No information available."}</p>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Planetary Influence</h3>
-                        <p className="text-gray-300">
-                          {selectedCard.planetInternalInfluence || "No information available."}
-                        </p>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-purple-300 mb-2">Astrological Domain</h3>
-                        <p className="text-gray-300">
-                          {selectedCard.astrologyExternalDomain || "No information available."}
-                        </p>
-                      </div>
+                        </>
+                      )}
                     </TabsContent>
                   </Tabs>
                 </div>
               </CardContent>
-            </>
+            </Card>
           ) : (
-            <CardContent className="flex flex-col items-center justify-center flex-1 p-6 text-center">
-              <div className="relative w-48 h-48 mb-4">
-                <Image src="/oracle-card-grid.png" alt="Select a card" fill className="object-contain" />
-              </div>
-              <h2 className="text-xl font-bold text-purple-300">Select a Card</h2>
-              <p className="text-gray-400">Choose a card from the left sidebar to view its detailed information.</p>
-            </CardContent>
+            <Card className="flex items-center justify-center h-full bg-gradient-to-br from-purple-900 to-indigo-900 text-white shadow-lg">
+              <CardContent className="text-center p-6">
+                <p className="text-xl text-purple-300">Select a card from the left to view its details.</p>
+              </CardContent>
+            </Card>
           )}
-        </Card>
+        </div>
       </div>
     </div>
   )

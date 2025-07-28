@@ -16,14 +16,8 @@ export default async function ManageOracleCardsPage() {
 
   return (
     <DashboardShell>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Manage Oracle Cards</h1>
-      </div>
-      <div className="space-y-4">
-        <p className="text-muted-foreground">
-          Edit card details from <code>comprehensive-card-data.json</code> and their image paths from{" "}
-          <code>card-image-paths.json</code>.
-        </p>
+      <div className="container mx-auto py-8">
+        <h1 className="mb-6 text-3xl font-bold">Manage Oracle Cards</h1>
         <Suspense fallback={<div>Loading Oracle Card Manager...</div>}>
           <OracleCardManager />
         </Suspense>

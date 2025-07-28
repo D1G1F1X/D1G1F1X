@@ -1,19 +1,26 @@
 import { NextResponse } from "next/server"
-import shareAnalyticsService from "@/lib/services/share-analytics-service"
+import { getShareAnalytics, recordShareEvent } from "@/lib/services/share-analytics-service" // Assuming these exist
+
+export async function GET() {
+  try {
+    const analyticsData = await getShareAnalytics()
+    return NextResponse.json(analyticsData)
+  } catch (error) {
+    console.error("Error fetching share analytics:", error)
+    return NextResponse.json({ error: "Failed to fetch share analytics" }, { status: 500 })
+  }
+}
 
 export async function POST(request: Request) {
   try {
-    const { startDate, endDate, platform, contentType } = await request.json()
-
-    // Get share stats
-    const stats = await shareAnalyticsService.getShareStats(startDate, endDate, platform, contentType)
-
-    // Get top sharing users
-    const topUsers = await shareAnalyticsService.getTopSharingUsers(10)
-
-    return NextResponse.json({ stats, topUsers })
+    const { type, platform, url } = await request.json()
+    if (!type || !platform || !url) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    }
+    await recordShareEvent(type, platform, url)
+    return NextResponse.json({ message: "Share event recorded successfully" })
   } catch (error) {
-    console.error("Error getting share analytics:", error)
-    return NextResponse.json({ error: "Failed to get share analytics" }, { status: 500 })
+    console.error("Error recording share event:", error)
+    return NextResponse.json({ error: "Failed to record share event" }, { status: 500 })
   }
 }

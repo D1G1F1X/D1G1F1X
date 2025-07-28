@@ -1,23 +1,21 @@
 "use client"
 
+import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 import { LogOut } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/contexts/auth-context"
 
-export function LogoutButton() {
-  const { logout } = useAuth()
-  const router = useRouter()
+interface LogoutButtonProps {
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
+  size?: "default" | "sm" | "lg" | "icon"
+}
 
-  const handleLogout = () => {
-    logout()
-    router.push("/login")
-  }
+export function LogoutButton({ variant = "outline", size = "sm" }: LogoutButtonProps) {
+  const { signOut } = useAuth()
 
   return (
-    <Button variant="outline" size="sm" onClick={handleLogout}>
+    <Button variant={variant} size={size} onClick={signOut}>
       <LogOut className="mr-2 h-4 w-4" />
-      Logout
+      Sign Out
     </Button>
   )
 }

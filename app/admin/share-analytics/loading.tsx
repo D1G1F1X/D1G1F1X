@@ -1,27 +1,19 @@
 import { Skeleton } from "@/components/ui/skeleton"
 
-export default function ShareAnalyticsLoading() {
+export default function Loading() {
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-10 w-24" />
+    <div className="container mx-auto py-8">
+      <h1 className="mb-6 text-3xl font-bold">
+        <Skeleton className="h-9 w-72" />
+      </h1>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Skeleton className="h-[150px] w-full" />
+        <Skeleton className="h-[150px] w-full" />
+        <Skeleton className="h-[150px] w-full" />
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Skeleton className="h-32" />
-        <Skeleton className="h-32" />
-        <Skeleton className="h-32" />
-        <Skeleton className="h-32" />
-      </div>
-
-      <Skeleton className="h-10 w-full" />
-
-      <Skeleton className="h-80 w-full" />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Skeleton className="h-80" />
-        <Skeleton className="h-80" />
+      <div className="mt-8 space-y-4">
+        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     </div>
   )

@@ -1,262 +1,104 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { DashboardShell } from "@/components/admin/dashboard-shell"
-import { ContentEditor } from "@/components/admin/content-editor"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { toast } from "@/components/ui/use-toast"
+import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
+import { ArrowLeft, Save, Upload } from "lucide-react"
+import Link from "next/link"
+import { ColorPicker } from "@/components/admin/color-picker"
 
-// Mock product data
-const mockProduct = {
-  id: "1",
-  name: "Numoracle Card Deck",
-  slug: "numoracle-card-deck",
-  price: 39.99,
-  salePrice: 29.99,
-  description:
-    "# Numoracle Card Deck\n\nThe complete set of Numoracle cards featuring all elements and numerological connections. This deck includes:\n\n- 30 Element Cards\n- 10 Spirit Cards\n- Comprehensive guidebook\n- Beautiful storage box\n\nPerfect for beginners and advanced practitioners alike.",
-  images: ["/assorted-products-display.png"],
-  inventory: 25,
-  category: "oracle-cards",
-  featured: true,
-  published: true,
-}
-
-// Mock categories
-const categories = [
-  { id: "1", name: "Oracle Cards", slug: "oracle-cards" },
-  { id: "2", name: "Numerology", slug: "numerology" },
-  { id: "3", name: "Readings", slug: "readings" },
-  { id: "4", name: "Spiritual Tools", slug: "spiritual-tools" },
-]
-
-export default function EditProductPage({ params }: { params: { id: string } }) {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [product, setProduct] = useState<any>(null)
-
-  useEffect(() => {
-    // In a real app, you would fetch the product data from your API
-    setProduct(mockProduct)
-    setIsLoading(false)
-  }, [params.id])
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSaving(true)
-
-    try {
-      // Here you would normally save the product to your database
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      toast({
-        title: "Product updated",
-        description: "Your product has been updated successfully.",
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "There was an error updating your product.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  if (isLoading) {
-    return (
-      <DashboardShell>
-        <div className="flex items-center justify-center h-96">
-          <p>Loading product...</p>
-        </div>
-      </DashboardShell>
-    )
-  }
-
-  if (!product) {
-    return (
-      <DashboardShell>
-        <div className="flex items-center justify-center h-96">
-          <p>Product not found</p>
-        </div>
-      </DashboardShell>
-    )
+export default function AdminProductDetailPage({ params }: { params: { id: string } }) {
+  const productId = params.id
+  // Mock data for a single product
+  const product = {
+    id: productId,
+    name: "Deluxe Oracle Deck",
+    slug: "deluxe-oracle-deck",
+    price: 49.99,
+    stock: 150,
+    description: "A comprehensive oracle deck with stunning artwork and a detailed guidebook.",
+    category: "Oracle Cards",
+    imageUrl: "/images/products/deluxe-deck.png",
+    isActive: true,
+    featuredColor: "#8A2BE2", // Blue Violet
   }
 
   return (
-    <DashboardShell>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Edit Product</h1>
-          <p className="text-muted-foreground">Update product details and inventory</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" onClick={() => router.push("/admin/products")}>
-            Cancel
+    <div className="container mx-auto py-8">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Edit Product: {product.name}</h1>
+        <Link href="/admin/products" passHref>
+          <Button variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Products
           </Button>
-          <Button onClick={handleSubmit} disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save Changes"}
-          </Button>
-        </div>
+        </Link>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">Product Name</Label>
-              <Input
-                id="name"
-                value={product.name}
-                onChange={(e) => setProduct({ ...product, name: e.target.value })}
-                placeholder="Product name"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="slug">Slug</Label>
-              <Input
-                id="slug"
-                value={product.slug}
-                onChange={(e) => setProduct({ ...product, slug: e.target.value })}
-                placeholder="product-slug"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="price">Price ($)</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  value={product.price}
-                  onChange={(e) => setProduct({ ...product, price: Number.parseFloat(e.target.value) })}
-                  placeholder="0.00"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="salePrice">Sale Price ($)</Label>
-                <Input
-                  id="salePrice"
-                  type="number"
-                  step="0.01"
-                  value={product.salePrice || ""}
-                  onChange={(e) =>
-                    setProduct({ ...product, salePrice: e.target.value ? Number.parseFloat(e.target.value) : null })
-                  }
-                  placeholder="0.00"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="inventory">Inventory</Label>
-              <Input
-                id="inventory"
-                type="number"
-                value={product.inventory}
-                onChange={(e) => setProduct({ ...product, inventory: Number.parseInt(e.target.value) })}
-                placeholder="0"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select value={product.category} onValueChange={(value) => setProduct({ ...product, category: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.slug} value={category.slug}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="featured"
-                checked={product.featured}
-                onCheckedChange={(checked) => setProduct({ ...product, featured: checked })}
-              />
-              <Label htmlFor="featured">Featured Product</Label>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="published"
-                checked={product.published}
-                onCheckedChange={(checked) => setProduct({ ...product, published: checked })}
-              />
-              <Label htmlFor="published">Published</Label>
-            </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Product Information</CardTitle>
+          <CardDescription>Edit the details of this product.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          <div>
+            <Label htmlFor="product-name">Product Name</Label>
+            <Input id="product-name" defaultValue={product.name} />
           </div>
-
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label>Product Images</Label>
-              <div className="border rounded-md p-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {product.images.map((image: string, index: number) => (
-                    <div key={index} className="relative aspect-square rounded-md overflow-hidden border">
-                      <Image
-                        src={image || "/placeholder.svg"}
-                        alt={`Product image ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-2 right-2 h-6 w-6"
-                        onClick={() => {
-                          const newImages = [...product.images]
-                          newImages.splice(index, 1)
-                          setProduct({ ...product, images: newImages })
-                        }}
-                      >
-                        &times;
-                      </Button>
-                    </div>
-                  ))}
-                  <div className="flex items-center justify-center border border-dashed rounded-md aspect-square cursor-pointer hover:bg-muted/50">
-                    <div className="flex flex-col items-center space-y-2">
-                      <div className="p-2 rounded-full bg-muted">+</div>
-                      <span className="text-sm text-muted-foreground">Add Image</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <ContentEditor
-                initialValue={product.description}
-                onChange={(value) => setProduct({ ...product, description: value })}
-                minHeight="300px"
-              />
-            </div>
+          <div>
+            <Label htmlFor="product-slug">Product Slug</Label>
+            <Input id="product-slug" defaultValue={product.slug} />
           </div>
-        </div>
-      </form>
-    </DashboardShell>
+          <div>
+            <Label htmlFor="product-price">Price</Label>
+            <Input id="product-price" type="number" step="0.01" defaultValue={product.price} />
+          </div>
+          <div>
+            <Label htmlFor="product-stock">Stock Quantity</Label>
+            <Input id="product-stock" type="number" defaultValue={product.stock} />
+          </div>
+          <div className="md:col-span-2">
+            <Label htmlFor="product-description">Description</Label>
+            <Textarea id="product-description" defaultValue={product.description} rows={5} />
+          </div>
+          <div>
+            <Label htmlFor="product-category">Category</Label>
+            <select
+              id="product-category"
+              defaultValue={product.category}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option>Oracle Cards</option>
+              <option>Numerology Reports</option>
+              <option>Guidebooks</option>
+              <option>Accessories</option>
+            </select>
+          </div>
+          <div>
+            <Label htmlFor="product-image">Product Image URL</Label>
+            <Input id="product-image" defaultValue={product.imageUrl} />
+            <Button variant="outline" size="sm" className="mt-2 bg-transparent">
+              <Upload className="mr-2 h-4 w-4" /> Upload New Image
+            </Button>
+          </div>
+          <div className="flex items-center space-x-2 md:col-span-2">
+            <Checkbox id="is-active" checked={product.isActive} />
+            <Label htmlFor="is-active">Active Product</Label>
+          </div>
+          <div className="md:col-span-2">
+            <Label htmlFor="featured-color">Featured Color</Label>
+            <ColorPicker value={product.featuredColor} onChange={() => {}} />
+            <p className="text-sm text-gray-400 mt-1">Choose a color to represent this product (e.g., for banners).</p>
+          </div>
+          <div className="md:col-span-2">
+            <Button className="w-full">
+              <Save className="mr-2 h-4 w-4" /> Save Product
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

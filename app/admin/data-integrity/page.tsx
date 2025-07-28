@@ -1,96 +1,103 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { checkDataIntegrity, getAllCards, getComprehensiveCardData } from "@/lib/card-data-access"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Terminal, CheckCircle, RefreshCw } from "lucide-react"
+import { checkDataIntegrity } from "@/lib/card-data-access" // Assuming this function exists and is client-side safe
 
 export default function DataIntegrityPage() {
-  const issues = checkDataIntegrity()
-  const cards = getAllCards()
-  const masterData = getComprehensiveCardData()
+  const [issues, setIssues] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
+  const [lastChecked, setLastChecked] = useState<string | null>(null)
+
+  const runIntegrityCheck = () => {
+    setLoading(true)
+    setIssues([])
+    try {
+      const foundIssues = checkDataIntegrity()
+      setIssues(foundIssues)
+      setLastChecked(new Date().toLocaleString())
+      if (foundIssues.length === 0) {
+        console.log("Data integrity check passed: No issues found.")
+      } else {
+        console.warn("Data integrity check found issues:", foundIssues)
+      }
+    } catch (error) {
+      console.error("Error during data integrity check:", error)
+      setIssues(["An unexpected error occurred during the integrity check. Check console for details."])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    runIntegrityCheck() // Run on component mount
+  }, [])
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
-      <h1 className="text-3xl font-bold">Data Integrity Checker</h1>
+    <div className="container mx-auto p-6">
+      <h1 className="mb-6 text-3xl font-bold">Data Integrity Check</h1>
 
-      <Card>
+      <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Data Summary</CardTitle>
+          <CardTitle>Run Data Validation</CardTitle>
+          <CardDescription>Checks the consistency and correctness of the oracle card data.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-muted rounded-md">
-                <h3 className="font-medium mb-2">Master Data</h3>
-                <p>Total cards: {Array.isArray(masterData) ? masterData.length : "Unknown"}</p>
-              </div>
-
-              <div className="p-4 bg-muted rounded-md">
-                <h3 className="font-medium mb-2">Transformed Data</h3>
-                <p>Total cards: {cards.length}</p>
-              </div>
-            </div>
-          </div>
+          <Button onClick={runIntegrityCheck} disabled={loading}>
+            {loading ? (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> Checking...
+              </>
+            ) : (
+              "Run Integrity Check"
+            )}
+          </Button>
+          {lastChecked && <p className="mt-2 text-sm text-gray-400">Last checked: {lastChecked}</p>}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Data Integrity Issues</CardTitle>
+          <CardTitle>Integrity Report</CardTitle>
+          <CardDescription>
+            {issues.length === 0
+              ? "No issues found. Your data is consistent."
+              : `Found ${issues.length} issue(s) that need attention.`}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          {issues.length === 0 ? (
-            <div className="p-4 bg-green-900/20 border border-green-500/30 rounded-md">
-              <p className="text-green-300">No data integrity issues found! All data is consistent.</p>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
             </div>
+          ) : issues.length === 0 ? (
+            <Alert className="border-green-500/50 text-green-400">
+              <CheckCircle className="h-4 w-4" />
+              <AlertTitle>All Good!</AlertTitle>
+              <AlertDescription>No data integrity issues were detected.</AlertDescription>
+            </Alert>
           ) : (
-            <div className="space-y-4">
-              <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-md">
-                <p className="text-red-300 mb-2">Found {issues.length} data integrity issues:</p>
-                <ul className="list-disc pl-5 space-y-1">
-                  {issues.map((issue, index) => (
-                    <li key={index} className="text-red-200">
-                      {issue}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <Button variant="destructive">Fix All Issues</Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Sample Card Comparison</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {cards.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="font-medium">First Card: {cards[0].name}</h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h4 className="text-sm font-medium mb-2">Transformed Data</h4>
-                  <pre className="p-4 bg-muted rounded-md overflow-auto text-xs">
-                    {JSON.stringify(cards[0], null, 2)}
-                  </pre>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-medium mb-2">Master Data</h4>
-                  <pre className="p-4 bg-muted rounded-md overflow-auto text-xs">
-                    {JSON.stringify(
-                      Array.isArray(masterData) && masterData.length > 0
-                        ? masterData.find((c: any) => c.id === cards[0].id) || "Not found in master data"
-                        : "No master data available",
-                      null,
-                      2,
-                    )}
-                  </pre>
-                </div>
-              </div>
-            </div>
+            <Alert variant="destructive">
+              <Terminal className="h-4 w-4" />
+              <AlertTitle>Issues Found!</AlertTitle>
+              <AlertDescription>
+                <p className="mb-2">The following data integrity issues were detected:</p>
+                <ScrollArea className="h-[200px] rounded-md border p-4">
+                  <ul className="list-disc pl-5">
+                    {issues.map((issue, index) => (
+                      <li key={index} className="mb-1 text-sm">
+                        {issue}
+                      </li>
+                    ))}
+                  </ul>
+                </ScrollArea>
+                <p className="mt-4 text-sm">Please review these issues and update your card data accordingly.</p>
+              </AlertDescription>
+            </Alert>
           )}
         </CardContent>
       </Card>

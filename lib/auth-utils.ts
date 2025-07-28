@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server"
-import { supabase } from "@/lib/supabase"
+import { getServerClient } from "@/lib/supabase/server" // Ensure this is the server client
 import { cookies } from "next/headers"
 
 export type UserRole = "admin" | "member" | "user"
@@ -43,6 +43,7 @@ export const getUserFromRequest = async (request: NextRequest): Promise<User | n
 
 // Get user role from database
 export const getUserRole = async (userId: string): Promise<UserRole> => {
+  const supabase = getServerClient() // Use the server client here
   // Check if user is an admin
   const { data: adminData } = await supabase.from("admins").select("id").eq("user_id", userId).single()
 

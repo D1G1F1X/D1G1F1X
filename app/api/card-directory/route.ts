@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { getAllCards, getCardById } from "@/lib/card-data-access"
 
+export const dynamic = "force-dynamic" // Added to force dynamic rendering
+
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url)

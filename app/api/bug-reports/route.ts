@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { v4 as uuidv4 } from "uuid"
+import { put } from "@vercel/blob" // Import Vercel Blob put function
+import { brevoEmailService } from "@/lib/services/brevo-email-service" // Import the email service
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,29 +10,20 @@ export async function POST(request: NextRequest) {
     const description = formData.get("description") as string
     const pageUrl = formData.get("pageUrl") as string
     const email = formData.get("email") as string
-    const type = formData.get("type") as string
+    const type = formData.get("type") as "bug" | "typo"
     const screenshot = formData.get("screenshot") as File | null
 
-    // In a real implementation, you would:
-    // 1. Save the report to a database
-    // 2. Store the screenshot in a storage service like Vercel Blob
-    // 3. Notify administrators
-
-    // Example of saving screenshot if it exists
-    let screenshotUrl = null
+    let screenshotUrl: string | null = null
     if (screenshot) {
       const bytes = await screenshot.arrayBuffer()
       const buffer = Buffer.from(bytes)
 
-      // Generate a unique filename
-      const filename = `${uuidv4()}-${screenshot.name}`
+      // Generate a unique filename for the screenshot
+      const filename = `bug-reports/${uuidv4()}-${screenshot.name}`
 
-      // In a real implementation, you would use Vercel Blob or similar
-      // const { url } = await put(filename, buffer, { access: 'public' });
-      // screenshotUrl = url;
-
-      // For demo purposes, we'll just acknowledge receipt
-      screenshotUrl = `screenshot-received-${filename}`
+      // Upload screenshot to Vercel Blob
+      const { url } = await put(filename, buffer, { access: "public" })
+      screenshotUrl = url
     }
 
     // Create a record of the bug report
@@ -38,20 +31,33 @@ export async function POST(request: NextRequest) {
       id: uuidv4(),
       description,
       pageUrl,
-      email: email || "anonymous",
+      email: email || undefined, // Use undefined if empty for optional fields
       type,
       screenshotUrl,
       createdAt: new Date().toISOString(),
       status: "new",
     }
 
-    // In a real implementation, save to database
-    // await db.bugReports.create({ data: bugReport });
+    // Send notification to admin
+    const adminNotificationResult = await brevoEmailService.sendBugReportNotification(bugReport)
+    if (!adminNotificationResult.success) {
+      console.error("Failed to send admin bug report notification:", adminNotificationResult.error)
+      // Continue, but log the error. We don't want to fail the user's submission just because admin email failed.
+    }
+
+    // Send confirmation to user if email is provided
+    if (bugReport.email) {
+      const userConfirmationResult = await brevoEmailService.sendBugReportConfirmation(bugReport)
+      if (!userConfirmationResult.success) {
+        console.error("Failed to send user bug report confirmation:", userConfirmationResult.error)
+      }
+    }
 
     return NextResponse.json({
       success: true,
-      message: "Bug report submitted successfully",
+      message: "Bug report submitted successfully. Thank you for your feedback!",
       reportId: bugReport.id,
+      screenshotUrl: bugReport.screenshotUrl, // Return the URL for confirmation
     })
   } catch (error) {
     console.error("Error handling bug report:", error)

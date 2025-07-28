@@ -1,46 +1,26 @@
-"use client"
+import { Suspense } from "react"
+import type { Metadata } from "next"
+import HeroSection from "@/components/hero-section" // Import HeroSection
 
-import { useSearchParams, useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle } from "lucide-react"
-import Link from "next/link"
+export const metadata: Metadata = {
+  title: "Order Confirmation | NUMO Oracle",
+  description: "Your NUMO Oracle order has been confirmed.",
+}
 
 export default function OrderConfirmationPage() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const paypalOrderId = searchParams.get("paypal_order_id")
-  const localOrderId = searchParams.get("local_order_id") // From your backend
-
   return (
-    <div className="container mx-auto p-4 max-w-2xl text-center">
-      <Card className="mt-10">
-        <CardHeader>
-          <div className="flex justify-center mb-4">
-            <CheckCircle className="h-16 w-16 text-green-500" />
-          </div>
-          <CardTitle className="text-3xl">Thank You for Your Order!</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-lg">Your payment was successful and your order has been placed.</p>
-          {paypalOrderId && (
-            <p>
-              Your PayPal Transaction ID is: <span className="font-semibold">{paypalOrderId}</span>
-            </p>
-          )}
-          {localOrderId && (
-            <p>
-              Your Order ID is: <span className="font-semibold">{localOrderId}</span>
-            </p>
-          )}
-          <p>We will process your order shortly. You should receive an email confirmation soon.</p>
-          <div className="mt-6">
-            <Button asChild>
-              <Link href="/buy">Continue Shopping</Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="relative min-h-screen bg-black">
+      <HeroSection
+        title="Order Confirmed!"
+        description="Thank you for your purchase. Your NUMO Oracle journey begins now."
+        backgroundImage="/order-confirmation-background.png"
+      />
+      <Suspense fallback={<div className="text-center py-20 text-white">Loading order confirmation...</div>}>
+        <div className="container mx-auto py-8">
+          <h1 className="text-3xl font-bold mb-6 text-center text-white">Order Confirmation</h1>
+          <p className="text-center text-gray-300">Order confirmation details go here.</p>
+        </div>
+      </Suspense>
     </div>
   )
 }

@@ -1,115 +1,92 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus, Pencil, Trash2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Search, PlusCircle, Edit, Trash2 } from "lucide-react"
+import Link from "next/link"
 
-// Import the auth utilities
-import { getCurrentUser } from "@/lib/auth"
-
-// Mock user data
-const mockUsers = [
-  { id: "1", name: "Admin User", email: "admin", role: "admin" },
-  { id: "2", name: "John Doe", email: "john@example.com", role: "editor" },
-  { id: "3", name: "Jane Smith", email: "jane@example.com", role: "viewer" },
-]
-
-// Replace the client-side authentication check with async server function
-const isAuthenticated = async () => {
-  const user = await getCurrentUser()
-  return !!user && user.role === "admin"
-}
-
-export default function UsersPage() {
-  const router = useRouter()
-  const [users, setUsers] = useState(mockUsers)
-  const [isLoading, setIsLoading] = useState(true)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-
-    // Check if user is logged in
-    const checkAuth = async () => {
-      const authenticated = await isAuthenticated()
-      if (!authenticated) {
-        router.push("/admin/login")
-      } else {
-        setIsLoading(false)
-      }
-    }
-
-    checkAuth()
-  }, [router])
-
-  // Don't render anything until client-side
-  if (!mounted) return null
-
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold">Loading...</h2>
-          <p className="text-muted-foreground">Please wait while we load user data</p>
-        </div>
-      </div>
-    )
-  }
-
-  function handleDelete(id: string) {
-    setUsers(users.filter((user) => user.id !== id))
-  }
+export default function AdminUsersPage() {
+  const users = [
+    { id: "user1", name: "Jane Doe", email: "jane.doe@example.com", role: "user", status: "Active" },
+    { id: "user2", name: "Admin User", email: "admin@example.com", role: "admin", status: "Active" },
+    { id: "user3", name: "Guest User", email: "guest@example.com", role: "user", status: "Inactive" },
+  ]
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Users</h1>
-        <Button onClick={() => router.push("/admin/users/new")}>
-          <Plus className="mr-2 h-4 w-4" /> Add User
-        </Button>
-      </div>
+    <div className="container mx-auto py-8">
+      <h1 className="mb-6 text-3xl font-bold">User Management</h1>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Search Users</CardTitle>
+          <CardDescription>Find users by name, email, or role.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Input placeholder="Search users..." className="pl-9" />
+            </div>
+            <Button>Search</Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Create New User</CardTitle>
+          <CardDescription>Add a new user account to your system.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link href="/admin/users/new" passHref>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" /> Create New User
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>User Management</CardTitle>
+          <CardTitle>All Users</CardTitle>
+          <CardDescription>A list of all registered users.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="min-w-full divide-y divide-gray-700">
               <thead>
-                <tr className="border-b">
-                  <th className="px-4 py-2 text-left">Name</th>
-                  <th className="px-4 py-2 text-left">Email</th>
-                  <th className="px-4 py-2 text-left">Role</th>
-                  <th className="px-4 py-2 text-right">Actions</th>
+                <tr>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Name</th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Email</th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Role</th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Status</th>
+                  <th className="px-4 py-2 text-right text-sm font-medium text-gray-400">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-800">
                 {users.map((user) => (
-                  <tr key={user.id} className="border-b">
-                    <td className="px-4 py-2">{user.name}</td>
-                    <td className="px-4 py-2">{user.email}</td>
-                    <td className="px-4 py-2">
+                  <tr key={user.id}>
+                    <td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-200">{user.name}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-300">{user.email}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-300">{user.role}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-sm">
                       <span
-                        className={`inline-block rounded-full px-2 py-1 text-xs font-semibold ${
-                          user.role === "admin"
-                            ? "bg-red-100 text-red-800"
-                            : user.role === "editor"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-gray-100 text-gray-800"
+                        className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
+                          user.status === "Active" ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
                         }`}
                       >
-                        {user.role}
+                        {user.status}
                       </span>
                     </td>
-                    <td className="px-4 py-2 text-right">
-                      <Button variant="ghost" size="icon" onClick={() => router.push(`/admin/users/${user.id}`)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)}>
+                    <td className="flex justify-end space-x-2 whitespace-nowrap px-4 py-2 text-sm">
+                      <Link href={`/admin/users/${user.id}`} passHref>
+                        <Button variant="outline" size="sm">
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                      </Link>
+                      <Button variant="destructive" size="sm">
                         <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete</span>
                       </Button>
                     </td>
                   </tr>

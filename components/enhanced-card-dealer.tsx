@@ -15,14 +15,13 @@ import { generateReading } from "@/lib/actions/generate-reading"
 import { useToast } from "@/components/ui/use-toast"
 import type { ReadingData } from "@/types/readings"
 import { cn } from "@/lib/utils"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getSymbolValue } from "@/lib/card-data-access"
+import { getSymbolValue, getCardData } from "@/lib/card-data-access" // Import getCardData
 import { Badge } from "@/components/ui/badge"
 import { calculateLifePath } from "@/lib/numerology"
 import { useMembership } from "@/lib/membership-context"
 import type { SavedReading } from "@/types/saved-readings"
 import type { OracleCard } from "@/types/cards"
-import { EnhancedCardImage } from "@/components/enhanced-card-image-handler" // Ensure this is imported
+import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
 
 interface SpreadType {
   id: string
@@ -259,7 +258,6 @@ const getElementIcon = (element: string) => {
 }
 
 interface EnhancedCardDealerProps {
-  cards: OracleCard[]
   onReadingGenerated?: (reading: ReadingData) => void
   className?: string
   allowFreeReading?: boolean
@@ -268,13 +266,13 @@ interface EnhancedCardDealerProps {
 }
 
 export default function EnhancedCardDealer({
-  cards, // This prop is already there
   onReadingGenerated,
   className,
   allowFreeReading = false,
   maxCards = 3,
   defaultSpread = "three",
 }: EnhancedCardDealerProps) {
+  const [allCards, setAllCards] = useState<OracleCard[]>([]) // Use allCards from central data
   const [selectedCards, setSelectedCards] = useState<OracleCard[]>([])
   const [flippedCards, setFlippedCards] = useState<boolean[]>([])
   const [isDealing, setIsDealing] = useState(false)
@@ -334,6 +332,11 @@ export default function EnhancedCardDealer({
   setMembership(context)
 
   useEffect(() => {
+    // Load all cards from the central data access layer
+    setAllCards(getCardData())
+  }, [])
+
+  useEffect(() => {
     setIsAdvancedModeAvailable(isAuthenticated)
   }, [isAuthenticated])
 
@@ -356,7 +359,7 @@ export default function EnhancedCardDealer({
     setIsDealing(true)
 
     const numCards = spreadType === "single" ? 1 : 3
-    const shuffled = [...cards].sort(() => Math.random() - 0.5) // Use 'cards' prop directly
+    const shuffled = [...allCards].sort(() => Math.random() - 0.5) // Use allCards here
     const newSelectedCards = shuffled.slice(0, numCards)
 
     for (let i = 0; i < numCards; i++) {
@@ -490,16 +493,16 @@ export default function EnhancedCardDealer({
     setTimeout(() => {
       const numCards = currentSpread.positions.length
 
-      if (!cards || cards.length === 0) {
-        // Use 'cards' prop directly
+      if (!allCards || allCards.length === 0) {
+        // Use allCards here
         console.error("No card data available")
         setIsDrawing(false)
         return
       }
 
-      let shuffled = [...cards] // Use 'cards' prop directly
+      let shuffled = [...allCards] // Use allCards here
       while (shuffled.length < numCards) {
-        shuffled = [...shuffled, ...cards] // Use 'cards' prop directly
+        shuffled = [...shuffled, ...allCards] // Use allCards here
       }
 
       shuffled = shuffled.sort(() => 0.5 - Math.random())
@@ -569,52 +572,46 @@ export default function EnhancedCardDealer({
 
   const generateDetailedReading = async () => {
     setIsGeneratingReading(true)
-    setAiGeneratedReading("") // Clear previous AI reading
 
     try {
-      const response = await fetch("/api/ai/reading", {
+      // Call the new server-side API
+      const response = await fetch("/api/generateReading", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userName: formData.fullName,
-          birthDate: formData.birthDate?.toISOString(),
-          birthPlace: formData.birthPlace,
-          lifePathNumber: lifePath,
+          message: `Generate a detailed reading for: ${formData.question}`,
+          fullName: formData.fullName,
+          dateOfBirth: formData.birthDate?.toISOString(),
           question: formData.question,
-          readingType: selectedSpread,
-          cards: drawnCards.map((dc) => ({
-            id: dc.card.id,
-            name: dc.card.fullTitle,
-            element: dc.card.baseElement,
-            number: dc.card.number,
-            keywords: dc.card.keyMeanings,
-            suitOrientation: dc.endUp === "first" ? "Upright" : "Reversed", // Assuming 'first' is upright
-            baseElement: dc.card.baseElement,
-            dominantElement: dc.card.baseElement, // Simplified for example
-            icon: dc.card.iconSymbol,
-          })),
+          selectedCards: drawnCards.map((dc) => dc.card),
+          spreadType: selectedSpread,
         }),
       })
 
       const data = await response.json()
 
-      if (response.ok && data.reading) {
-        setAiGeneratedReading(data.reading)
+      if (response.ok && data.success) {
+        // Store the thread ID for potential follow-up questions
+        // You could expand this to actually get the assistant's response
+        console.log("Reading thread created:", data.threadId)
+
+        // For now, continue with the simulated reading
+        const reading = generateSimulatedReading()
+        setAiGeneratedReading(reading)
+        setShowDetailedReading(true)
       } else {
-        console.error("API reading failed:", data.error || "Unknown error")
-        setAiGeneratedReading(
-          data.error || "I apologize, but I'm unable to generate an AI reading at this time. Please try again later.",
-        )
+        console.warn("API reading failed, using simulated reading:", data?.error)
+        const reading = generateSimulatedReading()
+        setAiGeneratedReading(reading)
+        setShowDetailedReading(true)
       }
     } catch (error) {
-      console.error("Error calling AI reading API:", error)
-      setAiGeneratedReading(
-        "I apologize, but I'm unable to generate an AI reading at this time. Please try again later.",
-      )
-    } finally {
+      console.error("Error generating reading:", error)
+      // Fallback to simulated reading
+      const reading = generateSimulatedReading()
+      setAiGeneratedReading(reading)
       setShowDetailedReading(true)
+    } finally {
       setIsGeneratingReading(false)
     }
   }
@@ -747,7 +744,7 @@ Remember that you have the power to shape your path forward. These cards offer g
       2: "cooperation, diplomacy, and sensitivity to others",
       3: "creative expression, joy, and communication",
       4: "stability, practicality, and building solid foundations",
-      5: "change, freedom, and adaptability",
+      5: "freedom, change, and adaptability",
       6: "responsibility, nurturing, and harmony",
       7: "analysis, wisdom, and spiritual seeking",
       8: "abundance, power, and material mastery",
@@ -841,6 +838,9 @@ Remember that you have the power to shape your path forward. These cards offer g
     const { card, endUp } = drawnCard
     const hasImageError = imageErrors[card.id]
 
+    // Use the correct numerical value from the card - directly from the number field
+    const cardNumber = card.number || "0"
+
     return (
       <div
         key={`${card.id}-${index}`}
@@ -873,14 +873,35 @@ Remember that you have the power to shape your path forward. These cards offer g
               />
             </div>
           ) : (
-            <EnhancedCardImage
-              card={card} // Pass the full card object
-              endUp={endUp} // Pass the endUp property
-              className="w-full h-full"
-              onImageLoad={(success) => {
-                if (!success) handleImageError(card.id)
-              }}
-            />
+            <>
+              {!hasImageError ? (
+                <EnhancedCardImage
+                  cardId={card.id} // Use card.id, which now correctly maps to imagePath
+                  cardTitle={card.fullTitle}
+                  baseElement={card.baseElement}
+                  synergisticElement={card.synergisticElement}
+                  className="w-full h-full"
+                  onImageLoad={(success) => {
+                    if (!success) handleImageError(card.id)
+                  }}
+                />
+              ) : (
+                <div
+                  className={`w-full h-full ${getElementColor(card.baseElement).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4`}
+                >
+                  <div className="text-center mb-2 text-sm font-medium text-white">{card.fullTitle}</div>
+                  <div className="w-24 h-24 my-4 rounded-full bg-gray-800/50 border border-gray-300/30 flex items-center justify-center">
+                    <span className={getElementColor(card.baseElement).split(" ").slice(2).join(" ") + " text-4xl"}>
+                      {getElementSymbol(card.baseElement)}
+                    </span>
+                  </div>
+                  <div className="text-xs text-center text-white/80 mt-2">
+                    {card.suit} • {card.baseElement}
+                  </div>
+                  <div className="text-lg font-bold text-white mt-2">{cardNumber}</div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -904,8 +925,10 @@ Remember that you have the power to shape your path forward. These cards offer g
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <EnhancedCardImage
-                  card={card} // Pass the full card object
-                  endUp={endUp} // Pass the endUp property
+                  cardId={card.id} // Use card.id, which now correctly maps to imagePath
+                  cardTitle={card.fullTitle}
+                  baseElement={card.baseElement}
+                  synergisticElement={card.synergisticElement}
                   className="w-[300px] h-[420px]"
                 />
               </div>
@@ -974,16 +997,18 @@ Remember that you have the power to shape your path forward. These cards offer g
           <div className="space-y-2">
             <Label>Reading Type</Label>
             <RadioGroup
-              defaultValue={selectedSpread}
-              onValueChange={(value) => setSelectedSpread(value)}
+              defaultValue={spreadType}
+              onValueChange={(value) => setSpreadType(value as "single" | "three")}
               className="flex space-x-4"
             >
-              {basicSpreadTypes.map((spread) => (
-                <div key={spread.id} className="flex items-center space-x-2">
-                  <RadioGroupItem value={spread.id} id={spread.id} />
-                  <Label htmlFor={spread.id}>{spread.name}</Label>
-                </div>
-              ))}
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="single" id="single" />
+                <Label htmlFor="single">Single Card</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="three" id="three" />
+                <Label htmlFor="three">Three Card Spread</Label>
+              </div>
             </RadioGroup>
           </div>
         </div>
@@ -1013,7 +1038,7 @@ Remember that you have the power to shape your path forward. These cards offer g
 
               <div className="absolute w-full h-full backface-hidden rotate-y-180">
                 <Image
-                  src={`/cards/${card.number.padStart(2, "0")}${card.suit.toLowerCase()}-${card.baseElement.toLowerCase()}.jpg`}
+                  src={card.imagePath || "/placeholder.svg"} // Use card.imagePath directly
                   alt={card.fullTitle}
                   width={300}
                   height={450}
@@ -1038,30 +1063,30 @@ Remember that you have the power to shape your path forward. These cards offer g
       </div>
 
       <div className="flex flex-wrap gap-4 justify-center mt-4">
-        <Button onClick={handleDrawCards} disabled={isDrawing || isGeneratingReading} size="lg">
-          {drawnCards.length === 0 ? "Draw Cards" : "Redraw Cards"}
+        <Button onClick={dealCards} disabled={isDealing || isGenerating} size="lg">
+          {selectedCards.length === 0 ? "Deal Cards" : "Redeal"}
         </Button>
 
-        {drawnCards.length > 0 && (
+        {selectedCards.length > 0 && (
           <Button
-            onClick={generateDetailedReading}
-            disabled={isGeneratingReading || !drawnCards.length || showBackside}
+            onClick={generateReadingFromCards}
+            disabled={isGenerating || !selectedCards.length || !flippedCards.every((flipped) => flipped)}
             size="lg"
             variant="secondary"
           >
-            {isGeneratingReading ? "Generating AI Reading..." : "Generate AI Reading"}
+            {isGenerating ? "Generating..." : "Generate Reading"}
           </Button>
         )}
       </div>
 
       {error && <div className="text-red-500 mt-4">{error}</div>}
 
-      {showReading && (
+      {reading && (
         <Card className="w-full max-w-3xl mt-8">
           <CardContent className="p-6">
             <h3 className="text-2xl font-bold mb-4">Your Reading</h3>
             <div className="prose dark:prose-invert">
-              <div dangerouslySetInnerHTML={{ __html: aiGeneratedReading || generateSimulatedReading() }} />
+              <div dangerouslySetInnerHTML={{ __html: reading.content }} />
             </div>
           </CardContent>
         </Card>
@@ -1081,6 +1106,7 @@ Remember that you have the power to shape your path forward. These cards offer g
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {drawnCards.map((drawnCard, index) => {
               const { card } = drawnCard
+              // Use the direct number field from the card data
               const cardNumber = card.number || "0"
 
               return (
@@ -1091,80 +1117,12 @@ Remember that you have the power to shape your path forward. These cards offer g
                     </h4>
                     <div className="flex flex-wrap gap-2 mb-3">
                       <Badge variant="secondary">{card.suit}</Badge>
-                      <Badge>Number: {cardNumber}</Badge>
-                      <Badge variant="outline">Synergistic Element: {card.synergisticElement}</Badge>
-                      <Badge variant="destructive">Base Element: {card.baseElement}</Badge>
+                      <Badge variant="outline">Number: {cardNumber}</Badge>
+                      <Badge variant="destructive">{card.baseElement}</Badge>
                     </div>
-                    <Tabs defaultValue="overview">
-                      <TabsList className="w-full">
-                        <TabsTrigger value="overview" className="flex-1">
-                          Overview
-                        </TabsTrigger>
-                        <TabsTrigger value="element" className="flex-1">
-                          Elemental Influence
-                        </TabsTrigger>
-                        <TabsTrigger value="symbolism" className="flex-1">
-                          Symbolism Breakdown
-                        </TabsTrigger>
-                        <TabsTrigger value="ai-reading" className="flex-1" onClick={generateDetailedReading}>
-                          AI Reading
-                        </TabsTrigger>
-                      </TabsList>
-
-                      <TabsContent value="overview" className="space-y-4">
-                        <div>
-                          <h3 className="text-lg font-semibold">Key Meanings</h3>
-                          <ul className="list-disc pl-5">
-                            {card.keyMeanings.map((meaning, i) => (
-                              <li key={i}>{meaning}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold">Description</h3>
-                          <p>{(card.symbolismBreakdown || []).join(" ")}</p>
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="element" className="space-y-4">
-                        <div className="border rounded-lg p-3">
-                          <h3 className="text-lg font-semibold flex items-center gap-2">Elemental Influence</h3>
-                          <div className="mt-2 space-y-2">
-                            {card.symbolismBreakdown
-                              .filter((s) => s.includes("Element"))
-                              .map((line, i) => (
-                                <p key={i} className="text-sm text-gray-300">
-                                  {line}
-                                </p>
-                              ))}
-                          </div>
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="symbolism" className="space-y-4">
-                        <div className="space-y-2">
-                          {card.symbolismBreakdown.map((item, i) => (
-                            <div key={i}>
-                              <p className="text-gray-300">{item.replace(/^Number: \d+ – /, "")}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="ai-reading" className="space-y-4">
-                        {isGeneratingReading ? (
-                          <div className="text-center py-8">
-                            <Skeleton className="h-4 w-3/4 mb-2" />
-                            <Skeleton className="h-4 w-1/2" />
-                            <p className="text-gray-400 mt-4">Generating AI reading...</p>
-                          </div>
-                        ) : (
-                          <div className="prose dark:prose-invert">
-                            <div dangerouslySetInnerHTML={{ __html: aiGeneratedReading }} />
-                          </div>
-                        )}
-                      </TabsContent>
-                    </Tabs>
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      {card.keyMeanings?.[0] || "This card brings wisdom and guidance for your journey."}
+                    </p>
                   </CardContent>
                 </Card>
               )

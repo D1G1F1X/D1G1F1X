@@ -19,6 +19,7 @@ interface ImageVerificationResult {
   secondEndFallbackUsed: boolean
 }
 
+// Changed to default export
 export default function CardImageVerifier() {
   const [results, setResults] = useState<ImageVerificationResult[]>([])
   const [isVerifying, setIsVerifying] = useState(false)
@@ -165,19 +166,16 @@ export default function CardImageVerifier() {
 
             {totalVerified > 0 && (
               <div className="flex justify-between items-center">
-                <h3 className="font-medium">Results</h3>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="showSuccessful"
-                    checked={showSuccessful}
-                    onChange={(e) => setShowSuccessful(e.target.checked)}
-                    className="mr-2"
-                  />
-                  <label htmlFor="showSuccessful" className="text-sm">
-                    Show successful
-                  </label>
-                </div>
+                <input
+                  type="checkbox"
+                  id="showSuccessful"
+                  checked={showSuccessful}
+                  onChange={(e) => setShowSuccessful(e.target.checked)}
+                  className="mr-2"
+                />
+                <label htmlFor="showSuccessful" className="text-sm">
+                  Show successful
+                </label>
               </div>
             )}
 

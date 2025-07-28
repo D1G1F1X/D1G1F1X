@@ -1,197 +1,137 @@
-"use client"
-
-import { TableCell } from "@/components/ui/table"
-
-import { TableBody } from "@/components/ui/table"
-
-import { TableHead } from "@/components/ui/table"
-
-import { TableRow } from "@/components/ui/table"
-
-import { TableHeader } from "@/components/ui/table"
-
-import { Table } from "@/components/ui/table"
-
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { getOrder, updateOrderStatus } from "@/lib/shop"
-import { DashboardShell } from "@/components/admin/dashboard-shell"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
+import { ArrowLeft, Save, Printer, Mail } from "lucide-react"
 import Link from "next/link"
-import { Badge } from "@/components/ui/badge"
-import { toast } from "@/components/ui/use-toast"
 
-export default function OrderDetailsPage({ params }: { params: { id: string } }) {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
-  const [order, setOrder] = useState<any>(null)
-
-  useEffect(() => {
-    const fetchOrder = async () => {
-      try {
-        const data = await getOrder(params.id)
-        setOrder(data)
-      } catch (error) {
-        console.error("Error fetching order:", error)
-      }
-    }
-
-    fetchOrder()
-  }, [params.id])
-
-  const handleStatusChange = async (status: string) => {
-    setIsLoading(true)
-
-    try {
-      const updatedOrder = await updateOrderStatus(params.id, status)
-      setOrder(updatedOrder)
-      toast({
-        title: "Order updated",
-        description: `Order status has been updated to ${status}.`,
-      })
-    } catch (error) {
-      console.error("Error updating order status:", error)
-      toast({
-        title: "Error",
-        description: "There was an error updating the order status.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  if (!order) {
-    return (
-      <DashboardShell>
-        <div className="flex items-center justify-center h-full">
-          <p>Loading order details...</p>
-        </div>
-      </DashboardShell>
-    )
+export default function AdminOrderDetailPage({ params }: { params: { id: string } }) {
+  const orderId = params.id
+  // Mock data for a single order
+  const order = {
+    id: orderId,
+    customerName: "Alice Wonderland",
+    customerEmail: "alice@example.com",
+    orderDate: "2023-10-26",
+    status: "Processing",
+    items: [
+      { id: "prod1", name: "Deluxe Oracle Deck", quantity: 1, price: 49.99 },
+      { id: "prod2", name: "Numerology Report", quantity: 1, price: 19.99 },
+    ],
+    total: 69.98,
+    shippingAddress: "123 Rabbit Hole, Wonderland, WH 12345",
+    notes: "Customer requested gift wrapping.",
+    isPaid: true,
+    isShipped: false,
   }
 
   return (
-    <DashboardShell>
-      <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <Link href="/admin/orders">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Orders
-            </Button>
-          </Link>
-          <h1 className="text-3xl font-bold">Order #{order.id}</h1>
+    <div className="container mx-auto py-8">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Order Details: #{order.id}</h1>
+        <Link href="/admin/orders" passHref>
+          <Button variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Orders
+          </Button>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Order Information</CardTitle>
+              <CardDescription>Details about the order and customer.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-2">
+              <div>
+                <Label htmlFor="customer-name">Customer Name</Label>
+                <Input id="customer-name" defaultValue={order.customerName} />
+              </div>
+              <div>
+                <Label htmlFor="customer-email">Customer Email</Label>
+                <Input id="customer-email" type="email" defaultValue={order.customerEmail} />
+              </div>
+              <div>
+                <Label htmlFor="order-date">Order Date</Label>
+                <Input id="order-date" type="date" defaultValue={order.orderDate} />
+              </div>
+              <div>
+                <Label htmlFor="order-status">Status</Label>
+                <select
+                  id="order-status"
+                  defaultValue={order.status}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option>Pending</option>
+                  <option>Processing</option>
+                  <option>Shipped</option>
+                  <option>Delivered</option>
+                  <option>Cancelled</option>
+                </select>
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="shipping-address">Shipping Address</Label>
+                <Textarea id="shipping-address" defaultValue={order.shippingAddress} rows={3} />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="order-notes">Order Notes</Label>
+                <Textarea id="order-notes" defaultValue={order.notes} rows={4} />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="is-paid" checked={order.isPaid} />
+                <Label htmlFor="is-paid">Paid</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="is-shipped" checked={order.isShipped} />
+                <Label htmlFor="is-shipped">Shipped</Label>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
+        <div>
+          <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Order Details</CardTitle>
+              <CardTitle>Order Items</CardTitle>
+              <CardDescription>Products included in this order.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Date:</span>
-                <span>{new Date(order.createdAt).toLocaleDateString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Status:</span>
-                <Badge
-                  variant={
-                    order.status === "completed" ? "default" : order.status === "processing" ? "secondary" : "outline"
-                  }
-                >
-                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                </Badge>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total:</span>
-                <span className="font-medium">${order.total.toFixed(2)}</span>
-              </div>
-
-              <div className="pt-4">
-                <label className="text-sm text-muted-foreground block mb-2">Update Status</label>
-                <Select value={order.status} onValueChange={handleStatusChange} disabled={isLoading}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="processing">Processing</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
+            <CardContent>
+              <div className="space-y-2">
+                {order.items.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between text-sm">
+                    <span>
+                      {item.quantity} x {item.name}
+                    </span>
+                    <span>${item.price.toFixed(2)}</span>
+                  </div>
+                ))}
+                <div className="pt-2 text-right text-lg font-bold">Total: ${order.total.toFixed(2)}</div>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle>Customer Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div>
-                <span className="text-muted-foreground">Name:</span>
-                <p>{order.customerName}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Email:</span>
-                <p>{order.customerEmail}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="md:col-span-1">
             <CardHeader>
               <CardTitle>Actions</CardTitle>
+              <CardDescription>Perform actions related to this order.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <Button className="w-full">Send Invoice</Button>
-              <Button variant="outline" className="w-full">
-                Print Order
+            <CardContent className="space-y-3">
+              <Button className="w-full">
+                <Save className="mr-2 h-4 w-4" /> Save Changes
+              </Button>
+              <Button variant="outline" className="w-full bg-transparent">
+                <Printer className="mr-2 h-4 w-4" /> Print Invoice
+              </Button>
+              <Button variant="outline" className="w-full bg-transparent">
+                <Mail className="mr-2 h-4 w-4" /> Send Confirmation Email
               </Button>
             </CardContent>
           </Card>
         </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Order Items</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead className="text-right">Price</TableHead>
-                  <TableHead className="text-right">Quantity</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {order.items.map((item: any, index: number) => (
-                  <TableRow key={index}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">{item.quantity}</TableCell>
-                    <TableCell className="text-right">${(item.price * item.quantity).toFixed(2)}</TableCell>
-                  </TableRow>
-                ))}
-                <TableRow>
-                  <TableCell colSpan={3} className="text-right font-medium">
-                    Total
-                  </TableCell>
-                  <TableCell className="text-right font-bold">${order.total.toFixed(2)}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
       </div>
-    </DashboardShell>
+    </div>
   )
 }

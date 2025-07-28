@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { PremiumBlogEditor } from "@/components/admin/premium-blog-editor"
+import { EnhancedPremiumBlogEditor } from "@/components/admin/enhanced-premium-blog-editor"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -116,9 +116,10 @@ export default function AdminBlogPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto py-8 space-y-6">
+      <h1 className="mb-6 text-3xl font-bold">Blog Management</h1>
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Blog Management</h1>
+        <h2 className="text-2xl font-bold">Posts</h2>
         <Button onClick={handleNewPost} className="bg-purple-600 hover:bg-purple-700">
           <Plus className="h-4 w-4 mr-2" /> New Post
         </Button>
@@ -177,7 +178,11 @@ export default function AdminBlogPage() {
                             <Button variant="outline" size="sm" onClick={() => handleEditPost(post)}>
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button variant="outline" size="sm" className="text-red-500 hover:text-red-700">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-500 hover:text-red-700 bg-transparent"
+                            >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
@@ -226,7 +231,7 @@ export default function AdminBlogPage() {
         </TabsContent>
 
         <TabsContent value="editor" className="mt-0">
-          <PremiumBlogEditor initialPost={selectedPost || undefined} onSave={handleSavePost} />
+          <EnhancedPremiumBlogEditor initialPost={selectedPost || undefined} onSave={handleSavePost} />
         </TabsContent>
       </Tabs>
     </div>

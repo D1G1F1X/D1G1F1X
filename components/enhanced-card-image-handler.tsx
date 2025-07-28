@@ -1,80 +1,262 @@
 "use client"
 
-import Image from "next/image"
-import { getCardImagePath as getActualCardImagePath } from "@/lib/card-data-access" // Import the correct path generator
-import { getElementColorClass, getSuitIcon } from "@/lib/card-image-utils" // Keep these for fallback styling
-import type { OracleCard } from "@/types/cards"
 import { useState, useEffect } from "react"
+import Image from "next/image"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { RefreshCw, AlertCircle, CheckCircle } from "lucide-react"
 
-interface EnhancedCardImageProps {
-  card: OracleCard // Pass the full card object
-  endUp: "first" | "second" // Indicate which element to use for the path
+interface CardImageProps {
+  cardId: string
+  cardTitle: string
+  baseElement: string
+  synergisticElement: string
   className?: string
+  showStatus?: boolean
   onImageLoad?: (success: boolean) => void
 }
 
-export function EnhancedCardImage({ card, endUp, className, onImageLoad }: EnhancedCardImageProps) {
-  const [hasError, setHasError] = useState(false)
-  const [currentImageSrc, setCurrentImageSrc] = useState<string | null>(null)
+interface ImageStatus {
+  loaded: boolean
+  error: boolean
+  url: string | null
+}
+
+export function EnhancedCardImage({
+  cardId,
+  cardTitle,
+  baseElement,
+  synergisticElement,
+  className = "",
+  showStatus = false,
+  onImageLoad,
+}: CardImageProps) {
+  const [imageStatus, setImageStatus] = useState<ImageStatus>({
+    loaded: false,
+    error: false,
+    url: null,
+  })
+  const [isRetrying, setIsRetrying] = useState(false)
+
+  // This function is for local fallbacks only, not blob URLs
+  const generateLocalImagePaths = (id: string, element: string): string[] => {
+    const [number, suit] = id.split("-")
+    const paddedNumber = number.padStart(2, "0")
+    const lowerSuit = suit?.toLowerCase() || ""
+    const lowerElement = element.toLowerCase()
+
+    return [
+      // Primary: Zero-padded format (new standard)
+      `/cards/${paddedNumber}-${lowerSuit}-${lowerElement}.jpg`,
+      `/cards/${paddedNumber}-${lowerSuit}-${lowerElement}.jpeg`,
+
+      // Fallback: Single-digit format (legacy)
+      `/cards/${number}-${lowerSuit}-${lowerElement}.jpg`,
+      `/cards/${number}-${lowerSuit}-${lowerElement}.jpeg`,
+
+      // Alternative formats
+      `/cards/${paddedNumber}${lowerSuit}-${lowerElement}.jpg`,
+      `/cards/${paddedNumber}${lowerSuit}-${lowerElement}.jpeg`,
+      `/cards/${id.toLowerCase()}.jpg`,
+      `/cards/${id.toLowerCase()}.jpeg`,
+    ]
+  }
+
+  const loadCardImage = async () => {
+    try {
+      setIsRetrying(true)
+      setImageStatus({ loaded: false, error: false, url: null })
+
+      let finalImageUrl: string | null = null
+
+      // PRIORITY 1: Fetch from the API (which should return the correct blob URL or a local fallback)
+      try {
+        const response = await fetch(`/api/blob/card-images?cardId=${cardId}&element=${baseElement}`, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.imageUrl) {
+            finalImageUrl = data.imageUrl
+            console.log(`API provided image URL: ${finalImageUrl}`)
+          } else {
+            console.warn(
+              `API did not return a valid image URL for ${cardId}-${baseElement}:`,
+              data.message || "Unknown API error",
+            )
+          }
+        } else {
+          console.warn(`API request failed with status ${response.status} for ${cardId}-${baseElement}`)
+        }
+      } catch (apiError) {
+        console.warn(`API request failed for ${cardId}-${baseElement}:`, apiError)
+      }
+
+      // If API didn't provide a URL, or it explicitly returned a local fallback, try local paths directly
+      if (!finalImageUrl || finalImageUrl.startsWith("/cards/")) {
+        const localImagePaths = generateLocalImagePaths(cardId, baseElement)
+        for (const path of localImagePaths) {
+          try {
+            const testImage = new Image()
+            testImage.crossOrigin = "anonymous"
+            const imageLoadPromise = new Promise<string>((resolve, reject) => {
+              testImage.onload = () => resolve(path)
+              testImage.onerror = () => reject(new Error(`Local image not found at ${path}`))
+              testImage.src = path
+            })
+            finalImageUrl = await imageLoadPromise
+            if (finalImageUrl) {
+              console.log(`✅ Found local image at: ${finalImageUrl}`)
+              break
+            }
+          } catch (localError) {
+            // Continue to next path
+          }
+        }
+      }
+
+      // If a final image URL was determined (either from API or local fallback)
+      if (finalImageUrl) {
+        setImageStatus({
+          loaded: true,
+          error: false,
+          url: finalImageUrl,
+        })
+        onImageLoad?.(true)
+        return
+      }
+
+      // If all methods fail
+      throw new Error("All image loading methods failed")
+    } catch (error) {
+      console.warn(`Failed to load image for ${cardId}:`, error)
+      setImageStatus({
+        loaded: false,
+        error: true,
+        url: `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardTitle)}`,
+      })
+      onImageLoad?.(false)
+    } finally {
+      setIsRetrying(false)
+    }
+  }
 
   useEffect(() => {
-    setHasError(false) // Reset error state on card change
-    const path = getActualCardImagePath(card, endUp)
-    setCurrentImageSrc(path)
-  }, [card, endUp])
+    loadCardImage()
+  }, [cardId, baseElement, synergisticElement])
 
   const handleImageError = () => {
-    setHasError(true)
-    if (onImageLoad) {
-      onImageLoad(false)
-    }
+    setImageStatus((prev) => ({
+      ...prev,
+      error: true,
+      url: `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardTitle)}`,
+    }))
+    onImageLoad?.(false)
   }
 
   const handleImageLoad = () => {
-    if (onImageLoad) {
-      onImageLoad(true)
+    if (!imageStatus.error) {
+      setImageStatus((prev) => ({ ...prev, loaded: true }))
+      onImageLoad?.(true)
     }
   }
 
-  // Fallback content if image fails to load
-  if (hasError || !currentImageSrc) {
-    const elementToUse = endUp === "first" ? card.baseElement : card.synergisticElement
-    const elementColorClass = getElementColorClass(elementToUse)
-    const elementSymbol = getSuitIcon(card.suit) // Using getSuitIcon for a generic symbol, or could create a new getElementSymbol in card-image-utils
-
-    return (
-      <div
-        className={`w-full h-full ${elementColorClass.split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4 ${className}`}
-      >
-        <div className="text-center mb-2 text-sm font-medium text-white">{card.fullTitle}</div>
-        <div className="w-24 h-24 my-4 rounded-full bg-gray-800/50 border border-gray-300/30 flex items-center justify-center">
-          <span className={elementColorClass.split(" ").slice(2).join(" ") + " text-4xl"}>{elementSymbol}</span>
-        </div>
-        <div className="text-xs text-center text-white/80 mt-2">
-          {card.suit} • {elementToUse}
-        </div>
-        <div className="text-lg font-bold text-white mt-2">{card.number}</div>
-      </div>
-    )
-  }
-
   return (
-    <div className={`relative w-full h-full ${className}`}>
-      <Image
-        src={currentImageSrc || "/placeholder.svg"}
-        alt={`${card.fullTitle} - ${endUp === "first" ? "Base Element" : "Synergistic Element"}`}
-        fill
-        className="object-cover"
-        onError={handleImageError}
-        onLoad={handleImageLoad}
-        priority
-      />
-      <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-center">
-        <div className="text-xs font-medium text-white">{card.fullTitle}</div>
-        <div className="text-xs text-gray-300">
-          {card.number} • {card.baseElement}
-        </div>
+    <div className={`relative ${className}`}>
+      <div className="relative w-full aspect-[2/3] rounded-lg overflow-hidden border border-gray-700">
+        {imageStatus.url ? (
+          <Image
+            src={imageStatus.url || "/placeholder.svg"}
+            alt={cardTitle}
+            fill
+            className="object-cover transition-opacity duration-300"
+            onError={handleImageError}
+            onLoad={handleImageLoad}
+            priority={false}
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+            <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
+          </div>
+        )}
+
+        {/* Loading overlay */}
+        {!imageStatus.loaded && !imageStatus.error && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <RefreshCw className="h-6 w-6 animate-spin text-white" />
+          </div>
+        )}
+
+        {/* Status indicators */}
+        {showStatus && (
+          <div className="absolute top-2 right-2">
+            {imageStatus.error ? (
+              <Badge variant="destructive" className="text-xs">
+                <AlertCircle className="h-3 w-3 mr-1" />
+                Missing
+              </Badge>
+            ) : imageStatus.loaded ? (
+              <Badge variant="default" className="text-xs bg-green-600">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Loaded
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="text-xs">
+                <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+                Loading
+              </Badge>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Retry button for failed images */}
+      {imageStatus.error && (
+        <div className="mt-2 text-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadCardImage}
+            disabled={isRetrying}
+            className="text-xs bg-transparent"
+          >
+            <RefreshCw className={`h-3 w-3 mr-1 ${isRetrying ? "animate-spin" : ""}`} />
+            Retry
+          </Button>
+        </div>
+      )}
     </div>
   )
+}
+
+// Hook for batch image loading
+export function useCardImageBatch(cards: Array<{ id: string; baseElement: string; synergisticElement: string }>) {
+  const [loadingStatus, setLoadingStatus] = useState<Record<string, boolean>>({})
+  const [loadedCount, setLoadedCount] = useState(0)
+  const [totalCount] = useState(cards.length)
+
+  const handleImageLoad = (cardId: string, success: boolean) => {
+    setLoadingStatus((prev) => {
+      const newStatus = { ...prev, [cardId]: success }
+      const newLoadedCount = Object.values(newStatus).filter(Boolean).length
+      setLoadedCount(newLoadedCount)
+      return newStatus
+    })
+  }
+
+  const isAllLoaded = loadedCount === totalCount
+  const loadingPercentage = totalCount > 0 ? Math.round((loadedCount / totalCount) * 100) : 0
+
+  return {
+    loadingStatus,
+    loadedCount,
+    totalCount,
+    isAllLoaded,
+    loadingPercentage,
+    handleImageLoad,
+  }
 }

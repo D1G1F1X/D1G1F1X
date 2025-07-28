@@ -1,546 +1,347 @@
 "use client"
 
-import type React from "react"
+import { Badge } from "@/components/ui/badge"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/components/ui/use-toast"
-import { getCardData, getCardById, getAllElements, getAllSuits, getCardImagePath } from "@/lib/card-data-access"
-import type { OracleCard } from "@/types/cards"
+import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
-import { getElementColor, getElementSymbol } from "@/lib/card-image-utils"
-import { Plus, Save, Trash2, Search, ImageIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { useToast } from "@/components/ui/use-toast"
+import { Save, RefreshCw, AlertCircle, ImageIcon } from "lucide-react"
+import { getCardImagePath } from "@/lib/card-image-utils" // For displaying current image
+
+// Define types based on comprehensive-card-data.json structure (numeric keys)
+interface CardElementData {
+  influence: string
+  guidance: string
+  baseElementNote?: boolean
+}
+interface ComprehensiveCard {
+  number: number
+  suit: string
+  name: string
+  pair: string
+  description: string
+  numberMeaning: string
+  sacredGeometryName: string
+  sacredGeometryMeaning: string
+  centerIconName: string
+  centerIconMeaning: string
+  planetName: string
+  planetMeaning: string
+  astroSignName: string
+  astroSignMeaning: string
+  elements: Record<string, CardElementData>
+  keywords?: string[]
+  // This 'id' will be the numeric key from the parent object, e.g., "0", "1"
+  id: string
+}
+
+type ComprehensiveCardData = Record<string, Omit<ComprehensiveCard, "id">> // API returns this
+type CardImagePathsData = Record<string, string>
 
 export function OracleCardManager() {
+  const [cardDetails, setCardDetails] = useState<ComprehensiveCard[]>([])
+  const [imagePaths, setImagePaths] = useState<CardImagePathsData>({})
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSavingCardDetails, setIsSavingCardDetails] = useState(false)
+  const [isSavingImagePaths, setIsSavingImagePaths] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
-  const [cards, setCards] = useState<OracleCard[]>([])
-  const [selectedCard, setSelectedCard] = useState<OracleCard | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isNewCard, setIsNewCard] = useState(false)
-  const [elements, setElements] = useState<string[]>([])
-  const [suits, setSuits] = useState<string[]>([])
-  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({})
+
+  const fetchData = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const [detailsRes, pathsRes] = await Promise.all([
+        fetch("/api/admin/comprehensive-card-data"),
+        fetch("/api/admin/card-image-paths"),
+      ])
+
+      if (!detailsRes.ok) throw new Error(`Failed to load card details: ${detailsRes.statusText}`)
+      if (!pathsRes.ok) throw new Error(`Failed to load image paths: ${pathsRes.statusText}`)
+
+      const detailsData: ComprehensiveCardData = await detailsRes.json()
+      const pathsData: CardImagePathsData = await pathsRes.json()
+
+      // Transform detailsData from Record<string, Omit<ComprehensiveCard, 'id'>> to ComprehensiveCard[]
+      const detailsArray: ComprehensiveCard[] = Object.entries(detailsData)
+        .map(([key, value]) => ({
+          id: key, // The numeric key "0", "1", etc.
+          ...value,
+        }))
+        .sort((a, b) => Number.parseInt(a.id) - Number.parseInt(b.id)) // Sort by numeric ID
+
+      setCardDetails(detailsArray)
+      setImagePaths(pathsData)
+    } catch (err: any) {
+      console.error("Error fetching card management data:", err)
+      setError(err.message || "Failed to load data.")
+      toast({ title: "Error", description: err.message, variant: "destructive" })
+    } finally {
+      setIsLoading(false)
+    }
+  }, [toast])
 
   useEffect(() => {
-    loadCards()
-    setElements(getAllElements())
-    setSuits(getAllSuits())
-  }, [])
+    fetchData()
+  }, [fetchData])
 
-  const loadCards = () => {
-    try {
-      const allCards = getCardData()
-      setCards(allCards)
-      if (allCards.length > 0 && !selectedCard) {
-        setSelectedCard(allCards[0])
+  const getBaseElement = (card: ComprehensiveCard): string => {
+    if (!card || !card.elements) return "Spirit" // Default or error
+    for (const [element, data] of Object.entries(card.elements)) {
+      if (data.baseElementNote) {
+        return element
       }
-    } catch (error) {
-      console.error("Error loading cards:", error)
-      toast({
-        title: "Error",
-        description: "Failed to load card data.",
-        variant: "destructive",
-      })
     }
+    return "Spirit" // Default if no base element note found
   }
 
-  const handleSelectCard = (id: string) => {
-    const card = getCardById(id)
-    if (card) {
-      setSelectedCard({ ...card }) // Create a mutable copy
-      setIsNewCard(false)
-      setImageErrors({}) // Reset image errors for new card selection
-    }
+  const getDescriptiveImageKey = (card: ComprehensiveCard): string | null => {
+    if (!card) return null
+    const numberStr = card.number.toString().padStart(2, "0")
+    const suitStr = card.suit.toLowerCase()
+    const baseElementStr = getBaseElement(card)?.toLowerCase()
+
+    if (!numberStr || !suitStr || !baseElementStr) return null
+    return `${numberStr}${suitStr}-${baseElementStr}`
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    if (selectedCard) {
-      setSelectedCard({ ...selectedCard, [name]: value })
-    }
-  }
-
-  const handleSelectChange = (name: string, value: string) => {
-    if (selectedCard) {
-      setSelectedCard({ ...selectedCard, [name]: value })
-    }
-  }
-
-  const handleArrayChange = (name: keyof OracleCard, value: string) => {
-    if (selectedCard) {
-      setSelectedCard({
-        ...selectedCard,
-        [name]: value.split(";").map((item) => item.trim()),
-      })
-    }
-  }
-
-  const handleSymbolsChange = (index: number, key: string, value: string) => {
-    if (selectedCard) {
-      const updatedSymbols = [...(selectedCard.symbols || [])]
-      updatedSymbols[index] = { ...updatedSymbols[index], [key]: value }
-      setSelectedCard({ ...selectedCard, symbols: updatedSymbols })
-    }
-  }
-
-  const addSymbol = () => {
-    if (selectedCard) {
-      setSelectedCard({
-        ...selectedCard,
-        symbols: [...(selectedCard.symbols || []), { key: "", value: "" }],
-      })
-    }
-  }
-
-  const removeSymbol = (index: number) => {
-    if (selectedCard) {
-      const updatedSymbols = [...(selectedCard.symbols || [])]
-      updatedSymbols.splice(index, 1)
-      setSelectedCard({ ...selectedCard, symbols: updatedSymbols })
-    }
-  }
-
-  const handleSaveCard = async () => {
-    if (!selectedCard) return
-
-    try {
-      // In a real application, you would send this data to your API
-      // For now, we'll just log it and update the local state
-      console.log("Saving card:", selectedCard)
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      setCards((prevCards) => {
-        if (isNewCard) {
-          return [...prevCards, selectedCard]
-        } else {
-          return prevCards.map((card) => (card.id === selectedCard.id ? selectedCard : card))
-        }
-      })
-      toast({
-        title: "Success",
-        description: `Card "${selectedCard.fullTitle}" saved successfully.`,
-      })
-      setIsNewCard(false)
-    } catch (error) {
-      console.error("Error saving card:", error)
-      toast({
-        title: "Error",
-        description: "Failed to save card data.",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const handleDeleteCard = async () => {
-    if (!selectedCard || isNewCard) return
-
-    if (!window.confirm(`Are you sure you want to delete "${selectedCard.fullTitle}"?`)) {
-      return
-    }
-
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      setCards((prevCards) => prevCards.filter((card) => card.id !== selectedCard.id))
-      setSelectedCard(null)
-      toast({
-        title: "Success",
-        description: `Card "${selectedCard.fullTitle}" deleted successfully.`,
-      })
-    } catch (error) {
-      console.error("Error deleting card:", error)
-      toast({
-        title: "Error",
-        description: "Failed to delete card.",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const handleNewCard = () => {
-    setSelectedCard({
-      id: `new-card-${Date.now()}`,
-      number: "",
-      suit: "",
-      fullTitle: "New Card",
-      name: "New Card",
-      pair: "",
-      description: "",
-      numberMeaning: "",
-      sacredGeometryName: "",
-      sacredGeometryMeaning: "",
-      centerIconName: "",
-      centerIconMeaning: "",
-      planetName: "",
-      planetMeaning: "",
-      astroSignName: "",
-      astroSignMeaning: "",
-      elements: {},
-      keyMeanings: [],
-      symbolismBreakdown: [],
-      symbols: [],
-      baseElement: "",
-      synergisticElement: "",
-      iconSymbol: "",
-      orientation: "",
-      sacredGeometry: "",
-      planetInternalInfluence: "",
-      astrologyExternalDomain: "",
-    })
-    setIsNewCard(true)
-    setImageErrors({})
-  }
-
-  const filteredCards = cards.filter(
-    (card) =>
-      card.fullTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      card.suit?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      card.number?.toString().includes(searchTerm.toLowerCase()),
-  )
-
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, card: OracleCard, endUp: "first" | "second") => {
-    const target = e.target as HTMLImageElement
-    if (!target.src.includes("placeholder")) {
-      const numberStr = card.number?.toString().padStart(2, "0") || "00"
-      const suitStr = card.suit?.toLowerCase() || "unknown"
-      const elementStr =
-        endUp === "first"
-          ? card.baseElement?.toLowerCase() || "spirit"
-          : card.synergisticElement?.toLowerCase() || "spirit"
-      const altPath = `/cards/${numberStr}-${suitStr}-${elementStr}.jpg`
-
-      if (target.src !== altPath) {
-        target.src = altPath
-        return
-      }
-      target.src = `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
-    }
-    setImageErrors((prev) => ({ ...prev, [`${card.id}-${endUp}`]: true }))
-  }
-
-  const getCardImage = (card: OracleCard, endUp: "first" | "second") => {
-    const hasImageError = imageErrors[`${card.id}-${endUp}`]
-    const imagePath = getCardImagePath(card, endUp)
-    const fallbackPath = `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
-
-    if (hasImageError) {
-      return (
-        <div
-          className={`w-full h-full ${getElementColor(card.baseElement).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4 rounded-md`}
-        >
-          <div className="text-center mb-2 text-sm font-medium text-white">{card.fullTitle}</div>
-          <div className="w-24 h-24 my-4 rounded-full bg-gray-800/50 border border-gray-300/30 flex items-center justify-center">
-            <span className={getElementColor(card.baseElement).split(" ").slice(2).join(" ") + " text-4xl"}>
-              {getElementSymbol(card.baseElement)}
-            </span>
-          </div>
-          <div className="text-xs text-center text-white/80 mt-2">
-            {card.suit} • {card.baseElement}
-          </div>
-          <div className="text-lg font-bold text-white mt-2">{card.number}</div>
-        </div>
-      )
-    }
-
-    return (
-      <Image
-        src={imagePath || fallbackPath}
-        alt={`${card.fullTitle} - ${endUp === "first" ? "Base Element" : "Synergistic Element"}`}
-        fill
-        className="object-contain rounded-md"
-        onError={(e) => handleImageError(e, card, endUp)}
-        priority
-      />
+  const handleDetailChange = (
+    cardId: string,
+    field: keyof Omit<ComprehensiveCard, "id" | "elements" | "keywords">,
+    value: string | number,
+  ) => {
+    setCardDetails((prevDetails) =>
+      prevDetails.map((card) => (card.id === cardId ? { ...card, [field]: value } : card)),
     )
   }
 
+  const handleElementDetailChange = (
+    cardId: string,
+    elementName: string,
+    field: keyof CardElementData,
+    value: string | boolean,
+  ) => {
+    setCardDetails((prevDetails) =>
+      prevDetails.map((card) => {
+        if (card.id === cardId) {
+          const updatedElements = {
+            ...card.elements,
+            [elementName]: {
+              ...card.elements[elementName],
+              [field]: value,
+            },
+          }
+          return { ...card, elements: updatedElements }
+        }
+        return card
+      }),
+    )
+  }
+
+  const handleImagePathChange = (descriptiveKey: string, newPath: string) => {
+    setImagePaths((prevPaths) => ({
+      ...prevPaths,
+      [`${descriptiveKey}.jpg`]: newPath, // Manifest keys include .jpg
+    }))
+  }
+
+  const saveCardDetails = async () => {
+    setIsSavingCardDetails(true)
+    // Transform cardDetails array back to Record<string, Omit<ComprehensiveCard, 'id'>> for API
+    const dataToSave: ComprehensiveCardData = cardDetails.reduce((acc, card) => {
+      const { id, ...rest } = card
+      acc[id] = rest
+      return acc
+    }, {} as ComprehensiveCardData)
+
+    try {
+      const response = await fetch("/api/admin/comprehensive-card-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: dataToSave }),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to save card details")
+      }
+      toast({ title: "Success", description: "Card details saved." })
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" })
+    } finally {
+      setIsSavingCardDetails(false)
+    }
+  }
+
+  const saveImagePaths = async () => {
+    setIsSavingImagePaths(true)
+    try {
+      const response = await fetch("/api/admin/card-image-paths", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: imagePaths }),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to save image paths")
+      }
+      toast({ title: "Success", description: "Image paths saved." })
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" })
+    } finally {
+      setIsSavingImagePaths(false)
+    }
+  }
+
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center p-8">
+        <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />{" "}
+        <span className="ml-2">Loading card data...</span>
+      </div>
+    )
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    )
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 to-gray-900 text-white p-6 md:p-10 relative overflow-hidden">
-      <Card className="bg-gray-900/50 border-purple-500/20 shadow-lg">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-2xl text-purple-300">Oracle Card Manager</CardTitle>
-          <p className="text-gray-400">Manage and edit the details of your NUMO Oracle cards.</p>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Sidebar: Card List */}
-          <div className="lg:col-span-1 flex flex-col space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Search cards..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-400"
-              />
-            </div>
-            <Button onClick={handleNewCard} className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-              <Plus className="mr-2 h-4 w-4" /> Add New Card
-            </Button>
-            <div className="flex-1 overflow-y-auto pr-2 -mr-2 custom-scrollbar max-h-[600px]">
-              {filteredCards.length > 0 ? (
-                filteredCards.map((card) => (
-                  <div
-                    key={card.id}
-                    className={`flex items-center gap-3 p-3 mb-2 rounded-lg cursor-pointer transition-colors ${
-                      selectedCard?.id === card.id
-                        ? "bg-purple-700/40 border border-purple-500/50"
-                        : "hover:bg-gray-800/50"
-                    }`}
-                    onClick={() => handleSelectCard(card.id)}
-                  >
-                    <div className="relative h-10 w-10 flex-shrink-0">
-                      {card.iconSymbol ? (
-                        <div className="h-full w-full bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-300">
-                          {card.iconSymbol.charAt(0).toUpperCase()}
-                        </div>
-                      ) : (
-                        <div className="h-full w-full bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-300">
-                          {card.suit?.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-sm text-white">{card.fullTitle}</h3>
-                      <p className="text-xs text-gray-400">{card.suit}</p>
-                    </div>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getElementColor(card.baseElement || "spirit")}`}
-                    >
-                      {card.baseElement}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center p-4 text-gray-400">No cards found.</div>
-              )}
-            </div>
-          </div>
+    <div className="space-y-6">
+      <div className="flex gap-4">
+        <Button onClick={saveCardDetails} disabled={isSavingCardDetails || isSavingImagePaths}>
+          {isSavingCardDetails ? (
+            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="mr-2 h-4 w-4" />
+          )}{" "}
+          Save Card Details
+        </Button>
+        <Button onClick={saveImagePaths} disabled={isSavingCardDetails || isSavingImagePaths}>
+          {isSavingImagePaths ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}{" "}
+          Save Image Paths
+        </Button>
+        <Button variant="outline" onClick={fetchData} disabled={isLoading || isSavingCardDetails || isSavingImagePaths}>
+          <RefreshCw className="mr-2 h-4 w-4" /> Reload All Data
+        </Button>
+      </div>
 
-          {/* Right Section: Card Editor */}
-          <div className="lg:col-span-2 bg-gray-800/50 border border-gray-700 rounded-lg p-6 space-y-6">
-            {selectedCard ? (
-              <>
-                <h2 className="text-xl font-bold text-purple-300">
-                  {isNewCard ? "Add New Card" : `Edit Card: ${selectedCard.fullTitle}`}
-                </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {cardDetails.map((card) => {
+          const descriptiveKey = getDescriptiveImageKey(card)
+          const currentImagePathKey = descriptiveKey ? `${descriptiveKey}.jpg` : null
+          const currentImagePathValue = currentImagePathKey ? imagePaths[currentImagePathKey] : undefined
+          const displayImageUrl = getCardImagePath(descriptiveKey, card.name)
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="fullTitle" className="text-gray-300">
-                      Full Title
-                    </Label>
-                    <Input
-                      id="fullTitle"
-                      name="fullTitle"
-                      value={selectedCard.fullTitle || ""}
-                      onChange={handleInputChange}
-                      className="bg-gray-700 border-gray-600 text-white"
+          return (
+            <Card key={card.id} className="flex flex-col">
+              <CardHeader>
+                <CardTitle>
+                  {card.name} (ID: {card.id}, Num: {card.number})
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 flex-grow">
+                <div className="relative w-full aspect-[270/420] border rounded overflow-hidden bg-slate-800">
+                  {displayImageUrl ? (
+                    <Image
+                      src={displayImageUrl || "/placeholder.svg"}
+                      alt={card.name}
+                      fill
+                      className="object-contain"
+                      sizes="300px"
                     />
-                  </div>
-                  <div>
-                    <Label htmlFor="name" className="text-gray-300">
-                      Short Name
-                    </Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      value={selectedCard.name || ""}
-                      onChange={handleInputChange}
-                      className="bg-gray-700 border-gray-600 text-white"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="number" className="text-gray-300">
-                      Number
-                    </Label>
-                    <Input
-                      id="number"
-                      name="number"
-                      value={selectedCard.number || ""}
-                      onChange={handleInputChange}
-                      className="bg-gray-700 border-gray-600 text-white"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="suit" className="text-gray-300">
-                      Suit
-                    </Label>
-                    <Select
-                      value={selectedCard.suit || ""}
-                      onValueChange={(value) => handleSelectChange("suit", value)}
-                    >
-                      <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                        <SelectValue placeholder="Select Suit" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                        {suits.map((suit) => (
-                          <SelectItem key={suit} value={suit}>
-                            {suit}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="baseElement" className="text-gray-300">
-                      Base Element
-                    </Label>
-                    <Select
-                      value={selectedCard.baseElement || ""}
-                      onValueChange={(value) => handleSelectChange("baseElement", value)}
-                    >
-                      <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                        <SelectValue placeholder="Select Base Element" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                        {elements.map((element) => (
-                          <SelectItem key={element} value={element}>
-                            {element}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="synergisticElement" className="text-gray-300">
-                      Synergistic Element
-                    </Label>
-                    <Select
-                      value={selectedCard.synergisticElement || ""}
-                      onValueChange={(value) => handleSelectChange("synergisticElement", value)}
-                    >
-                      <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                        <SelectValue placeholder="Select Synergistic Element" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                        {elements.map((element) => (
-                          <SelectItem key={element} value={element}>
-                            {element}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="description" className="text-gray-300">
-                    Description
-                  </Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    value={selectedCard.description || ""}
-                    onChange={handleInputChange}
-                    className="bg-gray-700 border-gray-600 text-white min-h-[100px]"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="keyMeanings" className="text-gray-300">
-                    Key Meanings (semicolon separated)
-                  </Label>
-                  <Textarea
-                    id="keyMeanings"
-                    name="keyMeanings"
-                    value={(selectedCard.keyMeanings || []).join("; ")}
-                    onChange={(e) => handleArrayChange("keyMeanings", e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white min-h-[80px]"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="symbolismBreakdown" className="text-gray-300">
-                    Symbolism Breakdown (semicolon separated)
-                  </Label>
-                  <Textarea
-                    id="symbolismBreakdown"
-                    name="symbolismBreakdown"
-                    value={(selectedCard.symbolismBreakdown || []).join("; ")}
-                    onChange={(e) => handleArrayChange("symbolismBreakdown", e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white min-h-[80px]"
-                  />
-                </div>
-
-                {/* Dynamic Symbols Array */}
-                <div className="space-y-2">
-                  <Label className="text-gray-300">Symbols</Label>
-                  {(selectedCard.symbols || []).map((symbol, index) => (
-                    <div key={index} className="flex gap-2 items-center">
-                      <Input
-                        placeholder="Key"
-                        value={symbol.key}
-                        onChange={(e) => handleSymbolsChange(index, "key", e.target.value)}
-                        className="bg-gray-700 border-gray-600 text-white"
-                      />
-                      <Input
-                        placeholder="Value"
-                        value={symbol.value}
-                        onChange={(e) => handleSymbolsChange(index, "value", e.target.value)}
-                        className="bg-gray-700 border-gray-600 text-white"
-                      />
-                      <Button variant="destructive" size="icon" onClick={() => removeSymbol(index)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-muted-foreground">
+                      <ImageIcon className="w-12 h-12" />
                     </div>
-                  ))}
-                  <Button
-                    variant="outline"
-                    onClick={addSymbol}
-                    className="w-full bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
-                  >
-                    <Plus className="mr-2 h-4 w-4" /> Add Symbol
-                  </Button>
-                </div>
-
-                {/* Image Preview */}
-                <div className="flex flex-col items-center space-y-4">
-                  <h3 className="text-lg font-semibold text-purple-300">Card Image Preview</h3>
-                  <div className="relative w-48 h-72 border border-gray-700 rounded-md overflow-hidden shadow-xl">
-                    {selectedCard.baseElement && selectedCard.suit && selectedCard.number ? (
-                      getCardImage(selectedCard, "first")
-                    ) : (
-                      <div className="w-full h-full bg-gray-700 flex items-center justify-center text-gray-400">
-                        <ImageIcon className="h-12 w-12" />
-                        <span className="sr-only">No image available</span>
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-400 text-center">
-                    This preview uses the Base Element image. Ensure your `card-image-paths.json` is correctly populated
-                    for blob images to appear.
-                  </p>
-                </div>
-
-                <div className="flex justify-end gap-4 mt-6">
-                  {!isNewCard && (
-                    <Button onClick={handleDeleteCard} variant="destructive">
-                      <Trash2 className="mr-2 h-4 w-4" /> Delete Card
-                    </Button>
                   )}
-                  <Button onClick={handleSaveCard} className="bg-green-600 hover:bg-green-700 text-white">
-                    <Save className="mr-2 h-4 w-4" /> Save Changes
-                  </Button>
                 </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center text-gray-400">
-                <Search className="h-16 w-16 mb-4" />
-                <p className="text-lg">Select a card from the left to edit, or add a new one.</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+                <div>
+                  <label className="text-sm font-medium">
+                    Image Path in Manifest (e.g., public/cards/01cauldron-spirit.jpg)
+                  </label>
+                  <Input
+                    value={currentImagePathValue || ""}
+                    onChange={(e) => descriptiveKey && handleImagePathChange(descriptiveKey, e.target.value)}
+                    placeholder="public/cards/..."
+                    disabled={!descriptiveKey}
+                  />
+                  {descriptiveKey && !currentImagePathValue && (
+                    <p className="text-xs text-amber-500 mt-1">
+                      Path not found in manifest for key: {currentImagePathKey}
+                    </p>
+                  )}
+                </div>
+
+                <label className="text-sm font-medium">Name</label>
+                <Input value={card.name} onChange={(e) => handleDetailChange(card.id, "name", e.target.value)} />
+
+                <label className="text-sm font-medium">Description</label>
+                <Textarea
+                  value={card.description}
+                  onChange={(e) => handleDetailChange(card.id, "description", e.target.value)}
+                  rows={3}
+                />
+
+                {/* Add more fields as needed: suit, pair, numberMeaning, sacredGeo, etc. */}
+                {/* Example for elements (simplified, could be more complex UI) */}
+                <details>
+                  <summary className="cursor-pointer font-medium">
+                    Element Details ({Object.keys(card.elements).length})
+                  </summary>
+                  <div className="mt-2 space-y-3 p-3 border rounded-md bg-slate-800/50">
+                    {Object.entries(card.elements).map(([elName, elData]) => (
+                      <div key={elName} className="space-y-1">
+                        <p className="font-semibold text-sm">
+                          {elName}{" "}
+                          {elData.baseElementNote ? (
+                            <Badge variant="secondary" size="sm">
+                              Base
+                            </Badge>
+                          ) : (
+                            ""
+                          )}
+                        </p>
+                        <Input
+                          placeholder="Influence"
+                          value={elData.influence}
+                          onChange={(e) => handleElementDetailChange(card.id, elName, "influence", e.target.value)}
+                        />
+                        <Input
+                          placeholder="Guidance"
+                          value={elData.guidance}
+                          onChange={(e) => handleElementDetailChange(card.id, elName, "guidance", e.target.value)}
+                        />
+                        <label className="flex items-center text-xs">
+                          <input
+                            type="checkbox"
+                            checked={!!elData.baseElementNote}
+                            onChange={(e) =>
+                              handleElementDetailChange(card.id, elName, "baseElementNote", e.target.checked)
+                            }
+                            className="mr-1"
+                          />
+                          Base Element
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              </CardContent>
+              <CardFooter>
+                <p className="text-xs text-muted-foreground">Descriptive Key: {descriptiveKey || "N/A"}</p>
+              </CardFooter>
+            </Card>
+          )
+        })}
+      </div>
     </div>
   )
 }

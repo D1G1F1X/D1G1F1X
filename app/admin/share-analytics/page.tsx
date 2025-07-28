@@ -1,8 +1,9 @@
-import ShareAnalyticsDashboard from "@/components/admin/share-analytics-dashboard"
+import { ShareAnalyticsDashboard } from "@/components/admin/share-analytics-dashboard"
 
-export default function ShareAnalyticsPage() {
+export default function AdminShareAnalyticsPage() {
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-8">
+      <h1 className="mb-6 text-3xl font-bold">Share Analytics</h1>
       <ShareAnalyticsDashboard />
     </div>
   )

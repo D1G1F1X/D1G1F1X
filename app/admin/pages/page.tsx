@@ -1,89 +1,103 @@
-import { DashboardShell } from "@/components/admin/dashboard-shell"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { PlusCircle, Star } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Search, PlusCircle, Edit, Trash2 } from "lucide-react"
 import Link from "next/link"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { ProtectedRoute } from "@/components/admin/protected-route"
-import { getPages } from "@/lib/content"
 
-export const dynamic = "force-dynamic"
-
-export default async function PagesPage() {
-  const pages = await getPages()
+export default function AdminPagesPage() {
+  const pages = [
+    { id: "home", title: "Homepage", slug: "/", status: "Published" },
+    { id: "about", title: "About Us", slug: "/about", status: "Published" },
+    { id: "contact", title: "Contact Us", slug: "/contact", status: "Published" },
+    { id: "faq", title: "FAQ", slug: "/faq", status: "Published" },
+    { id: "draft-page", title: "Draft Page", slug: "/draft-page", status: "Draft" },
+  ]
 
   return (
-    <DashboardShell>
-      <ProtectedRoute>
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold">Pages</h1>
-            <Link href="/admin/pages/new">
-              <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Page
-              </Button>
-            </Link>
-          </div>
+    <div className="container mx-auto py-8">
+      <h1 className="mb-6 text-3xl font-bold">Page Management</h1>
 
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Slug</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Updated</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pages && pages.length > 0 ? (
-                  pages.map((page) => (
-                    <TableRow key={page.id} className={page.id === "landing" ? "bg-muted/50" : ""}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          {page.id === "landing" && <Star className="h-4 w-4 text-yellow-500" />}
-                          {page.title}
-                          {page.id === "landing" && (
-                            <Badge variant="outline" className="ml-2">
-                              Landing Page
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{page.slug}</TableCell>
-                      <TableCell>
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            page.isPublished ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {page.isPublished ? "Published" : "Draft"}
-                        </span>
-                      </TableCell>
-                      <TableCell>{new Date(page.updatedAt).toLocaleDateString()}</TableCell>
-                      <TableCell className="text-right">
-                        <Link href={`/admin/pages/${page.id}`}>
-                          <Button variant="ghost" size="sm">
-                            Edit
-                          </Button>
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
-                      No pages found. Create your first page.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Search Pages</CardTitle>
+          <CardDescription>Find pages by title or status.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Input placeholder="Search pages..." className="pl-9" />
+            </div>
+            <Button>Search</Button>
           </div>
-        </div>
-      </ProtectedRoute>
-    </DashboardShell>
+        </CardContent>
+      </Card>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Create New Page</CardTitle>
+          <CardDescription>Add a new static page to your website.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link href="/admin/pages/new" passHref>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" /> Create New Page
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>All Pages</CardTitle>
+          <CardDescription>A list of all static pages on your site.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-700">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Title</th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Slug</th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Status</th>
+                  <th className="px-4 py-2 text-right text-sm font-medium text-gray-400">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-800">
+                {pages.map((page) => (
+                  <tr key={page.id}>
+                    <td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-200">{page.title}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-300">{page.slug}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-sm">
+                      <span
+                        className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
+                          page.status === "Published"
+                            ? "bg-green-500/20 text-green-400"
+                            : "bg-yellow-500/20 text-yellow-400"
+                        }`}
+                      >
+                        {page.status}
+                      </span>
+                    </td>
+                    <td className="flex justify-end space-x-2 whitespace-nowrap px-4 py-2 text-sm">
+                      <Link href={`/admin/pages/${page.id}`} passHref>
+                        <Button variant="outline" size="sm">
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                      </Link>
+                      <Button variant="destructive" size="sm">
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

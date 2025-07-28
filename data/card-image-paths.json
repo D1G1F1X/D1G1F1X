@@ -1,9 +1,9 @@
 {
-  "01cauldron-air.jpg": "https://blob.vercel-storage.com/v1/your-blob-store-id/01cauldron-air.jpg",
-  "01cauldron-earth.jpg": "https://blob.vercel-storage.com/v1/your-blob-store-id/01cauldron-earth.jpg",
-  "01cauldron-fire.jpg": "https://blob.vercel-storage.com/v1/your-blob-store-id/01cauldron-fire.jpg",
-  "01cauldron-spirit.jpg": "https://blob.vercel-storage.com/v1/your-blob-store-id/01cauldron-spirit.jpg",
-  "01cauldron-water.jpg": "https://blob.vercel-storage.com/v1/your-blob-store-id/01cauldron-water.jpg",
+  "01cauldron-air.jpg": "public/cards/01cauldron-air.jpg",
+  "01cauldron-earth.jpg": "public/cards/01cauldron-earth.jpg",
+  "01cauldron-fire.jpg": "public/cards/01cauldron-fire.jpg",
+  "01cauldron-spirit.jpg": "public/cards/01cauldron-spirit.jpg",
+  "01cauldron-water.jpg": "public/cards/01cauldron-water.jpg",
   "10cauldron-air.jpg": "public/cards/10cauldron-air.jpg",
   "10cauldron-earth.jpg": "public/cards/10cauldron-earth.jpg",
   "10cauldron-fire.jpg": "public/cards/10cauldron-fire.jpg",
@@ -16,7 +16,7 @@
   "25sword-water.jpg": "public/cards/25sword-water.jpg",
   "38cord-air.jpg": "public/cards/38cord-air.jpg",
   "38cord-earth.jpg": "public/cards/38cord-earth.jpg",
-  "38cord-fire.jpg": "https://blob.vercel-storage.com/v1/your-blob-store-id/03cord-fire.jpg",
+  "38cord-fire.jpg": "public/cards/38cord-fire.jpg",
   "38cord-spirit.jpg": "public/cards/38cord-spirit.jpg",
   "38cord-water.jpg": "public/cards/38cord-water.jpg",
   "47spear-air.jpg": "public/cards/47spear-air.jpg",
@@ -42,10 +42,9 @@
   "83cord-fire.jpg": "public/cards/83cord-fire.jpg",
   "83cord-spirit.jpg": "public/cards/83cord-spirit.jpg",
   "83cord-water.jpg": "public/cards/83cord-water.jpg",
-  "96stone-air.jpg": "https://blob.vercel-storage.com/v1/your-blob-store-id/09stone-air.jpg",
+  "96stone-air.jpg": "public/cards/96stone-air.jpg",
   "96stone-earth.jpg": "public/cards/96stone-earth.jpg",
   "96stone-fire.jpg": "public/cards/96stone-fire.jpg",
   "96stone-spirit.jpg": "public/cards/96stone-spirit.jpg",
-  "96stone-water.jpg": "public/cards/96stone-water.jpg",
-  "04spear-earth.jpg": "https://blob.vercel-storage.com/v1/your-blob-store-id/04spear-earth.jpg"
+  "96stone-water.jpg": "public/cards/96stone-water.jpg"
 }

@@ -94,13 +94,17 @@ export default function BugReport() {
         formDataToSend.append("screenshot", screenshot)
       }
 
-      // await fetch('/api/bug-reports', {
-      //   method: 'POST',
-      //   body: formDataToSend
-      // })
+      // Replace the simulate API call with the actual fetch
+      const response = await fetch("/api/bug-reports", {
+        method: "POST",
+        body: formDataToSend,
+      })
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.message || "Failed to submit report")
+      }
 
       toast({
         title: "Report submitted",

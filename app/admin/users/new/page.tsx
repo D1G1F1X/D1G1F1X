@@ -1,145 +1,59 @@
-"use client"
-
-import type React from "react"
-
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/auth-provider"
-import { DashboardShell } from "@/components/admin/dashboard-shell"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, AlertTriangle } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Switch } from "@/components/ui/switch"
-import Link from "next/link"
+import { Checkbox } from "@/components/ui/checkbox"
+import { PlusCircle } from "lucide-react"
 
-export default function NewUserPage() {
-  const router = useRouter()
-  const { adminCreateUser } = useAuth()
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "user",
-    isPremium: false,
-  })
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleRoleChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, role: value }))
-  }
-
-  const handlePremiumChange = (checked: boolean) => {
-    setFormData((prev) => ({ ...prev, isPremium: checked }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const { error } = await adminCreateUser(formData.email, formData.password, {
-        full_name: formData.name,
-        role: formData.role,
-        isPremium: formData.isPremium,
-      })
-
-      if (error) {
-        setError(error.message)
-        setIsLoading(false)
-        return
-      }
-
-      router.push("/admin/users")
-      router.refresh()
-    } catch (err) {
-      console.error("Error creating user:", err)
-      setError("An unexpected error occurred. Please try again.")
-      setIsLoading(false)
-    }
-  }
-
+export default function AdminNewUserPage() {
   return (
-    <DashboardShell>
-      <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <Link href="/admin/users">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
+    <div className="container mx-auto py-8">
+      <h1 className="mb-6 text-3xl font-bold">Create New User</h1>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>User Information</CardTitle>
+          <CardDescription>Enter the details for the new user account.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          <div>
+            <Label htmlFor="user-name">Name</Label>
+            <Input id="user-name" placeholder="e.g., John Doe" />
+          </div>
+          <div>
+            <Label htmlFor="user-email">Email</Label>
+            <Input id="user-email" type="email" placeholder="e.g., john.doe@example.com" />
+          </div>
+          <div>
+            <Label htmlFor="user-password">Password</Label>
+            <Input id="user-password" type="password" placeholder="Enter password" />
+          </div>
+          <div>
+            <Label htmlFor="user-role">Role</Label>
+            <select
+              id="user-role"
+              defaultValue="user"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option>user</option>
+              <option>admin</option>
+            </select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox id="is-active" defaultChecked />
+            <Label htmlFor="is-active">Active User</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox id="is-premium" />
+            <Label htmlFor="is-premium">Premium Member</Label>
+          </div>
+          <div className="md:col-span-2">
+            <Button className="w-full">
+              <PlusCircle className="mr-2 h-4 w-4" /> Create User
             </Button>
-          </Link>
-          <h1 className="text-3xl font-bold">Add New User</h1>
-        </div>
-
-        <Card>
-          <form onSubmit={handleSubmit}>
-            <CardHeader>
-              <CardTitle>User Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Select value={formData.role} onValueChange={handleRoleChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="editor">Editor</SelectItem>
-                    <SelectItem value="user">User</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch id="premium-member" checked={formData.isPremium} onCheckedChange={handlePremiumChange} />
-                <Label htmlFor="premium-member">Premium Member</Label>
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end">
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Creating..." : "Create User"}
-              </Button>
-            </CardFooter>
-          </form>
-        </Card>
-      </div>
-    </DashboardShell>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

@@ -1,47 +1,61 @@
-// lib/supabase.ts
-import { createBrowserClient, type SupabaseClient } from "@supabase/ssr"
-import { createSupabaseAdminClient as createAdminClient } from "./supabase-server" // Import from existing server utility
+import { createClient, type SupabaseClient } from "@supabase/supabase-js"
+import { SUPABASE_CONFIG, validateDigifixIntegration } from "./supabase/config"
 
-// Declare a global variable to hold the client instance.
-// This helps in reusing the client across the application in a browser context.
-declare global {
-  var supabaseBrowserClientInstance: SupabaseClient | undefined
-}
+// ----------  BROWSER CLIENT (PUBLIC ANON) ----------
+let _supabaseClient: SupabaseClient | undefined
 
-// Renamed to getClientSide and exported as named export
 export function getClientSide(): SupabaseClient {
-  // Check if the client is already initialized in the global scope
-  if (globalThis.supabaseBrowserClientInstance) {
-    return globalThis.supabaseBrowserClientInstance
+  if (typeof window === "undefined") {
+    throw new Error("getClientSide should only run in the browser")
   }
 
-  // If not initialized, create a new client
-  const client = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
-
-  // Store the newly created client in the global scope for reuse
-  globalThis.supabaseBrowserClientInstance = client
-
-  return client
+  if (!_supabaseClient) {
+    // Use a specific global key to prevent conflicts
+    const globalKey = "__numoracle_supabase_singleton"
+    _supabaseClient =
+      (globalThis as any)[globalKey] ??
+      createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey, {
+        auth: {
+          persistSession: true,
+          detectSessionInUrl: true,
+          flowType: "pkce",
+        },
+      })
+    ;(globalThis as any)[globalKey] = _supabaseClient
+  }
+  return _supabaseClient
 }
 
-// Export a singleton client instance
-export const supabase: SupabaseClient = getClientSide()
+// Named export expected by deploy checker
+export const supabase = typeof window !== "undefined" ? getClientSide() : ({} as SupabaseClient)
 
-// Export the admin client creator function
-// This function, when called, will return a new admin client instance.
-// If you need a singleton admin client, you would call it once and store the result.
-// For typical use (e.g. in server actions/route handlers), creating it on demand is fine.
-export const supabaseAdmin = createAdminClient
+// DIGIFIX Supabase Configuration - Validated
+const supabaseServiceRoleKey = SUPABASE_CONFIG.serviceRoleKey
 
-// Note: The original default export is removed as we are now using named exports
-// for getClientSide, supabase, and supabaseAdmin.
-// If a default export is still needed elsewhere for getSupabaseBrowserClient,
-// we can add: export default getClientSide;
-// However, the error message specifically asks for named exports.
+// Validate DIGIFIX integration on initialization (server-side only)
+if (typeof window === "undefined") {
+  validateDigifixIntegration()
+}
 
-// Note: For server-side operations (Server Components, Route Handlers, Server Actions),
-// you should use a different way to create Supabase clients, typically involving
-// createServerClient or createRouteHandlerClient from '@supabase/ssr'
-// and passing cookie handling functions. This is usually handled in a separate
-// file like 'lib/supabase-server.ts' or directly where needed.
-// The "Multiple GoTrueClient instances" warning specifically refers to the browser context.
+// ----------  SERVER-SIDE ADMIN (SERVICE ROLE) ----------
+let _supabaseAdmin: SupabaseClient | undefined
+
+/**
+ * DIGIFIX Supabase Admin Client - Server Only
+ * Uses DIGIFIX service role key for admin operations
+ */
+export function getAdminClient(): SupabaseClient {
+  if (typeof window !== "undefined") {
+    throw new Error("getAdminClient should only be used on the server")
+  }
+  if (!_supabaseAdmin) {
+    if (!supabaseServiceRoleKey) {
+      throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY env var")
+    }
+    _supabaseAdmin = createClient(SUPABASE_CONFIG.url, supabaseServiceRoleKey)
+  }
+  return _supabaseAdmin
+}
+
+/** Re-usable, singleton Supabase Admin client (server-only) */
+export const supabaseAdmin = typeof window === "undefined" ? getAdminClient() : ({} as SupabaseClient)

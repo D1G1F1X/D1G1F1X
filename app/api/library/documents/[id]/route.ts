@@ -1,80 +1,78 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getDocument, updateDocument, deleteDocument } from "@/lib/services/enhanced-library-service"
-import { getUserFromRequest } from "@/lib/auth-utils"
+import { supabaseManager } from "@/lib/database/supabase-manager"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const documentId = params.id
+    const { id } = params
 
-    // Get user from session if available
-    const user = await getUserFromRequest(request)
-    const userId = user?.id
-
-    const document = await getDocument(documentId, userId)
-
-    if (!document) {
-      return NextResponse.json({ error: "Document not found or access denied" }, { status: 404 })
+    if (!supabaseManager.isClientConfigured()) {
+      console.warn("[API] Supabase not configured for document retrieval")
+      return NextResponse.json({ error: "Database service unavailable" }, { status: 503 })
     }
 
-    return NextResponse.json({ document })
-  } catch (error) {
-    console.error(`Error in GET /api/library/documents/${params.id}:`, error)
-    return NextResponse.json({ error: "Failed to fetch document" }, { status: 500 })
+    const result = await supabaseManager.executeQuery(async (client) => {
+      const { data, error } = await client.from("documents").select("*").eq("id", id).single()
+
+      if (error) throw error
+      return data
+    }, null)
+
+    if (!result) {
+      return NextResponse.json({ error: "Document not found" }, { status: 404 })
+    }
+
+    return NextResponse.json(result)
+  } catch (error: any) {
+    console.error(`[API] Error fetching document ${params.id}:`, error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const documentId = params.id
-    const user = await getUserFromRequest(request)
+    const { id } = params
+    const body = await request.json()
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!supabaseManager.isClientConfigured()) {
+      return NextResponse.json({ error: "Database service unavailable" }, { status: 503 })
     }
 
-    const updates = await request.json()
+    const result = await supabaseManager.executeQuery(async (client) => {
+      const { data, error } = await client.from("documents").update(body).eq("id", id).select().single()
 
-    const document = await updateDocument(documentId, updates, user.id)
+      if (error) throw error
+      return data
+    }, null)
 
-    if (!document) {
-      return NextResponse.json({ error: "Failed to update document" }, { status: 500 })
+    if (!result) {
+      return NextResponse.json({ error: "Document not found or update failed" }, { status: 404 })
     }
 
-    return NextResponse.json({ document })
+    return NextResponse.json(result)
   } catch (error: any) {
-    console.error(`Error in PUT /api/library/documents/${params.id}:`, error)
-
-    if (error.message.includes("Unauthorized")) {
-      return NextResponse.json({ error: error.message }, { status: 403 })
-    }
-
-    return NextResponse.json({ error: "Failed to update document" }, { status: 500 })
+    console.error(`[API] Error updating document ${params.id}:`, error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const documentId = params.id
-    const user = await getUserFromRequest(request)
+    const { id } = params
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!supabaseManager.isClientConfigured()) {
+      return NextResponse.json({ error: "Database service unavailable" }, { status: 503 })
     }
 
-    const success = await deleteDocument(documentId, user.id)
+    await supabaseManager.executeQuery(async (client) => {
+      const { error } = await client.from("documents").delete().eq("id", id)
 
-    if (!success) {
-      return NextResponse.json({ error: "Failed to delete document" }, { status: 500 })
-    }
+      if (error) throw error
+      return true
+    }, false)
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ message: "Document deleted successfully" })
   } catch (error: any) {
-    console.error(`Error in DELETE /api/library/documents/${params.id}:`, error)
-
-    if (error.message.includes("Unauthorized")) {
-      return NextResponse.json({ error: error.message }, { status: 403 })
-    }
-
-    return NextResponse.json({ error: "Failed to delete document" }, { status: 500 })
+    console.error(`[API] Error deleting document ${params.id}:`, error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

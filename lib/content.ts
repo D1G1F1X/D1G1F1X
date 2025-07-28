@@ -313,7 +313,7 @@ Life unfolds in cycles, each with its own distinct themes, opportunities, and le
 *   **Challenge Numbers:** These highlight specific hurdles or lessons you'll encounter during different life phases. Understanding them empowers you to navigate these periods with greater awareness and transform obstacles into stepping stones for growth. *Explore your four Challenge Numbers and the wisdom they offer.*
 
 ![Pinnacle Numbers Progression Chart](https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-9pOspwp4qVlwKHhCsiusiwy8UDlsBp.png "Pinnacle Numbers with progression visualization")
-![Challenge Numbers Details](https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-NPT9xu8XouBTkDfNWFmREgsOLlaG7F.png "Detailed breakdown of Challenge Numbers")
+![Challenge Numbers Details](https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-NPT9u8XouBTkDfNWFmREgsOLlaG7F.png "Detailed breakdown of Challenge Numbers")
 
 ### 4. Unlock Deeper Wisdom: Karmic Lessons & Hidden Passions
 
@@ -326,7 +326,7 @@ Delve into the more subtle, yet powerful, aspects of your numerological chart:
 
 ### 5. Glimpse Your Future Path: Personal Year & Future Trends
 
-![Future Trends and 9-Year Cycle Forecast](https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-3yaA4ml1X46nijzp0ssDImHi2h0nd2.png "Numerology Future Trends and 9-Year Cycle Forecast")
+![Future Trends and 9-Year Cycle Forecast](https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-3yaA4mlX46nijzp0ssDImHi2h0nd2.png "Numerology Future Trends and 9-Year Cycle Forecast")
 
 Numerology isn't just about understanding your past and present; it also offers valuable insights into the energies influencing your future:
 
@@ -391,7 +391,7 @@ We can't wait for you to experience the transformative power of your numbers!
 `
 
 // Changed 'let posts' to 'export let posts'
-export let posts: Post[] = [
+export const posts: Post[] = [
   {
     id: "7",
     title: "Unlock Your Destiny: Introducing Our FREE Comprehensive Numerology Report!",
@@ -430,7 +430,7 @@ The cauldron, an ancient vessel steeped in myth and magic, stands as one of the 
 Historically, the cauldron was a practical tool for cooking and brewing, essential for survival. This utilitarian function naturally evolved into symbolic significance. It became associated with:
 
 *   **Nourishment and Abundance:** The cauldron provides sustenance, representing not just physical food but also spiritual and emotional nourishment. It speaks to the universe's generosity and the promise of fulfillment.
-*   **Transformation and Rebirth:** Like ingredients transformed by heat and blending, the cauldron symbolizes the alchemical process of change. It's a place where old forms die and new ones are born, representing cycles of death and rebirth, healing, and regeneration. Think of the mythical cauldrons that could restore life or grant wisdom.
+*   **Transformation and Rebirth:** Like ingredients transformed by heat and blending, the cauldron symbolizes the alchemical process of change. It's a place where old forms die and new ones are born, representing cycles of death and rebirth, healing, and regeneration. Think of the mythical cauldrons that could restore life or grant wisdom. It suggests that true wisdom often brews in the depths of introspection and experience.
 *   **The Divine Feminine and Creation:** The rounded, receptive shape of the cauldron often links it to the womb, the Great Mother, and the feminine principle of creation. It is the source from which life emerges, a container of potential and mystery.
 *   **Wisdom and Inspiration:** Many legends tell of cauldrons that grant poetic inspiration (like the Cauldron of Awen in Welsh mythology) or divine knowledge. It suggests that true wisdom often brews in the depths of introspection and experience.
 *   **Magic and Ritual:** In witchcraft and pagan traditions, the cauldron is a central ritual tool, used for scrying, brewing potions, burning incense, or holding offerings. It acts as a focal point for magical workings and a connection to the elemental forces.
@@ -624,7 +624,7 @@ The calculation is straightforward and involves reducing your birth month, day, 
 *   Reduce your birth day to a single digit. For example, if born on the 23rd, 2+3=5. If born on the 11th or 22nd, these are Master Numbers and are kept as 11 or 22.
 
 3.  **Reduce the Year:**
-*   Add all the digits of your birth year together and reduce them to a single digit. For example, for 1987: 1+9+8+7 = 25. Then, 2+5 = 7. If the sum is 11 or 22 before the final single-digit reduction, note it as it might indicate Master Number influence.
+*   Add all the digits of your birth year together and reduce them to a single digit. For example, for 1975: 1+9+7+5 = 22. Then, 2+2 = 4. If the sum is 11 or 22 before the final single-digit reduction, note it as it might indicate Master Number influence.
 
 4.  **Sum and Reduce the Totals:**
 *   Add the reduced numbers for the month, day, and year.
@@ -768,200 +768,234 @@ The historical and mythological tapestry is rich with swords of significance. Fr
     content: `
 # The Sacred Cord: Unraveling the Symbolism of Connection and Unity
 
-The cord, in its elegant simplicity, is a universal symbol of connection, weaving through the spiritual and cultural fabric of humanity. It represents the invisible threads that bind us—to each other, to our ancestors, to nature, and to the divine. From the life-giving umbilical cord to the intricate knots of a sailor's rope, the cord speaks of linkage, continuity, and the strength found in unity. Its flexibility allows it to represent both gentle ties and unbreakable bonds, adapting to the nature of the connection it symbolizes.
+The cord, in its elegant simplicity, is a universal symbol of connection, weaving through the spiritual and cultural fabric of humanity. It represents the invisible threads that bind us together, symbolizing unity, partnership, and the intricate web of relationships that shape our lives. The cord is often associated with the element of Air in many spiritual traditions, embodying the qualities of communication, intellect, and connection. In the NUMO Oracle system, the Cord suit is linked to the element of Air, further emphasizing its role in facilitating communication, networking, and mental agility.
 
-In sacred rituals, the cord often plays a central role. Handfasting ceremonies, for example, use a cord to physically and symbolically unite two individuals, signifying their intertwined paths and shared commitments. Prayer beads, such as malas or rosaries, are essentially sacred cords punctuated by knots or beads, each marking a prayer or mantra, guiding the devotee into a state of focused meditation and connection with the divine. These practices highlight the cord's ability to create tangible links to intangible realities, fostering a sense of belonging and shared spiritual purpose. It can also represent a lineage, a thread of wisdom passed down through generations.
+## The Cord in NUMO Oracle: Embracing Air's Wisdom
 
-The symbolism of the cord extends to grand cosmic concepts like fate and destiny. The Moirai, or Fates, of Greek mythology spun, measured, and cut the thread of life for every mortal and god, illustrating the profound belief in an interconnected destiny. Similarly, the East Asian 'Red Thread of Fate' is said to invisibly tie together those who are destined to meet and help one another. These narratives emphasize that no individual is an island; our lives are interwoven in a vast, intricate tapestry. The cord reminds us that every action creates ripples, affecting the whole. In spiritual development, the cord can symbolize the pathway of energy, like the Sushumna Nadi in yogic philosophy, or the 'silver cord' connecting the soul to the body. It invites us to explore our connections, to nurture them, and to recognize the profound unity underlying all existence.
-  `,
+In the NUMO Oracle, the Cord suit is aligned with the element of **Air**. This connection highlights themes of:
+
+*   **Communication and Clarity:** Air governs our thoughts, ideas, and the exchange of information. The Cord cards encourage open dialogue, clear expression, and the sharing of knowledge.
+*   **Intellect and Strategy:** Like the wind that carries seeds, the Cord teaches us to be strategic, to think critically, and to use our intellect to navigate challenges.
+*   **Connection and Networking:** The cord symbolizes the threads that connect us to others, emphasizing the importance of social interaction, collaboration, and building meaningful relationships.
+*   **Change and Adaptability:** Air is ever-changing, and the Cord reflects this adaptability, showing us how to flow with life's shifts and embrace new opportunities.
+
+## Working with Cord Energy
+
+To connect with the symbolism of the cord in your own life:
+
+*   **Engage in Communication:** Practice active listening and clear expression to deepen your connections with others.
+*   **Think Strategically:** Use your intellect to plan and execute your goals, navigating challenges with wisdom and foresight.
+*   **Build Relationships:** Focus on nurturing your social connections, forming partnerships that support your growth and aspirations.
+*   **Embrace Change:** Be open to new experiences and opportunities, adapting to life's changes with grace and resilience.
+
+The cord reminds us that within the web of relationships, we find our greatest strength and potential for growth. By embracing its wisdom, we can navigate our lives with greater clarity, purpose, and connection to others.
+`,
     excerpt:
-      "Uncover the profound symbolism of the cord, representing connection, unity, and binding forces across spiritual practices. Explore its role in rituals, fate, and interconnectedness.",
+      "Explore the deep spiritual meanings and symbolism associated with the cord in various mystical traditions, and its connection to the NUMO Oracle's Air element.",
     author: "NUMO Oracle Team",
     isPublished: true,
-    createdAt: "2025-06-05T10:00:00Z",
-    updatedAt: "2025-06-05T10:00:00Z",
-    featuredImage: "/images/blog/generated/sacred-cord-connection-unity.png",
-    categories: ["Symbolism", "Mysticism", "Spiritual Practices"],
-    tags: ["cord", "connection", "unity", "fate", "destiny", "interconnectedness", "rituals"],
-  },
-  {
-    id: "15",
-    title: "The Spear: Symbol of Focus, Protection, and Divine Energy",
-    slug: "spear-symbol-focus-protection-divine-energy",
-    content: `
-# The Spear: Symbol of Focus, Protection, and Divine Energy
-
-The spear, with its direct and piercing form, stands as a powerful emblem of focused intention, unwavering protection, and the channeling of potent, often divine, energy. Unlike the broad sweep of a sword, the spear signifies a singular, concentrated point of power, a direct line of force aimed with precision and purpose. This makes it a compelling symbol for achieving specific goals, overcoming targeted obstacles, and maintaining a clear, undeviated path towards one's aspirations. Its length often implies reach, the ability to project influence or defense from a strategic distance.
-
-Throughout mythology and history, the spear is the chosen implement of formidable warriors, wise hunters, and authoritative deities. Odin's Gungnir, which never missed its mark and was bound by sacred oaths, or Athena's spear, representing strategic wisdom in conflict, highlight its association with not just might, but also with skill, foresight, and righteous power. The spear demands accuracy and a deep understanding of one's objective, symbolizing the importance of clear vision and decisive action. It is the tool of the guardian, the sentinel, and the leader who must protect their charge with unwavering resolve.
-
-In ritualistic contexts, the spear can serve as an axis mundi, a symbolic connection between the earthly and celestial realms, channeling energies and intentions. Shamans and spiritual leaders might use spear-like implements to direct healing, banish negativity, or invoke protective forces. Its association with elements like air (for its swiftness) or lightning (for its striking power) further enhances its dynamic symbolism. The spear encourages a focused mind, a 'spearheading' of one's efforts towards enlightenment or truth, cutting through distractions and illusions. It is a call to align oneself with a higher purpose, to stand firm in one's convictions, and to project one's energy with clarity and integrity. The spear reminds us that true strength lies in focused will and the courage to aim directly for what is right and true.
-  `,
-    excerpt:
-      "Examine the spear's symbolism as an emblem of focus, protection, and divine energy. Investigate its association with warriors, deities, and the pursuit of higher consciousness.",
-    author: "NUMO Oracle Team",
-    isPublished: true,
-    createdAt: "2025-06-05T10:00:00Z",
-    updatedAt: "2025-06-05T10:00:00Z",
-    featuredImage: "/images/blog/generated/spear-focus-protection-energy.png",
-    categories: ["Symbolism", "Mysticism", "Spiritual Tools"],
-    tags: ["spear", "focus", "protection", "divine energy", "strength", "courage", "warriors"],
+    createdAt: "2025-06-06T10:00:00Z",
+    updatedAt: "2025-06-07T10:00:00Z",
+    featuredImage: "/images/blog/generated/sacred-cord-symbolism.png",
+    categories: ["Symbolism", "Mysticism", "Oracle Wisdom", "Elemental Wisdom"],
+    tags: ["cord", "spiritual symbolism", "connection", "air element", "unity", "NUMO Oracle"],
   },
   {
     id: "16",
-    title: "The Sacred Stone: Exploring the Symbolism of Stability, Grounding, and Timelessness",
-    slug: "sacred-stone-symbolism-stability-grounding",
+    title: "The Oracle of Illusion: Unmasking Clickbait, Fear-Mongering & False Promises in the Online Divination Boom",
+    slug: "oracle-of-illusion-unmasking-clickbait",
     content: `
-# The Sacred Stone: Exploring the Symbolism of Stability, Grounding, and Timelessness
+# The Oracle of Illusion: Unmasking Clickbait, Fear-Mongering & False Promises in the Online Divination Boom
 
-The stone, in its silent, unyielding presence, is one of the most ancient and universal symbols of stability, grounding, and timelessness. From the smallest pebble shaped by eons of flowing water to the colossal mountains that pierce the sky, stones embody the enduring strength and primordial wisdom of the Earth itself. They are the very bones of our planet, offering a tangible connection to the vastness of geological time and the slow, cyclical rhythms of nature. Holding a stone can feel like holding a piece of history, a silent witness to the unfolding of ages.
+![The Oracle of Illusion](https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-eOgjy61c6AvbBuHNFYSoDGthk6wCD0.png "A stylized illustration of an oracle figure looking into a crystal ball with a YouTube play button, titled 'THE ORACLE OF ILLUSION'.")
 
-Across diverse cultures, stones are revered for their inherent qualities. Their weight and solidity make them natural symbols of grounding, helping to anchor our energy, calm a scattered mind, and connect us firmly to the physical realm, especially during periods of uncertainty. In sacred practices, stones often delineate holy spaces, form the foundations of temples, or stand as altars for offerings and prayer. Ancient stone circles like Stonehenge or the Carnac stones, their exact purposes shrouded in mystery, nonetheless speak to humanity's long-standing use of stone to mark significant sites, observe celestial events, and create enduring places of communal gathering and spiritual focus.
+In the digital age, a quiet revolution has taken place. Mystics once relegated to back rooms and hushed consultations now broadcast across TikTok, Instagram, YouTube, and beyond. Tarot readers, numerologists, astrologers, and spiritual guides have gained unprecedented access to audiences seeking answers, healing, and purpose.
 
-The stone's connection to ancestry and the passage of time is profound. Megaliths, cairns, and gravestones serve as lasting memorials, linking the present to the past and honoring the lineage of those who came before. They represent the enduring fabric of existence, a comforting constant against the backdrop of transient human lives. This timeless quality makes stones powerful aids in meditation, fostering inner peace and a sense of connection to something larger and more ancient than oneself. In many healing traditions, specific stones and crystals are believed to possess unique energetic vibrations capable of promoting physical, emotional, and spiritual well-being, absorbing negativity and radiating stabilizing frequencies. The simple act of choosing and keeping a stone can be a deeply personal practice, a reminder of resilience, patience, and the quiet, unshakeable strength that resides both in the Earth and within ourselves.
-  `,
+But with visibility comes a troubling trend: the ancient sacred sciences are increasingly being twisted into tools of clickbait, fear-mongering, and psychological manipulation.
+
+This is not merely a side effect of internet culture. It’s a distortion of the spiritual path itself.
+
+Welcome to the age of The Oracle of Illusion, where truth is filtered through algorithms, and authenticity is sacrificed for virality.
+
+## The Rise of Clickbait Mysticism
+
+Scroll through your social feed and you’ll see messages like:
+
+“If you’re seeing this, your ex is manifesting you!”
+
+“Don’t ignore this! The universe will test you in 72 hours.”
+
+“This one card means a sudden windfall is coming—if you believe!”
+
+These emotionally charged headlines aren’t just annoying—they’re dangerous. They prey on spiritual seekers during vulnerable moments, when they’re navigating breakups, grief, anxiety, or spiritual awakenings. Instead of offering tools for healing or growth, they deliver dopamine hits dressed as divine prophecy.
+
+They blur the line between spiritual support and psychological manipulation, turning sacred insight into mass-market spectacle.
+
+## From Sacred Science to Social Metrics
+
+The esoteric arts—numerology, astrology, tarot, elemental readings—are not designed for instant gratification. They are systems of reflection, transformation, and growth. Their purpose is not to entertain, but to initiate.
+
+Unfortunately, many online “oracles” are using:
+
+*   Urgency tactics (“This is your last chance to receive this blessing!”)
+*   Emotional hooks (“Only chosen ones will resonate with this message.”)
+*   Addiction loops (“Come back tomorrow for your updated love message.”)
+
+These aren’t divine downloads. They’re marketing formulas.
+
+And while every guide has a right to share their voice, when mysticism becomes performance, the true path of wisdom becomes obscured.
+
+## NUMO: Built on a Different Philosophy
+
+At NUMOracle, we’ve taken a radically different stance.
+
+Our entire ecosystem—from the NUMO Guidebooks to the card deck, to the AI systems embedded in our apps and software—is built on a foundation of spiritual responsibility, authenticity, and sacred integrity.
+
+Here's how our philosophy stands apart:
+
+### 1. Clarity Over Clicks
+
+We do not rely on manipulation, vagueness, or exaggerated claims. Every card drawn, every numerological calculation, every astrological influence is backed by documented symbolism, not hype.
+
+### 2. Empowerment Over Dependency
+
+The NUMO system is designed to return power to the seeker. Our readings offer insight—not dependency. We don’t promise soulmate arrivals or lottery wins. We illuminate patterns, energies, and timing so you can take informed action.
+
+### 3. Embedded Wisdom
+
+Our guidebooks, training data, and AI-powered reading algorithms reflect a deep commitment to spiritual ethics. The interpretations given by our digital systems are aligned with the NUMO philosophy: no fear-mongering, no false hope, and no spiritual elitism.
+
+### 4. Holistic Design
+
+Each NUMO card embodies a layered understanding of numerology, astrology, and elemental energy. For example:
+
+*   The Cauldron (0 & 1) speaks to creation from potential.
+*   The Sword (2 & 5) represents decisive change.
+*   The Stone (6 & 9) grounds us in nurturing cycles.
+
+Each card is interpreted with carefully coded logic that maintains depth, not dramatics.
+
+## Built Into Our AI
+
+Most apps and platforms simply automate randomness. Ours don’t.
+
+The AI systems that power NUMO readings are trained on:
+
+*   A complete taxonomy of 52 compound numbers.
+*   Symmetry-driven pairing logic of numerological archetypes.
+*   Elemental energy alignment and astrological resonance.
+*   A rejection of exaggerated predictive tropes in favor of psychological realism and soul growth.
+
+Each insight delivered—whether from a live draw or app-generated—is designed not to shock or seduce, but to center and clarify.
+
+## A Seeker’s Checklist for Spiritual Integrity
+
+If you’re navigating the noisy world of online oracles, ask yourself:
+
+*   Does this reading empower me—or make me anxious?
+*   Am I learning tools for growth—or just being teased with fantasy?
+*   Is this person/channel/system explaining or mystifying?
+*   Do I feel addicted to messages—or guided by insight?
+
+Authentic divination leads you inward—not into an endless scroll of dopamine prophecies.
+
+## Reclaiming the Real Magic
+
+Magic is not made in hashtags. It’s found in quiet reflection, synchronicity, discipline, and intention.
+
+The NUMO system honors this. We believe every seeker deserves:
+
+*   Clear symbolism.
+*   Consistent logic.
+*   Respect for their journey.
+
+Our mission is to protect the sacred flame of intuitive science—from cheap tricks, from influencer exploitation, and from the psychic fast food that floods the timelines.
+
+## Final Word
+
+The digital age doesn’t have to destroy the sacred. But we must be vigilant.
+
+At NUMOracle, our guidebooks, our deck, our AI—and our human insights—are all anchored in the belief that mysticism must uplift, not manipulate.
+
+We won’t promise you instant lovers or sudden fortunes. But we will help you remember your power, your patterns, your path.
+
+Want insight without illusion?
+
+Visit numoracle.com
+
+NUMO is not a trick. It's a truth system.
+`,
     excerpt:
-      "Delve into the stone's symbolism, representing stability, grounding, and timelessness. Explore its connection to nature, history, meditation, and inner peace.",
+      "In the digital age, spiritual guidance is often twisted into clickbait and fear-mongering. Discover how NUMO Oracle stands apart, offering authentic insights built on spiritual responsibility and integrity, empowering seekers with clarity over clicks.",
     author: "NUMO Oracle Team",
     isPublished: true,
-    createdAt: "2025-06-05T10:00:00Z",
-    updatedAt: "2025-06-05T10:00:00Z",
-    featuredImage: "/images/blog/generated/sacred-stone-stability-grounding.png",
-    categories: ["Symbolism", "Mysticism", "Nature Spirituality"],
-    tags: ["stone", "stability", "grounding", "timelessness", "earth", "nature", "healing"],
-  },
-  {
-    id: "1", // Duplicate ID, but content is different. Assuming this is intentional for the example.
-    title: "Understanding Numerology",
-    slug: "understanding-numerology", // Duplicate slug
-    content: `
-# Understanding Numerology: The Ancient Science of Numbers (Content Version 1)
-
-Numerology is the study of numbers and their energetic influence on our lives. This ancient practice reveals how numerical patterns can illuminate our path, purpose, and potential.
-... (rest of the content for this version) ...
-`,
-    excerpt: "Learn the basics of numerology and how it can transform your understanding of life.",
-    author: "Raziel Ali",
-    isPublished: true,
-    createdAt: "2024-08-15T10:30:00Z",
-    updatedAt: "2024-08-15T10:30:00Z",
-    featuredImage: "/numerology-oracle-spread.png",
-    categories: ["Numerology", "Ancient Wisdom"],
-    tags: ["numerology basics", "life path number", "pythagoras", "number meanings"],
-  },
-  {
-    id: "2", // Duplicate ID
-    title: "The Sacred Geometry of Numerology: How Numbers Shape Your Destiny",
-    slug: "sacred-geometry-numerology-destiny", // Duplicate slug
-    content: `
-# The Sacred Geometry of Numerology: How Numbers Shape Your Destiny (Content Version 1)
-... (rest of the content for this version) ...
-`,
-    excerpt:
-      "Discover how the ancient science of numerology reveals the hidden patterns that shape your destiny. Learn about Life Path Numbers, elemental associations, and the sacred geometry that connects numbers to your life purpose.",
-    author: "Raziel Ali",
-    isPublished: true,
-    createdAt: "2024-09-20T14:30:00Z",
-    updatedAt: "2024-09-20T14:30:00Z",
-    featuredImage: "/images/blog/generated/sacred-geometry-destiny-blog.png",
-    categories: ["Numerology", "Sacred Geometry", "Life Path"],
-    tags: ["life path number", "sacred geometry", "destiny", "goddess danu", "elemental numerology"],
-  },
-  {
-    id: "3", // Duplicate ID
-    title: "Astrological Houses and Numerology: The Cosmic Blueprint of Your Life",
-    slug: "astrological-houses-numerology-cosmic-blueprint", // Duplicate slug
-    content: `
-# Astrological Houses and Numerology: The Cosmic Blueprint of Your Life (Content Version 1)
-... (rest of the content for this version) ...
-`,
-    excerpt:
-      "Explore the profound connections between astrology and numerology to gain a deeper understanding of your life's blueprint.",
-    author: "Raziel Ali",
-    isPublished: true,
-    createdAt: "2024-10-05T09:00:00Z",
-    updatedAt: "2024-10-05T09:00:00Z",
-    featuredImage: "/images/blog/generated/astrology-numerology-blueprint-blog.png",
-    categories: ["Numerology", "Astrology", "Cosmic Blueprint"],
-    tags: ["astrology", "numerology", "life path", "cosmic connections", "holistic understanding"],
+    createdAt: "2025-07-02T10:00:00Z", // Current date
+    updatedAt: "2025-07-02T10:00:00Z", // Current date
+    featuredImage: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-2Z9kNcaYgsDWmbcBYFsJ6A3jkXBcvK.png",
+    categories: ["Ethics", "Divination", "Online Trends", "NUMO Philosophy"],
+    tags: [
+      "clickbait",
+      "fear-mongering",
+      "online divination",
+      "spiritual integrity",
+      "numerology",
+      "tarot",
+      "oracle cards",
+      "AI ethics",
+    ],
   },
 ]
 
-const pages: Page[] = [
+export const pages: Page[] = [
   {
-    id: "about-page",
-    title: "About NUMO Oracle",
-    slug: "about",
-    content: "<h1>About Us</h1><p>Welcome to NUMO Oracle, your guide to numerology and self-discovery.</p>",
+    id: "1",
+    title: "Home",
+    slug: "home",
+    content: "Welcome to the home page!",
     isPublished: true,
-    createdAt: "2023-01-10T10:00:00Z",
-    updatedAt: "2023-01-10T10:00:00Z",
-    featuredImage: "/images/about/goddess-danu.png",
-  },
-  {
-    id: "contact-page",
-    title: "Contact Us",
-    slug: "contact",
-    content: "<h1>Contact Us</h1><p>Get in touch with the NUMO Oracle team.</p>",
-    isPublished: true,
-    createdAt: "2023-01-11T10:00:00Z",
-    updatedAt: "2023-01-11T10:00:00Z",
+    createdAt: "2023-01-01T00:00:00Z",
+    updatedAt: "2023-01-01T00:00:00Z",
   },
 ]
 
-export async function getAllPosts(): Promise<Post[]> {
-  return Promise.resolve(
-    posts
-      .filter((post) => post.isPublished)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
-  )
+/* ---------- Simple in-memory helpers – good enough for build-time ---------- */
+export function getPages() {
+  return pages
 }
 
-export async function getPosts(limit?: number, offset?: number): Promise<Post[]> {
-  const publishedPosts = posts
-    .filter((post) => post.isPublished)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  const start = offset || 0
-  const end = limit ? start + limit : undefined
-  return Promise.resolve(publishedPosts.slice(start, end))
+export function getPageById(id: string) {
+  return pages.find((p) => p.id === id) ?? null
 }
 
-export async function getPostBySlug(slug: string): Promise<Post | undefined> {
-  return Promise.resolve(posts.find((post) => post.slug === slug && post.isPublished))
+export function updatePage(id: string, data: Partial<Page>) {
+  const page = getPageById(id)
+  if (page) Object.assign(page, data, { updatedAt: new Date().toISOString() })
+  return page
 }
 
-export async function getPost(id: string): Promise<Post | undefined> {
-  return Promise.resolve(posts.find((post) => post.id === id))
+export function getPosts() {
+  return posts.filter((p) => p.isPublished)
 }
 
-export async function updatePost(id: string, updatedData: Partial<Post>): Promise<Post | undefined> {
-  const postIndex = posts.findIndex((post) => post.id === id)
-  if (postIndex === -1) {
-    return Promise.resolve(undefined)
-  }
-  posts[postIndex] = { ...posts[postIndex], ...updatedData, updatedAt: new Date().toISOString() }
-  return Promise.resolve(posts[postIndex])
+export function getAllPosts() {
+  return posts
 }
 
-export async function deletePost(id: string): Promise<boolean> {
-  const initialLength = posts.length
-  posts = posts.filter((post) => post.id !== id)
-  return Promise.resolve(posts.length < initialLength)
+export function getPost(id: string) {
+  return posts.find((p) => p.id === id) ?? null
 }
 
-export async function getPages(): Promise<Page[]> {
-  return Promise.resolve(pages.filter((page) => page.isPublished).sort((a, b) => a.title.localeCompare(b.title)))
+export function getPostBySlug(slug: string) {
+  return posts.find((p) => p.slug === slug) ?? null
 }
 
-export async function getPageById(id: string): Promise<Page | undefined> {
-  return Promise.resolve(pages.find((page) => page.id === id))
+export function updatePost(id: string, data: Partial<Post>) {
+  const post = getPost(id)
+  if (post) Object.assign(post, data, { updatedAt: new Date().toISOString() })
+  return post
 }
 
-export async function updatePage(id: string, updatedData: Partial<Page>): Promise<Page | undefined> {
-  const pageIndex = pages.findIndex((page) => page.id === id)
-  if (pageIndex === -1) {
-    return Promise.resolve(undefined)
-  }
-  pages[pageIndex] = { ...pages[pageIndex], ...updatedData, updatedAt: new Date().toISOString() }
-  return Promise.resolve(pages[pageIndex])
+export function deletePost(id: string) {
+  const idx = posts.findIndex((p) => p.id === id)
+  if (idx !== -1) posts.splice(idx, 1)
 }

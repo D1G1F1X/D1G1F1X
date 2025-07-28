@@ -1,19 +1,10 @@
-import { requireAuth } from "@/lib/auth"
-import { DashboardShell } from "@/components/admin/dashboard-shell"
-import { FileManager } from "@/components/admin/file-manager"
+import { FileManagerWrapper } from "@/components/admin/file-manager-wrapper"
 
-export default async function FilesPage() {
-  await requireAuth()
-
+export default function AdminFilesPage() {
   return (
-    <DashboardShell>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">File Manager</h1>
-        </div>
-
-        <FileManager />
-      </div>
-    </DashboardShell>
+    <div className="container mx-auto py-8">
+      <h1 className="mb-6 text-3xl font-bold">File Management</h1>
+      <FileManagerWrapper />
+    </div>
   )
 }

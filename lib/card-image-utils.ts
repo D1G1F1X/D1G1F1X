@@ -1,154 +1,274 @@
-import type React from "react"
 /**
  * Utility functions for handling card images
  */
-import type { OracleCard } from "@/types/cards"
 
 /**
- * Gets the image path for a card based on its number, suit, and element.
- * This function is primarily for internal use within card-image-utils
- * and for generating fallback paths. The main image resolution for components
- * should now come from `lib/card-data-access.ts`.
+ * Gets the image path for a card based on its ID and optional name
  */
-export function getCardImagePath(card: OracleCard, end: "first" | "second"): string {
-  if (!card) return "/placeholder.svg"
-
-  const numberStr = card.number?.toString().padStart(2, "0") || "00"
-  const suitStr = card.suit?.toLowerCase() || "unknown"
-  const elementStr =
-    end === "first" ? card.baseElement?.toLowerCase() || "spirit" : card.synergisticElement?.toLowerCase() || "spirit"
-
-  // This function now only returns the local path, as the blob resolution
-  // is handled by `getCardImagePath` in `lib/card-data-access.ts`
-  return `/cards/${numberStr}-${suitStr}-${elementStr}.jpg`
-}
-
-/**
- * Creates a fallback image URL for when a card image fails to load
- */
-export function getCardFallbackUrl(card: any): string {
-  if (!card) return "/placeholder.svg?height=280&width=180"
-
-  let queryText = ""
-
-  if (typeof card === "string") {
-    queryText = card
-  } else if (card.fullTitle) {
-    queryText = `${card.fullTitle} card`
-  } else if (card.name) {
-    queryText = `${card.name} card`
-  } else if (card.suit && card.baseElement) {
-    queryText = `${card.suit} of ${card.baseElement}`
-  } else {
-    queryText = "oracle card"
+export function getCardImagePath(cardId: string | null, cardName?: string): string {
+  if (!cardId) {
+    return cardName
+      ? `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardName)}`
+      : "/placeholder.svg?height=420&width=270"
   }
 
-  return `/placeholder.svg?height=280&width=180&query=${encodeURIComponent(queryText)}`
+  // Default element if not specified
+  const defaultElement = "spirit"
+
+  try {
+    // Parse card ID (format: "NUMBER-SUIT")
+    const parts = cardId.split("-")
+    if (parts.length < 2) {
+      console.warn(`Invalid card ID format: ${cardId}`)
+      return `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardId)}`
+    }
+
+    const cardNumber = parts[0].padStart(2, "0") // Zero-pad the number
+    const cardSuit = parts[1].toLowerCase()
+
+    // Use standardized naming: 0X-suit-element.jpg
+    return `/cards/${cardNumber}-${cardSuit}-${defaultElement}.jpg`
+  } catch (error) {
+    console.error(`Error generating card image path for ${cardId}:`, error)
+    return `/placeholder.svg?height=420&width=270&query=Error`
+  }
 }
 
 /**
- * Handles image loading errors by providing a fallback
+ * Generate card image path with specific element
  */
-export function handleCardImageError(event: React.SyntheticEvent<HTMLImageElement, Event>, card: OracleCard): void {
-  const img = event.currentTarget
-  const cardName = card?.fullTitle || card?.name || "Unknown Card"
-  const element = card?.baseElement || "spirit"
+export function getCardImagePathWithElement(cardId: string, element: string): string {
+  if (!cardId || !element) {
+    return "/placeholder.svg?height=420&width=270"
+  }
 
-  console.warn(`Failed to load image for card: ${cardName} (${element})`)
+  try {
+    const parts = cardId.split("-")
+    if (parts.length < 2) {
+      return `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardId)}`
+    }
 
-  // Set a placeholder image
-  img.src = getCardFallbackUrl(card)
+    const cardNumber = parts[0].padStart(2, "0") // Zero-pad the number
+    const cardSuit = parts[1].toLowerCase()
+    const normalizedElement = element.toLowerCase()
 
-  // Add a class to indicate error
-  img.classList.add("image-load-error")
+    return `/cards/${cardNumber}-${cardSuit}-${normalizedElement}.jpg`
+  } catch (error) {
+    console.error(`Error generating card image path for ${cardId}-${element}:`, error)
+    return "/placeholder.svg?height=420&width=270"
+  }
 }
 
 /**
- * Preloads common card images to improve user experience
+ * Extract card information from image filename
  */
-export function preloadCommonCardImages(): void {
-  if (typeof window === "undefined") return
+export function parseCardImageFilename(filename: string): {
+  number: string
+  suit: string
+  element: string
+  isValid: boolean
+} {
+  const match = filename.match(/^(\d{2})-([a-z]+)-([a-z]+)\.jpg$/i)
 
-  const commonElements = ["fire", "water", "air", "earth", "spirit"]
-  const commonTypes = ["cauldron", "sword", "spear", "stone", "cord"]
-
-  // Preload a subset of common cards
-  for (const type of commonTypes) {
-    for (const element of commonElements) {
-      const img = new Image()
-      img.src = `/cards/01${type}-${element}.jpg`
+  if (match) {
+    return {
+      number: match[1],
+      suit: match[2],
+      element: match[3],
+      isValid: true,
     }
   }
-}
 
-/**
- * Gets the Tailwind CSS classes for an element's color.
- */
-export function getElementColor(element: string) {
-  switch (element?.toLowerCase()) {
-    case "earth":
-      return "bg-green-900/20 border-green-500/30 text-green-300"
-    case "water":
-      return "bg-blue-900/20 border-blue-500/30 text-blue-300"
-    case "fire":
-      return "bg-red-900/20 border-red-500/30 text-red-300"
-    case "air":
-      return "bg-yellow-900/20 border-yellow-500/30 text-yellow-300"
-    case "spirit":
-      return "bg-purple-900/20 border-purple-500/30 text-purple-300"
-    default:
-      return "bg-gray-900/20 border-gray-500/30 text-gray-300"
+  return {
+    number: "",
+    suit: "",
+    element: "",
+    isValid: false,
   }
 }
 
 /**
- * Gets a symbolic icon for a given suit.
+ * Generate all possible image paths for a card (for fallback support)
  */
-export function getSuitIcon(suit: string) {
-  switch (suit?.toLowerCase()) {
-    case "cauldron":
-      return "⚗️" // Alchemical symbol for distillation/cauldron
-    case "sword":
-      return "⚔️" // Crossed swords
-    case "spear":
-      return "🔱" // Trident/spear
-    case "stone":
-      return "🪨" // Rock/stone
-    case "cord":
-      return "➰" // Loop/knot
-    default:
-      return "✨" // Sparkle for unknown
+export function generateCardImageVariants(cardId: string, element: string): string[] {
+  if (!cardId || !element) return []
+
+  try {
+    const parts = cardId.split("-")
+    if (parts.length < 2) return []
+
+    const originalNumber = parts[0]
+    const paddedNumber = originalNumber.padStart(2, "0")
+    const suit = parts[1].toLowerCase()
+    const normalizedElement = element.toLowerCase()
+
+    const variants: string[] = [
+      // Primary: Zero-padded format (new standard)
+      `/cards/${paddedNumber}-${suit}-${normalizedElement}.jpg`,
+    ]
+
+    // Add legacy format if different from padded
+    if (originalNumber !== paddedNumber) {
+      variants.push(`/cards/${originalNumber}-${suit}-${normalizedElement}.jpg`)
+    }
+
+    // Add alternative formats
+    variants.push(
+      `/cards/${paddedNumber}${suit}-${normalizedElement}.jpg`,
+      `/cards/${cardId.toLowerCase()}-${normalizedElement}.jpg`,
+    )
+
+    return variants
+  } catch (error) {
+    console.error(`Error generating variants for ${cardId}-${element}:`, error)
+    return []
   }
 }
 
 /**
- * Gets a symbolic icon for a given element.
+ * Check if an image path follows the new naming convention
  */
-export function getElementSymbol(element: string) {
-  switch (element?.toLowerCase()) {
-    case "earth":
-      return "⊕" // Earth symbol
-    case "water":
-      return "≈" // Water waves
-    case "fire":
-      return "△" // Fire triangle
-    case "air":
-      return "≋" // Air waves
-    case "spirit":
-      return "✧" // Star/sparkle
-    default:
-      return "★" // Generic star
+export function isStandardizedImagePath(path: string): boolean {
+  const filename = path.split("/").pop() || ""
+  return /^\d{2}-[a-z]+-[a-z]+\.jpg$/i.test(filename)
+}
+
+/**
+ * Convert legacy image path to standardized format
+ */
+export function standardizeImagePath(path: string): string {
+  const filename = path.split("/").pop() || ""
+  const match = filename.match(/^(\d{1})-([a-z]+)-([a-z]+)\.jpg$/i)
+
+  if (match) {
+    const [, number, suit, element] = match
+    const paddedNumber = number.padStart(2, "0")
+    return path.replace(filename, `${paddedNumber}-${suit}-${element}.jpg`)
+  }
+
+  return path // Return original if already standardized or invalid format
+}
+
+/**
+ * Batch process image paths to ensure they follow the standard convention
+ */
+export function standardizeImagePaths(paths: string[]): string[] {
+  return paths.map(standardizeImagePath)
+}
+
+/**
+ * Get image dimensions for a card (standard aspect ratio)
+ */
+export function getCardImageDimensions(): { width: number; height: number; aspectRatio: string } {
+  return {
+    width: 270,
+    height: 420,
+    aspectRatio: "2/3",
   }
 }
 
-// This function is not directly used in the current context but kept for completeness
-export async function verifyCardImage(cardId: string): Promise<boolean> {
-  const imagePath = `/cards/${cardId}.jpg`
+/**
+ * Generate responsive image srcSet for a card
+ */
+export function generateCardImageSrcSet(cardId: string, element: string): string {
+  const basePath = getCardImagePathWithElement(cardId, element)
+  const baseUrl = basePath.replace(".jpg", "")
+
+  // For now, return single size - can be enhanced for multiple sizes
+  return `${basePath} 1x`
+}
+
+/**
+ * Validate card image filename format
+ */
+export function validateCardImageFilename(filename: string): {
+  isValid: boolean
+  errors: string[]
+  suggestions?: string
+} {
+  const errors: string[] = []
+
+  if (!filename) {
+    errors.push("Filename is required")
+    return { isValid: false, errors }
+  }
+
+  // Check if it matches the standard format
+  const standardMatch = filename.match(/^(\d{2})-([a-z]+)-([a-z]+)\.jpg$/i)
+  if (standardMatch) {
+    return { isValid: true, errors: [] }
+  }
+
+  // Check if it's a legacy format that can be converted
+  const legacyMatch = filename.match(/^(\d{1})-([a-z]+)-([a-z]+)\.jpg$/i)
+  if (legacyMatch) {
+    const [, number, suit, element] = legacyMatch
+    const suggestion = `${number.padStart(2, "0")}-${suit}-${element}.jpg`
+    errors.push("Uses legacy single-digit format")
+    return {
+      isValid: false,
+      errors,
+      suggestions: suggestion,
+    }
+  }
+
+  errors.push("Does not match expected format: 0X-suit-element.jpg")
+  return { isValid: false, errors }
+}
+
+/**
+ * Validates if a card image exists
+ */
+export async function validateCardImage(imagePath: string): Promise<boolean> {
   try {
     const response = await fetch(imagePath, { method: "HEAD" })
     return response.ok
   } catch (error) {
-    console.error(`Failed to verify card image for ${cardId}:`, error)
+    console.error(`Error validating image at ${imagePath}:`, error)
     return false
+  }
+}
+
+/**
+ * Gets the element color class for styling
+ */
+export function getElementColorClass(element: string | undefined): string {
+  if (!element) return "bg-gray-500/20 text-gray-400 border-gray-500/30"
+
+  switch (element.toLowerCase()) {
+    case "fire":
+      return "bg-red-500/20 text-red-400 border-red-500/30"
+    case "water":
+      return "bg-blue-500/20 text-blue-400 border-blue-500/30"
+    case "air":
+      return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+    case "earth":
+      return "bg-green-500/20 text-green-400 border-green-500/30"
+    case "spirit":
+      return "bg-purple-500/20 text-purple-400 border-purple-500/30"
+    default:
+      return "bg-gray-500/20 text-gray-400 border-gray-500/30"
+  }
+}
+
+/**
+ * Gets the suit icon for display
+ */
+export function getSuitIcon(suit: string | undefined): string {
+  if (!suit) return "✧"
+
+  switch (suit.toLowerCase()) {
+    case "cauldron":
+      return "🔮"
+    case "sword":
+      return "⚔️"
+    case "spear":
+      return "🔱"
+    case "stone":
+      return "🪨"
+    case "cord":
+      return "⚝"
+    default:
+      return "✧"
   }
 }

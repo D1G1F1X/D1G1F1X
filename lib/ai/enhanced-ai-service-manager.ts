@@ -1,213 +1,438 @@
-import { getOpenAIClient, getOpenAIAssistant } from "@/lib/openai-assistant"
-import { getCardPromptTemplate, getFollowUpPromptTemplate } from "@/lib/ai-prompt-manager"
-import type { ReadingRequest } from "@/types/readings"
+import {
+  createThread as createAssistantThread,
+  addMessageToThread as addMessageToAssistantThread,
+  getAssistantThreadMessages,
+  getOpenAIClient,
+  getOpenAIAssistant,
+  continueAIConversationWithAssistant,
+  generateText, // Keep for potential direct model calls if needed
+  streamText, // Keep for potential direct model calls if needed
+  getAssistantStatus,
+  testOpenAIAssistant,
+  runAssistant, // Import runAssistant
+} from "@/lib/openai-assistant"
+import { getReadingPrompt, getFollowUpPrompt } from "@/lib/ai-prompt-manager"
+import { openai } from "@ai-sdk/openai"
+import { env } from "@/lib/env"
+import { createOpenAI } from "@ai-sdk/openai"
+import { createAnthropic } from "@ai-sdk/anthropic"
+import { createMistral } from "@ai-sdk/mistral"
+import { createCohere } from "@ai-sdk/cohere"
+import { createPerplexity } from "@ai-sdk/perplexity"
+import { createGroq } from "@ai-sdk/groq"
+import { createXAI } from "@ai-sdk/xai"
+import { createDeepInfra } from "@ai-sdk/deepinfra"
+import { createFal } from "@ai-sdk/fal"
 import type { OracleCard } from "@/types/cards"
+import type { ReadableStream } from "stream"
 
-/**
- * Generates an oracle reading using the OpenAI Assistant API.
- * @param request The reading request data.
- * @returns The generated reading content as a string.
- */
-export async function generateOracleReading(request: ReadingRequest): Promise<string> {
+// Removed top-level environment variable checks to prevent synchronous crashes.
+// These checks are now handled within getOpenAIClient and getOpenAIAssistant.
+
+const openaiModel = openai("gpt-4o")
+
+type AIModel =
+  | ReturnType<typeof openai>
+  | ReturnType<typeof createAnthropic>
+  | ReturnType<typeof createMistral>
+  | ReturnType<typeof createCohere>
+  | ReturnType<typeof createPerplexity>
+  | ReturnType<typeof createGroq>
+  | ReturnType<typeof createXAI>
+  | ReturnType<typeof createDeepInfra>
+  | ReturnType<typeof createFal>
+
+const openaiProvider = env.OPENAI_API_KEY ? createOpenAI({ apiKey: env.OPENAI_API_KEY }) : undefined
+const anthropicProvider = env.ANTHROPIC_API_KEY ? createAnthropic({ apiKey: env.ANTHROPIC_API_KEY }) : undefined
+const mistralProvider = env.MISTRAL_API_KEY ? createMistral({ apiKey: env.MISTRAL_API_KEY }) : undefined
+const cohereProvider = env.COHERE_API_KEY ? createCohere({ apiKey: env.COHERE_API_KEY }) : undefined
+const perplexityProvider = env.PERPLEXITY_API_KEY ? createPerplexity({ apiKey: env.PERPLEXITY_API_KEY }) : undefined
+const groqProvider = env.GROQ_API_KEY ? createGroq({ apiKey: env.GROQ_API_KEY }) : undefined
+const xaiProvider = env.XAI_API_KEY ? createXAI({ apiKey: env.XAI_API_KEY }) : undefined
+const deepinfraProvider = env.DEEPINFRA_API_KEY ? createDeepInfra({ apiKey: env.DEEPINFRA_API_KEY }) : undefined
+const falProvider = env.FAL_KEY ? createFal({ apiKey: env.FAL_KEY }) : undefined
+
+interface GenerateReadingOptions {
+  cards: OracleCard[]
+  question: string
+  spreadType: string
+  userContext?: string // Now explicitly a string or undefined
+}
+
+interface FollowUpQuestionOptions {
+  threadId: string
+  question: string
+  userContext?: string
+  originalReading?: string
+}
+
+export async function generateOracleReading({
+  cards,
+  question,
+  spreadType,
+  userContext, // This is now guaranteed to be a string or undefined
+}: GenerateReadingOptions): Promise<{ reading: string; threadId: string; method: string }> {
+  if (!cards || cards.length === 0) {
+    throw new Error("No cards provided for reading generation.")
+  }
+  if (!question) {
+    throw new Error("No question provided for reading generation.")
+  }
+
+  let userName: string | undefined
+  if (userContext) {
+    try {
+      const parsedUserContext = JSON.parse(userContext)
+      userName = parsedUserContext.fullName
+    } catch (e) {
+      console.warn("⚠️ Failed to parse userContext string in generateOracleReading (for userName extraction):", e)
+      // userName remains undefined if parsing fails
+    }
+  }
+
+  console.log("DEBUG: Calling getReadingPrompt with:", {
+    cards: cards.map((c) => c.id),
+    spreadType,
+    question,
+    userContext: userContext ? "Present (stringified)" : "Absent", // Log the stringified status
+    userName,
+  })
+
+  let promptContent: string
   try {
-    const openai = getOpenAIClient()
-    const assistant = getOpenAIAssistant()
+    // Pass the userContext string directly to getReadingPrompt
+    promptContent = getReadingPrompt(cards, spreadType || "single", question, userContext, userName)
+    console.log("DEBUG: Generated prompt content length:", promptContent.length)
+  } catch (promptError) {
+    console.error("ERROR: Failed to generate prompt content:", promptError)
+    throw new Error(
+      `Failed to prepare AI prompt: ${promptError instanceof Error ? promptError.message : String(promptError)}`,
+    )
+  }
 
-    // Prepare card details for the prompt
-    const cardDetails = request.cards
-      .map((card: OracleCard, index: number) => {
-        const positionName = request.readingType ? getPositionName(index, request.readingType) : `Card ${index + 1}`
-        return `Card ${index + 1} (${positionName}): ${card.fullTitle} (Number: ${card.number}, Suit: ${card.suit}, Base Element: ${card.baseElement}, Synergistic Element: ${card.synergisticElement})`
-      })
-      .join("\n")
+  console.log("AI Service Manager: Calling generateAIReadingWithAssistant with prepared prompt.")
+  const { reading, threadId } = await generateAIReadingWithAssistant(promptContent)
 
-    const questionContext = request.question ? `The seeker's question is: "${request.question}"` : ""
+  console.log("AI Service Manager: Received AI response from Assistant.")
+  return { reading, threadId, method: "OpenAI Assistant API" }
+}
 
-    const prompt = getCardPromptTemplate()
-      .replace("{{CARD_COUNT}}", request.cards.length.toString())
-      .replace("{{CARD_DETAILS}}", cardDetails)
-      .replace("{{QUESTION_CONTEXT}}", questionContext)
+export async function sendFollowUpQuestion({
+  threadId,
+  question,
+  userContext,
+  originalReading,
+}: FollowUpQuestionOptions): Promise<string> {
+  if (!threadId) {
+    throw new Error("Thread ID is required for follow-up questions.")
+  }
+  if (!question) {
+    throw new Error("Follow-up question cannot be empty.")
+  }
 
-    // Create a thread
-    const thread = await openai.beta.threads.create()
+  let messageContent = getFollowUpPrompt(originalReading || "", question)
 
-    // Add a message to the thread
-    await openai.beta.threads.messages.create(thread.id, {
+  if (userContext) {
+    messageContent += `\nUser Context: ${userContext}`
+  }
+
+  console.log(`AI Service Manager: Sending follow-up question to thread ${threadId}.`)
+  const { response: aiResponse } = await continueAIConversationWithAssistant(threadId, messageContent)
+
+  if (!aiResponse) {
+    throw new Error("Failed to get response for follow-up question from AI assistant.")
+  }
+
+  console.log("AI Service Manager: Received follow-up response.")
+  return aiResponse
+}
+
+export async function getConversationHistory(threadId: string): Promise<any[]> {
+  if (!threadId) {
+    throw new Error("Thread ID is required to retrieve conversation history.")
+  }
+  console.log(`AI Service Manager: Retrieving conversation history for thread ${threadId}.`)
+  const messages = await getAssistantThreadMessages(threadId)
+  console.log("AI Service Manager: Retrieved conversation history.")
+  return messages
+}
+
+export async function createNewConversationThread(): Promise<string> {
+  console.log("AI Service Manager: Creating new conversation thread.")
+  const thread = await createAssistantThread()
+  if (!thread || !thread.id) {
+    throw new Error("Failed to create new assistant thread.")
+  }
+  console.log(`AI Service Manager: New conversation thread created: ${thread.id}.`)
+  return thread.id
+}
+
+export async function addMessageToConversation(threadId: string, message: string): Promise<void> {
+  if (!threadId) {
+    throw new Error("Thread ID is required to add a message.")
+  }
+  if (!message) {
+    throw new Error("Message content cannot be empty.")
+  }
+  console.log(`AI Service Manager: Adding message to thread ${threadId}.`)
+  await addMessageToAssistantThread(threadId, message)
+  console.log("AI Service Manager: Message added.")
+}
+
+export async function generateAIReadingWithAssistant(
+  promptContent: string,
+): Promise<{ reading: string; threadId: string }> {
+  const openaiClient = getOpenAIClient()
+  const assistant = await getOpenAIAssistant()
+
+  if (!assistant) {
+    console.error("ERROR: OpenAI Assistant not initialized. Check OPENAI_ASSISTANT_ID environment variable.")
+    throw new Error("OpenAI Assistant not initialized. Check OPENAI_ASSISTANT_ID environment variable.")
+  }
+
+  let threadId: string
+  try {
+    console.log("DEBUG: Creating new OpenAI thread...")
+    const thread = await openaiClient.beta.threads.create()
+    threadId = thread.id
+    console.log(`DEBUG: Thread created with ID: ${threadId}`)
+  } catch (threadError) {
+    console.error("ERROR: Failed to create OpenAI thread:", threadError)
+    throw new Error(
+      `Failed to create OpenAI thread: ${threadError instanceof Error ? threadError.message : String(threadError)}`,
+    )
+  }
+
+  try {
+    console.log(`DEBUG: Adding message to thread ${threadId}...`)
+    await openaiClient.beta.threads.messages.create(threadId, {
       role: "user",
-      content: prompt,
+      content: promptContent,
     })
+    console.log("DEBUG: Message added to thread.")
+  } catch (messageError) {
+    console.error(`ERROR: Failed to add message to thread ${threadId}:`, messageError)
+    throw new Error(
+      `Failed to add message to thread: ${messageError instanceof Error ? messageError.message : String(messageError)}`,
+    )
+  }
 
-    // Run the assistant
-    const run = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: assistant.id,
-    })
+  let run
+  try {
+    console.log(`DEBUG: Creating assistant run for thread ${threadId}...`)
+    run = await runAssistant(threadId, assistant.id) // Use the imported runAssistant
+    console.log(`DEBUG: Assistant run created and completed with ID: ${run.id}`)
+  } catch (runError) {
+    // Changed variable name to avoid conflict
+    console.error(`ERROR: Failed during assistant run for thread ${threadId}:`, runError)
+    throw new Error(`Failed during assistant run: ${runError instanceof Error ? runError.message : String(runError)}`)
+  }
 
-    // Poll for the run completion
-    let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id)
-    while (runStatus.status !== "completed") {
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait for 1 second
-      runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id)
-      if (runStatus.status === "failed" || runStatus.status === "cancelled" || runStatus.status === "expired") {
-        throw new Error(`Assistant run failed with status: ${runStatus.status}`)
+  if (run.status === "completed") {
+    try {
+      console.log(`DEBUG: Retrieving messages for thread ${threadId}...`)
+      const messages = await openaiClient.beta.threads.messages.list(threadId)
+      const assistantMessages = messages.data.filter((msg) => msg.role === "assistant")
+      const latestAssistantMessage = assistantMessages[0]?.content[0]
+
+      if (latestAssistantMessage && latestAssistantMessage.type === "text") {
+        console.log("DEBUG: Successfully retrieved assistant's text response.")
+        return { reading: latestAssistantMessage.text.value, threadId: threadId }
+      } else {
+        console.error("ERROR: No text content found in assistant's response or unexpected message type.")
+        throw new Error("No text content found in assistant's response.")
       }
+    } catch (retrieveMessagesError) {
+      console.error(`ERROR: Failed to retrieve messages for thread ${threadId}:`, retrieveMessagesError)
+      throw new Error(
+        `Failed to retrieve assistant messages: ${retrieveMessagesError instanceof Error ? retrieveMessagesError.message : String(retrieveMessagesError)}`,
+      )
     }
-
-    // Retrieve messages
-    const messages = await openai.beta.threads.messages.list(thread.id)
-    const assistantMessages = messages.data.filter((msg) => msg.role === "assistant")
-
-    if (assistantMessages.length > 0) {
-      // Assuming the last assistant message contains the reading
-      const lastAssistantMessage = assistantMessages[0]
-      const textContent = lastAssistantMessage.content.find((content) => content.type === "text")
-      if (textContent && textContent.type === "text") {
-        return textContent.text.value
-      }
-    }
-
-    return "No reading could be generated by the AI assistant."
-  } catch (error: any) {
-    console.error("Error in generateOracleReading:", error)
-    throw new Error(`AI reading generation failed: ${error.message || "Unknown error"}`)
+  } else {
+    console.error(`ERROR: Assistant run failed with status: ${run.status}`)
+    throw new Error(`Assistant run failed with status: ${run.status}`)
   }
 }
 
-/**
- * Generates a follow-up response using the OpenAI Assistant API.
- * @param originalReading The content of the original reading.
- * @param followUpQuestion The seeker's follow-up question.
- * @returns The generated follow-up response as a string.
- */
-export async function generateFollowUpResponse(originalReading: string, followUpQuestion: string): Promise<string> {
-  try {
-    const openai = getOpenAIClient()
-    const assistant = getOpenAIAssistant()
+export async function generateSimpleText(prompt: string, systemPrompt?: string): Promise<string> {
+  const { text } = await generateText({
+    model: openaiModel,
+    prompt: prompt,
+    system: systemPrompt,
+  })
+  return text
+}
 
-    const prompt = getFollowUpPromptTemplate()
-      .replace("{{ORIGINAL_READING}}", originalReading)
-      .replace("{{FOLLOW_UP_QUESTION}}", followUpQuestion)
+export function streamSimpleText(prompt: string, systemPrompt?: string): ReadableStream {
+  return streamText({
+    model: openaiModel,
+    prompt: prompt,
+    system: systemPrompt,
+  }).toReadableStream()
+}
 
-    // Create a new thread for the follow-up
-    const thread = await openai.beta.threads.create()
+export function getAIModel(membershipType: "free" | "premium"): AIModel {
+  if (membershipType === "premium") {
+    if (xaiProvider) return xaiProvider("grok-1")
+    if (anthropicProvider) return anthropicProvider("claude-3-opus-20240229")
+    if (openaiProvider) return openaiProvider("gpt-4o")
+    if (groqProvider) return groqProvider("llama3-70b-8192")
+    if (mistralProvider) return mistralProvider("mistral-large-latest")
+    if (cohereProvider) return cohereProvider("command-r-plus")
+    if (perplexityProvider) return perplexityProvider("llama-3-sonar-large-32k-online")
+    if (deepinfraProvider) return deepinfraProvider("meta-llama/Llama-3-8B-Instruct")
+    if (falProvider) return falProvider("fal-ai/fast-sdxl")
+  }
 
-    // Add the original reading and follow-up question to the thread
-    await openai.beta.threads.messages.create(thread.id, {
-      role: "user",
-      content: prompt,
-    })
+  if (openaiProvider) return openaiProvider("gpt-3.5-turbo")
+  if (groqProvider) return groqProvider("llama3-8b-8192")
+  if (mistralProvider) return mistralProvider("mistral-small-latest")
+  if (cohereProvider) return cohereProvider("command-r") // Corrected the variable name here
+  if (perplexityProvider) return perplexityProvider("llama-3-sonar-small-32k-online")
+  if (deepinfraProvider) return deepinfraProvider("meta-llama/Llama-3-8B-Instruct")
+  if (falProvider) return falProvider("fal-ai/fast-sdxl")
 
-    // Run the assistant
-    const run = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: assistant.id,
-    })
+  throw new Error("No AI model configured or available. Please check your environment variables.")
+}
 
-    // Poll for the run completion
-    let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id)
-    while (runStatus.status !== "completed") {
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait for 1 second
-      runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id)
-      if (runStatus.status === "failed" || runStatus.status === "cancelled" || runStatus.status === "expired") {
-        throw new Error(`Assistant follow-up run failed with status: ${runStatus.status}`)
-      }
-    }
-
-    // Retrieve messages
-    const messages = await openai.beta.threads.messages.list(thread.id)
-    const assistantMessages = messages.data.filter((msg) => msg.role === "assistant")
-
-    if (assistantMessages.length > 0) {
-      const lastAssistantMessage = assistantMessages[0]
-      const textContent = lastAssistantMessage.content.find((content) => content.type === "text")
-      if (textContent && textContent.type === "text") {
-        return textContent.text.value
-      }
-    }
-
-    return "No follow-up response could be generated by the AI assistant."
-  } catch (error: any) {
-    console.error("Error in generateFollowUpResponse:", error)
-    throw new Error(`AI follow-up generation failed: ${error.message || "Unknown error"}`)
+export function getAIServiceStatus() {
+  return {
+    openai: !!openaiProvider,
+    anthropic: !!anthropicProvider,
+    mistral: !!mistralProvider,
+    cohere: !!cohereProvider,
+    perplexity: !!perplexityProvider,
+    groq: !!groqProvider,
+    xai: !!xaiProvider,
+    deepinfra: !!deepinfraProvider,
+    fal: !!falProvider,
   }
 }
 
-/**
- * Gets the position name based on the index and reading type.
- * This function is duplicated from lib/ai-prompt-manager.ts to avoid circular dependencies
- * if it were imported directly into enhanced-ai-service-manager.ts.
- * @param index The index of the card in the spread.
- * @param readingType The ID of the reading type.
- * @returns The name of the position.
- */
-function getPositionName(index: number, readingType: string): string {
-  const positions: Record<string, string[]> = {
-    singleCard: ["Focus"],
-    threeCardPPF: ["Past", "Present", "Future"],
-    threeCardMBS: ["Mind", "Body", "Spirit"],
-    fiveCardCross: ["Center", "Above", "Below", "Left", "Right"],
-    fiveElements: ["Spirit", "Fire", "Water", "Air", "Earth"],
-    celticCross: [
-      "Present",
-      "Challenge",
-      "Foundation",
-      "Recent Past",
-      "Potential",
-      "Near Future",
-      "Self",
-      "Environment",
-      "Hopes/Fears",
-      "Outcome",
-    ],
-    relationship: [
-      "Seeker",
-      "Partner",
-      "Past Foundation",
-      "Present State",
-      "Challenges",
-      "Strengths",
-      "Lessons",
-      "Future Potential",
-    ],
-    careerPath: [
-      "Current Situation",
-      "Talents/Strengths",
-      "Challenges",
-      "Hidden Opportunities",
-      "Action Steps",
-      "Short-term Outlook",
-      "Long-term Potential",
-    ],
-    spiritualGrowth: [
-      "Current State",
-      "Spiritual Gifts",
-      "Challenges",
-      "Soul Lesson",
-      "Higher Guidance",
-      "Spiritual Practice",
-      "Potential Evolution",
-    ],
-    yearAhead: [
-      "Overall Theme",
-      "Winter/Q1",
-      "Spring/Q2",
-      "Summer/Q3",
-      "Fall/Q4",
-      "Challenges",
-      "Opportunities",
-      "Spiritual Growth",
-      "Practical Advice",
-    ],
-    decisionMaking: [
-      "Current Situation",
-      "Option A",
-      "Option B",
-      "Hidden Factors",
-      "Fears/Concerns",
-      "Hopes/Desires",
-      "Advice",
-      "Long-term Impact",
-    ],
+export type AIServiceStatus = {
+  service: string
+  status: "active" | "inactive" | "unknown"
+  message?: string
+}
+
+export async function getAIServiceStatuses(): Promise<AIServiceStatus[]> {
+  const statuses: AIServiceStatus[] = []
+
+  try {
+    const assistantStatus = await getAssistantStatus()
+    statuses.push({
+      service: "OpenAI Assistant",
+      status: assistantStatus.status,
+      message: assistantStatus.message,
+    })
+  } catch (error: any) {
+    statuses.push({
+      service: "OpenAI Assistant",
+      status: "inactive",
+      message: error.message || "Failed to check OpenAI Assistant status.",
+    })
   }
 
-  const readingPositions = positions[readingType] || Array.from({ length: 10 }, (_, i) => `Position ${i + 1}`)
-  return index < readingPositions.length ? readingPositions[index] : `Position ${index + 1}`
+  try {
+    // Using generateText for a quick check, as streamText might be harder to test for simple status
+    await generateText({
+      model: openaiModel,
+      prompt: "Hello",
+      maxTokens: 5,
+    })
+    statuses.push({
+      service: "OpenAI Text Generation (AI SDK)",
+      status: "active",
+      message: "Successfully connected to OpenAI text generation.",
+    })
+  } catch (error: any) {
+    statuses.push({
+      service: "OpenAI Text Generation (AI SDK)",
+      status: "inactive",
+      message: error.message || "Failed to connect to OpenAI text generation. Check OPENAI_API_KEY and OPENAI_MODEL.",
+    })
+  }
+
+  return statuses
+}
+
+export async function runAITests(): Promise<{ service: string; testResult: string; error?: string }[]> {
+  const testResults: { service: string; testResult: string; error?: string }[] = [] // Corrected type here
+
+  try {
+    const { response, error } = await testOpenAIAssistant('Say "hello"')
+    testResults.push({
+      service: "OpenAI Assistant",
+      testResult: response || "No response",
+      error: error,
+    })
+  } catch (error: any) {
+    testResults.push({
+      service: "OpenAI Assistant",
+      testResult: "Test failed",
+      error: error.message || "An unknown error occurred during test.",
+    })
+  }
+
+  try {
+    const { text } = await generateText({
+      model: openaiModel,
+      prompt: "What is 1+1?",
+      maxTokens: 10,
+    })
+    testResults.push({
+      service: "OpenAI Text Generation (AI SDK)",
+      testResult: text,
+    })
+  } catch (error: any) {
+    testResults.push({
+      service: "OpenAI Text Generation (AI SDK)",
+      testResult: "Test failed",
+      error: error.message || "An unknown error occurred during test.",
+    })
+  }
+
+  return testResults
+}
+
+export const aiServiceManager = {
+  generateOracleReading,
+  continueAIConversationWithAssistant,
+  sendFollowUpQuestion,
+}
+
+export async function generateAIReading(prompt: string): Promise<string> {
+  try {
+    console.log("DEBUG: Calling OpenAI Assistant API for reading generation...")
+    const { text } = await generateText({
+      model: openaiModel,
+      prompt: prompt,
+      system:
+        "You are a wise and insightful oracle, providing profound numerological and elemental readings based on the provided card data. Your responses are always in a calm, guiding, and encouraging tone. Do not mention that you are an AI or a language model. Focus solely on the spiritual and practical interpretations of the cards.",
+    })
+    console.log("DEBUG: OpenAI Assistant API call successful.")
+    return text
+  } catch (error) {
+    console.error("ERROR: Failed to generate AI reading with Assistant API:", error)
+    throw new Error("Failed to generate AI reading with Assistant API.")
+  }
+}
+
+export async function continueAIConversation(
+  messages: { role: "user" | "assistant"; content: string }[],
+): Promise<string> {
+  try {
+    console.log("DEBUG: Calling OpenAI Assistant API to continue conversation...")
+    const { text } = await generateText({
+      model: openaiModel,
+      messages: messages,
+      system:
+        "You are a wise and insightful oracle, providing profound numerological and elemental readings based on the provided card data. Your responses are always in a calm, guiding, and encouraging tone. Do not mention that you are an AI or a language model. Focus solely on the spiritual and practical interpretations of the cards.",
+    })
+    console.log("DEBUG: OpenAI Assistant API conversation continued successfully.")
+    return text
+  } catch (error) {
+    console.error("ERROR: Failed to continue AI conversation with Assistant API:", error)
+    throw new Error("Failed to continue AI conversation with Assistant API.")
+  }
 }

@@ -11,10 +11,11 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { Share2, ImageIcon, FileText, Settings, Camera, Share } from "lucide-react"
+import { Share2, ImageIcon, FileText, Settings, Camera, Share, Mail } from "lucide-react" // Added Mail icon
 import type { ShareableContent } from "@/lib/services/social-sharing-service"
 import socialSharingService from "@/lib/services/social-sharing-service"
 import { generateId } from "@/lib/utils"
+import { pdfGeneratorService } from "@/lib/services/pdf-generator-service"
 
 interface ToolResultShareProps {
   toolName: string
@@ -27,6 +28,7 @@ interface ToolResultShareProps {
   resultId?: string
   shareUrl?: string
   onShare?: (shareId: string) => void
+  fullHtmlContent?: string // New prop to pass the full HTML content for PDF and Email
 }
 
 export function ToolResultShare({
@@ -40,6 +42,7 @@ export function ToolResultShare({
   resultId,
   shareUrl,
   onShare,
+  fullHtmlContent, // Accept full HTML content
 }: ToolResultShareProps) {
   const [shareContent, setShareContent] = useState<ShareableContent>({
     title: `${toolName} Result: ${resultTitle}`,
@@ -56,6 +59,8 @@ export function ToolResultShare({
   const { toast } = useToast()
   const [isSharing, setIsSharing] = useState(false)
   const [shareComplete, setShareComplete] = useState(false)
+  const [recipientEmail, setRecipientEmail] = useState("") // State for recipient email
+  const [isSendingEmail, setIsSendingEmail] = useState(false) // State for email sending
 
   // Generate a shareable image of the result
   const generateShareableImage = async () => {
@@ -82,15 +87,136 @@ export function ToolResultShare({
       description: "Creating a shareable PDF of your result...",
     })
 
-    // In a real implementation, this would call an API to generate a PDF
-    // For this example, we'll simulate a delay and then show a success message
+    try {
+      // Use the provided fullHtmlContent if available, otherwise construct from existing data
+      const contentToPrint =
+        fullHtmlContent ||
+        `
+        <h2>${shareContent.title}</h2>
+        <p>${shareContent.description}</p>
+        ${
+          includeDetails && resultData
+            ? `
+          <h3>Details:</h3>
+          <ul>
+            ${Object.entries(resultData)
+              .map(([key, value]) => `<li><strong>${key}:</strong> ${value}</li>`)
+              .join("")}
+          </ul>
+        `
+            : ""
+        }
+        ${includeImage && resultImageUrl ? `<img src="${resultImageUrl}" alt="Result Image" style="max-width: 100%; height: auto; margin-top: 20px;" />` : ""}
+        ${
+          shareContent.hashtags && shareContent.hashtags.length > 0
+            ? `
+          <p><strong>Tags:</strong> ${shareContent.hashtags.map((tag) => `#${tag}`).join(", ")}</p>
+        `
+            : ""
+        }
+      `
 
-    setTimeout(() => {
+      const pdfBlob = await pdfGeneratorService.generatePDF({
+        title: shareContent.title,
+        content: contentToPrint,
+        // You can pass other options like theme, fontSize if needed
+      })
+
+      pdfGeneratorService.downloadPDF(pdfBlob, `${toolName.toLowerCase().replace(/\s/g, "-")}-result.pdf`)
+
       toast({
         title: "PDF Generated",
         description: "Your shareable PDF is ready to download.",
       })
-    }, 2000)
+    } catch (error) {
+      console.error("Error generating PDF:", error)
+      toast({
+        title: "PDF Generation Failed",
+        description: "There was an error generating your PDF. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  // Send reading via email
+  const sendReadingEmail = async () => {
+    if (!recipientEmail) {
+      toast({
+        title: "Email Required",
+        description: "Please enter a recipient email address.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsSendingEmail(true)
+    toast({
+      title: "Sending Email",
+      description: `Sending your reading to ${recipientEmail}...`,
+    })
+
+    try {
+      const emailContent =
+        fullHtmlContent ||
+        `
+        <h1>${shareContent.title}</h1>
+        <p>${shareContent.description}</p>
+        ${
+          includeDetails && resultData
+            ? `
+          <h3>Details:</h3>
+          <ul>
+            ${Object.entries(resultData)
+              .map(([key, value]) => `<li><strong>${key}:</strong> ${value}</li>`)
+              .join("")}
+          </ul>
+        `
+            : ""
+        }
+        ${includeImage && resultImageUrl ? `<img src="${resultImageUrl}" alt="Result Image" style="max-width: 100%; height: auto; margin-top: 20px;" />` : ""}
+        ${
+          shareContent.hashtags && shareContent.hashtags.length > 0
+            ? `
+          <p><strong>Tags:</strong> ${shareContent.hashtags.map((tag) => `#${tag}`).join(", ")}</p>
+        `
+            : ""
+        }
+        <p>View your full reading online: <a href="${shareContent.url}">${shareContent.url}</a></p>
+      `
+
+      const response = await fetch("/api/send-reading-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: recipientEmail,
+          subject: `Your NUMO Oracle: ${toolName} Reading`,
+          html: emailContent,
+          text: shareContent.description, // Fallback plain text
+        }),
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Email Sent!",
+          description: `Your reading has been sent to ${recipientEmail}.`,
+        })
+        setRecipientEmail("") // Clear email field
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.message || "Failed to send email.")
+      }
+    } catch (error: any) {
+      console.error("Error sending email:", error)
+      toast({
+        title: "Email Sending Failed",
+        description: error.message || "There was an error sending the email. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSendingEmail(false)
+    }
   }
 
   // Take a screenshot of the result
@@ -194,8 +320,11 @@ export function ToolResultShare({
 
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
+            {" "}
+            {/* Changed to 3 columns */}
             <TabsTrigger value="share">Share</TabsTrigger>
+            <TabsTrigger value="email">Email</TabsTrigger> {/* New Email tab */}
             <TabsTrigger value="customize">Customize</TabsTrigger>
           </TabsList>
 
@@ -254,6 +383,29 @@ export function ToolResultShare({
               <Share className="h-4 w-4" />
               {shareComplete ? "Shared!" : "Share"}
             </Button>
+          </TabsContent>
+
+          {/* New Email Tab Content */}
+          <TabsContent value="email" className="space-y-4 mt-4">
+            <p className="text-sm text-muted-foreground">Send the full reading directly to an email address.</p>
+            <div>
+              <Label htmlFor="recipient-email">Recipient Email</Label>
+              <Input
+                id="recipient-email"
+                type="email"
+                placeholder="email@example.com"
+                value={recipientEmail}
+                onChange={(e) => setRecipientEmail(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <Button className="w-full" onClick={sendReadingEmail} disabled={isSendingEmail}>
+              <Mail className="h-4 w-4 mr-2" />
+              {isSendingEmail ? "Sending..." : "Send Reading via Email"}
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2">
+              Note: This feature requires a configured email service on the backend.
+            </p>
           </TabsContent>
 
           <TabsContent value="customize" className="space-y-4 mt-4">
