@@ -1,10 +1,11 @@
 export interface OracleCard {
   id: string
-  number: string // Changed to string to match JSON data
+  number: string
   suit: string
   fullTitle: string
-  description: string
+  name: string
   pair: string
+  description: string
   numberMeaning: string
   sacredGeometryName: string
   sacredGeometryMeaning: string
@@ -14,16 +15,18 @@ export interface OracleCard {
   planetMeaning: string
   astroSignName: string
   astroSignMeaning: string
+  elements: Record<string, { influence: string; guidance: string; baseElementNote?: boolean }>
+  keywords?: string[]
   baseElement: string
   synergisticElement: string
   iconSymbol: string
-  orientation: string
-  sacredGeometry: string
   keyMeanings: string[]
   symbolismBreakdown: string[]
+  orientation?: string
+  sacredGeometry?: string
+  planetInternalInfluence?: string
+  astrologyExternalDomain?: string
   symbols: { key: string; value: string }[]
-  elements: Record<string, { influence: string; guidance: string; baseElementNote?: boolean }>
-  keywords?: string[]
 }
 
 export interface CardSpread {

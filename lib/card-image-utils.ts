@@ -143,9 +143,7 @@ export function getElementSymbol(element: string) {
 
 // This function is not directly used in the current context but kept for completeness
 export async function verifyCardImage(cardId: string): Promise<boolean> {
-  // This function would need to be updated to use the new getCardImagePath from lib/card-data-access
-  // if it's intended to verify blob URLs. For now, it's left as is.
-  const imagePath = `/cards/${cardId}.jpg` // This assumes a simple cardId to image mapping
+  const imagePath = `/cards/${cardId}.jpg`
   try {
     const response = await fetch(imagePath, { method: "HEAD" })
     return response.ok

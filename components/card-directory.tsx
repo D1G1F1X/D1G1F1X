@@ -11,10 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, ChevronLeft, ChevronRight, Printer, ExternalLink } from "lucide-react"
-// Import the updated getCardImagePath from card-data-access
 import { getCardData, getAllElements, getAllSuits, getCardImagePath } from "@/lib/card-data-access"
 import type { OracleCard } from "@/types/cards"
-import { getElementColor, getElementSymbol } from "@/lib/card-image-utils" // Re-import these if they were removed
+import { getElementColor, getElementSymbol } from "@/lib/card-image-utils"
 
 export function CardDirectory() {
   const [cards, setCards] = useState<OracleCard[]>([])
@@ -33,7 +32,6 @@ export function CardDirectory() {
     const loadCards = async () => {
       try {
         setIsLoading(true)
-        // getCardData is synchronous. getCardImagePath now uses the initialized singleton.
         const allCards = getCardData()
         setCards(allCards)
         setElements(getAllElements())
@@ -87,7 +85,6 @@ export function CardDirectory() {
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, card: OracleCard, endUp: "first" | "second") => {
     const target = e.target as HTMLImageElement
     if (!target.src.includes("placeholder")) {
-      // Fallback logic for image errors, using the local path convention
       const numberStr = card.number?.toString().padStart(2, "0") || "00"
       const suitStr = card.suit?.toLowerCase() || "unknown"
       const elementStr =
@@ -105,10 +102,8 @@ export function CardDirectory() {
     setImageErrors((prev) => ({ ...prev, [`${card.id}-${endUp}`]: true }))
   }
 
-  // getCardImage is now synchronous as getCardImagePath from lib/card-data-access is synchronous
   const getCardImage = (card: OracleCard, endUp: "first" | "second") => {
     const hasImageError = imageErrors[`${card.id}-${endUp}`]
-    // Use the updated getCardImagePath from lib/card-data-access
     const imagePath = getCardImagePath(card, endUp)
     const fallbackPath = `/placeholder.svg?height=280&width=180&query=${card.fullTitle || "mystical card"}`
 

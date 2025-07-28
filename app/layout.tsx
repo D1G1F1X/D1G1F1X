@@ -9,7 +9,7 @@ import { Toaster } from "@/components/ui/toaster"
 import BugReport from "@/components/bug-report"
 import SiteAssistant from "@/components/site-assistant"
 import { AuthProvider } from "@/contexts/auth-context"
-import { AdminAuthProvider } from "@/contexts/admin-auth-context" // Ensure AdminAuthProvider is imported
+import { AdminAuthProvider } from "@/contexts/admin-auth-context"
 import { ManualCartProvider } from "@/contexts/manual-cart-context"
 import ConstellationBackground from "@/components/constellation-background"
 import DeepOceanWaves from "@/components/deep-ocean-waves"
@@ -20,7 +20,7 @@ import { ErrorBoundary } from "@/components/error-boundary"
 import SiteNewsBanner from "@/components/site-news-banner"
 import { Analytics } from "@vercel/analytics/react"
 import { Suspense } from "react"
-import { initializeImagePaths } from "@/lib/card-data-access" // Import the initializer
+import { initializeImagePaths } from "@/lib/card-data-access"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -53,13 +53,12 @@ export const metadata: Metadata = {
   generator: "v0.dev",
 }
 
-// Fetch image paths on the server side and initialize the singleton
 async function setupImagePaths() {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || ""
     console.log("Attempting to fetch image paths from:", `${baseUrl}/api/admin/card-image-paths`)
     const res = await fetch(`${baseUrl}/api/admin/card-image-paths`, {
-      cache: "no-store", // Ensure fresh data
+      cache: "no-store",
     })
     if (!res.ok) {
       const errorText = await res.text()
@@ -67,8 +66,8 @@ async function setupImagePaths() {
       return {}
     }
     const data = await res.json()
-    console.log("Successfully fetched image paths data:", data ? Object.keys(data).length : 0, "keys")
-    initializeImagePaths(data) // Initialize the singleton
+    console.log("Successfully fetched image paths data. Number of keys:", data ? Object.keys(data).length : 0)
+    initializeImagePaths(data)
     return data
   } catch (error) {
     console.error("Error fetching image paths in layout:", error)
@@ -81,23 +80,18 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  // Call the setup function to initialize image paths
   await setupImagePaths()
 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preload critical images */}
         <link rel="preload" href="/back.jpg" as="image" />
         <link rel="preload" href="/cards/01cauldron-fire.jpg" as="image" />
-        {/* ... other preloads ... */}
       </head>
       <body className={`${inter.className} min-h-screen bg-gradient-to-b from-black to-purple-950`}>
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
           <AuthProvider>
             <AdminAuthProvider>
-              {" "}
-              {/* Ensure AdminAuthProvider wraps content */}
               <ManualCartProvider>
                 <ErrorBoundary>
                   <Suspense fallback={null}>
