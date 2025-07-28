@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { getPost, updatePost, deletePost } from "@/lib/content"
@@ -13,7 +14,7 @@ import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Trash2 } from "lucide-react"
 import Link from "next/link"
-import { PremiumBlogEditor } from "@/components/admin/premium-blog-editor"
+import { ContentEditor } from "@/components/admin/content-editor"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,15 +27,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-interface PostEditPageProps {
-  params: {
-    id: string
-  }
-}
-
-export default function PostEditPage({ params }: PostEditPageProps) {
+export default function EditPostPage({ params }: { params: { id: string } }) {
   const router = useRouter()
-  const { id } = params
   const [isLoading, setIsLoading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [formData, setFormData] = useState({
@@ -49,7 +43,7 @@ export default function PostEditPage({ params }: PostEditPageProps) {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const post = await getPost(id)
+        const post = await getPost(params.id)
         if (post) {
           setFormData({
             title: post.title,
@@ -66,7 +60,7 @@ export default function PostEditPage({ params }: PostEditPageProps) {
     }
 
     fetchPost()
-  }, [id])
+  }, [params.id])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -86,7 +80,7 @@ export default function PostEditPage({ params }: PostEditPageProps) {
     setIsLoading(true)
 
     try {
-      await updatePost(id, formData)
+      await updatePost(params.id, formData)
       router.push("/admin/posts")
       router.refresh()
     } catch (error) {
@@ -99,7 +93,7 @@ export default function PostEditPage({ params }: PostEditPageProps) {
     setIsDeleting(true)
 
     try {
-      await deletePost(id)
+      await deletePost(params.id)
       router.push("/admin/posts")
       router.refresh()
     } catch (error) {
@@ -172,7 +166,7 @@ export default function PostEditPage({ params }: PostEditPageProps) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="content">Content</Label>
-                <PremiumBlogEditor postId={id} initialContent={formData.content} onChange={handleContentChange} />
+                <ContentEditor initialContent={formData.content} onChange={handleContentChange} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="author">Author</Label>

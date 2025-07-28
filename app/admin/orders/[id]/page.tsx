@@ -1,186 +1,197 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+"use client"
+
+import { TableCell } from "@/components/ui/table"
+
+import { TableBody } from "@/components/ui/table"
+
+import { TableHead } from "@/components/ui/table"
+
+import { TableRow } from "@/components/ui/table"
+
+import { TableHeader } from "@/components/ui/table"
+
+import { Table } from "@/components/ui/table"
+
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { getOrder, updateOrderStatus } from "@/lib/shop"
+import { DashboardShell } from "@/components/admin/dashboard-shell"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ArrowLeft } from "lucide-react"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-import { format } from "date-fns"
-import { Package, Truck, User } from "lucide-react"
+import { toast } from "@/components/ui/use-toast"
 
-interface OrderDetailPageProps {
-  params: {
-    id: string
-  }
-}
+export default function OrderDetailsPage({ params }: { params: { id: string } }) {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [order, setOrder] = useState<any>(null)
 
-// Mock data for a single order
-const mockOrder = {
-  id: "ORD789012",
-  customerName: "Alice Wonderland",
-  customerEmail: "alice@example.com",
-  orderDate: new Date("2024-07-25T14:30:00Z"),
-  status: "Processing",
-  totalAmount: 129.99,
-  shippingAddress: {
-    street: "123 Rabbit Hole",
-    city: "Wonderland City",
-    state: "WA",
-    zip: "98001",
-    country: "USA",
-  },
-  items: [
-    {
-      id: "prod001",
-      name: "Deluxe Oracle Deck",
-      quantity: 1,
-      price: 79.99,
-    },
-    {
-      id: "prod005",
-      name: "Crystal Scrying Ball",
-      quantity: 1,
-      price: 50.0,
-    },
-  ],
-  paymentMethod: "Credit Card",
-  trackingNumber: "TRK987654321",
-}
+  useEffect(() => {
+    const fetchOrder = async () => {
+      try {
+        const data = await getOrder(params.id)
+        setOrder(data)
+      } catch (error) {
+        console.error("Error fetching order:", error)
+      }
+    }
 
-export default function OrderDetailPage({ params }: OrderDetailPageProps) {
-  const { id } = params
-  // In a real application, you would fetch order data based on the 'id'
-  const order = mockOrder // Using mock data for demonstration
+    fetchOrder()
+  }, [params.id])
 
-  if (!order) {
-    return <div className="p-8 text-center text-muted-foreground">Order with ID &quot;{id}&quot; not found.</div>
-  }
+  const handleStatusChange = async (status: string) => {
+    setIsLoading(true)
 
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case "Processing":
-        return "secondary"
-      case "Shipped":
-        return "default"
-      case "Delivered":
-        return "success"
-      case "Cancelled":
-        return "destructive"
-      default:
-        return "outline"
+    try {
+      const updatedOrder = await updateOrderStatus(params.id, status)
+      setOrder(updatedOrder)
+      toast({
+        title: "Order updated",
+        description: `Order status has been updated to ${status}.`,
+      })
+    } catch (error) {
+      console.error("Error updating order status:", error)
+      toast({
+        title: "Error",
+        description: "There was an error updating the order status.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
     }
   }
 
+  if (!order) {
+    return (
+      <DashboardShell>
+        <div className="flex items-center justify-center h-full">
+          <p>Loading order details...</p>
+        </div>
+      </DashboardShell>
+    )
+  }
+
   return (
-    <div className="p-8 space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Order Details: #{order.id}</h1>
-          <p className="text-muted-foreground">Manage and view the specifics of this order.</p>
+    <DashboardShell>
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <Link href="/admin/orders">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Orders
+            </Button>
+          </Link>
+          <h1 className="text-3xl font-bold">Order #{order.id}</h1>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline">Edit Order</Button>
-          <Button variant="destructive">Cancel Order</Button>
-        </div>
-      </div>
 
-      <Separator />
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" /> Order Summary
-            </CardTitle>
-            <CardDescription>Key information about the order.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-              <div className="font-medium">Customer:</div>
-              <div>
-                {order.customerName} ({order.customerEmail})
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Order Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Date:</span>
+                <span>{new Date(order.createdAt).toLocaleDateString()}</span>
               </div>
-
-              <div className="font-medium">Order Date:</div>
-              <div>{format(order.orderDate, "PPP p")}</div>
-
-              <div className="font-medium">Status:</div>
-              <div>
-                <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
-              </div>
-
-              <div className="font-medium">Total Amount:</div>
-              <div className="text-lg font-bold text-primary">${order.totalAmount.toFixed(2)}</div>
-
-              <div className="font-medium">Payment Method:</div>
-              <div>{order.paymentMethod}</div>
-            </div>
-
-            <Separator className="my-4" />
-
-            <h3 className="text-lg font-semibold mb-3">Order Items</h3>
-            <div className="space-y-3">
-              {order.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex justify-between items-center border-b pb-2 last:border-b-0 last:pb-0"
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Status:</span>
+                <Badge
+                  variant={
+                    order.status === "completed" ? "default" : order.status === "processing" ? "secondary" : "outline"
+                  }
                 >
-                  <p className="text-sm font-medium">{item.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {item.quantity} x ${item.price.toFixed(2)} = ${(item.quantity * item.price).toFixed(2)}
-                  </p>
-                </div>
-              ))}
-            </div>
+                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                </Badge>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Total:</span>
+                <span className="font-medium">${order.total.toFixed(2)}</span>
+              </div>
+
+              <div className="pt-4">
+                <label className="text-sm text-muted-foreground block mb-2">Update Status</label>
+                <Select value={order.status} onValueChange={handleStatusChange} disabled={isLoading}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="processing">Processing</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Customer Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div>
+                <span className="text-muted-foreground">Name:</span>
+                <p>{order.customerName}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Email:</span>
+                <p>{order.customerEmail}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="md:col-span-1">
+            <CardHeader>
+              <CardTitle>Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button className="w-full">Send Invoice</Button>
+              <Button variant="outline" className="w-full">
+                Print Order
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Order Items</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                  <TableHead className="text-right">Quantity</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {order.items.map((item: any, index: number) => (
+                  <TableRow key={index}>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">{item.quantity}</TableCell>
+                    <TableCell className="text-right">${(item.price * item.quantity).toFixed(2)}</TableCell>
+                  </TableRow>
+                ))}
+                <TableRow>
+                  <TableCell colSpan={3} className="text-right font-medium">
+                    Total
+                  </TableCell>
+                  <TableCell className="text-right font-bold">${order.total.toFixed(2)}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
-
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Truck className="h-5 w-5" /> Shipping Details
-              </CardTitle>
-              <CardDescription>Information about where the order is being shipped.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <p>{order.shippingAddress.street}</p>
-              <p>
-                {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}
-              </p>
-              <p>{order.shippingAddress.country}</p>
-              {order.trackingNumber && (
-                <p className="font-medium flex items-center gap-2">
-                  Tracking #: <Badge variant="secondary">{order.trackingNumber}</Badge>
-                </p>
-              )}
-              <Button variant="outline" size="sm" className="mt-2 bg-transparent">
-                Update Shipping
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" /> Customer Information
-              </CardTitle>
-              <CardDescription>Contact details and customer history.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <p>
-                Email:{" "}
-                <a href={`mailto:${order.customerEmail}`} className="text-primary hover:underline">
-                  {order.customerEmail}
-                </a>
-              </p>
-              <p>
-                Total Orders (mock): <strong>5</strong>
-              </p>
-              <Button variant="outline" size="sm" className="mt-2 bg-transparent">
-                View Customer Profile
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
       </div>
-    </div>
+    </DashboardShell>
   )
 }

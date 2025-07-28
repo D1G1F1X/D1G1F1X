@@ -1,6 +1,6 @@
 import { DashboardShell } from "@/components/admin/dashboard-shell"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2 } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function PromptManagerLoading() {
   return (
@@ -13,10 +13,10 @@ export default function PromptManagerLoading() {
               Create and manage AI prompts for the NUMO Card Dealer and other features
             </p>
           </div>
-          <Loader2 className="h-10 w-[120px] animate-spin text-primary" />
+          <Skeleton className="h-10 w-[120px]" />
         </div>
 
-        <Loader2 className="h-10 w-[300px] animate-spin text-primary" />
+        <Skeleton className="h-10 w-[300px]" />
 
         <Card>
           <CardHeader>
@@ -25,15 +25,15 @@ export default function PromptManagerLoading() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <Loader2 className="h-10 w-full animate-spin text-primary" />
-              <Loader2 className="h-10 w-full animate-spin text-primary" />
-              <Loader2 className="h-10 w-full animate-spin text-primary" />
-              <Loader2 className="h-10 w-full animate-spin text-primary" />
-              <Loader2 className="h-10 w-full animate-spin text-primary" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             </div>
           </CardContent>
           <CardFooter>
-            <Loader2 className="h-5 w-[150px] animate-spin text-primary" />
+            <Skeleton className="h-5 w-[150px]" />
           </CardFooter>
         </Card>
       </div>

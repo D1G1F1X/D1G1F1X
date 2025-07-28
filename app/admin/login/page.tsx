@@ -1,10 +1,13 @@
 "use client"
 
 import type React from "react"
-import Image from "next/image"
-import { SimpleLogin } from "@/components/admin/simple-login"
+
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAdminAuth } from "@/contexts/admin-auth-context"
 
 export default function AdminLoginPage() {
@@ -48,22 +51,50 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4">
-      {/* Background image */}
-      <Image
-        src="/abstract-login-background.png"
-        alt="Login Background"
-        layout="fill"
-        objectFit="cover"
-        quality={100}
-        className="z-0 opacity-30"
-      />
-
-      {/* Overlay to dim background */}
-      <div className="absolute inset-0 bg-black/50 z-10" />
-
-      <div className="relative z-20 w-full max-w-md">
-        <SimpleLogin />
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+      <div className="mx-auto w-full max-w-sm space-y-6">
+        <div className="space-y-2 text-center">
+          <h1 className="text-3xl font-bold">Admin Login</h1>
+          <p className="text-gray-500 dark:text-gray-400">Enter your credentials to access the admin area</p>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          <div className="space-y-2">
+            <Label htmlFor="username">Username or Email</Label>
+            <Input
+              id="username"
+              placeholder="admin or admin@numoracle.com"
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              placeholder="numoracle"
+              required
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+          <Button className="w-full" type="submit" disabled={isLoading}>
+            {isLoading ? "Signing in..." : "Sign In"}
+          </Button>
+        </form>
+        <div className="text-center text-sm text-gray-500">
+          <p>Use the following credentials:</p>
+          <p>Username: admin or admin@numoracle.com</p>
+          <p>Password: numoracle</p>
+        </div>
       </div>
     </div>
   )

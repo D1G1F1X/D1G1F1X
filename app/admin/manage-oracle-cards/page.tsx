@@ -1,19 +1,33 @@
+import { Suspense } from "react"
 import { OracleCardManager } from "@/components/admin/oracle-card-manager"
-import { Separator } from "@/components/ui/separator"
+import { DashboardShell } from "@/components/admin/dashboard-shell" // Assuming you have this
 
-export default function ManageOracleCardsPage() {
+export const metadata = {
+  title: "Manage Oracle Cards",
+  description: "Edit NUMO Oracle card data and image paths.",
+}
+
+export default async function ManageOracleCardsPage() {
+  // Example server-side auth check, adapt to your auth system
+  // const session = await isAuthenticated(); // Your auth check
+  // if (!session?.user?.isAdmin) {
+  //   redirect("/admin/login"); // Or your login page
+  // }
+
   return (
-    <div className="p-8 space-y-6">
+    <DashboardShell>
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Oracle Card Management</h2>
-          <p className="text-muted-foreground">Manage and edit your Oracle Card data.</p>
-        </div>
+        <h1 className="text-2xl font-bold tracking-tight">Manage Oracle Cards</h1>
       </div>
-
-      <Separator />
-
-      <OracleCardManager />
-    </div>
+      <div className="space-y-4">
+        <p className="text-muted-foreground">
+          Edit card details from <code>comprehensive-card-data.json</code> and their image paths from{" "}
+          <code>card-image-paths.json</code>.
+        </p>
+        <Suspense fallback={<div>Loading Oracle Card Manager...</div>}>
+          <OracleCardManager />
+        </Suspense>
+      </div>
+    </DashboardShell>
   )
 }

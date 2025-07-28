@@ -1,65 +1,78 @@
-import { DataTable } from "./data-table"
-import { columns } from "./columns"
-
-async function getProducts(): Promise<any[]> {
-  // Replace with your actual API call to fetch products
-  // This is mock data for demonstration purposes
-  return [
-    {
-      id: "prod001",
-      name: "Deluxe Oracle Deck",
-      category: "Oracle Decks",
-      price: 79.99,
-      stock: 150,
-      isActive: true,
-    },
-    {
-      id: "prod002",
-      name: "Beginner's Guidebook",
-      category: "Guidebooks",
-      price: 29.99,
-      stock: 300,
-      isActive: true,
-    },
-    {
-      id: "prod003",
-      name: "Elemental Dice Set",
-      category: "Tools",
-      price: 19.99,
-      stock: 50,
-      isActive: true,
-    },
-    {
-      id: "prod004",
-      name: "Personalized Numerology Report",
-      category: "Reports",
-      price: 49.99,
-      stock: 999, // Digital product, high stock
-      isActive: true,
-    },
-    {
-      id: "prod005",
-      name: "Advanced Spread Cloth",
-      category: "Merchandise",
-      price: 35.0,
-      stock: 75,
-      isActive: false, // Out of stock or inactive
-    },
-  ]
-}
+import { requireAuth } from "@/lib/auth"
+import { getProducts } from "@/lib/shop"
+import { DashboardShell } from "@/components/admin/dashboard-shell"
+import { Button } from "@/components/ui/button"
+import { PlusCircle } from "lucide-react"
+import Link from "next/link"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
 
 export default async function ProductsPage() {
+  await requireAuth()
   const products = await getProducts()
 
   return (
-    <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
-      <div className="flex items-center justify-between space-y-2">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Products</h2>
-          <p className="text-muted-foreground">Manage your product catalog.</p>
+    <DashboardShell>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold">Products</h1>
+          <Link href="/admin/products/new">
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Product
+            </Button>
+          </Link>
+        </div>
+
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Image</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>Inventory</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products.map((product) => (
+                <TableRow key={product.id}>
+                  <TableCell>
+                    <div className="h-10 w-10 rounded-md bg-gray-100 overflow-hidden">
+                      {product.imageUrl && (
+                        <img
+                          src={product.imageUrl || "/placeholder.svg"}
+                          alt={product.name}
+                          className="h-full w-full object-cover"
+                        />
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium">{product.name}</TableCell>
+                  <TableCell>${product.price.toFixed(2)}</TableCell>
+                  <TableCell>{product.inventory}</TableCell>
+                  <TableCell>{product.category}</TableCell>
+                  <TableCell>
+                    <Badge variant={product.isPublished ? "default" : "secondary"}>
+                      {product.isPublished ? "Published" : "Draft"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Link href={`/admin/products/${product.id}`}>
+                      <Button variant="ghost" size="sm">
+                        Edit
+                      </Button>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
-      <DataTable data={products} columns={columns} />
-    </div>
+    </DashboardShell>
   )
 }

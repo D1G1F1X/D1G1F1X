@@ -1,18 +1,51 @@
 import { NextResponse } from "next/server"
-import { del } from "@vercel/blob"
+import { list, del } from "@vercel/blob"
 
-export async function POST(request: Request) {
-  const { pathnames } = await request.json()
-
-  if (!Array.isArray(pathnames) || pathnames.length === 0) {
-    return NextResponse.json({ message: "No pathnames provided for deletion" }, { status: 400 })
+/**
+ * API route to delete all card images from Vercel Blob Storage.
+ * This route should be protected in a production environment.
+ */
+export async function DELETE() {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return NextResponse.json({ success: false, error: "Blob storage token not configured." }, { status: 500 })
   }
 
+  let deletedCount = 0
+  const errors: string[] = []
+
   try {
-    await Promise.all(pathnames.map((pathname) => del(pathname)))
-    return NextResponse.json({ message: "Blobs deleted successfully" })
-  } catch (error) {
-    console.error("Error deleting blobs:", error)
-    return NextResponse.json({ error: "Failed to delete blobs" }, { status: 500 })
+    // List all blobs under the 'cards/' prefix
+    const { blobs } = await list({
+      prefix: "cards/",
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    })
+
+    console.log(`Initiating deletion of ${blobs.length} card images from Vercel Blob Storage...`)
+
+    // Delete each blob
+    for (const blob of blobs) {
+      try {
+        await del(blob.url, { token: process.env.BLOB_READ_WRITE_TOKEN })
+        deletedCount++
+        console.log(`Successfully deleted: ${blob.pathname}`)
+      } catch (deleteError) {
+        const errorMessage = `Failed to delete ${blob.pathname}: ${deleteError instanceof Error ? deleteError.message : String(deleteError)}`
+        console.error(errorMessage)
+        errors.push(errorMessage)
+      }
+    }
+
+    console.log(`Deletion process complete. Deleted ${deletedCount} files.`)
+
+    return NextResponse.json({
+      success: true,
+      deletedCount,
+      errors,
+      message: `Successfully initiated deletion of ${deletedCount} card images from Vercel Blob Storage.`,
+    })
+  } catch (listError) {
+    const errorMessage = `Failed to list blobs for deletion: ${listError instanceof Error ? listError.message : String(listError)}`
+    console.error(errorMessage)
+    return NextResponse.json({ success: false, error: errorMessage, deletedCount, errors }, { status: 500 })
   }
 }

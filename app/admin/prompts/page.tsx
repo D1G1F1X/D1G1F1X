@@ -1,19 +1,10 @@
-import { PromptManager } from "@/components/admin/prompt-manager"
-import { Separator } from "@/components/ui/separator"
+import PromptManager from "@/components/admin/prompt-manager"
+import { DashboardShell } from "@/components/admin/dashboard-shell"
 
-export default function PromptsPage() {
+export default function PromptManagerPage() {
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">AI Prompt Management</h2>
-          <p className="text-muted-foreground">Manage and fine-tune AI prompts for various functionalities.</p>
-        </div>
-      </div>
-
-      <Separator />
-
+    <DashboardShell>
       <PromptManager />
-    </div>
+    </DashboardShell>
   )
 }

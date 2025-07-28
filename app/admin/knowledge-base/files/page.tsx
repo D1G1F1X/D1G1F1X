@@ -1,17 +1,22 @@
-import { Separator } from "@/components/ui/separator"
-import { FileManagerWrapper } from "@/components/admin/file-manager-wrapper"
+import type { Metadata } from "next"
+import { EnhancedFileManager } from "@/components/admin/enhanced-file-manager"
+
+export const metadata: Metadata = {
+  title: "NUMO ORACLE | Knowledge Base Files",
+  description: "Manage files for the AI knowledge base",
+}
 
 export default function KnowledgeBaseFilesPage() {
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Knowledge Base Files</h2>
-          <p className="text-muted-foreground">Manage files and documents for the knowledge base.</p>
+          <h1 className="text-3xl font-bold mb-2">Knowledge Base Files</h1>
+          <p className="text-gray-400">Manage files used for AI training and knowledge base</p>
         </div>
       </div>
-      <Separator />
-      <FileManagerWrapper initialDirectory="/knowledge-base" />
+
+      <EnhancedFileManager />
     </div>
   )
 }

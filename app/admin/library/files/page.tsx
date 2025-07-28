@@ -1,17 +1,32 @@
-import { Separator } from "@/components/ui/separator"
+import type { Metadata } from "next"
+import { Suspense } from "react"
 import { FileManagerWrapper } from "@/components/admin/file-manager-wrapper"
+
+export const metadata: Metadata = {
+  title: "NUMO ORACLE | Library Files",
+  description: "Manage files for the public library",
+}
 
 export default function LibraryFilesPage() {
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Library Files</h2>
-          <p className="text-muted-foreground">Manage files and documents for the user library.</p>
+          <h1 className="text-3xl font-bold mb-2">Library Files</h1>
+          <p className="text-gray-400">Manage files available in the public library</p>
         </div>
       </div>
-      <Separator />
-      <FileManagerWrapper initialDirectory="/library-documents" />
+
+      <Suspense
+        fallback={
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <span className="ml-2">Loading file manager...</span>
+          </div>
+        }
+      >
+        <FileManagerWrapper />
+      </Suspense>
     </div>
   )
 }

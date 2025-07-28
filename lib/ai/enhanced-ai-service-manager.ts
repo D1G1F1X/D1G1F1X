@@ -1,20 +1,22 @@
 import {
-  createThread as createAssistantThread,
-  addMessageToThread as addMessageToAssistantThread,
+  runAssistant,
+  createAssistantThread,
+  addMessageToAssistantThread,
   getAssistantThreadMessages,
-  getOpenAIClient,
-  getOpenAIAssistant,
-  continueAIConversationWithAssistant,
-  generateText, // Keep for potential direct model calls if needed
-  streamText, // Keep for potential direct model calls if needed
-  getAssistantStatus,
-  testOpenAIAssistant,
-  runAssistant, // Import runAssistant
+  getAssistantResponse,
+  createThread,
+  addMessageToThread,
 } from "@/lib/openai-assistant"
-import { getReadingPrompt, getFollowUpPrompt } from "@/lib/ai-prompt-manager"
+import { getPromptTemplate, getSystemPrompt, getUserPrompt } from "@/lib/ai-prompt-manager"
+import { generateText, streamText } from "ai"
 import { openai } from "@ai-sdk/openai"
+import { getOpenAIAssistant, getOpenAIClient } from "@/lib/openai-assistant" // Import the new functions
+import type { OracleCard } from "@/types/cards"
+import { getCardById } from "@/lib/card-data-access"
 import { env } from "@/lib/env"
+
 import { createOpenAI } from "@ai-sdk/openai"
+import { createGoogleGenerativeAI } from "@ai-sdk/google-generative-ai"
 import { createAnthropic } from "@ai-sdk/anthropic"
 import { createMistral } from "@ai-sdk/mistral"
 import { createCohere } from "@ai-sdk/cohere"
@@ -23,16 +25,11 @@ import { createGroq } from "@ai-sdk/groq"
 import { createXAI } from "@ai-sdk/xai"
 import { createDeepInfra } from "@ai-sdk/deepinfra"
 import { createFal } from "@ai-sdk/fal"
-import type { OracleCard } from "@/types/cards"
-import type { ReadableStream } from "stream"
 
-// Removed top-level environment variable checks to prevent synchronous crashes.
-// These checks are now handled within getOpenAIClient and getOpenAIAssistant.
-
-const openaiModel = openai("gpt-4o")
-
+// Define a type for the AI model instance
 type AIModel =
   | ReturnType<typeof openai>
+  | ReturnType<typeof createGoogleGenerativeAI>
   | ReturnType<typeof createAnthropic>
   | ReturnType<typeof createMistral>
   | ReturnType<typeof createCohere>
@@ -42,7 +39,9 @@ type AIModel =
   | ReturnType<typeof createDeepInfra>
   | ReturnType<typeof createFal>
 
+// Initialize AI providers based on environment variables
 const openaiProvider = env.OPENAI_API_KEY ? createOpenAI({ apiKey: env.OPENAI_API_KEY }) : undefined
+const googleProvider = env.GOOGLE_API_KEY ? createGoogleGenerativeAI({ apiKey: env.GOOGLE_API_KEY }) : undefined
 const anthropicProvider = env.ANTHROPIC_API_KEY ? createAnthropic({ apiKey: env.ANTHROPIC_API_KEY }) : undefined
 const mistralProvider = env.MISTRAL_API_KEY ? createMistral({ apiKey: env.MISTRAL_API_KEY }) : undefined
 const cohereProvider = env.COHERE_API_KEY ? createCohere({ apiKey: env.COHERE_API_KEY }) : undefined
@@ -56,22 +55,45 @@ interface GenerateReadingOptions {
   cards: OracleCard[]
   question: string
   spreadType: string
-  userContext?: string // Now explicitly a string or undefined
+  userContext: string
+  threadId?: string
 }
 
 interface FollowUpQuestionOptions {
   threadId: string
   question: string
   userContext?: string
-  originalReading?: string
 }
 
+interface AIReadingOptions {
+  cards: OracleCard[]
+  question: string
+  spreadType: string
+  userContext?: string // JSON string of user profile data
+}
+
+interface AIConversationOptions {
+  threadId: string
+  message: string
+  initialContext?: {
+    cards: OracleCard[]
+    question: string
+    reading: string
+    userProfile?: any
+  }
+}
+
+/**
+ * Generates an oracle reading using the AI assistant.
+ * It constructs the prompt based on card data, user question, and spread type.
+ */
 export async function generateOracleReading({
   cards,
   question,
   spreadType,
-  userContext, // This is now guaranteed to be a string or undefined
-}: GenerateReadingOptions): Promise<{ reading: string; threadId: string; method: string }> {
+  userContext,
+  threadId: existingThreadId,
+}: GenerateReadingOptions): Promise<{ reading: string; threadId: string }> {
   if (!cards || cards.length === 0) {
     throw new Error("No cards provided for reading generation.")
   }
@@ -79,49 +101,53 @@ export async function generateOracleReading({
     throw new Error("No question provided for reading generation.")
   }
 
-  let userName: string | undefined
-  if (userContext) {
-    try {
-      const parsedUserContext = JSON.parse(userContext)
-      userName = parsedUserContext.fullName
-    } catch (e) {
-      console.warn("⚠️ Failed to parse userContext string in generateOracleReading (for userName extraction):", e)
-      // userName remains undefined if parsing fails
-    }
+  // Construct the detailed card information string for the AI
+  const detailedCardsInfo = cards
+    .map((card) => {
+      const meanings = card.keyMeanings.join(", ")
+      const breakdown = card.symbolismBreakdown.join(" ")
+      return `Card ID: ${card.id}, Title: ${card.fullTitle}, Number: ${card.number}, Suit: ${card.suit}, Base Element: ${card.baseElement}, Synergistic Element: ${card.synergisticElement}, Key Meanings: ${meanings}, Symbolism Breakdown: ${breakdown}`
+    })
+    .join("\n---\n")
+
+  // Get the appropriate prompt template
+  const promptTemplate = getPromptTemplate("oracle_reading_generation")
+  if (!promptTemplate) {
+    throw new Error("Oracle reading generation prompt template not found.")
   }
 
-  console.log("DEBUG: Calling getReadingPrompt with:", {
-    cards: cards.map((c) => c.id),
-    spreadType,
-    question,
-    userContext: userContext ? "Present (stringified)" : "Absent", // Log the stringified status
-    userName,
-  })
+  // Prepare the content for the AI assistant
+  const content = `
+  User's Question: "${question}"
+  Spread Type: ${spreadType}
+  User Context: ${userContext || "No additional user context provided."}
 
-  let promptContent: string
-  try {
-    // Pass the userContext string directly to getReadingPrompt
-    promptContent = getReadingPrompt(cards, spreadType || "single", question, userContext, userName)
-    console.log("DEBUG: Generated prompt content length:", promptContent.length)
-  } catch (promptError) {
-    console.error("ERROR: Failed to generate prompt content:", promptError)
-    throw new Error(
-      `Failed to prepare AI prompt: ${promptError instanceof Error ? promptError.message : String(promptError)}`,
-    )
+  The following NUMO Oracle Cards were drawn:
+  ${detailedCardsInfo}
+
+  Please provide a comprehensive and insightful reading based on the user's question, the drawn cards, and the spread type.
+  Focus on integrating the symbolism, key meanings, and breakdown of each card into a cohesive narrative.
+  Structure the reading clearly, perhaps with an introduction, interpretation for each card in the context of the question/spread, and a concluding guidance section.
+  `
+
+  console.log("AI Service Manager: Sending initial content to AI assistant.")
+  const { response: aiResponse, threadId } = await runAssistant(content, existingThreadId)
+
+  if (!aiResponse) {
+    throw new Error("Failed to get reading from AI assistant.")
   }
 
-  console.log("AI Service Manager: Calling generateAIReadingWithAssistant with prepared prompt.")
-  const { reading, threadId } = await generateAIReadingWithAssistant(promptContent)
-
-  console.log("AI Service Manager: Received AI response from Assistant.")
-  return { reading, threadId, method: "OpenAI Assistant API" }
+  console.log("AI Service Manager: Received AI response.")
+  return { reading: aiResponse, threadId }
 }
 
+/**
+ * Sends a follow-up question to an existing AI assistant conversation thread.
+ */
 export async function sendFollowUpQuestion({
   threadId,
   question,
   userContext,
-  originalReading,
 }: FollowUpQuestionOptions): Promise<string> {
   if (!threadId) {
     throw new Error("Thread ID is required for follow-up questions.")
@@ -130,14 +156,12 @@ export async function sendFollowUpQuestion({
     throw new Error("Follow-up question cannot be empty.")
   }
 
-  let messageContent = getFollowUpPrompt(originalReading || "", question)
-
-  if (userContext) {
-    messageContent += `\nUser Context: ${userContext}`
-  }
+  const content = `User's Follow-up Question: "${question}"
+  User Context: ${userContext || "No additional user context provided."}
+  Please provide a concise and helpful response based on the previous conversation and this new question.`
 
   console.log(`AI Service Manager: Sending follow-up question to thread ${threadId}.`)
-  const { response: aiResponse } = await continueAIConversationWithAssistant(threadId, messageContent)
+  const { response: aiResponse } = await runAssistant(content, threadId)
 
   if (!aiResponse) {
     throw new Error("Failed to get response for follow-up question from AI assistant.")
@@ -147,6 +171,9 @@ export async function sendFollowUpQuestion({
   return aiResponse
 }
 
+/**
+ * Retrieves the conversation history from an AI assistant thread.
+ */
 export async function getConversationHistory(threadId: string): Promise<any[]> {
   if (!threadId) {
     throw new Error("Thread ID is required to retrieve conversation history.")
@@ -157,6 +184,9 @@ export async function getConversationHistory(threadId: string): Promise<any[]> {
   return messages
 }
 
+/**
+ * Creates a new AI assistant conversation thread.
+ */
 export async function createNewConversationThread(): Promise<string> {
   console.log("AI Service Manager: Creating new conversation thread.")
   const thread = await createAssistantThread()
@@ -167,6 +197,9 @@ export async function createNewConversationThread(): Promise<string> {
   return thread.id
 }
 
+/**
+ * Adds a message to an existing AI assistant conversation thread.
+ */
 export async function addMessageToConversation(threadId: string, message: string): Promise<void> {
   if (!threadId) {
     throw new Error("Thread ID is required to add a message.")
@@ -179,103 +212,211 @@ export async function addMessageToConversation(threadId: string, message: string
   console.log("AI Service Manager: Message added.")
 }
 
+/**
+ * Generates an AI reading using the OpenAI Assistant API.
+ * @param options - The options for generating the reading.
+ * @returns A promise that resolves to the AI-generated reading and thread ID.
+ */
 export async function generateAIReadingWithAssistant(
-  promptContent: string,
+  options: AIReadingOptions,
 ): Promise<{ reading: string; threadId: string }> {
+  const { cards, question, spreadType, userContext } = options
   const openaiClient = getOpenAIClient()
   const assistant = await getOpenAIAssistant()
 
   if (!assistant) {
-    console.error("ERROR: OpenAI Assistant not initialized. Check OPENAI_ASSISTANT_ID environment variable.")
     throw new Error("OpenAI Assistant not initialized. Check OPENAI_ASSISTANT_ID environment variable.")
   }
 
-  let threadId: string
-  try {
-    console.log("DEBUG: Creating new OpenAI thread...")
-    const thread = await openaiClient.beta.threads.create()
-    threadId = thread.id
-    console.log(`DEBUG: Thread created with ID: ${threadId}`)
-  } catch (threadError) {
-    console.error("ERROR: Failed to create OpenAI thread:", threadError)
-    throw new Error(
-      `Failed to create OpenAI thread: ${threadError instanceof Error ? threadError.message : String(threadError)}`,
-    )
-  }
-
-  try {
-    console.log(`DEBUG: Adding message to thread ${threadId}...`)
-    await openaiClient.beta.threads.messages.create(threadId, {
-      role: "user",
-      content: promptContent,
-    })
-    console.log("DEBUG: Message added to thread.")
-  } catch (messageError) {
-    console.error(`ERROR: Failed to add message to thread ${threadId}:`, messageError)
-    throw new Error(
-      `Failed to add message to thread: ${messageError instanceof Error ? messageError.message : String(messageError)}`,
-    )
-  }
-
-  let run
-  try {
-    console.log(`DEBUG: Creating assistant run for thread ${threadId}...`)
-    run = await runAssistant(threadId, assistant.id) // Use the imported runAssistant
-    console.log(`DEBUG: Assistant run created and completed with ID: ${run.id}`)
-  } catch (runError) {
-    // Changed variable name to avoid conflict
-    console.error(`ERROR: Failed during assistant run for thread ${threadId}:`, runError)
-    throw new Error(`Failed during assistant run: ${runError instanceof Error ? runError.message : String(runError)}`)
-  }
-
-  if (run.status === "completed") {
-    try {
-      console.log(`DEBUG: Retrieving messages for thread ${threadId}...`)
-      const messages = await openaiClient.beta.threads.messages.list(threadId)
-      const assistantMessages = messages.data.filter((msg) => msg.role === "assistant")
-      const latestAssistantMessage = assistantMessages[0]?.content[0]
-
-      if (latestAssistantMessage && latestAssistantMessage.type === "text") {
-        console.log("DEBUG: Successfully retrieved assistant's text response.")
-        return { reading: latestAssistantMessage.text.value, threadId: threadId }
-      } else {
-        console.error("ERROR: No text content found in assistant's response or unexpected message type.")
-        throw new Error("No text content found in assistant's response.")
+  // Prepare card details for the prompt
+  const cardDetails = cards
+    .map((card) => {
+      const masterCard = getCardById(card.id) // Get full card data from master
+      if (!masterCard) {
+        console.warn(`Card with ID ${card.id} not found in master data. Using provided data.`)
+        return `Card: ${card.fullTitle} (${card.baseElement} ${card.suit}), Meanings: ${card.keyMeanings.join(", ")}`
       }
-    } catch (retrieveMessagesError) {
-      console.error(`ERROR: Failed to retrieve messages for thread ${threadId}:`, retrieveMessagesError)
-      throw new Error(
-        `Failed to retrieve assistant messages: ${retrieveMessagesError instanceof Error ? retrieveMessagesError.message : String(retrieveMessagesError)}`,
-      )
+      return `Card: ${masterCard.fullTitle} (Number: ${masterCard.number}, Suit: ${masterCard.suit}, Base Element: ${masterCard.baseElement}, Synergistic Element: ${masterCard.synergisticElement}, Key Meanings: ${masterCard.keyMeanings.join(", ")}, Symbolism: ${masterCard.symbolismBreakdown.join(" ")})`
+    })
+    .join("\n")
+
+  const initialMessageContent = `
+  User's Question: ${question}
+  Spread Type: ${spreadType}
+  Cards Drawn:
+  ${cardDetails}
+  ${userContext ? `User Context: ${userContext}` : ""}
+
+  Please provide a comprehensive oracle reading based on the question, spread type, and the meanings of the drawn cards.
+  Structure the reading with an introduction, interpretation of each card in the context of the question and spread,
+  a synthesis of the cards' combined message, and practical guidance or advice.
+  Ensure the tone is mystical, insightful, and supportive.
+  `
+
+  // Create a new thread
+  const thread = await openaiClient.beta.threads.create()
+
+  // Add the user's message to the thread
+  await openaiClient.beta.threads.messages.create(thread.id, {
+    role: "user",
+    content: initialMessageContent,
+  })
+
+  // Run the assistant
+  const run = await openaiClient.beta.threads.runs.create(thread.id, {
+    assistant_id: assistant.id,
+  })
+
+  // Poll for the run completion
+  let runStatus = await openaiClient.beta.threads.runs.retrieve(thread.id, run.id)
+  while (runStatus.status === "queued" || runStatus.status === "in_progress") {
+    await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait for 1 second
+    runStatus = await openaiClient.beta.threads.runs.retrieve(thread.id, run.id)
+  }
+
+  if (runStatus.status === "completed") {
+    const messages = await openaiClient.beta.threads.messages.list(thread.id)
+    const assistantMessages = messages.data.filter((msg) => msg.role === "assistant")
+    const latestAssistantMessage = assistantMessages[0]?.content[0]
+
+    if (latestAssistantMessage && latestAssistantMessage.type === "text") {
+      return { reading: latestAssistantMessage.text.value, threadId: thread.id }
+    } else {
+      throw new Error("No text content found in assistant's response.")
     }
   } else {
-    console.error(`ERROR: Assistant run failed with status: ${run.status}`)
-    throw new Error(`Assistant run failed with status: ${run.status}`)
+    throw new Error(`Assistant run failed with status: ${runStatus.status}`)
   }
 }
 
+/**
+ * Continues an AI conversation using the OpenAI Assistant API.
+ * @param options - The options for continuing the conversation.
+ * @returns A promise that resolves to the AI-generated response.
+ */
+export async function continueAIConversationWithAssistant(
+  options: AIConversationOptions,
+): Promise<{ response: string }> {
+  const { threadId, message, initialContext } = options
+  const openaiClient = getOpenAIClient()
+  const assistant = await getOpenAIAssistant()
+
+  if (!assistant) {
+    throw new Error("OpenAI Assistant not initialized. Check OPENAI_ASSISTANT_ID environment variable.")
+  }
+
+  // Add initial context to the thread if provided and it's the first message
+  if (initialContext) {
+    const cardDetails = initialContext.cards
+      .map((card) => {
+        const masterCard = getCardById(card.id)
+        if (!masterCard) {
+          return `Card: ${card.fullTitle} (${card.baseElement} ${card.suit}), Meanings: ${card.keyMeanings.join(", ")}`
+        }
+        return `Card: ${masterCard.fullTitle} (Number: ${masterCard.number}, Suit: ${masterCard.suit}, Base Element: ${masterCard.baseElement}, Synergistic Element: ${masterCard.synergisticElement}, Key Meanings: ${masterCard.keyMeanings.join(", ")}, Symbolism: ${masterCard.symbolismBreakdown.join(" ")})`
+      })
+      .join("\n")
+
+    const contextMessage = `
+    Initial Reading Context:
+    Question: ${initialContext.question}
+    Reading: ${initialContext.reading}
+    Cards:
+    ${cardDetails}
+    ${initialContext.userProfile ? `User Profile: ${JSON.stringify(initialContext.userProfile)}` : ""}
+    `
+    // Check if this context has already been added to the thread to avoid duplication
+    // This is a simplified check; a more robust solution might involve checking message history
+    const messages = await openaiClient.beta.threads.messages.list(threadId, { limit: 1 })
+    if (
+      messages.data.length === 0 ||
+      messages.data[0]?.content[0]?.type !== "text" ||
+      !messages.data[0].content[0].text.value.includes("Initial Reading Context")
+    ) {
+      await openaiClient.beta.threads.messages.create(threadId, {
+        role: "user",
+        content: contextMessage,
+      })
+    }
+  }
+
+  // Add the new user message to the thread
+  await openaiClient.beta.threads.messages.create(threadId, {
+    role: "user",
+    content: message,
+  })
+
+  // Run the assistant
+  const run = await openaiClient.beta.threads.runs.create(threadId, {
+    assistant_id: assistant.id,
+  })
+
+  // Poll for the run completion
+  let runStatus = await openaiClient.beta.threads.runs.retrieve(threadId, run.id)
+  while (runStatus.status === "queued" || runStatus.status === "in_progress") {
+    await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait for 1 second
+    runStatus = await openaiClient.beta.threads.runs.retrieve(threadId, run.id)
+  }
+
+  if (runStatus.status === "completed") {
+    const messages = await openaiClient.beta.threads.messages.list(threadId)
+    const assistantMessages = messages.data.filter((msg) => msg.role === "assistant")
+    const latestAssistantMessage = assistantMessages[0]?.content[0]
+
+    if (latestAssistantMessage && latestAssistantMessage.type === "text") {
+      return { response: latestAssistantMessage.text.value }
+    } else {
+      throw new Error("No text content found in assistant's response.")
+    }
+  } else {
+    throw new Error(`Assistant run failed with status: ${runStatus.status}`)
+  }
+}
+
+/**
+ * Generates a simple text response using the OpenAI Chat Completion API.
+ * This is a fallback or alternative to the Assistant API for simpler requests.
+ * @param prompt The prompt for text generation.
+ * @param systemPrompt An optional system prompt to guide the AI.
+ * @returns A promise that resolves to the generated text.
+ */
 export async function generateSimpleText(prompt: string, systemPrompt?: string): Promise<string> {
   const { text } = await generateText({
-    model: openaiModel,
+    model: openai(env.OPENAI_MODEL || "gpt-4o"),
     prompt: prompt,
     system: systemPrompt,
   })
   return text
 }
 
-export function streamSimpleText(prompt: string, systemPrompt?: string): ReadableStream {
+/**
+ * Streams a text response using the OpenAI Chat Completion API.
+ * @param prompt The prompt for text streaming.
+ * @param systemPrompt An optional system prompt to guide the AI.
+ * @returns A readable stream of text.
+ */
+export function streamSimpleText(prompt: string, systemPrompt?: string) {
   return streamText({
-    model: openaiModel,
+    model: openai(env.OPENAI_MODEL || "gpt-4o"),
     prompt: prompt,
     system: systemPrompt,
-  }).toReadableStream()
+  })
 }
 
+/**
+ * Selects an AI model based on membership type and available providers.
+ * Prioritizes premium models for paid members.
+ * @param membershipType The user's membership type (e.g., "free", "premium").
+ * @returns An initialized AI model.
+ * @throws Error if no suitable AI model can be found.
+ */
 export function getAIModel(membershipType: "free" | "premium"): AIModel {
+  // Premium models (prioritize for premium members)
   if (membershipType === "premium") {
-    if (xaiProvider) return xaiProvider("grok-1")
+    if (xaiProvider) return xaiProvider("grok-1") // Example premium model
     if (anthropicProvider) return anthropicProvider("claude-3-opus-20240229")
     if (openaiProvider) return openaiProvider("gpt-4o")
+    if (googleProvider) return googleProvider("gemini-1.5-pro")
     if (groqProvider) return groqProvider("llama3-70b-8192")
     if (mistralProvider) return mistralProvider("mistral-large-latest")
     if (cohereProvider) return cohereProvider("command-r-plus")
@@ -284,10 +425,12 @@ export function getAIModel(membershipType: "free" | "premium"): AIModel {
     if (falProvider) return falProvider("fal-ai/fast-sdxl")
   }
 
-  if (openaiProvider) return openaiProvider("gpt-3.5-turbo")
+  // Free/Fallback models (for free members or if premium models are unavailable)
+  if (openaiProvider) return openaiProvider("gpt-3.5-turbo") // Default for free tier
+  if (googleProvider) return googleProvider("gemini-pro")
   if (groqProvider) return groqProvider("llama3-8b-8192")
   if (mistralProvider) return mistralProvider("mistral-small-latest")
-  if (cohereProvider) return cohereProvider("command-r") // Corrected the variable name here
+  if (cohereProvider) return cohereProvider("command-r")
   if (perplexityProvider) return perplexityProvider("llama-3-sonar-small-32k-online")
   if (deepinfraProvider) return deepinfraProvider("meta-llama/Llama-3-8B-Instruct")
   if (falProvider) return falProvider("fal-ai/fast-sdxl")
@@ -295,9 +438,14 @@ export function getAIModel(membershipType: "free" | "premium"): AIModel {
   throw new Error("No AI model configured or available. Please check your environment variables.")
 }
 
+/**
+ * Checks the status of configured AI services.
+ * @returns An object indicating the availability of each AI service.
+ */
 export function getAIServiceStatus() {
   return {
     openai: !!openaiProvider,
+    google: !!googleProvider,
     anthropic: !!anthropicProvider,
     mistral: !!mistralProvider,
     cohere: !!cohereProvider,
@@ -309,130 +457,45 @@ export function getAIServiceStatus() {
   }
 }
 
-export type AIServiceStatus = {
-  service: string
-  status: "active" | "inactive" | "unknown"
-  message?: string
-}
+/**
+ * Generates an AI reading based on the provided options.
+ * @param options - The options for generating the reading.
+ * @returns A promise that resolves to the AI-generated reading, thread ID, and method used.
+ */
+export async function generateAIReading({
+  cards,
+  question,
+  spreadType,
+  userContext,
+  threadId: existingThreadId,
+}: GenerateReadingOptions): Promise<{ reading: string; threadId: string; method: string }> {
+  const systemPrompt = getSystemPrompt(spreadType)
+  const userPrompt = getUserPrompt(cards, question, spreadType, userContext)
 
-export async function getAIServiceStatuses(): Promise<AIServiceStatus[]> {
-  const statuses: AIServiceStatus[] = []
+  // Use OpenAI Assistant API if OPENAI_ASSISTANT_ID is configured
+  if (env.OPENAI_ASSISTANT_ID) {
+    let threadId = existingThreadId
 
-  try {
-    const assistantStatus = await getAssistantStatus()
-    statuses.push({
-      service: "OpenAI Assistant",
-      status: assistantStatus.status,
-      message: assistantStatus.message,
-    })
-  } catch (error: any) {
-    statuses.push({
-      service: "OpenAI Assistant",
-      status: "inactive",
-      message: error.message || "Failed to check OpenAI Assistant status.",
-    })
-  }
+    if (!threadId) {
+      const thread = await createThread()
+      threadId = thread.id
+    }
 
-  try {
-    // Using generateText for a quick check, as streamText might be harder to test for simple status
-    await generateText({
-      model: openaiModel,
-      prompt: "Hello",
-      maxTokens: 5,
-    })
-    statuses.push({
-      service: "OpenAI Text Generation (AI SDK)",
-      status: "active",
-      message: "Successfully connected to OpenAI text generation.",
-    })
-  } catch (error: any) {
-    statuses.push({
-      service: "OpenAI Text Generation (AI SDK)",
-      status: "inactive",
-      message: error.message || "Failed to connect to OpenAI text generation. Check OPENAI_API_KEY and OPENAI_MODEL.",
-    })
-  }
+    await addMessageToThread(threadId, userPrompt)
+    const assistantResponse = await getAssistantResponse(threadId)
 
-  return statuses
-}
-
-export async function runAITests(): Promise<{ service: string; testResult: string; error?: string }[]> {
-  const testResults: { service: string; testResult: string; error?: string }[] = [] // Corrected type here
-
-  try {
-    const { response, error } = await testOpenAIAssistant('Say "hello"')
-    testResults.push({
-      service: "OpenAI Assistant",
-      testResult: response || "No response",
-      error: error,
-    })
-  } catch (error: any) {
-    testResults.push({
-      service: "OpenAI Assistant",
-      testResult: "Test failed",
-      error: error.message || "An unknown error occurred during test.",
-    })
-  }
-
-  try {
+    return { reading: assistantResponse, threadId, method: "assistant" }
+  } else if (env.OPENAI_API_KEY) {
+    // Fallback to OpenAI Chat Completion API if Assistant ID is not set
     const { text } = await generateText({
-      model: openaiModel,
-      prompt: "What is 1+1?",
-      maxTokens: 10,
+      model: openai(env.OPENAI_MODEL || "gpt-4o"),
+      system: systemPrompt,
+      prompt: userPrompt,
+      maxTokens: env.OPENAI_MAX_TOKENS || 1000,
+      temperature: env.OPENAI_TEMPERATURE || 0.7,
     })
-    testResults.push({
-      service: "OpenAI Text Generation (AI SDK)",
-      testResult: text,
-    })
-  } catch (error: any) {
-    testResults.push({
-      service: "OpenAI Text Generation (AI SDK)",
-      testResult: "Test failed",
-      error: error.message || "An unknown error occurred during test.",
-    })
-  }
-
-  return testResults
-}
-
-export const aiServiceManager = {
-  generateOracleReading,
-  continueAIConversationWithAssistant,
-  sendFollowUpQuestion,
-}
-
-export async function generateAIReading(prompt: string): Promise<string> {
-  try {
-    console.log("DEBUG: Calling OpenAI Assistant API for reading generation...")
-    const { text } = await generateText({
-      model: openaiModel,
-      prompt: prompt,
-      system:
-        "You are a wise and insightful oracle, providing profound numerological and elemental readings based on the provided card data. Your responses are always in a calm, guiding, and encouraging tone. Do not mention that you are an AI or a language model. Focus solely on the spiritual and practical interpretations of the cards.",
-    })
-    console.log("DEBUG: OpenAI Assistant API call successful.")
-    return text
-  } catch (error) {
-    console.error("ERROR: Failed to generate AI reading with Assistant API:", error)
-    throw new Error("Failed to generate AI reading with Assistant API.")
-  }
-}
-
-export async function continueAIConversation(
-  messages: { role: "user" | "assistant"; content: string }[],
-): Promise<string> {
-  try {
-    console.log("DEBUG: Calling OpenAI Assistant API to continue conversation...")
-    const { text } = await generateText({
-      model: openaiModel,
-      messages: messages,
-      system:
-        "You are a wise and insightful oracle, providing profound numerological and elemental readings based on the provided card data. Your responses are always in a calm, guiding, and encouraging tone. Do not mention that you are an AI or a language model. Focus solely on the spiritual and practical interpretations of the cards.",
-    })
-    console.log("DEBUG: OpenAI Assistant API conversation continued successfully.")
-    return text
-  } catch (error) {
-    console.error("ERROR: Failed to continue AI conversation with Assistant API:", error)
-    throw new Error("Failed to continue AI conversation with Assistant API.")
+    return { reading: text, threadId: "", method: "chat_completion" }
+  } else {
+    throw new Error("No OpenAI API key or Assistant ID configured.")
   }
 }

@@ -1,13 +1,14 @@
 "use client"
 
 import type React from "react"
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { DashboardShell } from "@/components/admin/dashboard-shell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { PremiumBlogEditor } from "@/components/admin/premium-blog-editor"
+import { ContentEditor } from "@/components/admin/content-editor"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "@/components/ui/use-toast"
 
@@ -72,7 +73,7 @@ export default function NewPostPage() {
     <DashboardShell>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create New Blog Post</h1>
+          <h1 className="text-2xl font-bold tracking-tight">New Post</h1>
           <p className="text-muted-foreground">Create a new blog post</p>
         </div>
       </div>
@@ -108,7 +109,7 @@ export default function NewPostPage() {
 
           <div className="space-y-2">
             <Label>Content</Label>
-            <PremiumBlogEditor initialValue={formData.content} onChange={handleContentChange} />
+            <ContentEditor initialValue={formData.content} onChange={handleContentChange} />
           </div>
 
           <div className="flex items-center space-x-2">
