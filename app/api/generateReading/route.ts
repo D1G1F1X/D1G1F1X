@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
 import OpenAI from "openai"
-import { generateReading } from "@/lib/actions/generate-reading"
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -31,17 +30,25 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { cards, question, spreadType, userContext } = body
+    // Create a new thread
+    const thread = await openai.beta.threads.create()
 
-    if (!cards || !Array.isArray(cards) || cards.length === 0) {
-      return NextResponse.json({ error: "No cards provided for reading" }, { status: 400 })
-    }
-    if (!question) {
-      return NextResponse.json({ error: "No question provided for reading" }, { status: 400 })
-    }
+    // Add the user's message to the thread
+    await openai.beta.threads.messages.create(thread.id, {
+      role: "user",
+      content: body.message || "Tell me something cool",
+    })
 
-    const reading = await generateReading(cards, question, spreadType, userContext)
-    return NextResponse.json({ reading })
+    // Create a run with the assistant
+    const run = await openai.beta.threads.runs.create(thread.id, {
+      assistant_id: process.env.OPENAI_ASSISTANT_ID,
+    })
+
+    return NextResponse.json({
+      threadId: thread.id,
+      runId: run.id,
+      success: true,
+    })
   } catch (err) {
     console.error("OpenAI Error:", err)
 

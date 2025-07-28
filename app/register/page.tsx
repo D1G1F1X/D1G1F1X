@@ -1,32 +1,26 @@
-import { SignUpForm } from "@/components/auth/sign-up-form"
-import Image from "next/image"
-import Link from "next/link"
+import { Suspense } from "react"
+import type { Metadata } from "next"
+import HeroSection from "@/components/hero-section" // Import HeroSection
+
+export const metadata: Metadata = {
+  title: "Register | NUMO Oracle",
+  description: "Register for a NUMO Oracle account.",
+}
 
 export default function RegisterPage() {
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4">
-      {/* Background image */}
-      <Image
-        src="/abstract-login-background.png"
-        alt="Register Background"
-        layout="fill"
-        objectFit="cover"
-        quality={100}
-        className="z-0 opacity-30"
+    <div className="relative min-h-screen bg-black">
+      <HeroSection
+        title="Create Your Account"
+        description="Join the NUMO Oracle community and unlock personalized insights."
+        backgroundImage="/placeholder.svg?height=500&width=1500"
       />
-
-      {/* Overlay to dim background */}
-      <div className="absolute inset-0 bg-black/50 z-10" />
-
-      <div className="relative z-20 w-full max-w-md">
-        <SignUpForm />
-        <div className="mt-4 text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link href="/login" className="font-medium text-primary hover:underline">
-            Log in
-          </Link>
+      <Suspense fallback={<div className="text-center py-20 text-white">Loading registration form...</div>}>
+        <div className="container mx-auto py-8">
+          <h1 className="text-3xl font-bold mb-6 text-center text-white">Register</h1>
+          <p className="text-center text-gray-300">Registration form goes here.</p>
         </div>
-      </div>
+      </Suspense>
     </div>
   )
 }

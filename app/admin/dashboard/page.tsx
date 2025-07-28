@@ -1,35 +1,33 @@
-import { DashboardShell } from "@/components/admin/dashboard-shell"
-import { DashboardStats } from "@/components/admin/dashboard/dashboard-stats"
-import { SalesChart } from "@/components/admin/dashboard/sales-chart"
-import { UserGrowthChart } from "@/components/admin/dashboard/user-growth-chart"
-import { RecentOrders } from "@/components/admin/dashboard/recent-orders"
-import { TopProducts } from "@/components/admin/dashboard/top-products"
-import { ActivityFeed } from "@/components/admin/dashboard/activity-feed"
-import { RevenueMetrics } from "@/components/admin/dashboard/revenue-metrics"
-import { GeographicDistribution } from "@/components/admin/dashboard/geographic-distribution"
-import { RecentSalesLeads } from "@/components/admin/dashboard/recent-sales-leads"
 import { EmailServiceMonitor } from "@/components/admin/email-service-monitor"
-import { Separator } from "@/components/ui/separator"
 
 export default function AdminDashboardPage() {
   return (
-    <DashboardShell className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Dashboard Overview</h1>
-      <DashboardStats />
-      <div className="grid gap-6 lg:grid-cols-2">
-        <SalesChart />
-        <UserGrowthChart />
-        <RevenueMetrics />
-        <GeographicDistribution />
-        <EmailServiceMonitor />
-        <RecentSalesLeads />
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Example Dashboard Items - Replace with actual components */}
+        <div className="bg-white shadow-md rounded-md p-4">
+          <h2 className="text-lg font-semibold mb-2">Users</h2>
+          <p>Manage user accounts and permissions.</p>
+        </div>
+
+        <div className="bg-white shadow-md rounded-md p-4">
+          <h2 className="text-lg font-semibold mb-2">Products</h2>
+          <p>Add, edit, and manage products.</p>
+        </div>
+
+        <div className="bg-white shadow-md rounded-md p-4">
+          <h2 className="text-lg font-semibold mb-2">Orders</h2>
+          <p>View and process customer orders.</p>
+        </div>
+
+        {/* System Monitoring Section */}
+        <div className="bg-white shadow-md rounded-md p-4 col-span-1 md:col-span-2 lg:col-span-3">
+          <h2 className="text-lg font-semibold mb-2">System Monitoring</h2>
+          <EmailServiceMonitor />
+        </div>
       </div>
-      <Separator className="my-6" />
-      <div className="grid gap-6 lg:grid-cols-2">
-        <RecentOrders />
-        <TopProducts />
-        <ActivityFeed />
-      </div>
-    </DashboardShell>
+    </div>
   )
 }

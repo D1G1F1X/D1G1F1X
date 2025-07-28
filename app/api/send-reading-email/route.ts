@@ -1,23 +1,30 @@
 import { NextResponse } from "next/server"
-import { sendEmail } from "@/lib/services/brevo-email-service"
+
+// This is a conceptual API route for sending emails.
+// In a real application, you would integrate with an email service provider (e.g., SendGrid, Mailgun, Nodemailer).
 
 export async function POST(request: Request) {
   try {
-    const { to, subject, htmlContent, textContent } = await request.json()
+    const { to, subject, html, text } = await request.json()
 
-    if (!to || !subject || (!htmlContent && !textContent)) {
-      return NextResponse.json({ error: "Missing required email fields" }, { status: 400 })
-    }
+    // --- IMPORTANT: Replace this with actual email sending logic ---
+    // Example using a hypothetical email service client:
+    // import { EmailServiceClient } from 'your-email-service-sdk';
+    // const emailService = new EmailServiceClient(process.env.EMAIL_SERVICE_API_KEY);
+    // await emailService.sendEmail({ to, subject, html, text });
+    // ---------------------------------------------------------------
 
-    const result = await sendEmail({ to, subject, htmlContent, textContent })
+    console.log(`Simulating email send to: ${to}`)
+    console.log(`Subject: ${subject}`)
+    console.log(`HTML Content (first 200 chars): ${html.substring(0, 200)}...`)
+    console.log(`Text Content (first 200 chars): ${text.substring(0, 200)}...`)
 
-    if (result.success) {
-      return NextResponse.json({ message: "Email sent successfully", data: result.data })
-    } else {
-      return NextResponse.json({ error: result.error || "Failed to send email" }, { status: 500 })
-    }
+    // Simulate a successful email send
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    return NextResponse.json({ message: "Email simulated successfully!" }, { status: 200 })
   } catch (error) {
-    console.error("Error sending reading email:", error)
-    return NextResponse.json({ error: "Failed to send reading email" }, { status: 500 })
+    console.error("Error in send-reading-email API:", error)
+    return NextResponse.json({ message: "Failed to send email", error: (error as Error).message }, { status: 500 })
   }
 }

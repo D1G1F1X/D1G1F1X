@@ -1,10 +1,26 @@
+import { DashboardShell } from "@/components/admin/dashboard-shell"
+import { ProtectedRoute } from "@/components/admin/protected-route"
 import { PageEditor } from "@/components/admin/page-editor"
 
-export default function NewPage() {
+export default function NewPagePage() {
+  const emptyPage = {
+    id: "",
+    slug: "",
+    title: "",
+    subtitle: "",
+    description: "",
+    content: "",
+    sections: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    isPublished: false,
+  }
+
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Create New Page</h1>
-      <PageEditor />
-    </div>
+    <DashboardShell>
+      <ProtectedRoute>
+        <PageEditor page={emptyPage} isNew={true} />
+      </ProtectedRoute>
+    </DashboardShell>
   )
 }

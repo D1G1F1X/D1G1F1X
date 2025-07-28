@@ -7,11 +7,10 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import OptimizedImage from "@/components/optimized-image"
-import { ImageDebug } from "@/components/image-debug"
 
 export const dynamic = "force-dynamic" // Added to force dynamic rendering
 
-export default function DebugCardImagesPage() {
+export default function CardImagesDebugPage() {
   const [cardIds, setCardIds] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [testCardId, setTestCardId] = useState("01cauldron-fire")
@@ -36,7 +35,7 @@ export default function DebugCardImagesPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
-      <h1 className="text-3xl font-bold">Debug Card Images</h1>
+      <h1 className="text-3xl font-bold">Card Images Debug</h1>
 
       <Tabs defaultValue="verify">
         <TabsList>
@@ -97,7 +96,6 @@ export default function DebugCardImagesPage() {
           </Card>
         </TabsContent>
       </Tabs>
-      <ImageDebug />
     </div>
   )
 }

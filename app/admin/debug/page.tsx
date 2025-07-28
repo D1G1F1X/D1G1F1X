@@ -1,116 +1,98 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import Link from "next/link"
-import { Terminal, Database, ImageIcon, FileText, Component, CheckCircle } from "lucide-react"
-import { Cloud, Mail, CheckSquare } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
+"use client"
 
-export default function DebugPage() {
-  const debugTools = [
-    {
-      title: "Card Data Editor",
-      description: "Directly edit the JSON data for oracle cards.",
-      href: "/admin/card-data-editor",
-      icon: <Database className="h-6 w-6" />,
-    },
-    {
-      title: "Card Data Validation",
-      description: "Run checks to ensure the integrity of your card data.",
-      href: "/admin/card-validation",
-      icon: <CheckCircle className="h-6 w-6" />,
-    },
-    {
-      title: "Image Diagnostics",
-      description: "Analyze and troubleshoot card image loading issues.",
-      href: "/admin/image-diagnostics",
-      icon: <ImageIcon className="h-6 w-6" />,
-    },
-    {
-      title: "Image Optimization",
-      description: "Tools for optimizing and managing card image assets.",
-      href: "/admin/image-optimization",
-      icon: <ImageIcon className="h-6 w-6" />,
-    },
-    {
-      title: "AI Testing",
-      description: "Test responses from the integrated AI services.",
-      href: "/admin/ai-testing",
-      icon: <Terminal className="h-6 w-6" />,
-    },
-    {
-      title: "Blob Manager",
-      description: "Manage Vercel Blob storage directly.",
-      href: "/admin/blob-manager",
-      icon: <Cloud className="h-6 w-6" />,
-    },
-    {
-      title: "Email Service Monitor",
-      description: "Check the status and configuration of email sending services.",
-      href: "/admin/email-service-monitor",
-      icon: <Mail className="h-6 w-6" />,
-    },
-    {
-      title: "Supabase Audit",
-      description: "Audit Supabase integration and data synchronization.",
-      href: "/admin/supabase-audit",
-      icon: <Database className="h-6 w-6" />,
-    },
-    {
-      title: "Test Card Images (Old)",
-      description: "Legacy test page for card images.",
-      href: "/admin/test-card-images",
-      icon: <ImageIcon className="h-6 w-6" />,
-    },
-    {
-      title: "Verify Card Images (Old)",
-      description: "Legacy verification page for card images.",
-      href: "/admin/verify-card-images",
-      icon: <CheckSquare className="h-6 w-6" />,
-    },
-    {
-      title: "Files Manager (Old)",
-      description: "Legacy file management interface.",
-      href: "/admin/files",
-      icon: <FileText className="h-6 w-6" />,
-    },
-    {
-      title: "Card Directory Debug",
-      description: "Debug issues specific to the card directory display.",
-      href: "/admin/debug/card-directory",
-      icon: <Component className="h-6 w-6" />,
-    },
-    {
-      title: "Card Images Debug",
-      description: "Deep dive into card image loading issues.",
-      href: "/admin/debug/card-images",
-      icon: <Component className="h-6 w-6" />,
-    },
-  ]
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
+export default function AdminDebugPage() {
+  const [cookies, setCookies] = useState<string[]>([])
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false)
+
+  useEffect(() => {
+    // Get all cookies
+    const allCookies = document.cookie.split(";").map((c) => c.trim())
+    setCookies(allCookies)
+
+    // Check admin session
+    const adminLoggedIn = document.cookie.includes("admin_session=logged_in")
+    setIsAdminLoggedIn(adminLoggedIn)
+  }, [])
+
+  const refreshInfo = () => {
+    const allCookies = document.cookie.split(";").map((c) => c.trim())
+    setCookies(allCookies)
+    const adminLoggedIn = document.cookie.includes("admin_session=logged_in")
+    setIsAdminLoggedIn(adminLoggedIn)
+  }
+
+  const setAdminCookie = () => {
+    document.cookie = "admin_session=logged_in; path=/; max-age=86400; SameSite=Lax"
+    setTimeout(refreshInfo, 100)
+  }
+
+  const clearAdminCookie = () => {
+    document.cookie = "admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    setTimeout(refreshInfo, 100)
+  }
 
   return (
-    <div className="p-8 space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Admin Debug & Tools</h1>
-          <p className="text-muted-foreground">Access various tools for debugging and development.</p>
-        </div>
-      </div>
+    <div className="container py-10">
+      <h1 className="text-3xl font-bold mb-6">Admin Authentication Debug</h1>
 
-      <Separator />
+      <div className="grid gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Authentication Status</CardTitle>
+            <CardDescription>Current admin authentication state</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-lg font-medium">
+              Admin logged in:{" "}
+              <span className={isAdminLoggedIn ? "text-green-500" : "text-red-500"}>
+                {isAdminLoggedIn ? "Yes" : "No"}
+              </span>
+            </p>
+            <div className="flex gap-4 mt-4">
+              <Button onClick={refreshInfo}>Refresh Info</Button>
+              <Button onClick={setAdminCookie} variant="outline">
+                Set Admin Cookie
+              </Button>
+              <Button onClick={clearAdminCookie} variant="outline">
+                Clear Admin Cookie
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {debugTools.map((tool) => (
-          <Card key={tool.title} className="hover:shadow-lg transition-shadow duration-200">
-            <Link href={tool.href} className="block p-4">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-0 pt-0">
-                <CardTitle className="text-lg font-medium">{tool.title}</CardTitle>
-                {tool.icon}
-              </CardHeader>
-              <CardContent className="px-0 pb-0">
-                <CardDescription>{tool.description}</CardDescription>
-              </CardContent>
-            </Link>
-          </Card>
-        ))}
+        <Card>
+          <CardHeader>
+            <CardTitle>Cookies</CardTitle>
+            <CardDescription>All cookies currently set in the browser</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {cookies.length > 0 ? (
+              <ul className="list-disc pl-5 space-y-1">
+                {cookies.map((cookie, index) => (
+                  <li key={index}>{cookie}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>No cookies found</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Navigation Tests</CardTitle>
+            <CardDescription>Test different navigation methods</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-4">
+            <Button onClick={() => (window.location.href = "/admin/dashboard")}>window.location to Dashboard</Button>
+            <Button onClick={() => (window.location.href = "/admin/login")}>window.location to Login</Button>
+            <Button onClick={() => window.location.reload()}>Reload Page</Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

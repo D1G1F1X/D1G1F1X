@@ -1,12 +1,20 @@
 import { NextResponse } from "next/server"
-import { listGeminiModels } from "@/lib/gemini"
 
 export async function GET() {
   try {
-    const models = await listGeminiModels()
-    return NextResponse.json(models)
+    // Fallback response when Gemini API is not available
+    return NextResponse.json({
+      models: [
+        { name: "gemini-pro", displayName: "Gemini Pro", description: "Text generation model" },
+        { name: "gemini-pro-vision", displayName: "Gemini Pro Vision", description: "Multimodal model" },
+      ],
+      message: "Using fallback model list - Gemini API integration disabled",
+    })
   } catch (error) {
-    console.error("Error listing Gemini models:", error)
-    return NextResponse.json({ error: "Failed to list Gemini models" }, { status: 500 })
+    console.error("Error listing models:", error)
+    return NextResponse.json(
+      { error: "Failed to list models", message: error instanceof Error ? error.message : String(error) },
+      { status: 500 },
+    )
   }
 }

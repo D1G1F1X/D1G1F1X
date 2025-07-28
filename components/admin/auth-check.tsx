@@ -3,44 +3,49 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { useAdminAuth } from "@/contexts/admin-auth-context"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
-interface AuthCheckProps {
-  children: React.ReactNode
-}
-
-export function AuthCheck({ children }: AuthCheckProps) {
-  const { isAuthenticated, isLoading, checkAuth } = useAdminAuth()
+export default function AdminAuthCheck({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const [mounted, setMounted] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isChecking, setIsChecking] = useState(true)
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    // Check if admin is logged in
+    const checkAuth = () => {
+      const isLoggedIn = document.cookie.includes("admin_session=logged_in")
+      console.log("Auth check - Cookie status:", isLoggedIn, document.cookie)
 
-  useEffect(() => {
-    if (mounted) {
-      const verify = async () => {
-        const authStatus = await checkAuth()
-        if (!authStatus) {
-          router.push("/admin/login")
-        }
+      if (!isLoggedIn) {
+        console.log("Not authenticated, redirecting to login")
+        router.push("/admin/login")
+      } else {
+        console.log("User is authenticated")
+        setIsAuthenticated(true)
       }
-      if (!isLoading && !isAuthenticated) {
-        verify()
-      }
+
+      setIsChecking(false)
     }
-  }, [isAuthenticated, isLoading, router, mounted, checkAuth])
 
-  if (!mounted || isLoading || !isAuthenticated) {
+    // Check immediately
+    checkAuth()
+
+    // Also set up an interval to periodically check (every 30 seconds)
+    const interval = setInterval(checkAuth, 30000)
+
+    return () => clearInterval(interval)
+  }, [router])
+
+  // Show loading indicator while checking authentication
+  if (isChecking) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
 
-  return <>{children}</>
+  // Only render children if authenticated
+  return isAuthenticated ? <>{children}</> : null
 }

@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { promises as fs } from "fs"
+import fs from "fs"
 import path from "path"
 import type { OracleCard } from "@/types/cards" // Ensure this type is correct
 
-const DATA_FILE_PATH = path.join(process.cwd(), "data", "master-card-data.json")
+const DATA_FILE_PATH = path.join(process.cwd(), "data", "master-deck-cards.json")
 
 // Basic validation function (can be expanded)
 function validateMasterDeckData(data: any): { valid: boolean; errors?: string[] } {
@@ -44,12 +44,37 @@ function validateMasterDeckData(data: any): { valid: boolean; errors?: string[] 
 
 export async function GET() {
   try {
-    const fileContents = await fs.readFile(DATA_FILE_PATH, "utf8")
-    const data = JSON.parse(fileContents)
-    return NextResponse.json(data)
+    if (!fs.existsSync(DATA_FILE_PATH)) {
+      // If the file doesn't exist, return an empty array or a default structure
+      return NextResponse.json([], { status: 200 })
+    }
+    const fileContent = fs.readFileSync(DATA_FILE_PATH, "utf8")
+    // Attempt to parse the JSON. If it fails, the catch block will handle it.
+    const jsonData = JSON.parse(fileContent)
+    return NextResponse.json(jsonData, { status: 200 })
   } catch (error) {
-    console.error("Failed to read master-card-data.json:", error)
-    return NextResponse.json({ error: "Failed to load card data" }, { status: 500 })
+    let errorMessage = "Failed to load master deck card data."
+    let errorDetails = "Unknown error during file processing."
+
+    if (error instanceof SyntaxError) {
+      errorMessage = "Invalid JSON format in master-deck-cards.json."
+      errorDetails = error.message // This will contain specifics like "Expected double-quoted property name..."
+    } else if (error instanceof Error) {
+      errorDetails = error.message
+    } else {
+      errorDetails = String(error)
+    }
+
+    console.error(`Error loading master deck card data from ${DATA_FILE_PATH}:`, errorDetails, error)
+
+    // Return a clear error message to the client.
+    return NextResponse.json(
+      {
+        error: errorMessage,
+        details: errorDetails,
+      },
+      { status: 500 },
+    )
   }
 }
 
@@ -66,14 +91,14 @@ export async function POST(request: NextRequest) {
     }
 
     const formattedData = JSON.stringify(jsonData, null, 2) // Pretty print JSON
-    await fs.writeFile(DATA_FILE_PATH, formattedData)
+    fs.writeFileSync(DATA_FILE_PATH, formattedData)
 
     return NextResponse.json({ success: true, message: "Master deck card data saved successfully." }, { status: 200 })
   } catch (error) {
     console.error("Error saving master deck card data:", error)
     return NextResponse.json(
       {
-        error: "Failed to save card data",
+        error: "Failed to save master deck card data",
         details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },

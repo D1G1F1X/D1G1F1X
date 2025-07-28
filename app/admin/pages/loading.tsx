@@ -1,6 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Loader2 } from "lucide-react"
 
 export default function PagesLoading() {
   return (
@@ -43,10 +42,6 @@ export default function PagesLoading() {
             ))}
           </TableBody>
         </Table>
-      </div>
-
-      <div className="flex h-[calc(100vh-10rem)] items-center justify-center">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
       </div>
     </div>
   )

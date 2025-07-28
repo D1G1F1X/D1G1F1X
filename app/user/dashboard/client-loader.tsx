@@ -1,33 +1,29 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useAuth } from "@/contexts/auth-context"
-import { useRouter } from "next/navigation"
-import { Loader2 } from "lucide-react"
-import { ClientDashboard } from "@/components/user/client-dashboard"
+import { useEffect } from "react"
+import dynamic from "next/dynamic"
 
-export function ClientLoader() {
-  const { isAuthenticated, isLoading, user } = useAuth()
-  const router = useRouter()
-  const [mounted, setMounted] = useState(false)
+const DashboardClient = dynamic(() => import("@/components/user/dashboard-client"), {
+  ssr: false,
+  loading: () => null,
+})
 
+export default function ClientLoader() {
   useEffect(() => {
-    setMounted(true)
+    // This runs only on the client
+    const dashboardRoot = document.getElementById("dashboard-root")
+    if (dashboardRoot) {
+      // Create a new div for the client component
+      const clientDiv = document.createElement("div")
+      dashboardRoot.appendChild(clientDiv)
+
+      // Render the client component
+      const root = document.getElementById("dashboard-root")
+      if (root) {
+        root.style.display = "block"
+      }
+    }
   }, [])
 
-  useEffect(() => {
-    if (mounted && !isLoading && !isAuthenticated) {
-      router.push("/login")
-    }
-  }, [isAuthenticated, isLoading, router, mounted])
-
-  if (!mounted || isLoading || !isAuthenticated) {
-    return (
-      <div className="flex h-[calc(100vh-10rem)] items-center justify-center">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    )
-  }
-
-  return <ClientDashboard user={user} />
+  return <DashboardClient />
 }

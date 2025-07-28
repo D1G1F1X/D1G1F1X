@@ -1,100 +1,71 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { PrideAnimatedLogo } from "@/components/pride-animated-logo"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Sparkles, Heart, Rainbow } from "lucide-react"
+"use client"
+
+import PrideAnimatedLogo from "@/components/pride-animated-logo"
+import { useState, useEffect } from "react" // Import useState and useEffect
 
 export default function PrideLogoShowcasePage() {
+  const [isLoading, setIsLoading] = useState(true) // Add loading state
+
+  useEffect(() => {
+    // Simulate loading delay
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 1000) // Show "Loading..." for 1 second
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-white text-3xl">
+        Loading Showcase...
+      </div>
+    )
+  }
+
   return (
-    <div className="container mx-auto px-4 py-12 text-center">
-      <div className="mb-12">
-        <h1 className="text-4xl font-bold text-primary-foreground mb-4">Celebrating Diversity with NUMO Oracle</h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Our commitment to inclusivity and love, beautifully expressed through our animated Pride logo.
-        </p>
+    <div className="container mx-auto px-4 py-8 flex flex-col items-center gap-12 min-h-screen">
+      <h1 className="text-4xl font-bold text-white mb-8">Pride Animated Logo Showcase</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+        <div className="flex flex-col items-center">
+          <h2 className="text-2xl text-gray-300 mb-4">Small (50px)</h2>
+          <PrideAnimatedLogo size={50} />
+          <p className="text-xs text-gray-400 mt-2">Suitable for header/footer accents</p>
+        </div>
+
+        <div className="flex flex-col items-center">
+          <h2 className="text-2xl text-gray-300 mb-4">Medium (100px - Default)</h2>
+          <PrideAnimatedLogo size={100} />
+          <p className="text-xs text-gray-400 mt-2">General purpose</p>
+        </div>
+
+        <div className="flex flex-col items-center">
+          <h2 className="text-2xl text-gray-300 mb-4">Large (200px)</h2>
+          <PrideAnimatedLogo size={200} />
+          <p className="text-xs text-gray-400 mt-2">Suitable for loading screens or hero sections</p>
+        </div>
       </div>
 
-      <Card className="max-w-xl mx-auto p-6 shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-primary-foreground flex items-center justify-center gap-2">
-            <Rainbow className="h-6 w-6 text-purple-500" /> Animated Pride Logo
-          </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            Experience the vibrant animation of our special Pride logo.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex justify-center items-center min-h-[300px]">
-          <div className="w-full max-w-[300px] aspect-square">
-            <PrideAnimatedLogo />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Separator className="my-12" />
-
-      <section className="space-y-8">
-        <h2 className="text-3xl font-bold text-primary-foreground flex items-center justify-center gap-2">
-          <Heart className="h-7 w-7 text-red-500" /> Our Values
-        </h2>
-        <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-          At NUMO Oracle, we believe in the power of self-discovery, acceptance, and love for all. Our tools and
-          readings are designed to support every individual on their unique spiritual path, regardless of background,
-          identity, or orientation. We are committed to fostering a safe, inclusive, and empowering community.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
-          <Card className="p-4">
-            <CardHeader>
-              <CardTitle className="text-xl text-primary-foreground">Inclusivity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Creating a welcoming space for everyone to explore their spiritual journey.
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="p-4">
-            <CardHeader>
-              <CardTitle className="text-xl text-primary-foreground">Authenticity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Encouraging true self-expression and living in alignment with one's inner truth.
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="p-4">
-            <CardHeader>
-              <CardTitle className="text-xl text-primary-foreground">Empowerment</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Providing tools and insights that empower individuals to navigate life's challenges.
-              </p>
-            </CardContent>
-          </Card>
+      <div className="mt-12 p-6 bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+        <h3 className="text-xl font-semibold text-white mb-3">Integration Notes:</h3>
+        <ul className="list-disc list-inside text-gray-300 space-y-2">
+          <li>Import `PrideAnimatedLogo` into any component or page.</li>
+          <li>Use the `size` prop to adjust its dimensions.</li>
+          <li>
+            For the header, you might replace the static emblem in your existing `NumoracleLogo` component (when
+            `variant="icon"`) or place this animated logo alongside your text logo.
+          </li>
+          <li>For loading screens, a larger size would be impactful.</li>
+          <li>The animation is a continuous loop and designed to be relatively lightweight.</li>
+        </ul>
+        <div className="mt-4 p-3 bg-slate-700 rounded">
+          <p className="text-sm text-slate-200">
+            If the logo doesn&apos;t appear animated or masked correctly, please check the browser console for errors.
+            CSS masking can have compatibility differences across browsers. Ensure the image path{" "}
+            <code>/numero-logo-500x500.png</code> is correct.
+          </p>
         </div>
-      </section>
-
-      <Separator className="my-12" />
-
-      <section className="text-center">
-        <h2 className="text-3xl font-bold text-primary-foreground mb-6 flex items-center justify-center gap-2">
-          <Sparkles className="h-7 w-7 text-purple-500" /> Explore More
-        </h2>
-        <p className="text-lg text-muted-foreground mb-8">Discover how NUMO Oracle can support your journey.</p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <Button asChild>
-            <Link href="/tools/card-simulator">Get a Reading</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/about">Learn About Us</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/blog">Read Our Blog</Link>
-          </Button>
-        </div>
-      </section>
+      </div>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { CardDirectoryPageClient } from "./CardDirectoryPageClient"
+import { CardDirectory } from "@/components/card-directory"
 import HeroSection from "@/components/hero-section" // Import HeroSection
 
 export const metadata = {
@@ -14,7 +14,7 @@ export default function CardDirectoryPage() {
         description="Explore the complete collection of NUMO Oracle cards with detailed meanings and symbolism."
         backgroundImage="/images/hero/oracle-card-archive.png"
       />
-      <CardDirectoryPageClient />
+      <CardDirectory />
     </div>
   )
 }

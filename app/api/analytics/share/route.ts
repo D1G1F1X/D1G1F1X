@@ -1,17 +1,32 @@
 import { NextResponse } from "next/server"
-import { recordShareEvent, recordShareClick } from "@/lib/services/share-analytics-service"
+import shareAnalyticsService from "@/lib/services/share-analytics-service"
 
 export async function POST(request: Request) {
   try {
-    const { platform, contentId, contentType } = await request.json()
-    if (!platform || !contentId || !contentType) {
+    const data = await request.json()
+    const { platform, url, contentType, contentId, userId, referrer, metadata } = data
+
+    if (!platform || !url) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
-    await recordShareEvent(platform, contentId, contentType)
-    return NextResponse.json({ message: "Share event recorded" }, { status: 200 })
+
+    // Record the share event
+    const shareId = await shareAnalyticsService.recordShareEvent({
+      platform,
+      contentType: contentType || "unknown",
+      contentId,
+      url,
+      userId,
+      referrer,
+      userAgent: request.headers.get("user-agent") || undefined,
+      successful: true,
+      metadata,
+    })
+
+    return NextResponse.json({ success: true, id: shareId })
   } catch (error) {
-    console.error("Error recording share event:", error)
-    return NextResponse.json({ error: "Failed to record share event" }, { status: 500 })
+    console.error("Error tracking share:", error)
+    return NextResponse.json({ error: "Failed to track share" }, { status: 500 })
   }
 }
 
@@ -25,7 +40,7 @@ export async function GET(request: Request) {
     }
 
     // Record the click event
-    const success = await recordShareClick(shareId, {
+    const success = await shareAnalyticsService.recordShareClick(shareId, {
       referrer: request.headers.get("referer") || undefined,
       userAgent: request.headers.get("user-agent") || undefined,
     })

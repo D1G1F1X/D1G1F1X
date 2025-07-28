@@ -1,351 +1,428 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2 } from "lucide-react"
-import { useToast } from "@/components/ui/use-toast"
-import { getCardDataById, getAllSuits, getAllElements } from "@/lib/card-data-access"
-import type { OracleCard, CardSuit, CardElement } from "@/types/cards"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Skeleton } from "@/components/ui/skeleton"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Plus, Trash2 } from "lucide-react"
 
 interface CardEditorProps {
-  cardId?: string // Optional: if provided, edit existing card; otherwise, create new
-  onSave?: (card: OracleCard) => void
-  onDelete?: (id: string) => void
+  cards: any[]
+  onChange: (cards: any[]) => void
+  isLoading?: boolean
 }
 
-export function CardEditor({ cardId, onSave, onDelete }: CardEditorProps) {
-  const [card, setCard] = useState<OracleCard | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const { toast } = useToast()
+export function CardEditor({ cards, onChange, isLoading = false }: CardEditorProps) {
+  const [selectedCardIndex, setSelectedCardIndex] = useState<number | null>(cards.length > 0 ? 0 : null)
 
-  const allSuits = getAllSuits()
-  const allElements = getAllElements()
-
-  useEffect(() => {
-    const loadCard = async () => {
-      setIsLoading(true)
-      setError(null)
-      if (cardId) {
-        try {
-          const fetchedCard = getCardDataById(cardId)
-          if (fetchedCard) {
-            setCard(fetchedCard)
-          } else {
-            setError("Card not found.")
-            toast({
-              title: "Error",
-              description: "Card not found.",
-              variant: "destructive",
-            })
-          }
-        } catch (err: any) {
-          setError(err.message)
-          toast({
-            title: "Error Loading Card",
-            description: err.message,
-            variant: "destructive",
-          })
-        }
-      } else {
-        // Initialize for new card
-        setCard({
-          id: "",
-          number: "",
-          suit: "Cauldron",
-          fullTitle: "",
-          symbols: [],
-          symbolismBreakdown: [],
-          keyMeanings: [],
-          baseElement: "Spirit",
-          planetInternalInfluence: "",
-          astrologyExternalDomain: "",
-          iconSymbol: "",
-          orientation: "",
-          sacredGeometry: "",
-          synergisticElement: "Spirit",
-          imagePath: "", // Default for new card
-        })
-      }
-      setIsLoading(false)
-    }
-    loadCard()
-  }, [cardId, toast])
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setCard((prev) => (prev ? { ...prev, [name]: value } : null))
+  const handleCardChange = (index: number, updatedCard: any) => {
+    const newCards = [...cards]
+    newCards[index] = updatedCard
+    onChange(newCards)
   }
 
-  const handleSelectChange = (name: keyof OracleCard, value: string) => {
-    setCard((prev) => (prev ? { ...prev, [name]: value } : null))
-  }
-
-  const handleArrayChange = (name: keyof OracleCard, index: number, value: string) => {
-    setCard((prev) => {
-      if (!prev) return null
-      const newArray = [...(prev[name] as string[])]
-      newArray[index] = value
-      return { ...prev, [name]: newArray }
-    })
-  }
-
-  const handleAddArrayItem = (name: keyof OracleCard) => {
-    setCard((prev) => {
-      if (!prev) return null
-      const newArray = [...(prev[name] as string[]), ""]
-      return { ...prev, [name]: newArray }
-    })
-  }
-
-  const handleRemoveArrayItem = (name: keyof OracleCard, index: number) => {
-    setCard((prev) => {
-      if (!prev) return null
-      const newArray = (prev[name] as string[]).filter((_, i) => i !== index)
-      return { ...prev, [name]: newArray }
-    })
-  }
-
-  const handleSymbolChange = (index: number, key: string, value: string) => {
-    setCard((prev) => {
-      if (!prev) return null
-      const newSymbols = [...prev.symbols]
-      newSymbols[index] = { ...newSymbols[index], [key]: value }
-      return { ...prev, symbols: newSymbols }
-    })
-  }
-
-  const handleAddSymbol = () => {
-    setCard((prev) => {
-      if (!prev) return null
-      return { ...prev, symbols: [...prev.symbols, { key: "", value: "" }] }
-    })
-  }
-
-  const handleRemoveSymbol = (index: number) => {
-    setCard((prev) => {
-      if (!prev) return null
-      const newSymbols = prev.symbols.filter((_, i) => i !== index)
-      return { ...prev, symbols: newSymbols }
-    })
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!card) return
-
-    setIsSaving(true)
-    setError(null)
-
-    try {
-      // Basic validation
-      if (!card.id || !card.number || !card.suit || !card.fullTitle || !card.baseElement || !card.synergisticElement) {
-        throw new Error("Please fill in all required fields (ID, Number, Suit, Full Title, Base Element, Synergistic Element).")
-      }
-
-      // Simulate API call for saving
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // In a real app, you'd send `card` to your API
-      console.log("Saving card:", card)
-
-      toast({
-        title: "Card Saved",
-        description: `Card "${card.fullTitle}" has been saved successfully.`,
-        variant: "default",
-      })
-      onSave?.(card)
-    } catch (err: any) {
-      setError(err.message)
-      toast({
-        title: "Error Saving Card",
-        description: err.message,
-        variant: "destructive",
-      })
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  const handleDelete = async () => {
-    if (!card || !card.id) return
-    if (!window.confirm(`Are you sure you want to delete card "${card.fullTitle}"? This action cannot be undone.`)) {
-      return
+  const addNewCard = () => {
+    // Create a template for a new card
+    const newCard = {
+      id: `card-${Date.now()}`,
+      name: "New Card",
+      element: "fire",
+      number: cards.length + 1,
+      description: "Description of the new card",
+      firstEnd: {
+        name: "First End",
+        description: "Description of the first end",
+        keywords: ["keyword1", "keyword2"],
+        imagePath: "/cards/placeholder.jpg",
+      },
+      secondEnd: {
+        name: "Second End",
+        description: "Description of the second end",
+        keywords: ["keyword1", "keyword2"],
+        imagePath: "/cards/placeholder.jpg",
+      },
     }
 
-    setIsDeleting(true)
-    setError(null)
+    const newCards = [...cards, newCard]
+    onChange(newCards)
+    setSelectedCardIndex(newCards.length - 1)
+  }
 
-    try {
-      // Simulate API call for deletion
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+  const deleteCard = (index: number) => {
+    const newCards = [...cards]
+    newCards.splice(index, 1)
+    onChange(newCards)
 
-      console.log("Deleting card:", card.id)
-
-      toast({
-        title: "Card Deleted",
-        description: `Card "${card.fullTitle}" has been deleted.`,
-        variant: "default",
-      })
-      onDelete?.(card.id)
-      setCard(null) // Clear form after deletion
-    } catch (err: any) {
-      setError(err.message)
-      toast({
-        title: "Error Deleting Card",
-        description: err.message,
-        variant: "destructive",
-      })
-    } finally {
-      setIsDeleting(false)
+    if (selectedCardIndex === index) {
+      setSelectedCardIndex(newCards.length > 0 ? 0 : null)
+    } else if (selectedCardIndex !== null && selectedCardIndex > index) {
+      setSelectedCardIndex(selectedCardIndex - 1)
     }
   }
 
   if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center h-96">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
-          <p className="mt-4 text-lg text-muted-foreground">Loading card data...</p>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  if (!card) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center h-96">
-          <p className="text-lg text-muted-foreground">Card not found or deleted.</p>
-        </CardContent>
-      </Card>
-    )
+    return <Skeleton className="h-[600px] w-full" />
   }
 
   return (
-    <Card>
-      <form onSubmit={handleSubmit}>
-        <CardHeader>
-          <CardTitle>{cardId ? `Edit Card: ${card.fullTitle}` : "Create New Card"}</CardTitle>
-          <CardDescription>
-            {cardId ? "Modify the details of this Oracle Card." : "Define a new Oracle Card."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {error && (
-            <div className="flex items-center gap-2 text-red-500">
-              <XCircle className="h-5 w-5" />
-              <p>{error}</p>
-            </div>
-          )}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="md:col-span-1 border rounded-md">
+        <div className="p-4 border-b flex justify-between items-center">
+          <h3 className="font-medium">Cards ({cards.length})</h3>
+          <Button size="sm" onClick={addNewCard}>
+            <Plus className="h-4 w-4 mr-1" /> Add
+          </Button>
+        </div>
+        <ScrollArea className="h-[540px]">
+          <div className="p-2 space-y-1">
+            {cards.map((card, index) => (
+              <div
+                key={card.id || index}
+                className={`p-2 rounded-md cursor-pointer flex justify-between items-center ${
+                  selectedCardIndex === index ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                }`}
+                onClick={() => setSelectedCardIndex(index)}
+              >
+                <div className="truncate">
+                  {card.number || index + 1}. {card.name || "Unnamed Card"}
+                </div>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 opacity-50 hover:opacity-100"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Card</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete this card? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => deleteCard(index)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            ))}
+            {cards.length === 0 && (
+              <div className="p-4 text-center text-muted-foreground">
+                No cards found. Click "Add" to create a new card.
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="id">Card ID (e.g., 0-Cauldron)</Label>
-              <Input id="id" name="id" value={card.id} onChange={handleChange} required disabled={!!cardId} />
-              {cardId && <p className="text-xs text-muted-foreground">Card ID cannot be changed.</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="number">Number</Label>
-              <Input id="number" name="number" value={card.number} onChange={handleChange} required />
-            </div>
-          </div>
+      <div className="md:col-span-3">
+        {selectedCardIndex !== null && cards[selectedCardIndex] ? (
+          <Card>
+            <CardContent className="p-4">
+              <Tabs defaultValue="basic">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="basic">Basic Info</TabsTrigger>
+                  <TabsTrigger value="firstEnd">First End</TabsTrigger>
+                  <TabsTrigger value="secondEnd">Second End</TabsTrigger>
+                  <TabsTrigger value="images">Images</TabsTrigger>
+                </TabsList>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="suit">Suit</Label>
-              <Select value={card.suit} onValueChange={(value) => handleSelectChange("suit", value as CardSuit)}>
-                <SelectTrigger id="suit">
-                  <SelectValue placeholder="Select a suit" />
-                </SelectTrigger>
-                <SelectContent>
-                  {allSuits.map((suit) => (
-                    <SelectItem key={suit} value={suit}>
-                      {suit}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fullTitle">Full Title</Label>
-              <Input id="fullTitle" name="fullTitle" value={card.fullTitle} onChange={handleChange} required />
-            </div>
-          </div>
+                <TabsContent value="basic">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Card Name</Label>
+                        <Input
+                          id="name"
+                          value={cards[selectedCardIndex].name || ""}
+                          onChange={(e) => {
+                            const updatedCard = {
+                              ...cards[selectedCardIndex],
+                              name: e.target.value,
+                            }
+                            handleCardChange(selectedCardIndex, updatedCard)
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="number">Card Number</Label>
+                        <Input
+                          id="number"
+                          type="number"
+                          value={cards[selectedCardIndex].number || ""}
+                          onChange={(e) => {
+                            const updatedCard = {
+                              ...cards[selectedCardIndex],
+                              number: Number.parseInt(e.target.value) || 0,
+                            }
+                            handleCardChange(selectedCardIndex, updatedCard)
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="element">Element</Label>
+                      <Input
+                        id="element"
+                        value={cards[selectedCardIndex].element || ""}
+                        onChange={(e) => {
+                          const updatedCard = {
+                            ...cards[selectedCardIndex],
+                            element: e.target.value,
+                          }
+                          handleCardChange(selectedCardIndex, updatedCard)
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="description">Description</Label>
+                      <textarea
+                        id="description"
+                        className="w-full min-h-[100px] p-2 border rounded-md"
+                        value={cards[selectedCardIndex].description || ""}
+                        onChange={(e) => {
+                          const updatedCard = {
+                            ...cards[selectedCardIndex],
+                            description: e.target.value,
+                          }
+                          handleCardChange(selectedCardIndex, updatedCard)
+                        }}
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="baseElement">Base Element</Label>
-              <Select value={card.baseElement} onValueChange={(value) => handleSelectChange("baseElement", value as CardElement)}>
-                <SelectTrigger id="baseElement">
-                  <SelectValue placeholder="Select base element" />
-                </SelectTrigger>
-                <SelectContent>
-                  {allElements.map((element) => (
-                    <SelectItem key={element} value={element}>
-                      {element}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="synergisticElement">Synergistic Element</Label>
-              <Select value={card.synergisticElement} onValueChange={(value) => handleSelectChange("synergisticElement", value as CardElement)}>
-                <SelectTrigger id="synergisticElement">
-                  <SelectValue placeholder="Select synergistic element" />
-                </SelectTrigger>
-                <SelectContent>
-                  {allElements.map((element) => (
-                    <SelectItem key={element} value={element}>
-                      {element}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+                <TabsContent value="firstEnd">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstEndName">Name</Label>
+                      <Input
+                        id="firstEndName"
+                        value={cards[selectedCardIndex].firstEnd?.name || ""}
+                        onChange={(e) => {
+                          const updatedCard = {
+                            ...cards[selectedCardIndex],
+                            firstEnd: {
+                              ...cards[selectedCardIndex].firstEnd,
+                              name: e.target.value,
+                            },
+                          }
+                          handleCardChange(selectedCardIndex, updatedCard)
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="firstEndDescription">Description</Label>
+                      <textarea
+                        id="firstEndDescription"
+                        className="w-full min-h-[100px] p-2 border rounded-md"
+                        value={cards[selectedCardIndex].firstEnd?.description || ""}
+                        onChange={(e) => {
+                          const updatedCard = {
+                            ...cards[selectedCardIndex],
+                            firstEnd: {
+                              ...cards[selectedCardIndex].firstEnd,
+                              description: e.target.value,
+                            },
+                          }
+                          handleCardChange(selectedCardIndex, updatedCard)
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="firstEndKeywords">Keywords (comma separated)</Label>
+                      <Input
+                        id="firstEndKeywords"
+                        value={(cards[selectedCardIndex].firstEnd?.keywords || []).join(", ")}
+                        onChange={(e) => {
+                          const keywords = e.target.value
+                            .split(",")
+                            .map((k) => k.trim())
+                            .filter((k) => k)
+                          const updatedCard = {
+                            ...cards[selectedCardIndex],
+                            firstEnd: {
+                              ...cards[selectedCardIndex].firstEnd,
+                              keywords,
+                            },
+                          }
+                          handleCardChange(selectedCardIndex, updatedCard)
+                        }}
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
 
-          <div className="space-y-2">
-            <Label htmlFor="planetInternalInfluence">Planet Internal Influence</Label>
-            <Input id="planetInternalInfluence" name="planetInternalInfluence" value={card.planetInternalInfluence} onChange={handleChange} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="astrologyExternalDomain">Astrology External Domain</Label>
-            <Input id="astrologyExternalDomain" name="astrologyExternalDomain" value={card.astrologyExternalDomain} onChange={handleChange} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="iconSymbol">Icon Symbol</Label>
-            <Input id="iconSymbol" name="iconSymbol" value={card.iconSymbol} onChange={handleChange} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="orientation">Orientation</Label>
-            <Input id="orientation" name="orientation" value={card.orientation} onChange={handleChange} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="sacredGeometry">Sacred Geometry</Label>
-            <Input id="sacredGeometry" name="sacredGeometry" value={card.sacredGeometry} onChange={handleChange} />
-          </div>
+                <TabsContent value="secondEnd">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="secondEndName">Name</Label>
+                      <Input
+                        id="secondEndName"
+                        value={cards[selectedCardIndex].secondEnd?.name || ""}
+                        onChange={(e) => {
+                          const updatedCard = {
+                            ...cards[selectedCardIndex],
+                            secondEnd: {
+                              ...cards[selectedCardIndex].secondEnd,
+                              name: e.target.value,
+                            },
+                          }
+                          handleCardChange(selectedCardIndex, updatedCard)
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="secondEndDescription">Description</Label>
+                      <textarea
+                        id="secondEndDescription"
+                        className="w-full min-h-[100px] p-2 border rounded-md"
+                        value={cards[selectedCardIndex].secondEnd?.description || ""}
+                        onChange={(e) => {
+                          const updatedCard = {
+                            ...cards[selectedCardIndex],
+                            secondEnd: {
+                              ...cards[selectedCardIndex].secondEnd,
+                              description: e.target.value,
+                            },
+                          }
+                          handleCardChange(selectedCardIndex, updatedCard)
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="secondEndKeywords">Keywords (comma separated)</Label>
+                      <Input
+                        id="secondEndKeywords"
+                        value={(cards[selectedCardIndex].secondEnd?.keywords || []).join(", ")}
+                        onChange={(e) => {
+                          const keywords = e.target.value
+                            .split(",")
+                            .map((k) => k.trim())
+                            .filter((k) => k)
+                          const updatedCard = {
+                            ...cards[selectedCardIndex],
+                            secondEnd: {
+                              ...cards[selectedCardIndex].secondEnd,
+                              keywords,
+                            },
+                          }
+                          handleCardChange(selectedCardIndex, updatedCard)
+                        }}
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
 
-          {/* Key Meanings */}
-          <div className="space-y-2">
-            <Label>Key Meanings</Label>
-            {card.keyMeanings.map((meaning, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <Textarea
-                  value={meaning}
-                  onChange={(e) => handleArrayChange("keyMeanings", index, e.target.value)}
-                  rows={2}
-                  className="flex-grow"
-                />
-                <Button type="button" variant="destructive" size="sm" onClick={() => handleRemoveArrayItem("keyMeanings", index)}>
-                  <\
+                <TabsContent value="images">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstEndImage">First End Image Path</Label>
+                      <Input
+                        id="firstEndImage"
+                        value={cards[selectedCardIndex].firstEnd?.imagePath || ""}
+                        onChange={(e) => {
+                          const updatedCard = {
+                            ...cards[selectedCardIndex],
+                            firstEnd: {
+                              ...cards[selectedCardIndex].firstEnd,
+                              imagePath: e.target.value,
+                            },
+                          }
+                          handleCardChange(selectedCardIndex, updatedCard)
+                        }}
+                      />
+                      {cards[selectedCardIndex].firstEnd?.imagePath && (
+                        <div className="mt-2 border rounded-md p-2">
+                          <p className="text-sm text-muted-foreground mb-2">Image Preview:</p>
+                          <div className="relative aspect-[3/4] w-32 overflow-hidden rounded-md">
+                            <img
+                              src={cards[selectedCardIndex].firstEnd.imagePath || "/placeholder.svg"}
+                              alt="First End Preview"
+                              className="object-cover"
+                              onError={(e) => {
+                                ;(e.target as HTMLImageElement).src = "/abstract-geometric-card.png"
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="secondEndImage">Second End Image Path</Label>
+                      <Input
+                        id="secondEndImage"
+                        value={cards[selectedCardIndex].secondEnd?.imagePath || ""}
+                        onChange={(e) => {
+                          const updatedCard = {
+                            ...cards[selectedCardIndex],
+                            secondEnd: {
+                              ...cards[selectedCardIndex].secondEnd,
+                              imagePath: e.target.value,
+                            },
+                          }
+                          handleCardChange(selectedCardIndex, updatedCard)
+                        }}
+                      />
+                      {cards[selectedCardIndex].secondEnd?.imagePath && (
+                        <div className="mt-2 border rounded-md p-2">
+                          <p className="text-sm text-muted-foreground mb-2">Image Preview:</p>
+                          <div className="relative aspect-[3/4] w-32 overflow-hidden rounded-md">
+                            <img
+                              src={cards[selectedCardIndex].secondEnd.imagePath || "/placeholder.svg"}
+                              alt="Second End Preview"
+                              className="object-cover"
+                              onError={(e) => {
+                                ;(e.target as HTMLImageElement).src = "/abstract-geometric-card.png"
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent className="p-6 text-center">
+              <p className="text-muted-foreground">
+                {cards.length === 0
+                  ? "No cards available. Click 'Add' to create a new card."
+                  : "Select a card from the list to edit its details."}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  )
+}

@@ -1,82 +1,111 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { BookOpen, Files, Plus, Users } from "lucide-react"
+import type { Metadata } from "next"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { BookOpen, FileText, FolderOpen, Plus, Users } from "lucide-react"
 
-export default function AdminLibraryPage() {
+export const metadata: Metadata = {
+  title: "NUMO ORACLE | Library Management",
+  description: "Manage library resources and files",
+}
+
+export default function LibraryManagementPage() {
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Library Management</h2>
-          <p className="text-muted-foreground">Manage digital resources, reading lists, and user access.</p>
+          <h1 className="text-3xl font-bold mb-2">Library Management</h1>
+          <p className="text-gray-400">Manage public library resources and files</p>
         </div>
-        <Link href="/admin/library/add-document">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" /> Add New Document
-          </Button>
-        </Link>
+        <Button asChild>
+          <Link href="/admin/library/resources/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Resource
+          </Link>
+        </Button>
       </div>
 
-      <Separator />
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5" /> Documents
+            <CardTitle className="flex items-center">
+              <BookOpen className="mr-2 h-5 w-5" />
+              Resources
             </CardTitle>
-            <CardDescription>Manage your collection of articles, guides, and other documents.</CardDescription>
+            <CardDescription>Manage library resources</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p>
-              Total Documents: <strong>150</strong>
-            </p>
-            <p>
-              Categories: <strong>12</strong>
-            </p>
-            <Link href="/admin/library/files">
-              <Button variant="outline">Browse Documents</Button>
-            </Link>
+          <CardContent>
+            <div className="text-3xl font-bold">24</div>
+            <p className="text-sm text-muted-foreground">Total resources</p>
           </CardContent>
+          <CardFooter>
+            <Button variant="outline" asChild className="w-full">
+              <Link href="/admin/library/resources">View All Resources</Link>
+            </Button>
+          </CardFooter>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" /> User Reading Lists
+            <CardTitle className="flex items-center">
+              <FolderOpen className="mr-2 h-5 w-5" />
+              Files
             </CardTitle>
-            <CardDescription>View and manage personalized reading lists for users.</CardDescription>
+            <CardDescription>Manage library files</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p>
-              Active Lists: <strong>75</strong>
-            </p>
-            <p>
-              Popular Articles: <strong>10</strong>
-            </p>
-            <Button variant="outline">Manage Reading Lists</Button>
+          <CardContent>
+            <div className="text-3xl font-bold">48</div>
+            <p className="text-sm text-muted-foreground">Total files</p>
           </CardContent>
+          <CardFooter>
+            <Button variant="outline" asChild className="w-full">
+              <Link href="/admin/library/files">Manage Files</Link>
+            </Button>
+          </CardFooter>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Files className="h-5 w-5" /> Files (Legacy)
+            <CardTitle className="flex items-center">
+              <Users className="mr-2 h-5 w-5" />
+              Access
             </CardTitle>
-            <CardDescription>Access the legacy file management interface for older library assets.</CardDescription>
+            <CardDescription>Manage resource access</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              This section provides access to files managed outside the primary document system. Consider migrating
-              important assets.
-            </p>
-            <Link href="/admin/files">
-              <Button variant="outline">Go to Legacy File Manager</Button>
-            </Link>
+          <CardContent>
+            <div className="text-3xl font-bold">12</div>
+            <p className="text-sm text-muted-foreground">Member-only resources</p>
           </CardContent>
+          <CardFooter>
+            <Button variant="outline" asChild className="w-full">
+              <Link href="/admin/library/access">Manage Access</Link>
+            </Button>
+          </CardFooter>
         </Card>
+      </div>
+
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-xl font-bold mb-4">Recent Resources</h2>
+          <div className="bg-card rounded-lg border shadow-sm">
+            <div className="grid grid-cols-1 divide-y">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-center justify-between p-4">
+                  <div className="flex items-center">
+                    <FileText className="h-5 w-5 text-muted-foreground mr-3" />
+                    <div>
+                      <div className="font-medium">Resource Title {i}</div>
+                      <div className="text-sm text-muted-foreground">Added: {new Date().toLocaleDateString()}</div>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href={`/admin/library/resources/${i}`}>Edit</Link>
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { sendAdminNotificationEmail } from "@/lib/services/brevo-email-service"
+import { brevoEmailService } from "@/lib/services/brevo-email-service"
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,36 +11,54 @@ export async function POST(request: NextRequest) {
       hasOrderDetails: !!orderDetails,
     })
 
-    const subject = `TEST: New Order Received #${orderDetails.orderNumber} - $${orderDetails.totalAmount.toFixed(2)}`
-    const htmlContent = getTestOrderNotificationEmailTemplate(orderDetails)
-    const textContent = getTestOrderNotificationEmailTextTemplate(orderDetails)
+    // If a custom admin email is provided, temporarily override it
+    let result
+    if (adminEmail) {
+      // Create a temporary instance with custom admin email
+      const customEmailData = {
+        sender: {
+          name: process.env.BREVO_SENDER_NAME || "Numoracle",
+          email: process.env.BREVO_SENDER_EMAIL || "noreply@numoracle.com",
+        },
+        to: [{ email: adminEmail, name: "Test Admin" }],
+        subject: `TEST: New Order Received #${orderDetails.orderNumber} - $${orderDetails.totalAmount.toFixed(2)}`,
+        htmlContent: getTestOrderNotificationEmailTemplate(orderDetails),
+        textContent: getTestOrderNotificationEmailTextTemplate(orderDetails),
+        tags: ["test", "order-notification", "admin"],
+      }
 
-    if (!subject || (!htmlContent && !textContent)) {
-      return NextResponse.json({ error: "Subject and either HTML or text content are required" }, { status: 400 })
+      result = await brevoEmailService.sendTransactionalEmail(customEmailData)
+    } else {
+      // Use the default admin email service
+      result = await brevoEmailService.sendOrderNotificationEmail(orderDetails)
     }
-
-    const result = await sendAdminNotificationEmail({ subject, htmlContent, textContent })
 
     console.log("Admin email test result:", result)
 
-    if (result.success) {
-      return NextResponse.json({
-        message: "Admin notification email sent successfully",
-        data: result.data,
-        adminEmail:
-          adminEmail || process.env.ADMIN_EMAIL_FOR_NOTIFICATIONS || process.env.ADMIN_EMAIL || "admin@numoracle.com",
-        details: {
-          timestamp: new Date().toISOString(),
-          orderNumber: orderDetails.orderNumber,
-          totalAmount: orderDetails.totalAmount,
-        },
-      })
-    } else {
-      return NextResponse.json({ error: result.error || "Failed to send admin notification email" }, { status: 500 })
-    }
+    return NextResponse.json({
+      success: result.success,
+      error: result.error,
+      messageId: result.messageId,
+      adminEmail:
+        adminEmail || process.env.ADMIN_EMAIL_FOR_NOTIFICATIONS || process.env.ADMIN_EMAIL || "admin@numoracle.com",
+      details: {
+        timestamp: new Date().toISOString(),
+        orderNumber: orderDetails.orderNumber,
+        totalAmount: orderDetails.totalAmount,
+      },
+    })
   } catch (error) {
     console.error("Admin email test error:", error)
-    return NextResponse.json({ error: "Failed to send admin notification email" }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+        details: {
+          timestamp: new Date().toISOString(),
+        },
+      },
+      { status: 500 },
+    )
   }
 }
 

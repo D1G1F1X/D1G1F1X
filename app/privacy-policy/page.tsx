@@ -1,133 +1,158 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import Image from "next/image"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Privacy Policy | NUMO Oracle",
+  description: "Privacy Policy for NUMO Oracle - Learn how we protect your personal information.",
+}
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="relative min-h-screen flex flex-col items-center p-4">
-      <Image
-        src="/privacy-policy-background.png"
-        alt="Privacy Policy Background"
-        layout="fill"
-        objectFit="cover"
-        quality={100}
-        className="z-0 opacity-30"
-      />
-      <div className="absolute inset-0 bg-black/50 z-10" />
+    <div className="container mx-auto px-4 py-12 max-w-4xl">
+      <h1 className="text-3xl font-bold mb-8 text-center text-purple-500">Privacy Policy</h1>
 
-      <Card className="relative z-20 w-full max-w-4xl p-6 md:p-8 shadow-lg my-8">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-primary-foreground">Privacy Policy</CardTitle>
-          <p className="text-muted-foreground">Last Updated: July 25, 2024</p>
-        </CardHeader>
-        <CardContent className="prose dark:prose-invert max-w-none">
-          <p>
-            Your privacy is important to us. This Privacy Policy explains how NUMO Oracle collects, uses, discloses, and
-            safeguards your information when you visit our website numoracle.com, including any other media form, media
-            channel, mobile website, or mobile application related or connected thereto (collectively, the “Site”).
-            Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please
-            do not access the Site.
-          </p>
+      <div className="prose prose-lg dark:prose-invert max-w-none">
+        <p className="text-lg mb-6">Last Updated: May 12, 2025</p>
 
-          <Separator className="my-6" />
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Introduction</h2>
+          <p>
+            NUMO Oracle ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how
+            we collect, use, disclose, and safeguard your information when you visit our website and use our services.
+          </p>
+          <p>
+            Please read this Privacy Policy carefully. By accessing or using our website and services, you acknowledge
+            that you have read, understood, and agree to be bound by all the terms of this Privacy Policy.
+          </p>
+        </section>
 
-          <h2>1. Collection of Your Information</h2>
-          <p>
-            We may collect information about you in a variety of ways. The information we may collect on the Site
-            includes:
-          </p>
-          <h3>Personal Data</h3>
-          <p>
-            Personally identifiable information, such as your name, shipping address, email address, and telephone
-            number, and demographic information, such as your age, gender, hometown, and interests, that you voluntarily
-            give to us when you register with the Site or when you choose to participate in various activities related
-            to the Site, such as online chat and message boards.
-          </p>
-          <h3>Derivative Data</h3>
-          <p>
-            Information our servers automatically collect when you access the Site, such as your IP address, your
-            browser type, your operating system, your access times, and the pages you have viewed directly before and
-            after accessing the Site.
-          </p>
-          <h3>Financial Data</h3>
-          <p>
-            Financial information, such as data related to your payment method (e.g., valid credit card number, card
-            brand, expiration date) that we may collect when you purchase, order, return, exchange, or request
-            information about our services from the Site.
-          </p>
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Information We Collect</h2>
+          <p>We may collect information about you in a variety of ways:</p>
 
-          <Separator className="my-6" />
-
-          <h2>2. Use of Your Information</h2>
+          <h3 className="text-xl font-semibold mt-6 mb-3">Personal Data</h3>
           <p>
-            Having accurate information about you permits us to provide you with a smooth, efficient, and customized
-            experience. Specifically, we may use information collected about you via the Site to:
+            When you register for an account, purchase products, or use certain features of our website, we may ask for
+            personally identifiable information, such as your:
           </p>
-          <ul>
-            <li>Create and manage your account.</li>
-            <li>
-              Process your transactions and send you related information, including purchase confirmations and invoices.
-            </li>
-            <li>Email you regarding your account or order.</li>
-            <li>Enable user-to-user communications.</li>
-            <li>Generate personalized oracle readings and numerology reports.</li>
-            <li>Request feedback and contact you about your use of the Site.</li>
-            <li>Resolve disputes and troubleshoot problems.</li>
-            <li>Respond to product and customer service requests.</li>
-            <li>Send you a newsletter.</li>
+          <ul className="list-disc pl-6 mb-4">
+            <li>Name</li>
+            <li>Email address</li>
+            <li>Mailing address</li>
+            <li>Phone number</li>
+            <li>Payment information</li>
+            <li>Date of birth (for numerology calculations)</li>
           </ul>
 
-          <Separator className="my-6" />
-
-          <h2>3. Disclosure of Your Information</h2>
+          <h3 className="text-xl font-semibold mt-6 mb-3">Usage Data</h3>
           <p>
-            We may share information we have collected about you in certain situations. Your information may be
-            disclosed as follows:
+            We automatically collect certain information when you visit, use, or navigate our website. This information
+            may include:
           </p>
-          <h3>By Law or to Protect Rights</h3>
+          <ul className="list-disc pl-6 mb-4">
+            <li>IP address</li>
+            <li>Browser type</li>
+            <li>Device type</li>
+            <li>Operating system</li>
+            <li>Pages visited</li>
+            <li>Time and date of your visit</li>
+            <li>Time spent on pages</li>
+            <li>Referring website addresses</li>
+          </ul>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">How We Use Your Information</h2>
+          <p>We may use the information we collect about you for various purposes, including to:</p>
+          <ul className="list-disc pl-6 mb-4">
+            <li>Create and manage your account</li>
+            <li>Process transactions and send related information</li>
+            <li>Provide and maintain our services</li>
+            <li>Respond to inquiries and offer support</li>
+            <li>Send administrative information</li>
+            <li>Send marketing and promotional communications</li>
+            <li>Improve our website and services</li>
+            <li>Generate personalized numerology readings and card interpretations</li>
+            <li>Protect against unauthorized access and legal liability</li>
+          </ul>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Disclosure of Your Information</h2>
+          <p>We may share information we have collected about you in certain situations, including:</p>
+
+          <h3 className="text-xl font-semibold mt-6 mb-3">Business Transfers</h3>
           <p>
-            If we believe the release of information about you is necessary to respond to legal process, to investigate
-            or remedy potential violations of our policies, or to protect the rights, property, or safety of others, we
-            may share your information as permitted or required by any applicable law, rule, or regulation.
+            If we are involved in a merger, acquisition, or sale of all or a portion of our assets, your information may
+            be transferred as part of that transaction.
           </p>
-          <h3>Third-Party Service Providers</h3>
+
+          <h3 className="text-xl font-semibold mt-6 mb-3">Third-Party Service Providers</h3>
           <p>
-            We may share your information with third parties that perform services for us or on our behalf, including
-            payment processing, data analysis, email delivery, hosting services, customer service, and marketing
-            assistance.
+            We may share your information with third-party service providers who perform services on our behalf, such as
+            payment processing, data analysis, email delivery, hosting services, and customer service.
           </p>
 
-          <Separator className="my-6" />
-
-          <h2>4. Security of Your Information</h2>
+          <h3 className="text-xl font-semibold mt-6 mb-3">Legal Requirements</h3>
           <p>
-            We use administrative, technical, and physical security measures to help protect your personal information.
-            While we have taken reasonable steps to secure the personal information you provide to us, please be aware
-            that despite our efforts, no security measures are perfect or impenetrable, and no method of data
-            transmission can be guaranteed against any interception or other type of misuse.
+            We may disclose your information where required to do so by law or in response to valid requests by public
+            authorities.
           </p>
+        </section>
 
-          <Separator className="my-6" />
-
-          <h2>5. Policy for Children</h2>
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Security of Your Information</h2>
           <p>
-            We do not knowingly solicit information from or market to children under the age of 13. If you become aware
-            of any data we have collected from children under age 13, please contact us using the contact information
-            provided below.
+            We use administrative, technical, and physical security measures to protect your personal information. While
+            we have taken reasonable steps to secure the information you provide to us, please be aware that no security
+            measures are perfect or impenetrable, and we cannot guarantee the security of your information.
           </p>
+        </section>
 
-          <Separator className="my-6" />
-
-          <h2>6. Contact Us</h2>
-          <p>If you have questions or comments about this Privacy Policy, please contact us at:</p>
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Your Rights</h2>
+          <p>Depending on your location, you may have certain rights regarding your personal information, including:</p>
+          <ul className="list-disc pl-6 mb-4">
+            <li>The right to access personal information we hold about you</li>
+            <li>The right to request correction of inaccurate information</li>
+            <li>The right to request deletion of your information</li>
+            <li>The right to withdraw consent</li>
+            <li>The right to object to processing of your information</li>
+            <li>The right to data portability</li>
+          </ul>
           <p>
-            Email:{" "}
-            <a href="mailto:privacy@numoracle.com" className="text-primary hover:underline">
-              privacy@numoracle.com
-            </a>
+            To exercise these rights, please contact us using the information provided in the "Contact Us" section
+            below.
           </p>
-        </CardContent>
-      </Card>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Children's Privacy</h2>
+          <p>
+            Our website and services are not directed to children under 13 years of age. We do not knowingly collect
+            personal information from children under 13. If you are a parent or guardian and believe your child has
+            provided us with personal information, please contact us.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Changes to This Privacy Policy</h2>
+          <p>
+            We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new
+            Privacy Policy on this page and updating the "Last Updated" date. You are advised to review this Privacy
+            Policy periodically for any changes.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
+          <p>If you have questions or concerns about this Privacy Policy, please contact us at:</p>
+          <p className="mt-4">
+            <strong>Email:</strong> privacy@numoracle.com
+            <br />
+            <strong>Address:</strong> NUMO Oracle, 123 Mystical Lane, Spiritual City, SC 12345
+          </p>
+        </section>
+      </div>
     </div>
   )
 }

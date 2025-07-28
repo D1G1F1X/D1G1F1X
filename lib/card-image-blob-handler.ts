@@ -1,3 +1,10 @@
+import {
+  generateCardImagePath as generateCardImagePathOriginal,
+  generateCardImagePathVariants as generateCardImagePathVariantsOriginal,
+} from "@/lib/card-image-blob-handler" // Keep these for consistency, though direct usage changes
+// The BLOB_BASE_URL is now primarily used by the API route, but kept here for reference if needed elsewhere.
+const BLOB_BASE_URL = "https://0clhhm0umusm8qjw.public.blob.vercel-storage.com"
+
 interface PreloadResult {
   loaded: number
   total: number
@@ -5,106 +12,60 @@ interface PreloadResult {
   totalTime: number
 }
 
-/**
- * This file is responsible for generating standardized card image paths and their variants.
- * These paths do NOT include the Vercel Blob hash, as they are used for logical matching
- * against the actual blob filenames which might include hashes.
- */
-
-// Cache for image URLs to avoid repeated blob calls
-// This cache will store the *full blob URL* including any hashes
+// Cache for image URLs to avoid repeated API calls for the same image
 const imageUrlCache = new Map<string, string>()
 
 /**
- * Generates the primary standardized image path for a given card ID and element.
- * Example: "00-cauldron-spirit.jpg"
+ * Generates the primary, standardized image path for a given card ID and element.
+ * This format uses zero-padded numbers and hyphenated suit/element.
+ * Example: "03-cord-spirit.jpg" for cardId "3-Cord" and element "spirit".
+ * This is primarily for internal consistency and local fallbacks.
  */
-export function generateCardImagePath(cardId: string, element: string): string {
-  // Normalize cardId (e.g., "0-Cauldron" -> "00-cauldron")
-  const [numberPart, suitPart] = cardId.split("-")
-  const normalizedNumber = numberPart.padStart(2, "0")
-  const normalizedSuit = suitPart.toLowerCase()
-  const normalizedElement = element.toLowerCase()
-
-  return `${normalizedNumber}-${normalizedSuit}-${normalizedElement}.jpg` // Default to .jpg
-}
+const generateCardImagePath = generateCardImagePathOriginal
 
 /**
  * Generates an array of possible filename variants for a given card ID and element.
- * These variants are used for robust matching against actual blob filenames,
- * which might have slight naming inconsistencies or different extensions.
+ * This accounts for different naming conventions that might exist in the blob storage.
+ * The variants are just the filenames, without the '/cards/' prefix.
  */
-export function generateCardImagePathVariants(cardId: string, element: string): string[] {
-  const variants: string[] = []
-
-  // Normalize inputs
-  const [numberPart, suitPart] = cardId.split("-")
-  const normalizedNumber = numberPart.padStart(2, "0")
-  const normalizedSuit = suitPart.toLowerCase()
-  const normalizedElement = element.toLowerCase()
-
-  // Common naming conventions and potential variations
-  const baseNames = [
-    `${normalizedNumber}-${normalizedSuit}-${normalizedElement}`, // e.g., "00-cauldron-spirit"
-    `${numberPart}-${normalizedSuit}-${normalizedElement}`, // e.g., "0-cauldron-spirit"
-    `${normalizedNumber}${normalizedSuit}-${normalizedElement}`, // e.g., "00cauldron-spirit"
-    `${cardId.toLowerCase()}-${normalizedElement}`, // e.g., "0-cauldron-spirit" (if cardId was "0-Cauldron")
-    `${cardId}-${element}`, // Original case, e.g., "0-Cauldron-Spirit"
-    `${normalizedNumber}_${normalizedSuit}_${normalizedElement}`, // Underscore variant
-    `card_${normalizedNumber}_${normalizedSuit}_${normalizedElement}`, // "card_" prefix
-    `${normalizedSuit}${normalizedNumber}${normalizedElement}`, // Suit-number-element
-    `${normalizedSuit}_${normalizedNumber}_${normalizedElement}`,
-    `${normalizedSuit}-${normalizedNumber}-${normalizedElement}`,
-    `${numberPart}-${normalizedSuit}-${normalizedElement}`,
-    `${normalizedNumber}${normalizedSuit}${normalizedElement}`,
-  ]
-
-  // Add common image extensions
-  const extensions = ["jpg", "jpeg", "png", "webp"]
-
-  baseNames.forEach((base) => {
-    extensions.forEach((ext) => {
-      variants.push(`${base}.${ext}`)
-    })
-  })
-
-  return Array.from(new Set(variants)) // Ensure uniqueness
-}
+const generateCardImagePathVariants = generateCardImagePathVariantsOriginal
 
 /**
- * Gets the image URL for a card. This function now relies on the API route
- * to get the *actual* blob URL, including any unique hashes.
- * This is a client-side function.
+ * Fetches the correct image URL for a card from the API.
+ * This function should be used when you need the actual, verified URL.
  */
-export async function getCardImageUrl(cardId: string, element: string): Promise<string> {
-  const cacheKey = `${cardId}-${element}`
+export async function getCardImageUrl(cardId: string, baseElement: string): Promise<string> {
+  const cacheKey = `${cardId}-${baseElement}`
   if (imageUrlCache.has(cacheKey)) {
     return imageUrlCache.get(cacheKey)!
   }
 
   try {
-    // Call the API route to get the verified blob URL
-    const response = await fetch(`/api/blob/card-images?cardId=${cardId}&element=${element}`)
+    const response = await fetch(`/api/blob/card-images?cardId=${cardId}&element=${baseElement}`)
+    if (!response.ok) {
+      throw new Error(`API call failed with status: ${response.status}`)
+    }
     const data = await response.json()
-
     if (data.success && data.imageUrl) {
       imageUrlCache.set(cacheKey, data.imageUrl)
       return data.imageUrl
     } else {
-      console.warn(`API did not return a valid image URL for ${cardId}-${element}:`, data.message || "Unknown error")
-      // Fallback to a generic placeholder if API fails
-      const placeholderUrl = `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardId)}`
-      imageUrlCache.set(cacheKey, placeholderUrl)
-      return placeholderUrl
+      throw new Error(data.message || "Failed to get image URL from API")
     }
   } catch (error) {
-    console.error(`Error fetching image URL from API for ${cardId}-${element}:`, error)
-    const placeholderUrl = `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardId)}`
-    imageUrlCache.set(cacheKey, placeholderUrl)
-    return placeholderUrl
+    console.warn(
+      `Could not get image URL for ${cardId}-${baseElement} from API, falling back to placeholder. Error:`,
+      error,
+    )
+    // Fallback to a generic placeholder if API fails
+    return `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardId)}`
   }
 }
 
+/**
+ * Preloads card images by fetching their URLs from the API and then loading them.
+ * This ensures the correct, verified blob URLs are used for preloading.
+ */
 export async function preloadCardImages(
   cardIds: string[],
   elements: string[],
@@ -121,53 +82,43 @@ export async function preloadCardImages(
     for (const element of elements) {
       const cacheKey = `${cardId}-${element}`
       if (imageUrlCache.has(cacheKey)) {
-        // If already in cache, check if it's a placeholder.
-        // If it's a placeholder, it means it previously failed to load.
-        if (imageUrlCache.get(cacheKey)!.includes("placeholder.svg")) {
-          failedCount++
-        } else {
-          loadedCount++
-        }
+        loadedCount++
         onProgress?.(loadedCount, totalImages)
         continue
       }
 
       imagePromises.push(
         (async () => {
+          let imageUrlToLoad: string | null = null
           try {
-            // Use the getCardImageUrl function which now calls the API
-            const imageUrl = await getCardImageUrl(cardId, element)
+            // Fetch the correct URL from the API
+            imageUrlToLoad = await getCardImageUrl(cardId, element)
 
-            // If it's a placeholder, it means the image wasn't found or API failed
-            if (imageUrl.includes("placeholder.svg")) {
-              failedCount++
-              imageUrlCache.set(cacheKey, imageUrl) // Ensure placeholder is cached
-            } else {
-              const img = new Image()
-              img.src = imageUrl
-              await new Promise((resolve, reject) => {
-                img.onload = () => {
-                  imageUrlCache.set(cacheKey, imageUrl)
-                  loadedCount++
-                  resolve(void 0)
-                }
-                img.onerror = (e) => {
-                  console.warn(`Failed to load preloaded image: ${imageUrl}`, e)
-                  failedCount++
-                  imageUrlCache.set(
-                    cacheKey,
-                    `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardId)}`,
-                  )
-                  resolve(void 0)
-                }
-              })
-            }
+            const img = new Image()
+            img.crossOrigin = "anonymous" // Set crossOrigin for CORS
+            img.src = imageUrlToLoad
+
+            await new Promise((resolve, reject) => {
+              img.onload = () => {
+                imageUrlCache.set(cacheKey, imageUrlToLoad!)
+                loadedCount++
+                onProgress?.(loadedCount, totalImages)
+                resolve(void 0)
+              }
+              img.onerror = (e) => {
+                console.warn(`Failed to load preloaded image: ${imageUrlToLoad}`, e)
+                failedCount++
+                onProgress?.(loadedCount, totalImages)
+                // Store placeholder URL in cache for failed images
+                imageUrlCache.set(cacheKey, `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardId)}`)
+                resolve(void 0) // Resolve even on error to allow Promise.all to complete
+              }
+            })
           } catch (error) {
             console.warn(`Error preloading image for ${cardId}-${element}:`, error)
             failedCount++
+            onProgress?.(loadedCount, totalImages)
             imageUrlCache.set(cacheKey, `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardId)}`)
-          } finally {
-            onProgress?.(loadedCount, totalImages) // Update progress after each image attempt
           }
         })(),
       )

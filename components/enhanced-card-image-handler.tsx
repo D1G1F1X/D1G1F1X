@@ -38,25 +38,30 @@ export function EnhancedCardImage({
   })
   const [isRetrying, setIsRetrying] = useState(false)
 
-  // This function is for local fallbacks only, not blob URLs
   const generateLocalImagePaths = (id: string, element: string): string[] => {
-    const [number, suit] = id.split("-")
-    const paddedNumber = number.padStart(2, "0")
-    const lowerSuit = suit?.toLowerCase() || ""
+    const [numberStr, suitStr] = id.split("-")
+    const paddedNumber = numberStr.padStart(2, "0")
+    const lowerSuit = suitStr?.toLowerCase() || ""
     const lowerElement = element.toLowerCase()
 
     return [
-      // Primary: Zero-padded format (new standard)
+      // PRIORITY 1: Non-hyphenated number-suit format (e.g., /cards/01cauldron-air.jpg)
+      `/cards/${paddedNumber}${lowerSuit}-${lowerElement}.jpg`,
+      `/cards/${paddedNumber}${lowerSuit}-${lowerElement}.jpeg`,
+
+      // PRIORITY 2: Standard hyphenated format (e.g., /cards/01-cauldron-air.jpg)
       `/cards/${paddedNumber}-${lowerSuit}-${lowerElement}.jpg`,
       `/cards/${paddedNumber}-${lowerSuit}-${lowerElement}.jpeg`,
 
-      // Fallback: Single-digit format (legacy)
-      `/cards/${number}-${lowerSuit}-${lowerElement}.jpg`,
-      `/cards/${number}-${lowerSuit}-${lowerElement}.jpeg`,
+      // Fallback: Non-padded, non-hyphenated number-suit format (e.g., /cards/1cauldron-air.jpg)
+      `/cards/${numberStr}${lowerSuit}-${lowerElement}.jpg`,
+      `/cards/${numberStr}${lowerSuit}-${lowerElement}.jpeg`,
 
-      // Alternative formats
-      `/cards/${paddedNumber}${lowerSuit}-${lowerElement}.jpg`,
-      `/cards/${paddedNumber}${lowerSuit}-${lowerElement}.jpeg`,
+      // Fallback: Non-padded hyphenated format (e.g., /cards/1-cauldron-air.jpg)
+      `/cards/${numberStr}-${lowerSuit}-${lowerElement}.jpg`,
+      `/cards/${numberStr}-${lowerSuit}-${lowerElement}.jpeg`,
+
+      // General card ID format (e.g., /cards/1-cauldron.jpg)
       `/cards/${id.toLowerCase()}.jpg`,
       `/cards/${id.toLowerCase()}.jpeg`,
     ]
@@ -67,9 +72,10 @@ export function EnhancedCardImage({
       setIsRetrying(true)
       setImageStatus({ loaded: false, error: false, url: null })
 
-      let finalImageUrl: string | null = null
+      let successfulPath: string | null = null
+      let apiProvidedUrl: string | null = null
 
-      // PRIORITY 1: Fetch from the API (which should return the correct blob URL or a local fallback)
+      // PRIORITY 1: Try fetching from the API (blob URLs)
       try {
         const response = await fetch(`/api/blob/card-images?cardId=${cardId}&element=${baseElement}`, {
           method: "GET",
@@ -79,58 +85,77 @@ export function EnhancedCardImage({
         })
 
         if (response.ok) {
-          const data = await response.json()
-          if (data.success && data.imageUrl) {
-            finalImageUrl = data.imageUrl
-            console.log(`API provided image URL: ${finalImageUrl}`)
-          } else {
-            console.warn(
-              `API did not return a valid image URL for ${cardId}-${baseElement}:`,
-              data.message || "Unknown API error",
-            )
+          const contentType = response.headers.get("content-type")
+          if (contentType && contentType.includes("application/json")) {
+            const data = await response.json()
+            if (data.success && data.imageUrl) {
+              apiProvidedUrl = data.imageUrl
+            }
           }
-        } else {
-          console.warn(`API request failed with status ${response.status} for ${cardId}-${baseElement}`)
         }
       } catch (apiError) {
         console.warn(`API request failed for ${cardId}-${baseElement}:`, apiError)
       }
 
-      // If API didn't provide a URL, or it explicitly returned a local fallback, try local paths directly
-      if (!finalImageUrl || finalImageUrl.startsWith("/cards/")) {
-        const localImagePaths = generateLocalImagePaths(cardId, baseElement)
-        for (const path of localImagePaths) {
-          try {
-            const testImage = new Image()
-            testImage.crossOrigin = "anonymous"
-            const imageLoadPromise = new Promise<string>((resolve, reject) => {
-              testImage.onload = () => resolve(path)
-              testImage.onerror = () => reject(new Error(`Local image not found at ${path}`))
-              testImage.src = path
+      // If API provided a URL, attempt to load it to verify accessibility
+      if (apiProvidedUrl) {
+        try {
+          const testImage = new Image()
+          testImage.crossOrigin = "anonymous"
+          const imageLoadPromise = new Promise<string>((resolve, reject) => {
+            testImage.onload = () => resolve(apiProvidedUrl!)
+            testImage.onerror = () => reject(new Error(`API provided image not accessible at ${apiProvidedUrl}`))
+            testImage.src = apiProvidedUrl
+          })
+          successfulPath = await imageLoadPromise // If this succeeds, use it
+          if (successfulPath) {
+            setImageStatus({
+              loaded: true,
+              error: false,
+              url: successfulPath,
             })
-            finalImageUrl = await imageLoadPromise
-            if (finalImageUrl) {
-              console.log(`✅ Found local image at: ${finalImageUrl}`)
-              break
-            }
-          } catch (localError) {
-            // Continue to next path
+            onImageLoad?.(true)
+            return // SUCCESS, return here
           }
+        } catch (validationError) {
+          console.warn(`API provided URL failed validation for ${cardId}-${baseElement}:`, validationError)
+          // Fall through to local paths if API URL is not directly loadable
         }
       }
 
-      // If a final image URL was determined (either from API or local fallback)
-      if (finalImageUrl) {
+      // PRIORITY 2: Try local image paths (both new and legacy formats)
+      const localImagePaths = generateLocalImagePaths(cardId, baseElement)
+      for (const path of localImagePaths) {
+        try {
+          const testImage = new Image()
+          testImage.crossOrigin = "anonymous"
+          const imageLoadPromise = new Promise<string>((resolve, reject) => {
+            testImage.onload = () => resolve(path)
+            testImage.onerror = () => reject(new Error(`Local image not found at ${path}`))
+            testImage.src = path
+          })
+          successfulPath = await imageLoadPromise
+          if (successfulPath) {
+            console.log(`✅ Found image at: ${successfulPath}`)
+            break
+          }
+        } catch (localError) {
+          // Continue to next path
+        }
+      }
+
+      // If a path was found from local attempts, use it
+      if (successfulPath) {
         setImageStatus({
           loaded: true,
           error: false,
-          url: finalImageUrl,
+          url: successfulPath,
         })
         onImageLoad?.(true)
         return
       }
 
-      // If all methods fail
+      // Final fallback if all methods fail
       throw new Error("All image loading methods failed")
     } catch (error) {
       console.warn(`Failed to load image for ${cardId}:`, error)

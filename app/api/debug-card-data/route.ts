@@ -1,18 +1,21 @@
 import { NextResponse } from "next/server"
-import { getCardData, checkDataIntegrity } from "@/lib/card-data-access"
+import { getCardData, getCardById } from "@/lib/card-data-access"
 
 export async function GET() {
   try {
     const allCards = getCardData()
-    const integrityIssues = checkDataIntegrity()
+    const nineStone = getCardById("9-Stone")
 
     return NextResponse.json({
       totalCards: allCards.length,
-      integrityIssues: integrityIssues,
-      sampleCard: allCards.length > 0 ? allCards[0] : null,
+      nineStoneCard: nineStone,
+      allCardNumbers: allCards.map((card) => ({
+        id: card.id,
+        number: card.number,
+        numberType: typeof card.number,
+      })),
     })
   } catch (error) {
-    console.error("Error debugging card data:", error)
-    return NextResponse.json({ error: "Failed to debug card data" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to fetch card data" }, { status: 500 })
   }
 }

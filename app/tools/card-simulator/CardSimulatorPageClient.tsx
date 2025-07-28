@@ -180,42 +180,23 @@ export default function CardSimulator() {
       try {
         const startTime = Date.now()
 
-        const cardsWithResolvedImages = await Promise.all(
-          masterCardData.map(async (card, index) => {
-            let imageUrl = `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(card.fullTitle)}` // Default placeholder
-
-            try {
-              // Try base element first
-              const baseElementImageUrl = await getCardImageUrl(card.id, card.baseElement)
-              if (!baseElementImageUrl.includes("placeholder.svg")) {
-                imageUrl = baseElementImageUrl
-              } else {
-                // If base element image is a placeholder, try synergistic element
-                const synergisticElementImageUrl = await getCardImageUrl(card.id, card.synergisticElement)
-                if (!synergisticElementImageUrl.includes("placeholder.svg")) {
-                  imageUrl = synergisticElementImageUrl
-                }
-              }
-            } catch (error) {
-              // console.warn(`Could not load image for card ${card.id} with base/synergistic element. Using placeholder.`, error);
-              // Continue to the next potential path
-            }
-
-            const loaded = index + 1
-            setImageLoadingProgress((loaded / masterCardData.length) * 100)
-            setImageLoadingStats((prev) => ({ ...prev, loaded }))
-            return { ...card, imagePath: imageUrl }
-          }),
-        )
-
-        setAllAvailableCards(cardsWithResolvedImages)
-
+        // Preload images and get their actual URLs
         const cardIds = masterCardData.map((card) => card.id)
         const elements = [...new Set(masterCardData.flatMap((card) => [card.baseElement, card.synergisticElement]))]
 
         const preloadResults = await preloadCardImages(cardIds, elements, (loaded, total) => {
           setImageLoadingProgress((loaded / total) * 100)
+          setImageLoadingStats((prev) => ({ ...prev, loaded }))
         })
+
+        const cardsWithResolvedImages = await Promise.all(
+          masterCardData.map(async (card) => {
+            const imageUrl = await getCardImageUrl(card.id, card.baseElement)
+            return { ...card, imagePath: imageUrl }
+          }),
+        )
+
+        setAllAvailableCards(cardsWithResolvedImages)
 
         const totalTime = Date.now() - startTime
         if (totalTime > 10000) {
@@ -256,10 +237,6 @@ export default function CardSimulator() {
       const shuffled = [...allAvailableCards].sort(() => Math.random() - 0.5)
       const initialDraw = shuffled.slice(0, numCards)
       setSelectedCards(initialDraw)
-      console.log(
-        "DEBUG: Initial cards drawn:",
-        initialDraw.map((card) => ({ id: card.id, imagePath: card.imagePath })),
-      )
       setReading("")
       setAssistantReading("")
       setHasGeneratedAIReading(false)
@@ -365,10 +342,6 @@ export default function CardSimulator() {
     const selected = shuffled.slice(0, numCards)
 
     setSelectedCards(selected)
-    console.log(
-      "DEBUG: Cards drawn after shuffle:",
-      selected.map((card) => ({ id: card.id, imagePath: card.imagePath })),
-    )
     setIsShuffling(false)
   }
 
@@ -411,12 +384,11 @@ export default function CardSimulator() {
         question: question.trim(),
         spread_type: spreadType,
         user_context: JSON.stringify({
-          // Ensure user_context is stringified here
           fullName,
           birthDate,
           birthTime,
           birthPlace,
-          isMember: membershipStatus.verified,
+          isMember: membershipStatus.verified, // Use membershipStatus.verified
         }),
       }
 
@@ -437,12 +409,10 @@ export default function CardSimulator() {
 
       console.log("📥 Response status:", response.status, response.statusText)
 
-      // Get response text first
-      const responseText = await response.text()
-      console.log("📄 Raw response (first 200 chars):", responseText.substring(0, 200) + "...")
-
-      // Check if response is JSON
       let data: any = {}
+      const responseText = await response.text()
+      console.log("📄 Raw response:", responseText.substring(0, 200) + "...")
+
       try {
         data = JSON.parse(responseText)
         console.log("✅ Parsed response:", {
@@ -453,25 +423,20 @@ export default function CardSimulator() {
         })
       } catch (parseError) {
         console.error("❌ JSON parse error:", parseError)
-        console.error("❌ Response was not JSON:", responseText)
-
-        // Handle non-JSON responses (like HTML error pages)
-        if (responseText.includes("Internal Server Error") || responseText.includes("500")) {
-          throw new Error("Internal server error occurred. Please try again.")
-        } else if (responseText.includes("404")) {
-          throw new Error("API endpoint not found. Please check your configuration.")
-        } else {
-          throw new Error("Server returned an invalid response format. Please try again.")
+        data = {
+          success: false,
+          error: "Invalid JSON response from server",
+          reading: "Unable to parse server response. Please try again.",
+          interpretation: "The server returned an invalid response format.",
+          guidance: "Please try again or contact support if the issue persists.",
         }
       }
 
-      // Check HTTP status
       if (!response.ok) {
         console.error("❌ HTTP error:", response.status, data?.error)
         throw new Error(data?.error || `HTTP ${response.status}: ${response.statusText}`)
       }
 
-      // Check API success
       if (!data?.success) {
         console.error("❌ API error:", data?.error)
         throw new Error(data?.error || "API returned unsuccessful response")
@@ -495,7 +460,7 @@ export default function CardSimulator() {
       console.error("💥 Error generating AI reading:", error)
 
       const errorMessage = error.message || "Unknown error occurred"
-      const fallbackReading = `I apologize, but I'm unable to provide an AI reading at this time. Error: ${errorMessage}\n\nPlease try again in a moment, or contact support if the issue persists.`
+      const fallbackReading = `I apologize, but I'm unable to provide an AI reading at this time. Error: ${errorMessage}`
 
       setReading(fallbackReading)
       setHasGeneratedAIReading(false)

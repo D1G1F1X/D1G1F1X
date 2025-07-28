@@ -1,9 +1,5 @@
-import { ReadingsLibrary } from "@/components/readings-library"
+import { ReadingDashboard } from "@/components/user/reading-dashboard"
 
 export default function UserReadingsPage() {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <ReadingsLibrary />
-    </div>
-  )
+  return <ReadingDashboard />
 }

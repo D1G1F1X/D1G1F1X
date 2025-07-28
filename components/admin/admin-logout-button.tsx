@@ -1,21 +1,21 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { useAdminAuth } from "@/contexts/admin-auth-context"
-import { useRouter } from "next/navigation"
 import { LogOut } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useAdminAuth } from "@/contexts/admin-auth-context"
 
 export function AdminLogoutButton() {
   const { logout } = useAdminAuth()
   const router = useRouter()
 
-  const handleLogout = async () => {
-    await logout()
+  const handleLogout = () => {
+    logout()
     router.push("/admin/login")
   }
 
   return (
-    <Button onClick={handleLogout} variant="ghost" size="sm">
+    <Button variant="outline" size="sm" onClick={handleLogout}>
       <LogOut className="mr-2 h-4 w-4" />
       Logout
     </Button>

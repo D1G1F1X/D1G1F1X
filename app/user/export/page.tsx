@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { ReadingExport } from "@/components/reading-export"
 import type { SavedReading } from "@/types/saved-readings"
 
-export default function ExportPage() {
+export default function ExportReadingsPage() {
   const [readings, setReadings] = useState<SavedReading[]>([])
   const [selectedReadings, setSelectedReadings] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
@@ -82,7 +82,14 @@ export default function ExportPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <ReadingExport readings={readings} selectedReadings={selectedReadings} onSelectReadings={setSelectedReadings} />
+      <div className="flex flex-col space-y-6">
+        <div className="flex flex-col space-y-2">
+          <h1 className="text-3xl font-bold">Export Readings</h1>
+          <p className="text-gray-400">Select readings to export as PDF for your records or to share with others.</p>
+        </div>
+
+        <ReadingExport readings={readings} selectedReadings={selectedReadings} onSelectReadings={setSelectedReadings} />
+      </div>
     </div>
   )
 }

@@ -1,22 +1,51 @@
-import { ManualCheckoutForm } from "@/components/manual-checkout-form"
-import Image from "next/image"
+import { Suspense } from "react"
+import type { Metadata } from "next"
+import HeroSection from "@/components/hero-section"
+import ManualCheckoutForm from "@/components/manual-checkout-form"
+
+export const metadata: Metadata = {
+  title: "Manual Checkout | NUMO Oracle - Secure Order Processing",
+  description:
+    "Complete your NUMO Oracle order with our secure manual checkout process. We'll contact you with payment instructions within 24 hours.",
+  keywords: "manual checkout, oracle cards, numerology products, secure ordering, payment processing",
+  openGraph: {
+    title: "Manual Checkout | NUMO Oracle",
+    description: "Complete your mystical order securely with our manual checkout process.",
+    type: "website",
+  },
+}
 
 export default function ManualCheckoutPage() {
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4">
-      <Image
-        src="/manual-checkout-background.png"
-        alt="Manual Checkout Background"
-        layout="fill"
-        objectFit="cover"
-        quality={100}
-        className="z-0 opacity-30"
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <HeroSection
+        title="Secure Manual Checkout"
+        description="Complete your order and we'll contact you with payment instructions within 24 hours"
+        backgroundImage="/manual-checkout-background.png"
       />
-      <div className="absolute inset-0 bg-black/50 z-10" />
-
-      <div className="relative z-20 w-full max-w-2xl">
-        <ManualCheckoutForm />
-      </div>
+      <Suspense
+        fallback={
+          <div className="container mx-auto py-20">
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+              <span className="ml-3 text-white">Loading secure checkout...</span>
+            </div>
+          </div>
+        }
+      >
+        <div className="container mx-auto py-12 px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-white mb-2">Complete Your Order</h2>
+              <p className="text-gray-300">
+                Fill out the form below with your details and product selections. We'll process your order and contact
+                you with payment instructions.
+              </p>
+            </div>
+            <ManualCheckoutForm />
+          </div>
+        </div>
+      </Suspense>
     </div>
   )
 }

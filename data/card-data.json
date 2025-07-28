@@ -1,0 +1,34 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2023-05-08T22:18:55.000Z",
+  "source": "NUMO Guidebook 5.6",
+  "cards": [
+    {
+      "id": "01cauldron-water",
+      "name": "Cauldron: Water",
+      "rarity": 1,
+      "element": "Water",
+      "cost": 1,
+      "types": ["Structure"],
+      "rules": ["At the end of each turn, gain 1 Water."],
+      "firstEnd": {
+        "description": "Gain 1 Water",
+        "effect": {
+          "type": "Resource",
+          "resource": "Water",
+          "amount": 1
+        },
+        "icon": "💧"
+      },
+      "secondEnd": {
+        "description": "Gain 1 Water",
+        "effect": {
+          "type": "Resource",
+          "resource": "Water",
+          "amount": 1
+        },
+        "icon": "🌊"
+      }
+    }
+  ]
+}

@@ -1,23 +1,39 @@
-import { ReadingDetailView } from "@/components/reading-detail-view"
 import { notFound } from "next/navigation"
-import { getReadingById } from "@/lib/services/reading-service"
+import { createServerClient } from "@/lib/supabase-server"
+import { readingService } from "@/lib/services/reading-service"
+import { ReadingDetailView } from "@/components/reading-detail-view"
 
-interface ReadingDetailPageProps {
-  params: {
-    id: string
-  }
-}
+export default async function ReadingDetailPage({ params }: { params: { id: string } }) {
+  const supabase = createServerClient()
 
-export default async function ReadingDetailPage({ params }: ReadingDetailPageProps) {
-  const reading = await getReadingById(params.id)
+  // Get the current session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
 
+  // Get the reading
+  const reading = await readingService.getReadingById(params.id)
+
+  // If reading not found, return 404
   if (!reading) {
     notFound()
   }
 
+  // Check if the reading is public or belongs to the current user
+  const canView = reading.is_public || session?.user.id === reading.user_id
+
+  if (!canView) {
+    // Return unauthorized or redirect
+    return (
+      <div className="container py-10">
+        <ReadingDetailView readingId={params.id} />
+      </div>
+    )
+  }
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <ReadingDetailView reading={reading} />
+    <div className="container py-10">
+      <ReadingDetailView readingId={params.id} />
     </div>
   )
 }
