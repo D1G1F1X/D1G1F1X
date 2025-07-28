@@ -4,7 +4,8 @@ import { type NextRequest, NextResponse } from "next/server"
 export async function GET(request: NextRequest) {
   try {
     // Check if we have the required token
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    const token = process.env.BLOB_READ_WRITE_TOKEN
+    if (!token) {
       return NextResponse.json(
         {
           error: "Blob storage token not configured",
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
     // List all blobs with the cards prefix
     const { blobs } = await list({
       prefix: "cards/",
-      token: process.env.BLOB_READ_WRITE_TOKEN,
+      token: token,
     })
 
     console.log(`📦 API: Found ${blobs.length} card images in blob storage`)

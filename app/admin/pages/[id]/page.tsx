@@ -1,29 +1,18 @@
-import { DashboardShell } from "@/components/admin/dashboard-shell"
-import { ProtectedRoute } from "@/components/admin/protected-route"
-import { getPageById } from "@/lib/content"
-import { notFound } from "next/navigation"
 import { PageEditor } from "@/components/admin/page-editor"
 
-export const dynamic = "force-dynamic"
-
-interface PageProps {
+interface PageEditPageProps {
   params: {
     id: string
   }
 }
 
-export default async function EditPagePage({ params }: PageProps) {
-  const page = await getPageById(params.id)
-
-  if (!page) {
-    notFound()
-  }
+export default function PageEditPage({ params }: PageEditPageProps) {
+  const { id } = params
 
   return (
-    <DashboardShell>
-      <ProtectedRoute>
-        <PageEditor page={page} />
-      </ProtectedRoute>
-    </DashboardShell>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold mb-6">Edit Page: {id}</h1>
+      <PageEditor pageId={id} />
+    </div>
   )
 }

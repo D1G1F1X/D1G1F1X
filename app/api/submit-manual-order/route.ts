@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
+import { NextResponse } from "next/server"
 import { z } from "zod"
+import { submitManualOrder } from "@/lib/actions/order.actions"
 
 // Define the schema for cart items, ensure it matches what you send from the client
 // And what you expect in your ManualCartItem context
@@ -49,67 +49,18 @@ if (!supabaseUrl || !supabaseServiceRoleKey) {
 // Let's assume you have a server client utility like in your project:
 // import { createSupabaseServerClient } from '@/lib/supabase-server'; // Adjust path if needed
 
-export async function POST(req: NextRequest) {
-  if (!supabaseUrl || !supabaseServiceRoleKey) {
-    return NextResponse.json({ error: "Server configuration error: Supabase credentials missing." }, { status: 500 })
-  }
-  const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
-
+export async function POST(request: Request) {
   try {
-    const body = await req.json()
-    const validation = orderPayloadSchema.safeParse(body)
+    const orderData = await request.json()
+    const result = await submitManualOrder(orderData)
 
-    if (!validation.success) {
-      return NextResponse.json({ error: "Invalid order data.", details: validation.error.flatten() }, { status: 400 })
+    if (result.success) {
+      return NextResponse.json({ message: result.message, orderId: result.orderId })
+    } else {
+      return NextResponse.json({ error: result.message }, { status: 400 })
     }
-
-    const { customerInfo, cartItems } = validation.data
-
-    const orderItemsForDb = cartItems.map((item) => ({
-      productId: item.product.id,
-      productName: item.product.name,
-      quantity: item.quantity,
-      price: item.product.price, // Assuming price is per unit
-      image: item.product.image || null,
-    }))
-
-    const { data, error } = await supabase
-      .from("manual_orders")
-      .insert([
-        {
-          customer_name: customerInfo.name,
-          customer_email: customerInfo.email,
-          customer_phone: customerInfo.phone || null,
-          address_street: customerInfo.addressStreet,
-          address_city: customerInfo.addressCity,
-          address_state: customerInfo.addressState,
-          address_zip: customerInfo.addressZip,
-          address_country: customerInfo.addressCountry,
-          order_items: orderItemsForDb,
-          status: "pending_processing", // Default status
-        },
-      ])
-      .select() // Optionally select the inserted row
-      .single() // Assuming you insert one order at a time and want it back
-
-    if (error) {
-      console.error("Supabase error inserting order:", error)
-      return NextResponse.json({ error: "Could not save order.", details: error.message }, { status: 500 })
-    }
-
-    // TODO: Implement admin email notification logic here
-    // Example: await sendAdminOrderNotification(data); // data contains the saved order
-
-    return NextResponse.json(
-      { success: true, message: "Order submitted successfully!", orderId: data?.id },
-      { status: 201 },
-    )
   } catch (error) {
-    console.error("Error processing order submission:", error)
-    let errorMessage = "An unexpected error occurred."
-    if (error instanceof Error) {
-      errorMessage = error.message
-    }
-    return NextResponse.json({ error: errorMessage }, { status: 500 })
+    console.error("Error submitting manual order:", error)
+    return NextResponse.json({ error: "Failed to submit manual order" }, { status: 500 })
   }
 }

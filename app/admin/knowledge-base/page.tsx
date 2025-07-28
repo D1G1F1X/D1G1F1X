@@ -1,16 +1,14 @@
 import type { Metadata } from "next"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import { Database, FileText, Search, Brain, FileCode, AlertTriangle } from "lucide-react"
+import { AlertTriangle } from "lucide-react"
+import { KnowledgeBaseManager } from "@/components/admin/knowledge-base-manager"
+import { Separator } from "@/components/ui/separator"
 
 export const metadata: Metadata = {
   title: "NUMO ORACLE | Knowledge Base",
   description: "Internal knowledge base for AI reading features and content development",
 }
 
-export default function KnowledgeBasePage() {
+export default function AdminKnowledgeBasePage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
@@ -26,15 +24,11 @@ export default function KnowledgeBasePage() {
         </div>
       </div>
 
-      <div className="bg-gray-800/50 border border-gray-700 p-4 rounded-lg mb-8">
-        <div className="flex items-center gap-4">
-          <Search className="h-5 w-5 text-gray-400" />
-          <Input placeholder="Search knowledge base..." className="flex-1 bg-gray-900 border-gray-700" />
-          <Button variant="secondary">Search</Button>
-        </div>
-      </div>
+      <Separator />
 
-      <Tabs defaultValue="ai-data" className="w-full">
+      <KnowledgeBaseManager />
+
+      {/* <Tabs defaultValue="ai-data" className="w-full">
         <TabsList className="grid grid-cols-3 mb-8">
           <TabsTrigger value="ai-data" className="data-[state=active]:bg-purple-600">
             <Brain className="mr-2 h-4 w-4" /> AI Training Data
@@ -67,7 +61,7 @@ export default function KnowledgeBasePage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   Access Database
                 </Button>
               </CardFooter>
@@ -91,7 +85,7 @@ export default function KnowledgeBasePage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   View Patterns
                 </Button>
               </CardFooter>
@@ -115,7 +109,7 @@ export default function KnowledgeBasePage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   Access Database
                 </Button>
               </CardFooter>
@@ -177,7 +171,7 @@ export default function KnowledgeBasePage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full bg-transparent">
                 View Detailed Report
               </Button>
             </CardFooter>
@@ -222,7 +216,7 @@ export default function KnowledgeBasePage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   View All Uploads
                 </Button>
               </CardFooter>
@@ -266,7 +260,7 @@ export default function KnowledgeBasePage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   View Model Details
                 </Button>
               </CardFooter>
@@ -293,7 +287,7 @@ export default function KnowledgeBasePage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   View Calendar
                 </Button>
               </CardFooter>
@@ -317,7 +311,7 @@ export default function KnowledgeBasePage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   Access Templates
                 </Button>
               </CardFooter>
@@ -341,7 +335,7 @@ export default function KnowledgeBasePage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   Browse Assets
                 </Button>
               </CardFooter>
@@ -394,7 +388,7 @@ export default function KnowledgeBasePage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full bg-transparent">
                 View Full Analytics
               </Button>
             </CardFooter>
@@ -420,7 +414,7 @@ export default function KnowledgeBasePage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   View Documentation
                 </Button>
               </CardFooter>
@@ -444,7 +438,7 @@ export default function KnowledgeBasePage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   View Architecture
                 </Button>
               </CardFooter>
@@ -465,7 +459,7 @@ export default function KnowledgeBasePage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   View Roadmap
                 </Button>
               </CardFooter>
@@ -511,7 +505,7 @@ export default function KnowledgeBasePage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   View System Status
                 </Button>
               </CardFooter>
@@ -555,14 +549,14 @@ export default function KnowledgeBasePage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   View Change Log
                 </Button>
               </CardFooter>
             </Card>
           </div>
         </TabsContent>
-      </Tabs>
+      </Tabs> */}
     </div>
   )
 }

@@ -1,30 +1,29 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Terminal } from "lucide-react"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
-export default function AuthCodeError() {
+export default function AuthCodeErrorPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Authentication Error</CardTitle>
-          <CardDescription>There was a problem confirming your account</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Alert variant="destructive">
-            <AlertDescription>The authentication link may have expired or been used already.</AlertDescription>
-          </Alert>
-          <div className="mt-4 space-y-2">
-            <Button asChild className="w-full">
-              <Link href="/login">Try Signing In</Link>
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
+      <Alert variant="destructive" className="max-w-md">
+        <Terminal className="h-4 w-4" />
+        <AlertTitle>Authentication Error</AlertTitle>
+        <AlertDescription>
+          <p className="mb-2">
+            There was an issue with your authentication code. This might be due to an expired or invalid link.
+          </p>
+          <p className="mb-4">Please try logging in again or contact support if the problem persists.</p>
+          <div className="flex justify-end space-x-2">
+            <Button asChild variant="outline">
+              <Link href="/login">Go to Login</Link>
             </Button>
-            <Button asChild variant="outline" className="w-full">
-              <Link href="/register">Create New Account</Link>
+            <Button asChild>
+              <Link href="/contact">Contact Support</Link>
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </AlertDescription>
+      </Alert>
     </div>
   )
 }

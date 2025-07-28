@@ -1,8 +1,9 @@
-export default function DashboardLoading() {
+import { Loader2 } from "lucide-react"
+
+export default function Loading() {
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      <span className="ml-3 text-xl">Loading dashboard...</span>
+    <div className="flex h-[calc(100vh-10rem)] items-center justify-center">
+      <Loader2 className="h-16 w-16 animate-spin text-primary" />
     </div>
   )
 }

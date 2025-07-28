@@ -1,72 +1,90 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getCardById } from "@/lib/card-data-access"
-import { getSystemPrompt, getUserPrompt } from "@/lib/ai-prompt-manager"
-import { createClient } from "@/lib/supabase/server"
-import { getAssistantResponse, createThread, addMessageToThread } from "@/lib/openai-assistant"
+import { generateOracleReading } from "@/lib/ai/enhanced-ai-service-manager"
+import type { OracleCard } from "@/types/cards"
 
-export const runtime = "nodejs" // Use nodejs runtime for OpenAI Assistant API
+export const runtime = "nodejs"
+export const maxDuration = 30
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
-  }
-
   try {
-    const { cards, question, spread_type, user_context, threadId: existingThreadId } = await req.json()
+    console.log("🔮 API Route: /api/ai/reading POST request received.")
+
+    let requestBody: any
+
+    try {
+      requestBody = await req.json()
+      console.log("📥 Request body parsed successfully")
+    } catch (parseError) {
+      console.error("❌ Failed to parse request body:", parseError)
+      return NextResponse.json(
+        { success: false, error: "Invalid JSON in request body" },
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      )
+    }
+
+    const { cards, spread_type, question, user_context } = requestBody
+
+    // Moved environment variable checks to the functions that use them (getOpenAIClient, getOpenAIAssistant)
+    // to prevent synchronous crashes during module loading.
+    // The errors thrown by those functions will now be caught by this try/catch block.
 
     if (!cards || !Array.isArray(cards) || cards.length === 0) {
-      return NextResponse.json({ success: false, error: "No cards provided" }, { status: 400 })
-    }
-    if (!question) {
-      return NextResponse.json({ success: false, error: "No question provided" }, { status: 400 })
+      console.warn("WARN: Invalid or empty cards array received.")
+      return NextResponse.json({ success: false, error: "Invalid card data provided." }, { status: 400 })
     }
 
-    const cardDetails = cards.map((card: { id: string }) => getCardById(card.id)).filter(Boolean) as any[] // Filter out undefined and assert type
+    // The client now sends the full card objects, so we don't need to fetch them by ID here.
+    // We just need to ensure they conform to OracleCard type.
+    const oracleCards: OracleCard[] = cards.map((card: any) => ({
+      id: card.id,
+      number: card.number,
+      suit: card.tool, // Map 'tool' from client to 'suit' for OracleCard
+      fullTitle: card.name,
+      symbols: [], // Not strictly needed for AI prompt, but keep type consistency
+      symbolismBreakdown: card.description ? [card.description] : [],
+      keyMeanings: card.keywords || [],
+      baseElement: card.element,
+      planetInternalInfluence: "", // Not provided by client, can be empty
+      astrologyExternalDomain: "", // Not provided by client, can be empty
+      iconSymbol: "", // Not provided by client, can be empty
+      orientation: "", // Not provided by client, can be empty
+      sacredGeometry: "", // Not provided by client, can be empty
+      synergisticElement: "", // Not provided by client, can be empty
+      imagePath: card.imagePath, // Keep imagePath if available
+    }))
 
-    if (cardDetails.length === 0) {
-      return NextResponse.json({ success: false, error: "Invalid card IDs provided" }, { status: 400 })
-    }
+    console.log(
+      "DEBUG: Initial cards drawn for AI reading:",
+      oracleCards.map((c) => c.id),
+    )
+    console.log("DEBUG: Spread Type:", spread_type)
+    console.log("DEBUG: User Question:", question)
+    console.log("DEBUG: User Context:", user_context ? "Present (stringified)" : "Absent")
 
-    const systemPrompt = getSystemPrompt(spread_type)
-    const userPrompt = getUserPrompt(cardDetails, question, spread_type, user_context)
+    console.log("🔮 Generating AI reading...")
+    const { reading, threadId } = await generateOracleReading({
+      cards: oracleCards,
+      question: question,
+      spreadType: spread_type,
+      userContext: user_context, // Pass the stringified user context directly
+    })
+    console.log("✅ AI reading generated successfully.")
 
-    let threadId = existingThreadId
-
-    if (!threadId) {
-      const thread = await createThread()
-      threadId = thread.id
-    }
-
-    await addMessageToThread(threadId, userPrompt)
-
-    const assistantResponse = await getAssistantResponse(threadId)
-
-    // Save the reading to Supabase
-    const { error: dbError } = await supabase.from("readings").insert([
-      {
-        user_id: user.id,
-        question: question,
-        reading_text: assistantResponse,
-        cards_drawn: cards.map((c: any) => c.id),
-        spread_type: spread_type,
-        thread_id: threadId,
-      },
-    ])
-
-    if (dbError) {
-      console.error("Error saving reading to DB:", dbError)
-      // Continue even if saving fails, as the reading was generated
-    }
-
-    return NextResponse.json({ success: true, reading: assistantResponse, threadId, method: "assistant" })
+    return NextResponse.json({ success: true, reading, threadId })
   } catch (error: any) {
-    console.error("Error generating AI reading:", error)
-    return NextResponse.json({ success: false, error: error.message || "Internal Server Error" }, { status: 500 })
+    console.error("💥 Error generating AI reading:", error)
+    // Ensure the error message is always a string
+    const errorMessage =
+      typeof error === "string" ? error : error instanceof Error ? error.message : JSON.stringify(error)
+    return NextResponse.json(
+      {
+        success: false,
+        error: errorMessage || "An unexpected error occurred while generating the reading. Please try again.",
+      },
+      { status: 500 },
+    )
   }
 }

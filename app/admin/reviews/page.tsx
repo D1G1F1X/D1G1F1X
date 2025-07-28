@@ -28,12 +28,67 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { toast } from "@/components/ui/use-toast"
-import { Check, X, Search, Trash2, MessageSquare } from "lucide-react"
-import type { Review, ReviewFilterOptions } from "@/types/reviews"
+import { Search } from "lucide-react"
+import type { ReviewFilterOptions } from "@/types/reviews"
+import { DataTable } from "./data-table"
+import { columns } from "./columns"
 
-export default function AdminReviewsPage() {
+async function getReviews(): Promise<any[]> {
+  // Replace with your actual API call to fetch reviews
+  // This is mock data for demonstration purposes
+  return [
+    {
+      id: "rev001",
+      product: "Deluxe Oracle Deck",
+      reviewerName: "Emma Stone",
+      rating: 5,
+      comment: "Absolutely beautiful deck, the artwork is stunning and the insights are profound. Highly recommend!",
+      date: "2024-07-22",
+      status: "Published",
+    },
+    {
+      id: "rev002",
+      product: "Beginner's Guidebook",
+      reviewerName: "Liam Green",
+      rating: 4,
+      comment:
+        "Very helpful for beginners, easy to understand. Some sections could be more detailed, but overall great.",
+      date: "2024-07-20",
+      status: "Pending",
+    },
+    {
+      id: "rev003",
+      product: "Elemental Dice Set",
+      reviewerName: "Olivia Blue",
+      rating: 5,
+      comment: "Fun and insightful! Adds a unique twist to my daily readings.",
+      date: "2024-07-18",
+      status: "Published",
+    },
+    {
+      id: "rev004",
+      product: "Personalized Numerology Report",
+      reviewerName: "Noah White",
+      rating: 3,
+      comment: "The report was okay, but I expected more personalized depth based on my birth time.",
+      date: "2024-07-15",
+      status: "Published",
+    },
+    {
+      id: "rev005",
+      product: "Deluxe Oracle Deck",
+      reviewerName: "Sophia Black",
+      rating: 5,
+      comment: "This deck resonates so deeply with me. The quality is exceptional and the energy is pure.",
+      date: "2024-07-10",
+      status: "Published",
+    },
+  ]
+}
+
+export default async function AdminReviewsPage() {
+  const reviews = await getReviews()
   const router = useRouter()
-  const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<ReviewFilterOptions>({
     status: "all",
@@ -41,40 +96,14 @@ export default function AdminReviewsPage() {
     sortOrder: "desc",
   })
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedReview, setSelectedReview] = useState<Review | null>(null)
+  const [selectedReview, setSelectedReview] = useState<any | null>(null)
   const [responseDialogOpen, setResponseDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [adminResponse, setAdminResponse] = useState("")
 
   useEffect(() => {
-    fetchReviews()
-  }, [filters])
-
-  const fetchReviews = async () => {
-    setLoading(true)
-    try {
-      const queryParams = new URLSearchParams()
-      if (filters.status && filters.status !== "all") queryParams.append("status", filters.status)
-      if (filters.rating) queryParams.append("rating", filters.rating.toString())
-      if (filters.readingType) queryParams.append("readingType", filters.readingType)
-      if (filters.sortBy) queryParams.append("sortBy", filters.sortBy)
-      if (filters.sortOrder) queryParams.append("sortOrder", filters.sortOrder)
-
-      const response = await fetch(`/api/reviews?${queryParams.toString()}`)
-      if (!response.ok) throw new Error("Failed to fetch reviews")
-
-      const data = await response.json()
-      setReviews(data)
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load reviews",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
+    setLoading(false)
+  }, [])
 
   const handleUpdateStatus = async (id: string, status: "approved" | "rejected", response?: string) => {
     try {
@@ -96,7 +125,7 @@ export default function AdminReviewsPage() {
         description: `The review has been ${status} successfully.`,
       })
 
-      fetchReviews()
+      // Fetch reviews again if needed
     } catch (error) {
       console.error("Update status error:", error)
       toast({
@@ -120,7 +149,7 @@ export default function AdminReviewsPage() {
         description: "The review has been permanently deleted.",
       })
 
-      fetchReviews()
+      // Fetch reviews again if needed
     } catch (error) {
       toast({
         title: "Error",
@@ -130,13 +159,13 @@ export default function AdminReviewsPage() {
     }
   }
 
-  const openResponseDialog = (review: Review) => {
+  const openResponseDialog = (review: any) => {
     setSelectedReview(review)
     setAdminResponse(review.adminResponse || "")
     setResponseDialogOpen(true)
   }
 
-  const openDeleteDialog = (review: Review) => {
+  const openDeleteDialog = (review: any) => {
     setSelectedReview(review)
     setDeleteDialogOpen(true)
   }
@@ -155,21 +184,20 @@ export default function AdminReviewsPage() {
     setDeleteDialogOpen(false)
   }
 
-  const filteredReviews = reviews.filter((review) => {
+  const filteredReviews = reviews.filter((review: any) => {
     if (!searchTerm) return true
 
     const searchLower = searchTerm.toLowerCase()
     return (
-      review.userName.toLowerCase().includes(searchLower) ||
-      review.title.toLowerCase().includes(searchLower) ||
-      review.comment.toLowerCase().includes(searchLower) ||
-      (review.readingType && review.readingType.toLowerCase().includes(searchLower))
+      review.reviewerName.toLowerCase().includes(searchLower) ||
+      review.product.toLowerCase().includes(searchLower) ||
+      review.comment.toLowerCase().includes(searchLower)
     )
   })
 
-  const pendingCount = reviews.filter((r) => r.status === "pending").length
-  const approvedCount = reviews.filter((r) => r.status === "approved").length
-  const rejectedCount = reviews.filter((r) => r.status === "rejected").length
+  const pendingCount = reviews.filter((r: any) => r.status === "Pending").length
+  const approvedCount = reviews.filter((r: any) => r.status === "Published").length
+  const rejectedCount = reviews.filter((r: any) => r.status === "Rejected").length
 
   return (
     <div className="p-6">
@@ -260,16 +288,16 @@ export default function AdminReviewsPage() {
         </TabsList>
 
         <TabsContent value="all" className="mt-6">
-          {renderReviewsList(filteredReviews)}
+          <DataTable data={filteredReviews} columns={columns} />
         </TabsContent>
         <TabsContent value="pending" className="mt-6">
-          {renderReviewsList(filteredReviews.filter((r) => r.status === "pending"))}
+          <DataTable data={filteredReviews.filter((r: any) => r.status === "Pending")} columns={columns} />
         </TabsContent>
         <TabsContent value="approved" className="mt-6">
-          {renderReviewsList(filteredReviews.filter((r) => r.status === "approved"))}
+          <DataTable data={filteredReviews.filter((r: any) => r.status === "Published")} columns={columns} />
         </TabsContent>
         <TabsContent value="rejected" className="mt-6">
-          {renderReviewsList(filteredReviews.filter((r) => r.status === "rejected"))}
+          <DataTable data={filteredReviews.filter((r: any) => r.status === "Rejected")} columns={columns} />
         </TabsContent>
       </Tabs>
 
@@ -285,7 +313,7 @@ export default function AdminReviewsPage() {
           <div className="space-y-4 py-4">
             {selectedReview && (
               <div className="bg-gray-900 p-4 rounded-md">
-                <p className="font-medium text-purple-400">{selectedReview.userName}</p>
+                <p className="font-medium text-purple-400">{selectedReview.reviewerName}</p>
                 <div className="flex items-center my-1">
                   <StarRating rating={selectedReview.rating} size="sm" />
                 </div>
@@ -329,107 +357,4 @@ export default function AdminReviewsPage() {
       </AlertDialog>
     </div>
   )
-
-  function renderReviewsList(reviews: Review[]) {
-    if (loading) {
-      return <p className="text-center text-gray-400 py-8">Loading reviews...</p>
-    }
-
-    if (reviews.length === 0) {
-      return <p className="text-center text-gray-400 py-8">No reviews found.</p>
-    }
-
-    return (
-      <div className="space-y-4">
-        {reviews.map((review) => (
-          <Card key={review.id} className="bg-gray-800 border-gray-700">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <h3 className="font-medium text-white">{review.title}</h3>
-                      <p className="text-sm text-gray-400">{review.readingType}</p>
-                    </div>
-                    <div className="flex items-center">
-                      <StarRating rating={review.rating} size="sm" />
-                    </div>
-                  </div>
-                  <p className="text-gray-300 mb-4">"{review.comment}"</p>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-purple-400">{review.userName}</p>
-                      <p className="text-xs text-gray-400">{review.date}</p>
-                    </div>
-                    {review.status === "rejected" && review.adminResponse && (
-                      <div className="bg-gray-900 p-2 rounded text-sm text-gray-300 max-w-md">
-                        <p className="font-medium text-red-400 mb-1">Admin Response:</p>
-                        <p>{review.adminResponse}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex flex-row md:flex-col gap-2 self-end md:self-start">
-                  {review.status === "pending" && (
-                    <>
-                      <Button
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700"
-                        onClick={() => handleUpdateStatus(review.id, "approved")}
-                      >
-                        <Check className="h-4 w-4 mr-1" /> Approve
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-red-600 text-red-500 hover:bg-red-900/20"
-                        onClick={() => openResponseDialog(review)}
-                      >
-                        <X className="h-4 w-4 mr-1" /> Reject
-                      </Button>
-                    </>
-                  )}
-                  {review.status === "approved" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-red-600 text-red-500 hover:bg-red-900/20"
-                      onClick={() => openResponseDialog(review)}
-                    >
-                      <X className="h-4 w-4 mr-1" /> Unapprove
-                    </Button>
-                  )}
-                  {review.status === "rejected" && (
-                    <Button
-                      size="sm"
-                      className="bg-green-600 hover:bg-green-700"
-                      onClick={() => handleUpdateStatus(review.id, "approved")}
-                    >
-                      <Check className="h-4 w-4 mr-1" /> Approve
-                    </Button>
-                  )}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-gray-700 text-gray-400 hover:bg-gray-700"
-                    onClick={() => openResponseDialog(review)}
-                  >
-                    <MessageSquare className="h-4 w-4 mr-1" /> Respond
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-gray-700 text-gray-400 hover:bg-gray-700"
-                    onClick={() => openDeleteDialog(review)}
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" /> Delete
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    )
-  }
 }

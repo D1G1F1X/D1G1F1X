@@ -1,10 +1,10 @@
-import CardImageVerifier from "@/components/card-image-verifier" // Changed to default import
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getAllCards, getAllElements, getAllSuits } from "@/lib/card-data-access"
+import { ImageDebugHelper } from "@/components/image-debug-helper"
 
 export const dynamic = "force-dynamic" // Added to force dynamic rendering
 
-export default function CardDirectoryDebugPage() {
+export default function DebugCardDirectoryPage() {
   // These functions are executed server-side
   const cards = getAllCards() || [] // Ensure cards is always an array
   const elements = getAllElements() || [] // Ensure elements is always an array
@@ -12,7 +12,7 @@ export default function CardDirectoryDebugPage() {
 
   return (
     <div className="container mx-auto py-8 space-y-8">
-      <h1 className="text-3xl font-bold">Card Directory Debug</h1>
+      <h1 className="text-3xl font-bold">Debug Card Directory</h1>
 
       <Card>
         <CardHeader>
@@ -59,7 +59,7 @@ export default function CardDirectoryDebugPage() {
         </CardContent>
       </Card>
 
-      <CardImageVerifier />
+      <ImageDebugHelper />
     </div>
   )
 }

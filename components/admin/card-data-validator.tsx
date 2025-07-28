@@ -1,71 +1,92 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { validateCardData } from "@/lib/card-validation"
-import { getAllCards } from "@/lib/card-data-access"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { CheckCircle, AlertTriangle } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Loader2, CheckCircle, AlertTriangle } from "lucide-react"
+import { checkDataIntegrity } from "@/lib/card-data-access"
+import { useToast } from "@/components/ui/use-toast"
 
 export function CardDataValidator() {
-  const [validationReport, setValidationReport] = useState<string>("")
-  const [isValid, setIsValid] = useState<boolean | null>(null)
-  const [isValidating, setIsValidating] = useState(false)
+  const [integrityIssues, setIntegrityIssues] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [lastChecked, setLastChecked] = useState<Date | null>(null)
+  const { toast } = useToast()
 
-  const runValidation = () => {
-    setIsValidating(true)
+  const runIntegrityCheck = () => {
+    setIsLoading(true)
+    setIntegrityIssues([])
+    setLastChecked(null) // Reset last checked time immediately
+
     try {
-      const cards = getAllCards()
-      const report = validateCardData(cards)
-      setValidationReport(report)
-      setIsValid(report.startsWith("✅"))
-    } catch (error) {
-      setValidationReport(`Error during validation: ${error instanceof Error ? error.message : String(error)}`)
-      setIsValid(false)
+      const issues = checkDataIntegrity()
+      setIntegrityIssues(issues)
+      setLastChecked(new Date())
+      toast({
+        title: "Integrity Check Complete",
+        description: issues.length > 0 ? `${issues.length} issues found.` : "No issues found! Data is healthy.",
+        variant: issues.length > 0 ? "destructive" : "default",
+      })
+    } catch (error: any) {
+      console.error("Error during data integrity check:", error)
+      setIntegrityIssues([`Error running check: ${error.message || "Unknown error"}`])
+      setLastChecked(new Date())
+      toast({
+        title: "Integrity Check Failed",
+        description: "An error occurred while running the data integrity check.",
+        variant: "destructive",
+      })
     } finally {
-      setIsValidating(false)
+      setIsLoading(false)
     }
   }
 
   useEffect(() => {
-    runValidation()
+    // Run an initial check when the component mounts
+    runIntegrityCheck()
   }, [])
 
   return (
-    <Card className="w-full">
+    <Card>
       <CardHeader>
-        <CardTitle>Card Data Validation</CardTitle>
+        <CardTitle>Data Integrity Check</CardTitle>
         <CardDescription>
-          Validates the master card data to ensure all cards have complete and consistent information
+          {lastChecked ? (
+            <span>Last checked: {lastChecked.toLocaleString()}</span>
+          ) : (
+            <span>Running initial check...</span>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex justify-end mb-4">
-          <Button onClick={runValidation} disabled={isValidating}>
-            {isValidating ? "Validating..." : "Run Validation"}
-          </Button>
-        </div>
-
-        {isValid === true && (
-          <Alert className="bg-green-50 border-green-200">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertTitle className="text-green-800">Validation Passed</AlertTitle>
-            <AlertDescription className="text-green-700">All cards have complete and valid data.</AlertDescription>
-          </Alert>
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center h-48">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="mt-4 text-lg text-muted-foreground">Analyzing data...</p>
+          </div>
+        ) : integrityIssues.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-48 text-green-500">
+            <CheckCircle className="h-16 w-16 mb-4" />
+            <p className="text-xl font-semibold">All data is healthy!</p>
+            <p className="text-muted-foreground">No issues found in your Oracle Card data.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center text-red-500">
+              <AlertTriangle className="h-6 w-6 mr-2" />
+              <p className="text-lg font-semibold">{integrityIssues.length} issue(s) found!</p>
+            </div>
+            <ScrollArea className="h-64 w-full rounded-md border p-4">
+              <ul className="list-disc pl-5 space-y-2">
+                {integrityIssues.map((issue, index) => (
+                  <li key={index} className="text-sm text-red-400">
+                    {issue}
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </div>
         )}
-
-        {isValid === false && (
-          <Alert className="bg-amber-50 border-amber-200">
-            <AlertTriangle className="h-4 w-4 text-amber-600" />
-            <AlertTitle className="text-amber-800">Validation Issues Found</AlertTitle>
-            <AlertDescription className="text-amber-700">Please review and fix the issues below.</AlertDescription>
-          </Alert>
-        )}
-
-        <div className="mt-4 p-4 bg-gray-50 rounded-md">
-          <pre className="whitespace-pre-wrap text-sm">{validationReport}</pre>
-        </div>
       </CardContent>
     </Card>
   )

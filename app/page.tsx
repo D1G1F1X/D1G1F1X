@@ -1,7 +1,10 @@
-"use client"
-
-import HomeContent from "@/components/home-content"
+import { HomeContent } from "@/components/home-content"
+import { HomeWrapper } from "@/components/home-wrapper"
 
 export default function HomePage() {
-  return <HomeContent />
+  return (
+    <HomeWrapper>
+      <HomeContent />
+    </HomeWrapper>
+  )
 }

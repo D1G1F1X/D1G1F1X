@@ -35,7 +35,7 @@
       },
       {
         "key": "Sacred Geometry",
-        "value": "Dot"
+        "value": "Pentagram"
       },
       {
         "key": "Synergistic Element",
@@ -47,7 +47,7 @@
       "Suit (Cauldron): A vessel of transformation, creation, and rebirth. The cauldron symbolizes the womb of creation, where ingredients are combined and transformed into something new. It represents alchemy, healing, and the deep mysteries of life.",
       "Icon (Dot): The spark of origin—the first point from which all things emerge. It is the singularity, the concentrated seed of potential, the initial impulse of consciousness before expansion into dimension and form. A symbol of unity and wholeness.",
       "Orientation (Cooking): Indicates that the creation is in progress, not yet released. This highlights a phase of internal development, gestation, and careful preparation, where the transformative work is happening beneath the surface, shielded from external view until ready.",
-      "Sacred Geometry (Dot): The spark of origin—the first point from which all things emerge. It is the singularity, the concentrated seed of potential, the initial impulse of consciousness before expansion into dimension and form. A symbol of unity and wholeness.",
+      "Sacred Geometry (Pentagram): The spark of origin—the first point from which all things emerge. It is the singularity, the concentrated seed of potential, the initial impulse of consciousness before expansion into dimension and form. A symbol of unity and wholeness.",
       "Planet (Pluto): Deep, transformative forces working behind the scenes. Pluto governs the subconscious realms, instigating profound metamorphosis by unearthing hidden truths, dismantling old structures, and facilitating regeneration and rebirth from the ashes of what was.",
       "Astrology (Scorpio): Reflects external themes of rebirth, secrecy, and shedding of old layers. Scorpio navigates the depths of existence, confronting power dynamics, intense emotions, and the mysteries of life and death, ultimately leading to profound healing and empowerment.",
       "Synergistic Element (Fire): The combustion of Spirit and Water—the ignition of creation and passion. Fire is the activating, dynamic principle that fuels transformation, provides courage, and illuminates the path, turning inspiration (Spirit) and emotional depth (Water) into tangible manifestation."
@@ -94,15 +94,15 @@
       },
       {
         "key": "Icon",
-        "value": "Spark"
+        "value": "Pentagram"
       },
       {
         "key": "Orientation",
-        "value": "Overflowing"
+        "value": "Pouring"
       },
       {
         "key": "Sacred Geometry",
-        "value": "Seed of Life"
+        "value": "Plus Sign"
       },
       {
         "key": "Synergistic Element",
@@ -165,7 +165,7 @@
       },
       {
         "key": "Orientation",
-        "value": "Point First"
+        "value": "Point"
       },
       {
         "key": "Sacred Geometry",
@@ -228,15 +228,15 @@
       },
       {
         "key": "Icon",
-        "value": "Knot"
+        "value": "Hourglass"
       },
       {
         "key": "Orientation",
-        "value": "Loose End"
+        "value": "Knot Before"
       },
       {
         "key": "Sacred Geometry",
-        "value": "Triangle"
+        "value": "Finite Symbol"
       },
       {
         "key": "Synergistic Element",
@@ -299,7 +299,7 @@
       },
       {
         "key": "Orientation",
-        "value": "Shaft First"
+        "value": "Shaft"
       },
       {
         "key": "Sacred Geometry",
@@ -362,15 +362,15 @@
       },
       {
         "key": "Icon",
-        "value": "Crossed Swords"
+        "value": "Delta"
       },
       {
         "key": "Orientation",
-        "value": "Clash"
+        "value": "Edge"
       },
       {
         "key": "Sacred Geometry",
-        "value": "Pentagram"
+        "value": "Five Fold Circle"
       },
       {
         "key": "Synergistic Element",

@@ -1,58 +1,20 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
+import { verifyBlobIntegrity } from "@/lib/verified-blob-handler"
 
-export async function POST(request: NextRequest) {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const cardId = searchParams.get("cardId")
+  const element = searchParams.get("element")
+
+  if (!cardId || !element) {
+    return NextResponse.json({ error: "cardId and element are required" }, { status: 400 })
+  }
+
   try {
-    const { imageUrl, filename } = await request.json()
-
-    if (!imageUrl) {
-      return NextResponse.json({ error: "Image URL is required" }, { status: 400 })
-    }
-
-    // Test image accessibility
-    const startTime = Date.now()
-
-    try {
-      const response = await fetch(imageUrl, {
-        method: "HEAD",
-        signal: AbortSignal.timeout(8000), // 8 second timeout
-      })
-
-      const loadTime = Date.now() - startTime
-      const isAccessible = response.ok
-
-      return NextResponse.json({
-        success: true,
-        filename: filename || "unknown",
-        url: imageUrl,
-        isAccessible,
-        loadTime,
-        status: response.status,
-        contentType: response.headers.get("content-type"),
-        contentLength: response.headers.get("content-length"),
-        timestamp: new Date().toISOString(),
-      })
-    } catch (fetchError) {
-      const loadTime = Date.now() - startTime
-
-      return NextResponse.json({
-        success: false,
-        filename: filename || "unknown",
-        url: imageUrl,
-        isAccessible: false,
-        loadTime,
-        error: fetchError instanceof Error ? fetchError.message : "Fetch failed",
-        timestamp: new Date().toISOString(),
-      })
-    }
+    const result = await verifyBlobIntegrity({ cardId, element })
+    return NextResponse.json(result)
   } catch (error) {
-    console.error("❌ API: Failed to verify card image:", error)
-
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : "Unknown error",
-        timestamp: new Date().toISOString(),
-      },
-      { status: 500 },
-    )
+    console.error("Error verifying card blob:", error)
+    return NextResponse.json({ error: "Failed to verify card blob" }, { status: 500 })
   }
 }

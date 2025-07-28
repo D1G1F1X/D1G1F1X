@@ -2,6 +2,9 @@ import { type NextRequest, NextResponse } from "next/server"
 import { list } from "@vercel/blob"
 
 export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const prefix = searchParams.get("prefix") || "cards/"
+
   try {
     // Check if we have the blob token
     if (!process.env.BLOB_READ_WRITE_TOKEN) {
@@ -17,30 +20,33 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    console.log("Attempting to list blobs with prefix 'cards/'...")
+    console.log(`Attempting to list blobs with prefix '${prefix}'...`)
     const { blobs } = await list({
       token: process.env.BLOB_READ_WRITE_TOKEN,
       limit: 1000, // Get up to 1000 files
-      prefix: "cards/", // Focus on card images
+      prefix: prefix, // Focus on card images or other specified prefix
     })
 
-    console.log(`Raw blobs found by list() with prefix 'cards/': ${blobs.length} items.`)
+    console.log(`Raw blobs found by list() with prefix '${prefix}': ${blobs.length} items.`)
     // console.log("Raw blobs:", JSON.stringify(blobs, null, 2)); // Uncomment for detailed raw blob debugging
 
-    // Filter for image files only. The 'prefix' already handles the 'cards/' directory.
-    const cardBlobs = blobs
-      .filter((blob) => {
-        const isImage = /\.(jpg|jpeg|png|webp)$/i.test(blob.pathname)
-        return isImage
-      })
-      .map((blob) => ({
-        filename: blob.pathname.split("/").pop() || "",
-        pathname: blob.pathname,
-        url: blob.url,
-        size: blob.size,
-        uploadedAt: blob.uploadedAt,
-        downloadUrl: blob.downloadUrl,
-      }))
+    // Filter for image files only if prefix is 'cards/'
+    const cardBlobs =
+      prefix === "cards/"
+        ? blobs
+            .filter((blob) => {
+              const isImage = /\.(jpg|jpeg|png|webp)$/i.test(blob.pathname)
+              return isImage
+            })
+            .map((blob) => ({
+              filename: blob.pathname.split("/").pop() || "",
+              pathname: blob.pathname,
+              url: blob.url,
+              size: blob.size,
+              uploadedAt: blob.uploadedAt,
+              downloadUrl: blob.downloadUrl,
+            }))
+        : blobs
 
     console.log(`📦 Found ${cardBlobs.length} card images after filtering for image types.`)
 

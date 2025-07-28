@@ -1,145 +1,73 @@
 import { NextResponse } from "next/server"
-
-// Mock database for content
-let pages = [
-  {
-    id: "landing",
-    slug: "landing",
-    title: "The NUMO Oracle Card Deck",
-    subtitle: "BY KRAFTWERK NUMEROLOGY",
-    description: "Discover the ancient wisdom of numerology combined with oracle card readings",
-    content: "Welcome to the NUMO Oracle experience. Our unique deck combines numerology with elemental wisdom.",
-    sections: [
-      {
-        id: "hero",
-        title: "Discover Your Path",
-        content: "Unlock the secrets of the universe with our mystical oracle cards",
-        isActive: true,
-      },
-      {
-        id: "features",
-        title: "Oracle Tools",
-        content: "Card Simulator, Numerology Calculator, Card Library",
-        isActive: true,
-      },
-      {
-        id: "testimonials",
-        title: "What Our Users Say",
-        content: "The NUMO Oracle has transformed my spiritual practice. The insights are incredibly accurate!",
-        isActive: true,
-      },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-]
-
-let posts = [
-  {
-    id: "1",
-    title: "Understanding Numerology",
-    slug: "understanding-numerology",
-    content: "Numerology is the study of numbers and their energetic influence on our lives...",
-    excerpt: "Learn the basics of numerology and how it can transform your understanding of life.",
-    author: "Admin",
-    status: "published",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-]
+import { getAllContent, getContent, createContent, updateContent, deleteContent } from "@/lib/enhanced-content"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const type = searchParams.get("type")
   const slug = searchParams.get("slug")
+  const type = searchParams.get("type") // 'page' or 'post'
 
-  if (type === "page" && slug) {
-    const page = pages.find((p) => p.slug === slug)
-    return NextResponse.json({ page })
+  try {
+    if (slug) {
+      const content = await getContent(slug, type || undefined)
+      if (content) {
+        return NextResponse.json(content)
+      } else {
+        return NextResponse.json({ message: "Content not found" }, { status: 404 })
+      }
+    } else {
+      const allContent = await getAllContent(type || undefined)
+      return NextResponse.json(allContent)
+    }
+  } catch (error) {
+    console.error("Error fetching content:", error)
+    return NextResponse.json({ error: "Failed to fetch content" }, { status: 500 })
   }
-
-  if (type === "pages") {
-    return NextResponse.json({ pages })
-  }
-
-  if (type === "post" && slug) {
-    const post = posts.find((p) => p.slug === slug)
-    return NextResponse.json({ post })
-  }
-
-  if (type === "posts") {
-    return NextResponse.json({ posts })
-  }
-
-  return NextResponse.json({ pages, posts })
 }
 
 export async function POST(request: Request) {
-  const body = await request.json()
-
-  if (body.type === "page") {
-    const { page } = body
-    const existingIndex = pages.findIndex((p) => p.id === page.id)
-
-    if (existingIndex >= 0) {
-      pages[existingIndex] = {
-        ...page,
-        updatedAt: new Date().toISOString(),
-      }
-    } else {
-      pages.push({
-        ...page,
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      })
-    }
-
-    return NextResponse.json({ success: true, page: pages.find((p) => p.id === page.id) })
+  try {
+    const contentData = await request.json()
+    const newContent = await createContent(contentData)
+    return NextResponse.json(newContent, { status: 201 })
+  } catch (error) {
+    console.error("Error creating content:", error)
+    return NextResponse.json({ error: "Failed to create content" }, { status: 500 })
   }
+}
 
-  if (body.type === "post") {
-    const { post } = body
-    const existingIndex = posts.findIndex((p) => p.id === post.id)
-
-    if (existingIndex >= 0) {
-      posts[existingIndex] = {
-        ...post,
-        updatedAt: new Date().toISOString(),
-      }
-    } else {
-      posts.push({
-        ...post,
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      })
+export async function PUT(request: Request) {
+  try {
+    const contentData = await request.json()
+    if (!contentData.id) {
+      return NextResponse.json({ error: "Content ID is required for update" }, { status: 400 })
     }
-
-    return NextResponse.json({ success: true, post: posts.find((p) => p.id === post.id) })
+    const updatedContent = await updateContent(contentData.id, contentData)
+    if (updatedContent) {
+      return NextResponse.json(updatedContent)
+    } else {
+      return NextResponse.json({ message: "Content not found" }, { status: 404 })
+    }
+  } catch (error) {
+    console.error("Error updating content:", error)
+    return NextResponse.json({ error: "Failed to update content" }, { status: 500 })
   }
-
-  return NextResponse.json({ error: "Invalid request" }, { status: 400 })
 }
 
 export async function DELETE(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const type = searchParams.get("type")
-  const id = searchParams.get("id")
-
-  if (!type || !id) {
-    return NextResponse.json({ error: "Missing type or id" }, { status: 400 })
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get("id")
+    if (!id) {
+      return NextResponse.json({ error: "Content ID is required for deletion" }, { status: 400 })
+    }
+    const deleted = await deleteContent(id)
+    if (deleted) {
+      return NextResponse.json({ message: "Content deleted successfully" })
+    } else {
+      return NextResponse.json({ message: "Content not found" }, { status: 404 })
+    }
+  } catch (error) {
+    console.error("Error deleting content:", error)
+    return NextResponse.json({ error: "Failed to delete content" }, { status: 500 })
   }
-
-  if (type === "page") {
-    pages = pages.filter((p) => p.id !== id)
-    return NextResponse.json({ success: true })
-  }
-
-  if (type === "post") {
-    posts = posts.filter((p) => p.id !== id)
-    return NextResponse.json({ success: true })
-  }
-
-  return NextResponse.json({ error: "Invalid type" }, { status: 400 })
 }

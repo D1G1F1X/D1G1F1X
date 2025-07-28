@@ -1,302 +1,279 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { RefreshCw, CheckCircle, XCircle, AlertCircle, Database, Activity, HardDrive } from "lucide-react"
+import { RefreshCw, CheckCircle, XCircle, Cloud, Loader2, AlertTriangle, Info } from "lucide-react"
+import {
+  testBlobStorageConnection,
+  getVerifiedImageMetrics,
+  clearVerifiedImageCache,
+  preloadVerifiedCardImages,
+} from "@/lib/verified-blob-handler" // Assuming these are external now
+import type { OracleCard } from "@/types/cards"
+import { getAllCardData } from "@/lib/card-data-access"
 
-interface HealthStatus {
-  connection: any
-  storage: any
-  metrics: any
-  status: "healthy" | "degraded" | "error"
+interface BlobStatus {
+  urlAccessible: boolean
+  imagesFound: number
+  sampleImageAccessible: boolean
+  averageResponseTime: number
+  error?: string
+}
+
+interface ImageMetrics {
+  cache: {
+    totalImages: number
+    verifiedImages: number
+    cacheAge: number
+    totalSize: number
+  }
+  performance: {
+    totalRequests: number
+    successfulLoads: number
+    failedLoads: number
+    averageLoadTime: number
+    cacheHits: number
+    networkRequests: number
+  }
+  errors: Array<{ key: string; error: string; attempts: number }>
 }
 
 export default function BlobDiagnosticsPage() {
-  const [healthStatus, setHealthStatus] = useState<HealthStatus | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  const [testResults, setTestResults] = useState<any[]>([])
-
-  const runHealthCheck = async () => {
-    setIsLoading(true)
-    try {
-      const response = await fetch("/api/blob/verify?action=health")
-      const data = await response.json()
-
-      if (data.success) {
-        setHealthStatus(data.health)
-        setLastUpdated(new Date())
-      } else {
-        console.error("Health check failed:", data.error)
-      }
-    } catch (error) {
-      console.error("Error running health check:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const testSpecificCard = async (cardId: string, element: string) => {
-    try {
-      const response = await fetch(`/api/blob/test-card?cardId=${cardId}&element=${element}`)
-      const data = await response.json()
-
-      setTestResults((prev) => [data.test, ...prev.slice(0, 9)]) // Keep last 10 results
-    } catch (error) {
-      console.error("Error testing card:", error)
-    }
-  }
+  const [blobStatus, setBlobStatus] = useState<BlobStatus | null>(null)
+  const [metrics, setMetrics] = useState<ImageMetrics | null>(null)
+  const [loadingTest, setLoadingTest] = useState(false)
+  const [loadingPreload, setLoadingPreload] = useState(false)
+  const [preloadProgress, setPreloadProgress] = useState(0)
+  const [preloadMessage, setPreloadMessage] = useState("")
+  const [preloadDetails, setPreloadDetails] = useState({ loaded: 0, failed: 0, total: 0, time: 0 })
+  const [allCards, setAllCards] = useState<OracleCard[]>([])
 
   useEffect(() => {
-    runHealthCheck()
+    setAllCards(getAllCardData() as OracleCard[])
+    runTests()
+    fetchMetrics()
   }, [])
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "healthy":
-        return "text-green-400"
-      case "degraded":
-        return "text-yellow-400"
-      case "error":
-        return "text-red-400"
-      default:
-        return "text-gray-400"
+  const runTests = async () => {
+    setLoadingTest(true)
+    setBlobStatus(null)
+    try {
+      const result = await testBlobStorageConnection()
+      setBlobStatus(result.details)
+      if (!result.success) {
+        console.error("Blob test failed:", result.error)
+      }
+    } catch (error: any) {
+      console.error("Error running blob test:", error)
+      setBlobStatus({
+        urlAccessible: false,
+        imagesFound: 0,
+        sampleImageAccessible: false,
+        averageResponseTime: 0,
+        error: error.message || "Unknown error",
+      })
+    } finally {
+      setLoadingTest(false)
     }
   }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "healthy":
-        return <CheckCircle className="h-5 w-5 text-green-400" />
-      case "degraded":
-        return <AlertCircle className="h-5 w-5 text-yellow-400" />
-      case "error":
-        return <XCircle className="h-5 w-5 text-red-400" />
-      default:
-        return <RefreshCw className="h-5 w-5 text-gray-400" />
+  const fetchMetrics = () => {
+    try {
+      const currentMetrics = getVerifiedImageMetrics()
+      setMetrics(currentMetrics)
+    } catch (error) {
+      console.error("Error fetching metrics:", error)
     }
   }
+
+  const handleClearCache = () => {
+    clearVerifiedImageCache()
+    fetchMetrics()
+  }
+
+  const handlePreloadAllImages = async () => {
+    setLoadingPreload(true)
+    setPreloadProgress(0)
+    setPreloadMessage("Starting preload...")
+    setPreloadDetails({ loaded: 0, failed: 0, total: 0, time: 0 })
+
+    try {
+      const cardIds = allCards.map((card) => card.id)
+      const elements = [...new Set(allCards.flatMap((card) => [card.baseElement, card.synergisticElement]))]
+
+      const result = await preloadVerifiedCardImages(cardIds, elements, (loaded, total, failed) => {
+        setPreloadProgress(Math.round((loaded / total) * 100))
+        setPreloadMessage(`Preloading ${loaded}/${total} images...`)
+        setPreloadDetails((prev) => ({ ...prev, loaded, total, failed }))
+      })
+
+      setPreloadMessage(`Preload complete: ${result.loaded} loaded, ${result.failed} failed.`)
+      setPreloadDetails({
+        loaded: result.loaded,
+        failed: result.failed,
+        total: result.loaded + result.failed,
+        time: result.totalTime,
+      })
+      fetchMetrics() // Refresh metrics after preload
+    } catch (error: any) {
+      console.error("Error during preload:", error)
+      setPreloadMessage(`Preload failed: ${error.message}`)
+    } finally {
+      setLoadingPreload(false)
+    }
+  }
+
+  const renderStatusBadge = (condition: boolean) =>
+    condition ? (
+      <Badge className="bg-green-500 hover:bg-green-600">
+        <CheckCircle className="h-3 w-3 mr-1" /> OK
+      </Badge>
+    ) : (
+      <Badge variant="destructive">
+        <XCircle className="h-3 w-3 mr-1" /> Fail
+      </Badge>
+    )
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Blob Storage Diagnostics</h1>
-        <div className="flex items-center space-x-4">
-          {lastUpdated && (
-            <span className="text-sm text-gray-400">Last updated: {lastUpdated.toLocaleTimeString()}</span>
-          )}
-          <Button onClick={runHealthCheck} disabled={isLoading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
-        </div>
-      </div>
+    <div className="container mx-auto p-6 space-y-8">
+      <h1 className="text-3xl font-bold mb-6">Vercel Blob Storage Diagnostics</h1>
 
-      {/* Overall Status */}
-      {healthStatus && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              {getStatusIcon(healthStatus.status)}
-              <span>System Status</span>
-              <Badge variant={healthStatus.status === "healthy" ? "default" : "destructive"}>
-                {healthStatus.status.toUpperCase()}
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-400">
-                  {healthStatus.connection.details?.imagesFound || 0}
-                </div>
-                <div className="text-sm text-gray-400">Images Available</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-400">{healthStatus.metrics.cache.verifiedImages}</div>
-                <div className="text-sm text-gray-400">Verified Images</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-400">
-                  {Math.round(healthStatus.connection.details?.averageResponseTime || 0)}ms
-                </div>
-                <div className="text-sm text-gray-400">Response Time</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Detailed Metrics */}
-      {healthStatus && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Connection Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Database className="h-5 w-5 mr-2" />
-                Connection Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between">
-                <span>URL Accessible:</span>
-                <Badge variant={healthStatus.connection.details?.urlAccessible ? "default" : "destructive"}>
-                  {healthStatus.connection.details?.urlAccessible ? "Yes" : "No"}
-                </Badge>
-              </div>
-              <div className="flex justify-between">
-                <span>Sample Image Test:</span>
-                <Badge variant={healthStatus.connection.details?.sampleImageAccessible ? "default" : "destructive"}>
-                  {healthStatus.connection.details?.sampleImageAccessible ? "Pass" : "Fail"}
-                </Badge>
-              </div>
-              <div className="flex justify-between">
-                <span>Images Found:</span>
-                <span>{healthStatus.connection.details?.imagesFound}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Response Time:</span>
-                <span>{healthStatus.connection.details?.averageResponseTime}ms</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Performance Metrics */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Activity className="h-5 w-5 mr-2" />
-                Performance Metrics
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between">
-                <span>Total Requests:</span>
-                <span>{healthStatus.metrics.performance.totalRequests}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Successful Loads:</span>
-                <span className="text-green-400">{healthStatus.metrics.performance.successfulLoads}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Failed Loads:</span>
-                <span className="text-red-400">{healthStatus.metrics.performance.failedLoads}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Cache Hits:</span>
-                <span className="text-blue-400">{healthStatus.metrics.performance.cacheHits}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Avg Load Time:</span>
-                <span>{Math.round(healthStatus.metrics.performance.averageLoadTime)}ms</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Cache Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <HardDrive className="h-5 w-5 mr-2" />
-                Cache Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between">
-                <span>Total Images:</span>
-                <span>{healthStatus.metrics.cache.totalImages}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Verified Images:</span>
-                <span className="text-green-400">{healthStatus.metrics.cache.verifiedImages}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Cache Size:</span>
-                <span>{(healthStatus.metrics.cache.totalSize / 1024 / 1024).toFixed(2)}MB</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Cache Age:</span>
-                <span>{Math.round(healthStatus.metrics.cache.cacheAge / 60000)}min</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Error Summary */}
-          {healthStatus.metrics.errors.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <AlertCircle className="h-5 w-5 mr-2 text-red-400" />
-                  Recent Errors
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 max-h-40 overflow-y-auto">
-                  {healthStatus.metrics.errors.slice(0, 5).map((error, index) => (
-                    <Alert key={index} className="py-2">
-                      <AlertDescription className="text-xs">
-                        <div className="font-medium">{error.key}</div>
-                        <div className="text-gray-400">{error.error}</div>
-                        <div className="text-gray-500">Attempts: {error.attempts}</div>
-                      </AlertDescription>
-                    </Alert>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      )}
-
-      {/* Quick Tests */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Card Tests</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Cloud className="h-5 w-5" /> Blob Connection Test
+          </CardTitle>
+          <CardDescription>Verify direct connection and access to Vercel Blob storage.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
-            {[
-              { id: "0-Cauldron", element: "Spirit" },
-              { id: "1-Cauldron", element: "Fire" },
-              { id: "2-Sword", element: "Water" },
-              { id: "3-Cord", element: "Fire" },
-            ].map((test) => (
-              <Button
-                key={`${test.id}-${test.element}`}
-                variant="outline"
-                size="sm"
-                onClick={() => testSpecificCard(test.id, test.element)}
-                className="text-xs"
-              >
-                Test {test.id}-{test.element}
-              </Button>
-            ))}
-          </div>
-
-          {/* Test Results */}
-          {testResults.length > 0 && (
+        <CardContent className="space-y-4">
+          <Button onClick={runTests} disabled={loadingTest}>
+            {loadingTest ? <Loader2 className="animate-spin mr-2" /> : <RefreshCw className="mr-2" />}
+            {loadingTest ? "Running Test..." : "Run Connection Test"}
+          </Button>
+          {blobStatus && (
             <div className="space-y-2">
-              <h4 className="font-medium">Recent Test Results:</h4>
-              <div className="space-y-1 max-h-60 overflow-y-auto">
-                {testResults.map((result, index) => (
-                  <div key={index} className="flex items-center justify-between text-xs bg-gray-800 p-2 rounded">
-                    <span>
-                      {result.cardId}-{result.element}
-                    </span>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant={result.isPlaceholder ? "destructive" : "default"} className="text-xs">
-                        {result.isPlaceholder ? "Placeholder" : "Found"}
-                      </Badge>
-                      <span className="text-gray-400">{result.loadTime}ms</span>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex items-center gap-2">
+                URL Accessible: {renderStatusBadge(blobStatus.urlAccessible)}
               </div>
+              <div className="flex items-center gap-2">
+                Images Found:{" "}
+                {blobStatus.imagesFound > 0 ? (
+                  <Badge className="bg-green-500 hover:bg-green-600">{blobStatus.imagesFound} Found</Badge>
+                ) : (
+                  <Badge variant="destructive">0 Found</Badge>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                Sample Image Accessible: {renderStatusBadge(blobStatus.sampleImageAccessible)}
+              </div>
+              <div className="flex items-center gap-2">
+                Average Response Time: <Badge variant="secondary">{blobStatus.averageResponseTime} ms</Badge>
+              </div>
+              {blobStatus.error && (
+                <div className="flex items-center gap-2 text-red-500">
+                  <AlertTriangle className="h-4 w-4" /> Error: {blobStatus.error}
+                </div>
+              )}
             </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Info className="h-5 w-5" /> Image Cache Metrics
+          </CardTitle>
+          <CardDescription>Monitor the performance and state of the in-memory image cache.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button onClick={fetchMetrics}>
+            <RefreshCw className="mr-2" /> Refresh Metrics
+          </Button>
+          <Button onClick={handleClearCache} variant="outline" className="ml-2 bg-transparent">
+            Clear Cache
+          </Button>
+          {metrics && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-semibold mb-2">Cache State</h3>
+                <p>
+                  Total Images in Cache: <Badge>{metrics.cache.totalImages}</Badge>
+                </p>
+                <p>
+                  Verified Images: <Badge>{metrics.cache.verifiedImages}</Badge>
+                </p>
+                <p>
+                  Cache Age: <Badge>{(metrics.cache.cacheAge / 1000 / 60).toFixed(1)} minutes</Badge>
+                </p>
+                <p>
+                  Total Cache Size: <Badge>{(metrics.cache.totalSize / 1024 / 1024).toFixed(2)} MB</Badge>
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-2">Performance</h3>
+                <p>
+                  Total Requests: <Badge>{metrics.performance.totalRequests}</Badge>
+                </p>
+                <p>
+                  Successful Loads: <Badge>{metrics.performance.successfulLoads}</Badge>
+                </p>
+                <p>
+                  Failed Loads: <Badge>{metrics.performance.failedLoads}</Badge>
+                </p>
+                <p>
+                  Average Load Time: <Badge>{metrics.performance.averageLoadTime.toFixed(2)} ms</Badge>
+                </p>
+                <p>
+                  Cache Hits: <Badge>{metrics.performance.cacheHits}</Badge>
+                </p>
+                <p>
+                  Network Requests: <Badge>{metrics.performance.networkRequests}</Badge>
+                </p>
+              </div>
+              {metrics.errors.length > 0 && (
+                <div className="md:col-span-2">
+                  <h3 className="font-semibold mb-2 text-red-500">Errors in Cache ({metrics.errors.length})</h3>
+                  <ScrollArea className="h-40 w-full rounded-md border p-4">
+                    {metrics.errors.map((err, index) => (
+                      <p key={index} className="text-sm text-red-400">
+                        <strong>{err.key}:</strong> {err.error} (Attempts: {err.attempts})
+                      </p>
+                    ))}
+                  </ScrollArea>
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Cloud className="h-5 w-5" /> Preload All Card Images
+          </CardTitle>
+          <CardDescription>
+            Attempt to preload all card images from blob storage to warm the cache. There are {allCards.length * 2}{" "}
+            theoretical image paths.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button onClick={handlePreloadAllImages} disabled={loadingPreload}>
+            {loadingPreload ? <Loader2 className="animate-spin mr-2" /> : <RefreshCw className="mr-2" />}
+            {loadingPreload ? `Preloading ${preloadProgress}%...` : "Preload All Images"}
+          </Button>
+          {loadingPreload && <Progress value={preloadProgress} className="w-full mt-2" />}
+          {preloadMessage && <p className="text-sm text-gray-400">{preloadMessage}</p>}
+          {preloadDetails.total > 0 && (
+            <p className="text-sm text-gray-400">
+              Loaded: {preloadDetails.loaded}, Failed: {preloadDetails.failed}, Total: {preloadDetails.total} (Time:{" "}
+              {preloadDetails.time}ms)
+            </p>
           )}
         </CardContent>
       </Card>

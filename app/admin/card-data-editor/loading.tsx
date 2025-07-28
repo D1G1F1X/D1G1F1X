@@ -1,16 +1,9 @@
-import { DashboardShell } from "@/components/admin/dashboard-shell"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Loader2 } from "lucide-react"
 
-export default function CardDataEditorLoading() {
+export default function Loading() {
   return (
-    <DashboardShell>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Card Data Editor</h1>
-      </div>
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-full" />
-        <Skeleton className="h-[600px] w-full" />
-      </div>
-    </DashboardShell>
+    <div className="flex h-[calc(100vh-10rem)] items-center justify-center">
+      <Loader2 className="h-16 w-16 animate-spin text-primary" />
+    </div>
   )
 }

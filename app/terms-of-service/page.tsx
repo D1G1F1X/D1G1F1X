@@ -1,141 +1,128 @@
-import type { Metadata } from "next"
-
-export const metadata: Metadata = {
-  title: "Terms of Service | NUMO Oracle",
-  description: "Terms of Service for NUMO Oracle - Please read these terms carefully before using our services.",
-}
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import Image from "next/image"
 
 export default function TermsOfServicePage() {
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-8 text-center text-purple-500">Terms of Service</h1>
+    <div className="relative min-h-screen flex flex-col items-center p-4">
+      <Image
+        src="/abstract-geometric-card.png" // Reusing a similar background
+        alt="Terms of Service Background"
+        layout="fill"
+        objectFit="cover"
+        quality={100}
+        className="z-0 opacity-30"
+      />
+      <div className="absolute inset-0 bg-black/50 z-10" />
 
-      <div className="prose prose-lg dark:prose-invert max-w-none">
-        <p className="text-lg mb-6">Last Updated: May 12, 2025</p>
+      <Card className="relative z-20 w-full max-w-4xl p-6 md:p-8 shadow-lg my-8">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl font-bold text-primary-foreground">Terms of Service</CardTitle>
+          <p className="text-muted-foreground">Last Updated: July 25, 2024</p>
+        </CardHeader>
+        <CardContent className="prose dark:prose-invert max-w-none">
+          <p>
+            Welcome to NUMO Oracle! These Terms of Service (&quot;Terms&quot;) govern your access to and use of the NUMO
+            Oracle website, products, and services (collectively, the &quot;Services&quot;). By accessing or using our
+            Services, you agree to be bound by these Terms.
+          </p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Agreement to Terms</h2>
-          <p>
-            These Terms of Service constitute a legally binding agreement made between you and NUMO Oracle ("we," "us,"
-            or "our"), concerning your access to and use of the NUMO Oracle website and services.
-          </p>
-          <p>
-            By accessing or using our website and services, you agree to be bound by these Terms of Service. If you
-            disagree with any part of these terms, you may not access the website or use our services.
-          </p>
-        </section>
+          <Separator className="my-6" />
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Intellectual Property Rights</h2>
+          <h2>1. Acceptance of Terms</h2>
           <p>
-            The NUMO Oracle card deck, numerology system, website content, features, and functionality are owned by NUMO
-            Oracle and are protected by international copyright, trademark, patent, trade secret, and other intellectual
-            property or proprietary rights laws.
+            By creating an account, accessing, or using the Services, you signify that you have read, understood, and
+            agree to be bound by these Terms, whether or not you are a registered user of our Services. If you do not
+            agree to these Terms, do not use the Services.
           </p>
-          <p>
-            You may not reproduce, distribute, modify, create derivative works of, publicly display, publicly perform,
-            republish, download, store, or transmit any of our materials without our express written consent.
-          </p>
-        </section>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">User Accounts</h2>
-          <p>
-            When you create an account with us, you must provide accurate, complete, and current information. You are
-            responsible for safeguarding the password and for all activities that occur under your account.
-          </p>
-          <p>
-            You agree to notify us immediately of any unauthorized access to or use of your account. We reserve the
-            right to disable any user account at any time if, in our opinion, you have violated any provision of these
-            Terms of Service.
-          </p>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Products and Purchases</h2>
-          <p>
-            All purchases through our website are subject to product availability. We reserve the right to discontinue
-            any product at any time.
-          </p>
-          <p>
-            Prices for our products are subject to change without notice. We reserve the right to modify or discontinue
-            the service without notice at any time.
-          </p>
-          <p>
-            We shall not be liable to you or to any third party for any modification, price change, suspension, or
-            discontinuance of the service.
-          </p>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Disclaimer of Warranties</h2>
-          <p>
-            The NUMO Oracle card readings and numerology calculations are provided for entertainment and self-reflection
-            purposes only. They are not intended to replace professional advice, diagnosis, or treatment.
-          </p>
-          <p>
-            Our website and services are provided on an "as is" and "as available" basis, without any warranties of any
-            kind, either express or implied. We disclaim all warranties, including implied warranties of
-            merchantability, fitness for a particular purpose, and non-infringement.
-          </p>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Limitation of Liability</h2>
-          <p>
-            In no event shall NUMO Oracle, its directors, employees, partners, agents, suppliers, or affiliates be
-            liable for any indirect, incidental, special, consequential, or punitive damages, including without
-            limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from:
-          </p>
-          <ul className="list-disc pl-6 mb-4">
-            <li>Your access to or use of or inability to access or use the service</li>
-            <li>Any conduct or content of any third party on the service</li>
-            <li>Any content obtained from the service</li>
-            <li>Unauthorized access, use, or alteration of your transmissions or content</li>
-          </ul>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Indemnification</h2>
-          <p>
-            You agree to defend, indemnify, and hold harmless NUMO Oracle and its licensees and licensors, and their
-            employees, contractors, agents, officers, and directors, from and against any and all claims, damages,
-            obligations, losses, liabilities, costs or debt, and expenses, including but not limited to attorney's fees,
-            arising from your use of and access to the service.
-          </p>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Governing Law</h2>
-          <p>
-            These Terms shall be governed by and defined following the laws of [Your Country/State]. NUMO Oracle and
-            yourself irrevocably consent that the courts of [Your Country/State] shall have exclusive jurisdiction to
-            resolve any dispute which may arise in connection with these terms.
-          </p>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Changes to Terms</h2>
+          <h2>2. Changes to Terms</h2>
           <p>
             We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is
-            material, we will try to provide at least 30 days' notice prior to any new terms taking effect.
+            material, we will provide at least 30 days&apos; notice prior to any new terms taking effect. What
+            constitutes a material change will be determined at our sole discretion.
           </p>
-          <p>
-            By continuing to access or use our service after those revisions become effective, you agree to be bound by
-            the revised terms. If you do not agree to the new terms, please stop using the service.
-          </p>
-        </section>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
-          <p>If you have any questions about these Terms, please contact us at:</p>
-          <p className="mt-4">
-            <strong>Email:</strong> terms@numoracle.com
-            <br />
-            <strong>Address:</strong> NUMO Oracle, 123 Mystical Lane, Spiritual City, SC 12345
+          <Separator className="my-6" />
+
+          <h2>3. Use of Services</h2>
+          <h3>Eligibility</h3>
+          <p>
+            You must be at least 13 years old to use the Services. By using the Services, you represent and warrant that
+            you are at least 13 years old.
           </p>
-        </section>
-      </div>
+          <h3>Account Responsibility</h3>
+          <p>
+            You are responsible for maintaining the confidentiality of your account password and are responsible for all
+            activities that occur under your account. You agree to notify us immediately of any unauthorized use of your
+            password or account.
+          </p>
+          <h3>Prohibited Conduct</h3>
+          <p>
+            You agree not to engage in any of the following prohibited activities: (a) copying, distributing, or
+            disclosing any part of the Services in any medium; (b) transmitting spam, chain letters, or other
+            unsolicited email; (c) attempting to interfere with, compromise the system integrity or security or decipher
+            any transmissions to or from the servers running the Services; (d) taking any action that imposes an
+            unreasonable or disproportionately large load on our infrastructure; (e) uploading invalid data, viruses,
+            worms, or other software agents through the Services; (f) collecting or harvesting any personally
+            identifiable information, including account names, from the Services; (g) using the Services for any
+            commercial solicitation purposes; (h) impersonating another person or otherwise misrepresenting your
+            affiliation with a person or entity, conducting fraud, hiding or attempting to hide your identity; (i)
+            interfering with the proper working of the Services; (j) accessing any content on the Services through any
+            technology or means other than those provided or authorized by the Services; or (k) bypassing the measures
+            we may use to prevent or restrict access to the Services.
+          </p>
+
+          <Separator className="my-6" />
+
+          <h2>4. Intellectual Property</h2>
+          <p>
+            All content on the Site, including text, graphics, logos, images, as well as the compilation thereof, and
+            any software used on the Site, is the property of NUMO Oracle or its suppliers and protected by copyright
+            and other laws that protect intellectual property and proprietary rights.
+          </p>
+
+          <Separator className="my-6" />
+
+          <h2>5. Disclaimer of Warranties</h2>
+          <p>
+            The Services are provided on an &quot;as is&quot; and &quot;as available&quot; basis. Use of the Services is
+            at your own risk. To the maximum extent permitted by applicable law, the Services are provided without
+            warranties of any kind, whether express or implied, including, but not limited to, implied warranties of
+            merchantability, fitness for a particular purpose, or non-infringement.
+          </p>
+
+          <Separator className="my-6" />
+
+          <h2>6. Limitation of Liability</h2>
+          <p>
+            To the maximum extent permitted by applicable law, in no event shall NUMO Oracle, its affiliates, agents,
+            directors, employees, suppliers or licensors be liable for any indirect, punitive, incidental, special,
+            consequential or exemplary damages, including without limitation damages for loss of profits, goodwill, use,
+            data or other intangible losses, arising out of or relating to the use of, or inability to use, this
+            service.
+          </p>
+
+          <Separator className="my-6" />
+
+          <h2>7. Governing Law</h2>
+          <p>
+            These Terms shall be governed by the laws of [Your State/Country], without regard to its conflict of law
+            provisions.
+          </p>
+
+          <Separator className="my-6" />
+
+          <h2>8. Contact Us</h2>
+          <p>If you have any questions about these Terms, please contact us at:</p>
+          <p>
+            Email:{" "}
+            <a href="mailto:terms@numoracle.com" className="text-primary hover:underline">
+              terms@numoracle.com
+            </a>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   )
 }

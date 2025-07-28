@@ -1,176 +1,167 @@
 import { CardFooter } from "@/components/ui/card"
-import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { Sparkles, Calculator, Dice6, GraduationCap, BookOpen } from "lucide-react"
-import HeroSection from "@/components/hero-section" // Import HeroSection
+import { Sparkles, Calculator, Dice5, BookOpen, ArrowRight } from "lucide-react"
+import Link from "next/link"
+import Image from "next/image"
 
 export default function ToolsPage() {
-  const tools = [
-    {
-      title: "NUMO Card Dealer",
-      description: "Draw oracle cards and receive detailed interpretations based on ancient Celtic wisdom",
-      icon: <Sparkles className="h-8 w-8" />,
-      href: "/tools/card-simulator",
-      featured: true,
-    },
-    {
-      title: "Numerology Calculator",
-      description: "Calculate your life path number and discover your numerological insights",
-      icon: <Calculator className="h-8 w-8" />,
-      href: "/tools/numerology-calculator",
-      featured: false,
-    },
-    {
-      title: "Elemental Dice",
-      description: "Roll the elemental dice for quick guidance and elemental insights",
-      icon: <Dice6 className="h-8 w-8" />,
-      href: "/tools/elemental-dice",
-      featured: false,
-    },
-  ]
-
-  const resourceTools = [
-    {
-      title: "NUMO Oracle Tutorial",
-      description: "New to NUMO? Learn how to use the oracle system with our step-by-step guided tutorial.",
-      icon: <GraduationCap className="h-8 w-8" />,
-      href: "/tutorial",
-      actionText: "Start Learning",
-      buttonClass: "bg-yellow-500 hover:bg-yellow-600 text-black",
-    },
-    {
-      title: "NUMO Guidebook",
-      description:
-        "Comprehensive guide to understanding the NUMO Oracle system, card meanings, and reading techniques.",
-      icon: <BookOpen className="h-8 w-8" />,
-      href: "/guidebook",
-      actionText: "Read Guidebook",
-      buttonClass: "bg-blue-500 hover:bg-blue-600 text-white",
-    },
-  ]
-
   return (
-    <div className="relative min-h-screen bg-black">
-      <HeroSection
-        title="NUMO Oracle Tools & Resources"
-        description="Explore our collection of interactive tools and learning resources designed to help you connect with the wisdom of the NUMO Oracle system and discover insights for your journey."
-        backgroundImage="/five-sacred-treasures.png"
-      />
-      <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black text-slate-50">
-        <div className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Featured Tool */}
-            {tools
-              .filter((tool) => tool.featured)
-              .map((tool, index) => (
-                <Card
-                  key={`featured-${index}`}
-                  className="md:col-span-2 lg:col-span-3 flex flex-col sm:flex-row items-center p-6 bg-slate-800/70 border-slate-700 backdrop-blur-sm hover:border-purple-500/70 transition-all duration-300 rounded-xl shadow-lg hover:shadow-purple-500/20"
-                >
-                  <div className="text-purple-400 mb-4 sm:mb-0 sm:mr-6 shrink-0">
-                    {typeof tool.icon === "function" ? <tool.icon className="h-16 w-16" /> : tool.icon}
-                  </div>
-                  <div className="flex-grow text-center sm:text-left">
-                    <CardHeader className="p-0 mb-2">
-                      <CardTitle className="text-2xl font-semibold text-white">{tool.title}</CardTitle>
-                    </CardHeader>
-                    <CardDescription className="text-slate-300 mb-4 text-base">{tool.description}</CardDescription>
-                    <Link href={tool.href}>
-                      <Button
-                        size="lg"
-                        className="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300"
-                      >
-                        Try Free Demo
-                      </Button>
-                    </Link>
-                  </div>
-                </Card>
-              ))}
+    <div className="container mx-auto px-4 py-8">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-primary-foreground mb-4">Our Sacred Tools</h1>
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          Unlock deeper insights and personalize your spiritual journey with our interactive tools.
+        </p>
+      </div>
 
-            {/* Learning Resources */}
-            {resourceTools.map((tool, index) => (
-              <Card
-                key={`resource-${index}`}
-                className={`${
-                  tool.href === "/tutorial"
-                    ? "bg-purple-900/50 border-purple-700 hover:border-purple-500/90 hover:shadow-purple-600/30"
-                    : "bg-blue-900/50 border-blue-700 hover:border-blue-500/90 hover:shadow-blue-600/30"
-                } backdrop-blur-sm transition-all duration-300 rounded-xl shadow-lg flex flex-col`}
-              >
-                <CardHeader className="items-center text-center">
-                  <div className={`${tool.href === "/tutorial" ? "text-yellow-300" : "text-blue-300"} mb-3`}>
-                    {tool.icon}
-                  </div>
-                  <CardTitle className="text-xl text-white">{tool.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow text-center">
-                  <CardDescription className="text-slate-200">{tool.description}</CardDescription>
-                </CardContent>
-                <CardFooter className="mt-auto justify-center p-4">
-                  <Link href={tool.href} className="w-full max-w-xs">
-                    <Button className={`w-full ${tool.buttonClass} font-semibold`}>{tool.actionText}</Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-            ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <Card className="flex flex-col items-center text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <Sparkles className="h-16 w-16 text-purple-500 mb-4" />
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-primary-foreground">Oracle Card Simulator</CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Draw virtual cards and receive AI-powered interpretations for your questions.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-grow">
+            <Image
+              src="/images/tools/card-simulator.png"
+              alt="Card Simulator"
+              width={300}
+              height={200}
+              className="rounded-md object-cover mx-auto mt-4"
+            />
+          </CardContent>
+          <CardFooter>
+            <Link href="/tools/card-simulator">
+              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white">
+                Start Reading <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </CardFooter>
+        </Card>
 
-            {/* Other Tools */}
-            {tools
-              .filter((tool) => !tool.featured)
-              .map((tool, index) => (
-                <Card
-                  key={index}
-                  className="bg-slate-800/70 border-slate-700 backdrop-blur-sm hover:border-purple-500/70 transition-all duration-300 rounded-xl shadow-lg hover:shadow-purple-500/20 flex flex-col"
-                >
-                  <CardHeader className="items-center text-center">
-                    <div className="text-purple-400 mb-3">
-                      {typeof tool.icon === "function" ? <tool.icon /> : tool.icon}
-                    </div>
-                    <CardTitle className="text-xl text-white">{tool.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex-grow text-center">
-                    <CardDescription className="text-slate-300">{tool.description}</CardDescription>
-                  </CardContent>
-                  <CardFooter className="mt-auto justify-center p-4">
-                    <Link href={tool.href} className="w-full max-w-xs">
-                      <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">Open Tool</Button>
-                    </Link>
-                  </CardFooter>
-                </Card>
-              ))}
-          </div>
+        <Card className="flex flex-col items-center text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <Calculator className="h-16 w-16 text-green-500 mb-4" />
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-primary-foreground">Numerology Calculator</CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Discover your life path, expression, and other core numbers based on your birth details.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-grow">
+            <Image
+              src="/images/tools/numerology-calculator.png"
+              alt="Numerology Calculator"
+              width={300}
+              height={200}
+              className="rounded-md object-cover mx-auto mt-4"
+            />
+          </CardContent>
+          <CardFooter>
+            <Link href="/tools/numerology-calculator">
+              <Button variant="outline">
+                Calculate Numbers <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </CardFooter>
+        </Card>
 
-          <div className="mt-16 text-center">
-            <Card className="bg-slate-800/70 border-slate-700 backdrop-blur-sm max-w-2xl mx-auto p-6 rounded-xl shadow-lg">
-              <CardHeader className="p-0 mb-4">
-                <CardTitle className="text-2xl font-semibold text-white">More NUMO Resources</CardTitle>
-                <CardDescription className="text-slate-300 mt-1">
-                  Deepen your understanding of the NUMO Oracle system.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link href="/about" className="flex-1">
-                    <Button
-                      variant="outline"
-                      className="w-full border-purple-500 text-purple-300 hover:bg-purple-500/10 hover:text-purple-200 transition-colors"
-                    >
-                      About NUMO
-                    </Button>
-                  </Link>
-                  <Link href="/library" className="flex-1">
-                    <Button
-                      variant="outline"
-                      className="w-full border-purple-500 text-purple-300 hover:bg-purple-500/10 hover:text-purple-200 transition-colors"
-                    >
-                      Library & Resources
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        <Card className="flex flex-col items-center text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <Dice5 className="h-16 w-16 text-orange-500 mb-4" />
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-primary-foreground">Elemental Dice Roller</CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Roll the elemental dice for quick insights into the energies influencing your day.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-grow">
+            <Image
+              src="/images/tools/elemental-dice.png"
+              alt="Elemental Dice"
+              width={300}
+              height={200}
+              className="rounded-md object-cover mx-auto mt-4"
+            />
+          </CardContent>
+          <CardFooter>
+            <Link href="/tools/elemental-dice">
+              <Button variant="outline">
+                Roll the Dice <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </CardFooter>
+        </Card>
+
+        <Card className="flex flex-col items-center text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <BookOpen className="h-16 w-16 text-blue-500 mb-4" />
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-primary-foreground">Card Directory</CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Browse the entire collection of NUMO Oracle cards and their detailed meanings.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-grow">
+            <Image
+              src="/images/tools/card-directory.png"
+              alt="Card Directory"
+              width={300}
+              height={200}
+              className="rounded-md object-cover mx-auto mt-4"
+            />
+          </CardContent>
+          <CardFooter>
+            <Link href="/tools/card-directory">
+              <Button variant="outline">
+                Explore Cards <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </CardFooter>
+        </Card>
+
+        <Card className="flex flex-col items-center text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <Sparkles className="h-16 w-16 text-pink-500 mb-4" />
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-primary-foreground">Simple Card Reading</CardTitle>
+            <CardDescription className="text-muted-foreground">
+              A quick and straightforward way to get a single card reading with basic interpretation.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-grow">
+            <Image
+              src="/images/tools/numo-card-dealer-feature.png"
+              alt="Simple Card Reading"
+              width={300}
+              height={200}
+              className="rounded-md object-cover mx-auto mt-4"
+            />
+          </CardContent>
+          <CardFooter>
+            <Link href="/tools/simple-card-reading">
+              <Button variant="outline">
+                Get Simple Reading <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </CardFooter>
+        </Card>
+      </div>
+
+      <Separator className="my-12" />
+
+      <div className="text-center space-y-4">
+        <h2 className="text-3xl font-bold text-primary-foreground">Need More Guidance?</h2>
+        <p className="text-lg text-muted-foreground">
+          Our comprehensive guidebook and personalized sessions can deepen your understanding.
+        </p>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Button asChild size="lg">
+            <Link href="/buy">Explore Products</Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link href="/contact">Book a Session</Link>
+          </Button>
         </div>
       </div>
     </div>

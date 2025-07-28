@@ -1,105 +1,211 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { ScrollArea } from "@/components/ui/scroll-area"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { Loader2, Send, Sparkles, List, XCircle } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+interface GeminiModel {
+  name: string
+  displayName: string
+  inputTokenLimit: number
+  outputTokenLimit: number
+  supportedGenerationMethods: string[]
+}
 
 export default function TestGeminiPage() {
-  const [models, setModels] = useState<string[]>([])
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<string>("")
-  const [error, setError] = useState<string>("")
+  const [prompt, setPrompt] = useState("Write a short poem about a mystical forest.")
+  const [generatedText, setGeneratedText] = useState<string | null>(null)
+  const [loadingGeneration, setLoadingGeneration] = useState(false)
+  const [generationError, setGenerationError] = useState<string | null>(null)
+  const [models, setModels] = useState<GeminiModel[]>([])
+  const [loadingModels, setLoadingModels] = useState(false)
+  const [modelsError, setModelsError] = useState<string | null>(null)
+  const [selectedModel, setSelectedModel] = useState<string>("gemini-pro") // Default to a common model
+  const { toast } = useToast()
 
-  // Function to list available models
-  const fetchModels = async () => {
-    setLoading(true)
-    setError("")
+  const handleGenerateText = async () => {
+    setLoadingGeneration(true)
+    setGeneratedText(null)
+    setGenerationError(null)
+
     try {
-      const response = await fetch("/api/test-gemini/models")
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`)
+      const res = await fetch("/api/test-gemini/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt, model: selectedModel }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to generate text")
       }
-      const data = await response.json()
-      setModels(data.models || [])
-    } catch (err) {
-      setError(`Failed to fetch models: ${err instanceof Error ? err.message : String(err)}`)
+
+      setGeneratedText(data.text)
+      toast({
+        title: "Text Generated",
+        description: "Gemini successfully generated text.",
+        variant: "default",
+      })
+    } catch (err: any) {
+      setGenerationError(err.message)
+      toast({
+        title: "Generation Failed",
+        description: err.message,
+        variant: "destructive",
+      })
     } finally {
-      setLoading(false)
+      setLoadingGeneration(false)
     }
   }
 
-  // Function to test generation
-  const testGeneration = async () => {
-    setLoading(true)
-    setResult("")
-    setError("")
+  const handleListModels = async () => {
+    setLoadingModels(true)
+    setModels([])
+    setModelsError(null)
+
     try {
-      const response = await fetch("/api/test-gemini/generate")
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`)
+      const res = await fetch("/api/test-gemini/models")
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to list models")
       }
-      const data = await response.json()
-      setResult(data.result || "No result returned")
-    } catch (err) {
-      setError(`Failed to generate content: ${err instanceof Error ? err.message : String(err)}`)
+
+      setModels(data)
+      toast({
+        title: "Models Listed",
+        description: `${data.length} Gemini models found.`,
+        variant: "default",
+      })
+    } catch (err: any) {
+      setModelsError(err.message)
+      toast({
+        title: "Model Listing Failed",
+        description: err.message,
+        variant: "destructive",
+      })
     } finally {
-      setLoading(false)
+      setLoadingModels(false)
     }
   }
-
-  // Fetch models on page load
-  useEffect(() => {
-    fetchModels()
-  }, [])
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Google Gemini API Test</h1>
+    <div className="container mx-auto p-6 space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Gemini API Test Page</h1>
+          <p className="text-muted-foreground">Test integration with Google Gemini models.</p>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Available Models</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading && models.length === 0 ? (
-              <p>Loading models...</p>
-            ) : error ? (
-              <div className="text-red-500">{error}</div>
-            ) : models.length > 0 ? (
-              <ul className="list-disc pl-5 space-y-1">
-                {models.map((model, index) => (
-                  <li key={index}>{model}</li>
+      <Separator />
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5" /> Generate Text
+          </CardTitle>
+          <CardDescription>Send a prompt to a Gemini model and get a text response.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="model-select">Select Model</Label>
+            <Select value={selectedModel} onValueChange={setSelectedModel}>
+              <SelectTrigger id="model-select">
+                <SelectValue placeholder="Select a Gemini model" />
+              </SelectTrigger>
+              <SelectContent>
+                {models.length > 0 ? (
+                  models.map((model) => (
+                    <SelectItem key={model.name} value={model.name}>
+                      {model.displayName} ({model.name})
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="loading" disabled>
+                    {loadingModels ? "Loading models..." : "No models loaded. Click 'List Models'"}
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="prompt">Prompt</Label>
+            <Textarea
+              id="prompt"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Enter your prompt here..."
+              rows={6}
+            />
+          </div>
+          <Button onClick={handleGenerateText} disabled={loadingGeneration || !selectedModel}>
+            {loadingGeneration ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+            {loadingGeneration ? "Generating..." : "Generate Text"}
+          </Button>
+          {generatedText && (
+            <div className="space-y-2">
+              <Label>Generated Text</Label>
+              <div className="rounded-md border bg-muted p-4 text-sm whitespace-pre-wrap">{generatedText}</div>
+            </div>
+          )}
+          {generationError && (
+            <div className="flex items-center gap-2 text-red-500">
+              <XCircle className="h-5 w-5" />
+              <p className="font-medium">Error: {generationError}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <List className="h-5 w-5" /> List Available Models
+          </CardTitle>
+          <CardDescription>Fetch a list of all available Gemini models.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button onClick={handleListModels} disabled={loadingModels}>
+            {loadingModels ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <List className="mr-2 h-4 w-4" />}
+            {loadingModels ? "Loading Models..." : "List Models"}
+          </Button>
+          {models.length > 0 && (
+            <ScrollArea className="h-64 w-full rounded-md border p-4">
+              <ul className="space-y-2">
+                {models.map((model) => (
+                  <li key={model.name} className="text-sm">
+                    <p className="font-medium">
+                      {model.displayName} ({model.name})
+                    </p>
+                    <p className="text-muted-foreground">
+                      Input: {model.inputTokenLimit} tokens | Output: {model.outputTokenLimit} tokens
+                    </p>
+                    <p className="text-muted-foreground">Methods: {model.supportedGenerationMethods.join(", ")}</p>
+                  </li>
                 ))}
               </ul>
-            ) : (
-              <p>No models found</p>
-            )}
-            <Button onClick={fetchModels} disabled={loading} className="mt-4">
-              Refresh Models
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Test Generation</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={testGeneration} disabled={loading} className="mb-4">
-              Generate Test Content
-            </Button>
-
-            {loading && !result ? (
-              <p>Generating content...</p>
-            ) : error ? (
-              <div className="text-red-500">{error}</div>
-            ) : result ? (
-              <div className="p-4 bg-gray-100 rounded-md whitespace-pre-wrap">{result}</div>
-            ) : null}
-          </CardContent>
-        </Card>
-      </div>
+            </ScrollArea>
+          )}
+          {modelsError && (
+            <div className="flex items-center gap-2 text-red-500">
+              <XCircle className="h-5 w-5" />
+              <p className="font-medium">Error: {modelsError}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

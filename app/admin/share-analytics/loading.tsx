@@ -1,3 +1,4 @@
+import { Loader2 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function ShareAnalyticsLoading() {
@@ -22,6 +23,11 @@ export default function ShareAnalyticsLoading() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Skeleton className="h-80" />
         <Skeleton className="h-80" />
+      </div>
+
+      {/* Loader2 component added for loading state */}
+      <div className="flex h-[calc(100vh-10rem)] items-center justify-center">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
       </div>
     </div>
   )
