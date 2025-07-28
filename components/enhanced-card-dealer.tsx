@@ -569,18 +569,52 @@ export default function EnhancedCardDealer({
 
   const generateDetailedReading = async () => {
     setIsGeneratingReading(true)
+    setAiGeneratedReading("") // Clear previous AI reading
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const response = await fetch("/api/ai/reading", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userName: formData.fullName,
+          birthDate: formData.birthDate?.toISOString(),
+          birthPlace: formData.birthPlace,
+          lifePathNumber: lifePath,
+          question: formData.question,
+          readingType: selectedSpread,
+          cards: drawnCards.map((dc) => ({
+            id: dc.card.id,
+            name: dc.card.fullTitle,
+            element: dc.card.baseElement,
+            number: dc.card.number,
+            keywords: dc.card.keyMeanings,
+            suitOrientation: dc.endUp === "first" ? "Upright" : "Reversed", // Assuming 'first' is upright
+            baseElement: dc.card.baseElement,
+            dominantElement: dc.card.baseElement, // Simplified for example
+            icon: dc.card.iconSymbol,
+          })),
+        }),
+      })
 
-      const reading = generateSimulatedReading()
+      const data = await response.json()
 
-      setAiGeneratedReading(reading)
-      setShowDetailedReading(true)
+      if (response.ok && data.reading) {
+        setAiGeneratedReading(data.reading)
+      } else {
+        console.error("API reading failed:", data.error || "Unknown error")
+        setAiGeneratedReading(
+          data.error || "I apologize, but I'm unable to generate an AI reading at this time. Please try again later.",
+        )
+      }
     } catch (error) {
-      console.error("Error generating reading:", error)
-      setAiGeneratedReading("I apologize, but I'm unable to generate a reading at this time. Please try again later.")
+      console.error("Error calling AI reading API:", error)
+      setAiGeneratedReading(
+        "I apologize, but I'm unable to generate an AI reading at this time. Please try again later.",
+      )
     } finally {
+      setShowDetailedReading(true)
       setIsGeneratingReading(false)
     }
   }
@@ -713,7 +747,7 @@ Remember that you have the power to shape your path forward. These cards offer g
       2: "cooperation, diplomacy, and sensitivity to others",
       3: "creative expression, joy, and communication",
       4: "stability, practicality, and building solid foundations",
-      5: "freedom, change, and adaptability",
+      5: "change, freedom, and adaptability",
       6: "responsibility, nurturing, and harmony",
       7: "analysis, wisdom, and spiritual seeking",
       8: "abundance, power, and material mastery",
@@ -940,18 +974,16 @@ Remember that you have the power to shape your path forward. These cards offer g
           <div className="space-y-2">
             <Label>Reading Type</Label>
             <RadioGroup
-              defaultValue={spreadType}
-              onValueChange={(value) => setSpreadType(value as "single" | "three")}
+              defaultValue={selectedSpread}
+              onValueChange={(value) => setSelectedSpread(value)}
               className="flex space-x-4"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="single" id="single" />
-                <Label htmlFor="single">Single Card</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="three" id="three" />
-                <Label htmlFor="three">Three Card Spread</Label>
-              </div>
+              {basicSpreadTypes.map((spread) => (
+                <div key={spread.id} className="flex items-center space-x-2">
+                  <RadioGroupItem value={spread.id} id={spread.id} />
+                  <Label htmlFor={spread.id}>{spread.name}</Label>
+                </div>
+              ))}
             </RadioGroup>
           </div>
         </div>
@@ -1006,30 +1038,30 @@ Remember that you have the power to shape your path forward. These cards offer g
       </div>
 
       <div className="flex flex-wrap gap-4 justify-center mt-4">
-        <Button onClick={dealCards} disabled={isDealing || isGenerating} size="lg">
-          {selectedCards.length === 0 ? "Deal Cards" : "Redeal"}
+        <Button onClick={handleDrawCards} disabled={isDrawing || isGeneratingReading} size="lg">
+          {drawnCards.length === 0 ? "Draw Cards" : "Redraw Cards"}
         </Button>
 
-        {selectedCards.length > 0 && (
+        {drawnCards.length > 0 && (
           <Button
-            onClick={generateReadingFromCards}
-            disabled={isGenerating || !selectedCards.length || !flippedCards.every((flipped) => flipped)}
+            onClick={generateDetailedReading}
+            disabled={isGeneratingReading || !drawnCards.length || showBackside}
             size="lg"
             variant="secondary"
           >
-            {isGenerating ? "Generating..." : "Generate Reading"}
+            {isGeneratingReading ? "Generating AI Reading..." : "Generate AI Reading"}
           </Button>
         )}
       </div>
 
       {error && <div className="text-red-500 mt-4">{error}</div>}
 
-      {reading && (
+      {showReading && (
         <Card className="w-full max-w-3xl mt-8">
           <CardContent className="p-6">
             <h3 className="text-2xl font-bold mb-4">Your Reading</h3>
             <div className="prose dark:prose-invert">
-              <div dangerouslySetInnerHTML={{ __html: reading.content }} />
+              <div dangerouslySetInnerHTML={{ __html: aiGeneratedReading || generateSimulatedReading() }} />
             </div>
           </CardContent>
         </Card>
@@ -1037,19 +1069,27 @@ Remember that you have the power to shape your path forward. These cards offer g
 
       {drawnCards.length > 0 && (
         <div className="space-y-8">
-          {drawnCards.map((drawnCard, index) => {
-            const { card } = drawnCard
-            const cardNumber = card.number || "0"
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-purple-300 mb-4">Reading Interpretation</h3>
+            <p className="text-gray-300 mb-6">Your cards have been drawn. Here's what they reveal:</p>
+          </div>
 
-            return (
-              <Card key={index} className="overflow-hidden">
-                <div className="flex flex-col md:flex-row">
-                  <div className="w-full md:w-1/3 p-4 flex justify-center items-center">
-                    {renderCard(drawnCard, index)}
-                  </div>
-                  <div className="w-full md:w-2/3 p-4">
-                    <h2 className="text-2xl font-bold mb-2">{card.fullTitle}</h2>
-                    <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap justify-center gap-6 mb-8">
+            {drawnCards.map((drawnCard, index) => renderCard(drawnCard, index))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {drawnCards.map((drawnCard, index) => {
+              const { card } = drawnCard
+              const cardNumber = card.number || "0"
+
+              return (
+                <Card key={index} className="bg-gray-800/50 border-purple-500/30">
+                  <CardContent className="p-4">
+                    <h4 className="text-lg font-semibold text-purple-300 mb-2">
+                      Card {index + 1}: {card.fullTitle}
+                    </h4>
+                    <div className="flex flex-wrap gap-2 mb-3">
                       <Badge variant="secondary">{card.suit}</Badge>
                       <Badge>Number: {cardNumber}</Badge>
                       <Badge variant="outline">Synergistic Element: {card.synergisticElement}</Badge>
@@ -1065,6 +1105,9 @@ Remember that you have the power to shape your path forward. These cards offer g
                         </TabsTrigger>
                         <TabsTrigger value="symbolism" className="flex-1">
                           Symbolism Breakdown
+                        </TabsTrigger>
+                        <TabsTrigger value="ai-reading" className="flex-1" onClick={generateDetailedReading}>
+                          AI Reading
                         </TabsTrigger>
                       </TabsList>
 
@@ -1107,12 +1150,26 @@ Remember that you have the power to shape your path forward. These cards offer g
                           ))}
                         </div>
                       </TabsContent>
+
+                      <TabsContent value="ai-reading" className="space-y-4">
+                        {isGeneratingReading ? (
+                          <div className="text-center py-8">
+                            <Skeleton className="h-4 w-3/4 mb-2" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <p className="text-gray-400 mt-4">Generating AI reading...</p>
+                          </div>
+                        ) : (
+                          <div className="prose dark:prose-invert">
+                            <div dangerouslySetInnerHTML={{ __html: aiGeneratedReading }} />
+                          </div>
+                        )}
+                      </TabsContent>
                     </Tabs>
-                  </div>
-                </div>
-              </Card>
-            )
-          })}
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
         </div>
       )}
 

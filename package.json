@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "next dev",
+    "lint": "next lint",
+    "start": "next start"
   },
   "dependencies": {
     "@ai-sdk/google": "latest",
@@ -69,6 +69,7 @@
     "lucide-react": "^0.454.0",
     "next": "14.2.16",
     "next-themes": "latest",
+    "openai": "latest",
     "path": "latest",
     "react": "^18",
     "react-day-picker": "latest",
@@ -90,6 +91,7 @@
     "vaul": "^0.9.6",
     "vue": "latest",
     "vue-router": "latest",
+    "ws": "latest",
     "zod": "latest"
   },
   "devDependencies": {
