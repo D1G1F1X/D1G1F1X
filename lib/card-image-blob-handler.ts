@@ -1,8 +1,3 @@
-import {
-  generateCardImagePath as generateCardImagePathOriginal,
-  generateCardImagePathVariants as generateCardImagePathVariantsOriginal,
-} from "@/lib/card-image-blob-handler" // Keep these for consistency, though direct usage changes
-// The BLOB_BASE_URL is now primarily used by the API route, but kept here for reference if needed elsewhere.
 const BLOB_BASE_URL = "https://0clhhm0umusm8qjw.public.blob.vercel-storage.com"
 
 interface PreloadResult {
@@ -12,28 +7,59 @@ interface PreloadResult {
   totalTime: number
 }
 
-// Cache for image URLs to avoid repeated API calls for the same image
+// Cache for image URLs to avoid repeated blob calls
 const imageUrlCache = new Map<string, string>()
 
 /**
  * Generates the primary, standardized image path for a given card ID and element.
  * This format uses zero-padded numbers and hyphenated suit/element.
  * Example: "03-cord-spirit.jpg" for cardId "3-Cord" and element "spirit".
- * This is primarily for internal consistency and local fallbacks.
  */
-const generateCardImagePath = generateCardImagePathOriginal
+export function generateCardImagePath(cardId: string, element: string): string {
+  const [numberStr, suitStr] = cardId.split("-")
+  const paddedNumber = numberStr.padStart(2, "0")
+  const lowerSuit = suitStr?.toLowerCase() || ""
+  const lowerElement = element.toLowerCase()
+  return `${paddedNumber}-${lowerSuit}-${lowerElement}.jpg`
+}
 
 /**
  * Generates an array of possible filename variants for a given card ID and element.
  * This accounts for different naming conventions that might exist in the blob storage.
  * The variants are just the filenames, without the '/cards/' prefix.
  */
-const generateCardImagePathVariants = generateCardImagePathVariantsOriginal
+export function generateCardImagePathVariants(cardId: string, element: string): string[] {
+  const [numberStr, suitStr] = cardId.split("-")
+  const paddedNumber = numberStr.padStart(2, "0")
+  const lowerSuit = suitStr?.toLowerCase() || ""
+  const lowerElement = element.toLowerCase()
 
-/**
- * Fetches the correct image URL for a card from the API.
- * This function should be used when you need the actual, verified URL.
- */
+  const variants = new Set<string>()
+
+  // 1. Standard format: 09-suit-element.jpg (e.g., 03-cord-spirit.jpg)
+  variants.add(`${paddedNumber}-${lowerSuit}-${lowerElement}.jpg`)
+  variants.add(`${paddedNumber}-${lowerSuit}-${lowerElement}.jpeg`) // Include .jpeg extension
+
+  // 2. Non-padded number format: 9-suit-element.jpg (e.g., 3-cord-spirit.jpg)
+  variants.add(`${numberStr}-${lowerSuit}-${lowerElement}.jpg`)
+  variants.add(`${numberStr}-${lowerSuit}-${lowerElement}.jpeg`)
+
+  // 3. Non-hyphenated number-suit format: 09suit-element.jpg (e.g., 01cauldron-air.jpg, 25sword-air.jpg)
+  variants.add(`${paddedNumber}${lowerSuit}-${lowerElement}.jpg`)
+  variants.add(`${paddedNumber}${lowerSuit}-${lowerElement}.jpeg`)
+
+  // 4. Non-padded, non-hyphenated number-suit format: 9suit-element.jpg (e.g., 1cauldron-air.jpg)
+  variants.add(`${numberStr}${lowerSuit}-${lowerElement}.jpg`)
+  variants.add(`${numberStr}${lowerSuit}-${lowerElement}.jpeg`)
+
+  // 5. Card ID only format (if element is sometimes omitted in filename, e.g., 9-stone.jpg)
+  // This is a less common but possible fallback.
+  variants.add(`${cardId.toLowerCase()}.jpg`)
+  variants.add(`${cardId.toLowerCase()}.jpeg`)
+
+  return Array.from(variants)
+}
+
 export async function getCardImageUrl(cardId: string, baseElement: string): Promise<string> {
   const cacheKey = `${cardId}-${baseElement}`
   if (imageUrlCache.has(cacheKey)) {
@@ -62,10 +88,6 @@ export async function getCardImageUrl(cardId: string, baseElement: string): Prom
   }
 }
 
-/**
- * Preloads card images by fetching their URLs from the API and then loading them.
- * This ensures the correct, verified blob URLs are used for preloading.
- */
 export async function preloadCardImages(
   cardIds: string[],
   elements: string[],
