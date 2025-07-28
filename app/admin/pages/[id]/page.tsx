@@ -1,10 +1,18 @@
 import { PageEditor } from "@/components/admin/page-editor"
 
-export default function AdminEditPage({ params }: { params: { id: string } }) {
+interface PageEditPageProps {
+  params: {
+    id: string
+  }
+}
+
+export default function PageEditPage({ params }: PageEditPageProps) {
+  const { id } = params
+
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="mb-6 text-3xl font-bold">Edit Page</h1>
-      <PageEditor pageId={params.id} />
+    <div className="p-8">
+      <h1 className="text-3xl font-bold mb-6">Edit Page: {id}</h1>
+      <PageEditor pageId={id} />
     </div>
   )
 }

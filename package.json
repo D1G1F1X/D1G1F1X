@@ -52,7 +52,6 @@
     "@react-three/drei": "latest",
     "@react-three/fiber": "latest",
     "@remix-run/react": "latest",
-    "@supabase/auth-helpers-nextjs": "latest",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "@sveltejs/kit": "latest",

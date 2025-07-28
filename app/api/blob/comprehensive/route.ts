@@ -1,38 +1,66 @@
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 import { list } from "@vercel/blob"
-import { getAllCardData } from "@/lib/card-data-access" // Assuming this exists
-import type { CardElement } from "@/types/cards"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const { blobs } = await list({ prefix: "cards/", limit: 1000 }) // Adjust prefix and limit as needed
+    // Check if we have the blob token
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      console.error("BLOB_READ_WRITE_TOKEN is not configured. Cannot list blob storage.")
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Blob storage token not configured. Please set BLOB_READ_WRITE_TOKEN environment variable.",
+          fallback: true,
+          blobs: [],
+        },
+        { status: 500 },
+      )
+    }
 
-    const allCards = getAllCardData()
-    const elements: CardElement[] = ["Air", "Earth", "Fire", "Spirit", "Water"]
-
-    const comprehensiveData = allCards.map((card) => {
-      const cardBlobs: Record<string, string | null> = {}
-      elements.forEach((element) => {
-        const number = card.number.padStart(2, "0")
-        const suit = card.suit.toLowerCase()
-        const elementName = element.toLowerCase()
-        const filename = `${number}${suit}-${elementName}.jpg`
-        const blob = blobs.find((b) => b.pathname === `cards/${filename}`)
-        cardBlobs[elementName] = blob ? blob.url : null
-      })
-
-      return {
-        cardId: card.id,
-        fullTitle: card.fullTitle,
-        baseElement: card.baseElement,
-        synergisticElement: card.synergisticElement,
-        blobUrls: cardBlobs,
-      }
+    console.log("Attempting to list blobs with prefix 'cards/'...")
+    const { blobs } = await list({
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+      limit: 1000, // Get up to 1000 files
+      prefix: "cards/", // Focus on card images
     })
 
-    return NextResponse.json({ success: true, data: comprehensiveData })
+    console.log(`Raw blobs found by list() with prefix 'cards/': ${blobs.length} items.`)
+    // console.log("Raw blobs:", JSON.stringify(blobs, null, 2)); // Uncomment for detailed raw blob debugging
+
+    // Filter for image files only. The 'prefix' already handles the 'cards/' directory.
+    const cardBlobs = blobs
+      .filter((blob) => {
+        const isImage = /\.(jpg|jpeg|png|webp)$/i.test(blob.pathname)
+        return isImage
+      })
+      .map((blob) => ({
+        filename: blob.pathname.split("/").pop() || "",
+        pathname: blob.pathname,
+        url: blob.url,
+        size: blob.size,
+        uploadedAt: blob.uploadedAt,
+        downloadUrl: blob.downloadUrl,
+      }))
+
+    console.log(`📦 Found ${cardBlobs.length} card images after filtering for image types.`)
+
+    return NextResponse.json({
+      success: true,
+      blobs: cardBlobs,
+      total: cardBlobs.length,
+      timestamp: new Date().toISOString(),
+    })
   } catch (error) {
-    console.error("Error fetching comprehensive blob data:", error)
-    return NextResponse.json({ success: false, error: "Failed to fetch comprehensive blob data." }, { status: 500 })
+    console.error("Blob comprehensive listing failed:", error)
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+        fallback: true,
+        blobs: [],
+      },
+      { status: 500 },
+    )
   }
 }

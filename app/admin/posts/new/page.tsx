@@ -7,11 +7,11 @@ import { DashboardShell } from "@/components/admin/dashboard-shell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { EnhancedPremiumBlogEditor } from "@/components/admin/enhanced-premium-blog-editor"
+import { PremiumBlogEditor } from "@/components/admin/premium-blog-editor"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "@/components/ui/use-toast"
 
-export default function AdminNewPostPage() {
+export default function NewPostPage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
@@ -70,63 +70,67 @@ export default function AdminNewPostPage() {
 
   return (
     <DashboardShell>
-      <div className="container mx-auto py-8">
-        <h1 className="mb-6 text-3xl font-bold">Create New Blog Post</h1>
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="grid gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                placeholder="Post title"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="slug">Slug</Label>
-              <Input
-                id="slug"
-                name="slug"
-                value={formData.slug}
-                onChange={handleChange}
-                placeholder="post-slug"
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                This will be used for the URL: yourdomain.com/blog/post-slug
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Content</Label>
-              <EnhancedPremiumBlogEditor initialValue={formData.content} onChange={handleContentChange} />
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="isPublished"
-                name="isPublished"
-                checked={formData.isPublished}
-                onCheckedChange={(checked) => setFormData({ ...formData, isPublished: checked })}
-              />
-              <Label htmlFor="isPublished">Publish immediately</Label>
-            </div>
-          </div>
-
-          <div className="flex justify-end space-x-4">
-            <Button type="button" variant="outline" onClick={() => router.push("/admin/posts")}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Creating..." : "Create Post"}
-            </Button>
-          </div>
-        </form>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Create New Blog Post</h1>
+          <p className="text-muted-foreground">Create a new blog post</p>
+        </div>
       </div>
+
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="grid gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="title">Title</Label>
+            <Input
+              id="title"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              placeholder="Post title"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="slug">Slug</Label>
+            <Input
+              id="slug"
+              name="slug"
+              value={formData.slug}
+              onChange={handleChange}
+              placeholder="post-slug"
+              required
+            />
+            <p className="text-xs text-muted-foreground">
+              This will be used for the URL: yourdomain.com/blog/post-slug
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Content</Label>
+            <PremiumBlogEditor initialValue={formData.content} onChange={handleContentChange} />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="isPublished"
+              name="isPublished"
+              checked={formData.isPublished}
+              onCheckedChange={(checked) => setFormData({ ...formData, isPublished: checked })}
+            />
+            <Label htmlFor="isPublished">Publish immediately</Label>
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-4">
+          <Button type="button" variant="outline" onClick={() => router.push("/admin/posts")}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Creating..." : "Create Post"}
+          </Button>
+        </div>
+      </form>
     </DashboardShell>
   )
 }

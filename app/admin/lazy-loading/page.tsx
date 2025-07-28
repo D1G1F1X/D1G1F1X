@@ -1,78 +1,173 @@
-"use client"
-
-import type React from "react"
-
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useState } from "react"
-import { LazyImage } from "@/components/lazy-image"
+import { Separator } from "@/components/ui/separator"
+import { Loader2, ImageIcon } from "lucide-react"
+import { Suspense } from "react"
+import dynamic from "next/dynamic"
 
-export default function AdminLazyLoadingPage() {
-  const [imageUrl, setImageUrl] = useState("/placeholder.svg?height=400&width=600")
-  const [imageAlt, setImageAlt] = useState("Example Image")
+// Dynamically import components with lazy loading
+const LazyImage = dynamic(() => import("@/components/lazy-image").then((mod) => mod.LazyImage), {
+  loading: () => <Loader2 className="h-8 w-8 animate-spin text-primary" />,
+  ssr: false, // Ensure it's client-side rendered
+})
 
-  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImageUrl(e.target.value)
-  }
+const OptimizedImage = dynamic(() => import("@/components/optimized-image").then((mod) => mod.OptimizedImage), {
+  loading: () => <Loader2 className="h-8 w-8 animate-spin text-primary" />,
+  ssr: false,
+})
 
-  const handleImageAltChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImageAlt(e.target.value)
-  }
+const ResponsiveImage = dynamic(() => import("@/components/responsive-image").then((mod) => mod.ResponsiveImage), {
+  loading: () => <Loader2 className="h-8 w-8 animate-spin text-primary" />,
+  ssr: false,
+})
 
+const UnifiedImage = dynamic(() => import("@/components/unified-image").then((mod) => mod.UnifiedImage), {
+  loading: () => <Loader2 className="h-8 w-8 animate-spin text-primary" />,
+  ssr: false,
+})
+
+export default function LazyLoadingPage() {
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="mb-6 text-3xl font-bold">Lazy Loading Test</h1>
-
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Lazy Load Image Demo</CardTitle>
-          <CardDescription>
-            Enter an image URL to test lazy loading behavior. Scroll down to see the image load.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="imageUrl">Image URL</Label>
-              <Input
-                id="imageUrl"
-                value={imageUrl}
-                onChange={handleImageUrlChange}
-                placeholder="e.g., /path/to/your/image.jpg"
-              />
-            </div>
-            <div>
-              <Label htmlFor="imageAlt">Image Alt Text</Label>
-              <Input
-                id="imageAlt"
-                value={imageAlt}
-                onChange={handleImageAltChange}
-                placeholder="e.g., A beautiful landscape"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="h-[800px] bg-gray-800 flex items-center justify-center text-gray-400 text-xl rounded-lg mb-8">
-        Scroll down to see the lazy-loaded image
+    <div className="p-8 space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Lazy Loading & Image Performance</h1>
+          <p className="text-muted-foreground">
+            Demonstrate and test different image loading and optimization techniques.
+          </p>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Lazy Loaded Image</CardTitle>
-          <CardDescription>This image will only load when it enters the viewport.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="w-full h-[400px] bg-gray-700 flex items-center justify-center rounded-lg overflow-hidden">
-            <LazyImage src={imageUrl} alt={imageAlt} width={600} height={400} />
-          </div>
-        </CardContent>
-      </Card>
+      <Separator />
 
-      <div className="h-[400px] bg-gray-800 flex items-center justify-center text-gray-400 text-xl rounded-lg mt-8">
-        End of scroll area
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5" /> LazyImage (Intersection Observer)
+            </CardTitle>
+            <CardDescription>
+              Images load only when they enter the viewport using Intersection Observer.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4">
+            <div className="h-48 bg-muted flex items-center justify-center text-muted-foreground">
+              Scroll down to load
+            </div>
+            <div className="h-48 bg-muted flex items-center justify-center text-muted-foreground">
+              Scroll down to load
+            </div>
+            {/* Placeholder images */}
+            <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
+              <LazyImage
+                src="/public/images/about/goddess-danu.png"
+                alt="Goddess Danu"
+                width={300}
+                height={450}
+                className="rounded-md object-cover w-full h-auto"
+              />
+            </Suspense>
+            <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
+              <LazyImage
+                src="/public/images/tools/card-simulator.png"
+                alt="Card Simulator"
+                width={300}
+                height={450}
+                className="rounded-md object-cover w-full h-auto"
+              />
+            </Suspense>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5" /> OptimizedImage (Next.js Image Component)
+            </CardTitle>
+            <CardDescription>
+              Leverages Next.js Image component for automatic optimization (resizing, WebP conversion).
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4">
+            <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
+              <OptimizedImage
+                src="/public/images/blog/life-path.png"
+                alt="Life Path"
+                width={300}
+                height={200}
+                className="rounded-md object-cover w-full h-auto"
+              />
+            </Suspense>
+            <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
+              <OptimizedImage
+                src="/public/images/products/adept-deck.png"
+                alt="Adept Deck"
+                width={300}
+                height={200}
+                className="rounded-md object-cover w-full h-auto"
+              />
+            </Suspense>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5" /> ResponsiveImage (Srcset)
+            </CardTitle>
+            <CardDescription>Uses `srcset` to serve different image sizes based on screen resolution.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4">
+            <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
+              <ResponsiveImage
+                src="/public/images/testimonials/user-avatar-1.png"
+                alt="User Avatar"
+                baseSize={100}
+                className="rounded-full object-cover w-24 h-24 mx-auto"
+              />
+            </Suspense>
+            <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
+              <ResponsiveImage
+                src="/public/images/testimonials/user-avatar-2.png"
+                alt="User Avatar"
+                baseSize={100}
+                className="rounded-full object-cover w-24 h-24 mx-auto"
+              />
+            </Suspense>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5" /> UnifiedImage (Fallback & Error Handling)
+            </CardTitle>
+            <CardDescription>
+              Component that includes robust error handling and fallback mechanisms for images.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4">
+            <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
+              <UnifiedImage
+                src="/non-existent-image.png" // This will intentionally fail
+                alt="Failing Image"
+                fallbackText="Image Unavailable"
+                width={200}
+                height={150}
+                className="rounded-md object-cover w-full h-auto"
+              />
+            </Suspense>
+            <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
+              <UnifiedImage
+                src="/public/numo-color-emblem.png"
+                alt="NUMO Emblem"
+                fallbackText="Emblem"
+                width={200}
+                height={150}
+                className="rounded-md object-cover w-full h-auto"
+              />
+            </Suspense>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

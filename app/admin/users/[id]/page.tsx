@@ -1,87 +1,140 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, Save, Trash2 } from "lucide-react"
-import Link from "next/link"
+import { UserIcon, Calendar, Mail, Edit } from "lucide-react"
 
-export default function AdminUserDetailPage({ params }: { params: { id: string } }) {
-  const userId = params.id
-  // Mock data for a single user
-  const user = {
-    id: userId,
-    name: "Jane Doe",
-    email: "jane.doe@example.com",
-    role: "user",
-    createdAt: "2023-01-15",
-    lastLogin: "2023-10-26",
-    isActive: true,
-    isPremium: false,
+interface UserDetailPageProps {
+  params: {
+    id: string
+  }
+}
+
+// Mock data for a single user
+const mockUser = {
+  id: "user123",
+  fullName: "John Doe",
+  email: "john.doe@example.com",
+  role: "customer", // or "admin", "member"
+  registrationDate: new Date("2023-01-15T10:00:00Z"),
+  lastLogin: new Date("2024-07-25T11:30:00Z"),
+  isActive: true,
+  preferences: {
+    newsletter: true,
+    darkMode: true,
+  },
+  readingCount: 42,
+  reportsGenerated: 5,
+}
+
+export default function UserDetailPage({ params }: UserDetailPageProps) {
+  const { id } = params
+  // In a real application, you would fetch user data based on the 'id'
+  const user = mockUser // Using mock data for demonstration
+
+  if (!user) {
+    return <div className="p-8 text-center text-muted-foreground">User with ID &quot;{id}&quot; not found.</div>
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">User Details: {user.name}</h1>
-        <Link href="/admin/users" passHref>
+    <div className="p-8 space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">User Profile: {user.fullName}</h1>
+          <p className="text-muted-foreground">Manage user details, activity, and permissions.</p>
+        </div>
+        <div className="flex gap-2">
           <Button variant="outline">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Users
+            <Edit className="mr-2 h-4 w-4" /> Edit Profile
           </Button>
-        </Link>
+          <Button variant="destructive">Delete User</Button>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>User Information</CardTitle>
-          <CardDescription>Edit user profile and permissions.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
-          <div>
-            <Label htmlFor="user-name">Name</Label>
-            <Input id="user-name" defaultValue={user.name} />
-          </div>
-          <div>
-            <Label htmlFor="user-email">Email</Label>
-            <Input id="user-email" type="email" defaultValue={user.email} />
-          </div>
-          <div>
-            <Label htmlFor="user-role">Role</Label>
-            <select
-              id="user-role"
-              defaultValue={user.role}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option>user</option>
-              <option>admin</option>
-            </select>
-          </div>
-          <div>
-            <Label htmlFor="created-at">Created At</Label>
-            <Input id="created-at" defaultValue={user.createdAt} readOnly />
-          </div>
-          <div>
-            <Label htmlFor="last-login">Last Login</Label>
-            <Input id="last-login" defaultValue={user.lastLogin} readOnly />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox id="is-active" checked={user.isActive} />
-            <Label htmlFor="is-active">Active User</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox id="is-premium" checked={user.isPremium} />
-            <Label htmlFor="is-premium">Premium Member</Label>
-          </div>
-          <div className="md:col-span-2 flex gap-4">
-            <Button className="flex-1">
-              <Save className="mr-2 h-4 w-4" /> Save Changes
-            </Button>
-            <Button variant="destructive" className="flex-1">
-              <Trash2 className="mr-2 h-4 w-4" /> Delete User
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <Separator />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <UserIcon className="h-5 w-5" /> Basic Information
+            </CardTitle>
+            <CardDescription>Core details about the user.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+              <div className="font-medium">Full Name:</div>
+              <div>{user.fullName}</div>
+
+              <div className="font-medium">Email:</div>
+              <div>{user.email}</div>
+
+              <div className="font-medium">Role:</div>
+              <div>{user.role}</div>
+
+              <div className="font-medium">Account Status:</div>
+              <div>
+                <span className={`font-semibold ${user.isActive ? "text-green-500" : "text-red-500"}`}>
+                  {user.isActive ? "Active" : "Inactive"}
+                </span>
+              </div>
+            </div>
+            <Separator className="my-4" />
+            <div className="space-y-2">
+              <Label htmlFor="adminNotes">Admin Notes</Label>
+              <Textarea id="adminNotes" placeholder="Add internal notes about this user..." rows={3} />
+              <Button size="sm" className="mt-2">
+                Save Notes
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" /> Activity
+              </CardTitle>
+              <CardDescription>Recent user activity and key dates.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <p>Registration Date: {user.registrationDate.toLocaleDateString()}</p>
+              <p>Last Login: {user.lastLogin.toLocaleString()}</p>
+              <p>Total Readings: {user.readingCount}</p>
+              <p>Reports Generated: {user.reportsGenerated}</p>
+              <Button variant="outline" size="sm" className="mt-2 bg-transparent">
+                View All Activity
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mail className="h-5 w-5" /> Preferences
+              </CardTitle>
+              <CardDescription>User-specific settings and preferences.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox id="newsletter" defaultChecked={user.preferences.newsletter} />
+                <Label htmlFor="newsletter">Subscribed to Newsletter</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="darkMode" defaultChecked={user.preferences.darkMode} />
+                <Label htmlFor="darkMode">Dark Mode Enabled</Label>
+              </div>
+              <Button variant="outline" size="sm" className="mt-2 bg-transparent">
+                Update Preferences
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }
+
+import { Textarea } from "@/components/ui/textarea"

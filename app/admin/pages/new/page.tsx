@@ -1,9 +1,9 @@
 import { PageEditor } from "@/components/admin/page-editor"
 
-export default function AdminNewPage() {
+export default function NewPage() {
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="mb-6 text-3xl font-bold">Create New Page</h1>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold mb-6">Create New Page</h1>
       <PageEditor />
     </div>
   )

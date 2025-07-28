@@ -1,21 +1,42 @@
-import { Skeleton } from "@/components/ui/skeleton"
+import { DashboardShell } from "@/components/admin/dashboard-shell"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Loader2 } from "lucide-react"
 
-export default function Loading() {
+export default function PromptManagerLoading() {
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="mb-6 text-3xl font-bold">
-        <Skeleton className="h-9 w-64" />
-      </h1>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Skeleton className="h-[150px] w-full" />
-        <Skeleton className="h-[150px] w-full" />
-        <Skeleton className="h-[150px] w-full" />
+    <DashboardShell>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">Prompt Manager</h2>
+            <p className="text-muted-foreground">
+              Create and manage AI prompts for the NUMO Card Dealer and other features
+            </p>
+          </div>
+          <Loader2 className="h-10 w-[120px] animate-spin text-primary" />
+        </div>
+
+        <Loader2 className="h-10 w-[300px] animate-spin text-primary" />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Prompts</CardTitle>
+            <CardDescription>Manage your AI prompts for different features of the application</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Loader2 className="h-10 w-full animate-spin text-primary" />
+              <Loader2 className="h-10 w-full animate-spin text-primary" />
+              <Loader2 className="h-10 w-full animate-spin text-primary" />
+              <Loader2 className="h-10 w-full animate-spin text-primary" />
+              <Loader2 className="h-10 w-full animate-spin text-primary" />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Loader2 className="h-5 w-[150px] animate-spin text-primary" />
+          </CardFooter>
+        </Card>
       </div>
-      <div className="mt-8 space-y-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-10 w-32" />
-      </div>
-    </div>
+    </DashboardShell>
   )
 }

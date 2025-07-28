@@ -1,137 +1,360 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Search, CheckCircle, XCircle, Trash2, Star } from "lucide-react"
+"use client"
 
-export default function AdminReviewsPage() {
-  const reviews = [
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { StarRating } from "@/components/star-rating"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { toast } from "@/components/ui/use-toast"
+import { Search } from "lucide-react"
+import type { ReviewFilterOptions } from "@/types/reviews"
+import { DataTable } from "./data-table"
+import { columns } from "./columns"
+
+async function getReviews(): Promise<any[]> {
+  // Replace with your actual API call to fetch reviews
+  // This is mock data for demonstration purposes
+  return [
     {
-      id: "rev1",
+      id: "rev001",
       product: "Deluxe Oracle Deck",
+      reviewerName: "Emma Stone",
       rating: 5,
-      author: "User123",
-      date: "2023-10-25",
-      status: "Approved",
-      comment: "Absolutely love this deck! The artwork is stunning and the readings are so insightful.",
+      comment: "Absolutely beautiful deck, the artwork is stunning and the insights are profound. Highly recommend!",
+      date: "2024-07-22",
+      status: "Published",
     },
     {
-      id: "rev2",
-      product: "Numerology Report",
+      id: "rev002",
+      product: "Beginner's Guidebook",
+      reviewerName: "Liam Green",
       rating: 4,
-      author: "MysticMaven",
-      date: "2023-10-24",
+      comment:
+        "Very helpful for beginners, easy to understand. Some sections could be more detailed, but overall great.",
+      date: "2024-07-20",
       status: "Pending",
-      comment: "Very accurate report, but I wish it had more details on career path.",
     },
     {
-      id: "rev3",
+      id: "rev003",
       product: "Elemental Dice Set",
-      rating: 2,
-      author: "DiceRoller",
-      date: "2023-10-23",
-      status: "Rejected",
-      comment: "Dice are too small and hard to read. Disappointed.",
+      reviewerName: "Olivia Blue",
+      rating: 5,
+      comment: "Fun and insightful! Adds a unique twist to my daily readings.",
+      date: "2024-07-18",
+      status: "Published",
+    },
+    {
+      id: "rev004",
+      product: "Personalized Numerology Report",
+      reviewerName: "Noah White",
+      rating: 3,
+      comment: "The report was okay, but I expected more personalized depth based on my birth time.",
+      date: "2024-07-15",
+      status: "Published",
+    },
+    {
+      id: "rev005",
+      product: "Deluxe Oracle Deck",
+      reviewerName: "Sophia Black",
+      rating: 5,
+      comment: "This deck resonates so deeply with me. The quality is exceptional and the energy is pure.",
+      date: "2024-07-10",
+      status: "Published",
     },
   ]
+}
+
+export default async function AdminReviewsPage() {
+  const reviews = await getReviews()
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [filters, setFilters] = useState<ReviewFilterOptions>({
+    status: "all",
+    sortBy: "date",
+    sortOrder: "desc",
+  })
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedReview, setSelectedReview] = useState<any | null>(null)
+  const [responseDialogOpen, setResponseDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [adminResponse, setAdminResponse] = useState("")
+
+  useEffect(() => {
+    setLoading(false)
+  }, [])
+
+  const handleUpdateStatus = async (id: string, status: "approved" | "rejected", response?: string) => {
+    try {
+      const res = await fetch(`/api/reviews/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status, adminResponse: response }),
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        throw new Error(`Failed to update review: ${errorData.error || res.statusText}`)
+      }
+
+      toast({
+        title: `Review ${status}`,
+        description: `The review has been ${status} successfully.`,
+      })
+
+      // Fetch reviews again if needed
+    } catch (error) {
+      console.error("Update status error:", error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update review status",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleDeleteReview = async (id: string) => {
+    try {
+      const res = await fetch(`/api/reviews/${id}`, {
+        method: "DELETE",
+      })
+
+      if (!res.ok) throw new Error("Failed to delete review")
+
+      toast({
+        title: "Review deleted",
+        description: "The review has been permanently deleted.",
+      })
+
+      // Fetch reviews again if needed
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete review",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const openResponseDialog = (review: any) => {
+    setSelectedReview(review)
+    setAdminResponse(review.adminResponse || "")
+    setResponseDialogOpen(true)
+  }
+
+  const openDeleteDialog = (review: any) => {
+    setSelectedReview(review)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleResponseSubmit = () => {
+    if (!selectedReview) return
+
+    handleUpdateStatus(selectedReview.id, "rejected", adminResponse)
+    setResponseDialogOpen(false)
+  }
+
+  const handleDeleteConfirm = () => {
+    if (!selectedReview) return
+
+    handleDeleteReview(selectedReview.id)
+    setDeleteDialogOpen(false)
+  }
+
+  const filteredReviews = reviews.filter((review: any) => {
+    if (!searchTerm) return true
+
+    const searchLower = searchTerm.toLowerCase()
+    return (
+      review.reviewerName.toLowerCase().includes(searchLower) ||
+      review.product.toLowerCase().includes(searchLower) ||
+      review.comment.toLowerCase().includes(searchLower)
+    )
+  })
+
+  const pendingCount = reviews.filter((r: any) => r.status === "Pending").length
+  const approvedCount = reviews.filter((r: any) => r.status === "Published").length
+  const rejectedCount = reviews.filter((r: any) => r.status === "Rejected").length
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="mb-6 text-3xl font-bold">Review Management</h1>
-
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Search Reviews</CardTitle>
-          <CardDescription>Find reviews by product, author, or status.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input placeholder="Search reviews..." className="pl-9" />
-            </div>
-            <Button>Search</Button>
+    <div className="p-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+        <h1 className="text-2xl font-bold text-white mb-4 md:mb-0">Manage Reviews</h1>
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Search reviews..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 bg-gray-800 border-gray-700 text-white"
+            />
           </div>
-        </CardContent>
-      </Card>
+          <Select
+            value={filters.sortBy}
+            onValueChange={(value) => setFilters({ ...filters, sortBy: value as "date" | "rating" })}
+          >
+            <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-white">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-800 border-gray-700 text-white">
+              <SelectItem value="date">Date</SelectItem>
+              <SelectItem value="rating">Rating</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={filters.sortOrder}
+            onValueChange={(value) => setFilters({ ...filters, sortOrder: value as "asc" | "desc" })}
+          >
+            <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-white">
+              <SelectValue placeholder="Sort order" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-800 border-gray-700 text-white">
+              <SelectItem value="desc">Newest first</SelectItem>
+              <SelectItem value="asc">Oldest first</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Reviews</CardTitle>
-          <CardDescription>Manage customer reviews for your products.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-700">
-              <thead>
-                <tr>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Product</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Rating</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Author</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Date</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Status</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Comment</th>
-                  <th className="px-4 py-2 text-right text-sm font-medium text-gray-400">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800">
-                {reviews.map((review) => (
-                  <tr key={review.id}>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-200">{review.product}</td>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-300">
-                      <div className="flex items-center">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-4 w-4 ${
-                              i < review.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-600"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-300">{review.author}</td>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-300">{review.date}</td>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm">
-                      <span
-                        className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-                          review.status === "Approved"
-                            ? "bg-green-500/20 text-green-400"
-                            : review.status === "Pending"
-                              ? "bg-yellow-500/20 text-yellow-400"
-                              : "bg-red-500/20 text-red-400"
-                        }`}
-                      >
-                        {review.status}
-                      </span>
-                    </td>
-                    <td className="max-w-xs overflow-hidden text-ellipsis whitespace-nowrap px-4 py-2 text-sm text-gray-300">
-                      {review.comment}
-                    </td>
-                    <td className="flex justify-end space-x-2 whitespace-nowrap px-4 py-2 text-sm">
-                      {review.status !== "Approved" && (
-                        <Button variant="outline" size="sm">
-                          <CheckCircle className="h-4 w-4" />
-                          <span className="sr-only">Approve</span>
-                        </Button>
-                      )}
-                      {review.status !== "Rejected" && (
-                        <Button variant="outline" size="sm">
-                          <XCircle className="h-4 w-4" />
-                          <span className="sr-only">Reject</span>
-                        </Button>
-                      )}
-                      <Button variant="destructive" size="sm">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <Card className="bg-gray-800 border-gray-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg text-white">Pending</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-amber-500">{pendingCount}</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-gray-800 border-gray-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg text-white">Approved</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-green-500">{approvedCount}</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-gray-800 border-gray-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg text-white">Rejected</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-red-500">{rejectedCount}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs
+        defaultValue="all"
+        className="w-full"
+        onValueChange={(value) => setFilters({ ...filters, status: value as any })}
+      >
+        <TabsList className="bg-gray-800 border-gray-700">
+          <TabsTrigger value="all" className="data-[state=active]:bg-gray-700">
+            All
+          </TabsTrigger>
+          <TabsTrigger value="pending" className="data-[state=active]:bg-gray-700">
+            Pending
+          </TabsTrigger>
+          <TabsTrigger value="approved" className="data-[state=active]:bg-gray-700">
+            Approved
+          </TabsTrigger>
+          <TabsTrigger value="rejected" className="data-[state=active]:bg-gray-700">
+            Rejected
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all" className="mt-6">
+          <DataTable data={filteredReviews} columns={columns} />
+        </TabsContent>
+        <TabsContent value="pending" className="mt-6">
+          <DataTable data={filteredReviews.filter((r: any) => r.status === "Pending")} columns={columns} />
+        </TabsContent>
+        <TabsContent value="approved" className="mt-6">
+          <DataTable data={filteredReviews.filter((r: any) => r.status === "Published")} columns={columns} />
+        </TabsContent>
+        <TabsContent value="rejected" className="mt-6">
+          <DataTable data={filteredReviews.filter((r: any) => r.status === "Rejected")} columns={columns} />
+        </TabsContent>
+      </Tabs>
+
+      {/* Response Dialog */}
+      <Dialog open={responseDialogOpen} onOpenChange={setResponseDialogOpen}>
+        <DialogContent className="bg-gray-800 border-gray-700 text-white">
+          <DialogHeader>
+            <DialogTitle>Respond to Review</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Add a response explaining why this review is being rejected.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {selectedReview && (
+              <div className="bg-gray-900 p-4 rounded-md">
+                <p className="font-medium text-purple-400">{selectedReview.reviewerName}</p>
+                <div className="flex items-center my-1">
+                  <StarRating rating={selectedReview.rating} size="sm" />
+                </div>
+                <p className="text-gray-300 italic">"{selectedReview.comment}"</p>
+              </div>
+            )}
+            <Textarea
+              value={adminResponse}
+              onChange={(e) => setAdminResponse(e.target.value)}
+              placeholder="Enter your response..."
+              className="bg-gray-700 border-gray-600 text-white min-h-[100px]"
+            />
           </div>
-        </CardContent>
-      </Card>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResponseDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleResponseSubmit} className="bg-red-600 hover:bg-red-700">
+              Reject with Response
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="bg-gray-800 border-gray-700 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              This action cannot be undone. This will permanently delete the review.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-700 hover:bg-gray-600">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

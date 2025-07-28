@@ -1,82 +1,83 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { PlusCircle, Edit, Trash2 } from "lucide-react"
+import { Plus } from "lucide-react"
 
-export default function AdminCategoriesPage() {
-  const categories = [
-    { id: "1", name: "Oracle Cards", slug: "oracle-cards" },
-    { id: "2", name: "Numerology Reports", slug: "numerology-reports" },
-    { id: "3", name: "Guidebooks", slug: "guidebooks" },
-    { id: "4", name: "Accessories", slug: "accessories" },
-  ]
-
+export default function CategoriesPage() {
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="mb-6 text-3xl font-bold">Categories Management</h1>
+    <div className="p-8 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Categories</h2>
+          <p className="text-muted-foreground">Manage content categories for blog posts, products, etc.</p>
+        </div>
+        <Button>
+          <Plus className="mr-2 h-4 w-4" /> Add New Category
+        </Button>
+      </div>
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Add New Category</CardTitle>
-          <CardDescription>Create a new product or blog category.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <Label htmlFor="category-name">Category Name</Label>
-              <Input id="category-name" placeholder="e.g., New Age Books" />
-            </div>
-            <div>
-              <Label htmlFor="category-slug">Category Slug</Label>
-              <Input id="category-slug" placeholder="e.g., new-age-books" />
-            </div>
-            <div className="md:col-span-2">
-              <Button>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Category
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <Separator />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Existing Categories</CardTitle>
-          <CardDescription>Manage your current categories.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-700">
-              <thead>
-                <tr>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Name</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Slug</th>
-                  <th className="px-4 py-2 text-right text-sm font-medium text-gray-400">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800">
-                {categories.map((category) => (
-                  <tr key={category.id}>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-200">{category.name}</td>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-300">{category.slug}</td>
-                    <td className="flex justify-end space-x-2 whitespace-nowrap px-4 py-2 text-sm">
-                      <Button variant="outline" size="sm">
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
-                      </Button>
-                      <Button variant="destructive" size="sm">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Blog Categories</CardTitle>
+            <CardDescription>Organize your blog posts into categories.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Placeholder for categories list */}
+            <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
+              <li>Numerology</li>
+              <li>Oracle Readings</li>
+              <li>Spirituality</li>
+              <li>Personal Growth</li>
+              <li>Product Updates</li>
+            </ul>
+            <Button variant="outline" className="mt-4 bg-transparent">
+              Edit Blog Categories
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Product Categories</CardTitle>
+            <CardDescription>Categorize products in your shop.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Placeholder for categories list */}
+            <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
+              <li>Oracle Decks</li>
+              <li>Guidebooks</li>
+              <li>Tools</li>
+              <li>Reports</li>
+              <li>Merchandise</li>
+            </ul>
+            <Button variant="outline" className="mt-4 bg-transparent">
+              Edit Product Categories
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Library Categories</CardTitle>
+            <CardDescription>Group resources in the library.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Placeholder for categories list */}
+            <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
+              <li>Numerology Basics</li>
+              <li>Card Meanings</li>
+              <li>Spread Guides</li>
+              <li>Astrology & Numerology</li>
+            </ul>
+            <Button variant="outline" className="mt-4 bg-transparent">
+              Edit Library Categories
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

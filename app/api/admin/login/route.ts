@@ -1,21 +1,41 @@
 import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
-import { ADMIN_USERNAME, ADMIN_PASSWORD } from "@/lib/config/environment"
+
+// Admin credentials - in a real app, these would be in a database
+const ADMIN_USERNAME = "admin"
+const ADMIN_EMAIL = "admin@numoracle.com"
+const ADMIN_PASSWORD = "numoracle"
 
 export async function POST(request: Request) {
-  const { identifier, password } = await request.json()
+  try {
+    const body = await request.json()
+    const { identifier, password } = body
 
-  if (identifier === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-    // In a real application, you'd generate a secure, signed token (e.g., JWT)
-    // and set it as an HttpOnly cookie. For simplicity, we'll use a basic flag.
-    cookies().set("admin_auth", "true", {
+    // Validate credentials
+    const isValidCredentials =
+      password === ADMIN_PASSWORD && (identifier === ADMIN_USERNAME || identifier === ADMIN_EMAIL)
+
+    if (!isValidCredentials) {
+      return NextResponse.json({ success: false, message: "Invalid credentials" }, { status: 401 })
+    }
+
+    // Set HTTP-only cookie with secure settings
+    cookies().set({
+      name: "admin_session",
+      value: "logged_in",
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24, // 1 day
       path: "/",
+      maxAge: 60 * 60 * 24, // 1 day
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
     })
-    return NextResponse.json({ success: true, message: "Login successful" })
-  } else {
-    return NextResponse.json({ success: false, message: "Invalid credentials" }, { status: 401 })
+
+    return NextResponse.json({
+      success: true,
+      message: "Login successful",
+    })
+  } catch (error) {
+    console.error("Login error:", error)
+    return NextResponse.json({ success: false, message: "An error occurred during login" }, { status: 500 })
   }
 }

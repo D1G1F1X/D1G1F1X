@@ -1,74 +1,82 @@
-import { NextResponse } from "next/server"
-import { getAllCardData, getCardDataById } from "@/lib/card-data-access" // Assuming these functions exist
-import fs from "fs/promises"
+import { type NextRequest, NextResponse } from "next/server"
+import { promises as fs } from "fs"
 import path from "path"
+import type { OracleCard } from "@/types/cards" // Ensure this type is correct
 
-const masterCardDataPath = path.resolve(process.cwd(), "data/master-card-data.json")
+const DATA_FILE_PATH = path.join(process.cwd(), "data", "master-card-data.json")
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const id = searchParams.get("id")
-
-  try {
-    if (id) {
-      const card = getCardDataById(id)
-      if (card) {
-        return NextResponse.json(card)
+// Basic validation function (can be expanded)
+function validateMasterDeckData(data: any): { valid: boolean; errors?: string[] } {
+  if (!Array.isArray(data)) {
+    return { valid: false, errors: ["Data must be an array."] }
+  }
+  if (data.some((item) => typeof item !== "object" || item === null)) {
+    return { valid: false, errors: ["All items in the array must be objects."] }
+  }
+  // Add more specific validation for OracleCard structure if needed
+  // For example, check for required fields like id, name, element, type, firstEnd, secondEnd
+  const requiredFields: (keyof OracleCard)[] = [
+    "id",
+    "name",
+    "element",
+    "type",
+    "firstEnd",
+    "secondEnd",
+    "firstEndImage",
+    "secondEndImage",
+  ]
+  const missingFieldsErrors: string[] = []
+  data.forEach((card, index) => {
+    for (const field of requiredFields) {
+      if (!(field in card)) {
+        missingFieldsErrors.push(`Card at index ${index} is missing required field: ${field}`)
       }
-      return NextResponse.json({ message: "Card not found" }, { status: 404 })
-    } else {
-      const allCards = getAllCardData()
-      return NextResponse.json(allCards)
     }
+    // Could also validate firstEnd and secondEnd structure here
+  })
+
+  if (missingFieldsErrors.length > 0) {
+    return { valid: false, errors: missingFieldsErrors }
+  }
+
+  return { valid: true }
+}
+
+export async function GET() {
+  try {
+    const fileContents = await fs.readFile(DATA_FILE_PATH, "utf8")
+    const data = JSON.parse(fileContents)
+    return NextResponse.json(data)
   } catch (error) {
-    console.error("Error fetching card data:", error)
-    return NextResponse.json({ error: "Failed to fetch card data" }, { status: 500 })
+    console.error("Failed to read master-card-data.json:", error)
+    return NextResponse.json({ error: "Failed to load card data" }, { status: 500 })
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const updatedCard = await request.json()
-    const allCards = getAllCardData()
-    const cardIndex = allCards.findIndex((card) => card.id === updatedCard.id)
+    const jsonData = await request.json() // Expecting the raw array data directly
 
-    if (cardIndex > -1) {
-      allCards[cardIndex] = updatedCard
-      await fs.writeFile(masterCardDataPath, JSON.stringify(allCards, null, 2), "utf8")
-      return NextResponse.json({ message: "Card data updated successfully" })
-    } else {
-      // For new cards, append to the array
-      allCards.push(updatedCard)
-      await fs.writeFile(masterCardDataPath, JSON.stringify(allCards, null, 2), "utf8")
-      return NextResponse.json({ message: "Card data added successfully" }, { status: 201 })
+    const validationResult = validateMasterDeckData(jsonData)
+    if (!validationResult.valid) {
+      return NextResponse.json(
+        { error: "Invalid card data structure", details: validationResult.errors },
+        { status: 400 },
+      )
     }
+
+    const formattedData = JSON.stringify(jsonData, null, 2) // Pretty print JSON
+    await fs.writeFile(DATA_FILE_PATH, formattedData)
+
+    return NextResponse.json({ success: true, message: "Master deck card data saved successfully." }, { status: 200 })
   } catch (error) {
-    console.error("Error updating/adding card data:", error)
-    return NextResponse.json({ error: "Failed to update/add card data" }, { status: 500 })
-  }
-}
-
-export async function DELETE(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const id = searchParams.get("id")
-
-  if (!id) {
-    return NextResponse.json({ error: "Card ID is required" }, { status: 400 })
-  }
-
-  try {
-    let allCards = getAllCardData()
-    const initialLength = allCards.length
-    allCards = allCards.filter((card) => card.id !== id)
-
-    if (allCards.length < initialLength) {
-      await fs.writeFile(masterCardDataPath, JSON.stringify(allCards, null, 2), "utf8")
-      return NextResponse.json({ message: `Card with ID ${id} deleted successfully` })
-    } else {
-      return NextResponse.json({ message: "Card not found" }, { status: 404 })
-    }
-  } catch (error) {
-    console.error("Error deleting card data:", error)
-    return NextResponse.json({ error: "Failed to delete card data" }, { status: 500 })
+    console.error("Error saving master deck card data:", error)
+    return NextResponse.json(
+      {
+        error: "Failed to save card data",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    )
   }
 }

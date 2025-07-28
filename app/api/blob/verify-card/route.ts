@@ -1,47 +1,57 @@
-import { NextResponse } from "next/server"
-import { head } from "@vercel/blob"
-import { getCardImageName } from "@/lib/card-data-access" // Assuming this function exists
-import { getAllCards } from "@/lib/card-data-access" // To get card data for image name generation
-import type { CardElement } from "@/types/cards"
+import { type NextRequest, NextResponse } from "next/server"
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const cardId = searchParams.get("cardId")
-  const element = searchParams.get("element") as CardElement
-
-  if (!cardId || !element) {
-    return NextResponse.json({ error: "cardId and element are required" }, { status: 400 })
-  }
-
+export async function POST(request: NextRequest) {
   try {
-    const allCards = getAllCards()
-    const card = allCards.find((c) => c.id === cardId)
+    const { imageUrl, filename } = await request.json()
 
-    if (!card) {
-      return NextResponse.json(
-        { filename: `${cardId}-${element}.jpg`, exists: false, error: "Card data not found" },
-        { status: 404 },
-      )
+    if (!imageUrl) {
+      return NextResponse.json({ error: "Image URL is required" }, { status: 400 })
     }
 
-    // Use the utility to get the expected filename
-    const filename = getCardImageName(card, element)
-    const pathname = `cards/${filename}` // Assuming blobs are stored under a 'cards/' prefix
+    // Test image accessibility
+    const startTime = Date.now()
 
-    console.log(`Verifying blob existence for pathname: ${pathname}`)
+    try {
+      const response = await fetch(imageUrl, {
+        method: "HEAD",
+        signal: AbortSignal.timeout(8000), // 8 second timeout
+      })
 
-    const blob = await head(pathname) // Use head to check existence without downloading
-    console.log(`Blob head result for ${pathname}:`, blob)
+      const loadTime = Date.now() - startTime
+      const isAccessible = response.ok
 
-    if (blob) {
-      return NextResponse.json({ filename, exists: true, url: blob.url })
-    } else {
-      return NextResponse.json({ filename, exists: false, error: "Blob not found" })
+      return NextResponse.json({
+        success: true,
+        filename: filename || "unknown",
+        url: imageUrl,
+        isAccessible,
+        loadTime,
+        status: response.status,
+        contentType: response.headers.get("content-type"),
+        contentLength: response.headers.get("content-length"),
+        timestamp: new Date().toISOString(),
+      })
+    } catch (fetchError) {
+      const loadTime = Date.now() - startTime
+
+      return NextResponse.json({
+        success: false,
+        filename: filename || "unknown",
+        url: imageUrl,
+        isAccessible: false,
+        loadTime,
+        error: fetchError instanceof Error ? fetchError.message : "Fetch failed",
+        timestamp: new Date().toISOString(),
+      })
     }
-  } catch (error: any) {
-    console.error(`Error verifying blob for ${cardId}-${element}:`, error)
+  } catch (error) {
+    console.error("❌ API: Failed to verify card image:", error)
+
     return NextResponse.json(
-      { filename: `${cardId}-${element}.jpg`, exists: false, error: error.message || "Unknown error" },
+      {
+        error: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString(),
+      },
       { status: 500 },
     )
   }

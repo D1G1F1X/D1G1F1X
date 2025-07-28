@@ -1,122 +1,83 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { PlusCircle, Edit, Trash2, FileText, Folder } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { BookOpen, Files, Plus, Users } from "lucide-react"
 import Link from "next/link"
 
 export default function AdminLibraryPage() {
-  const documents = [
-    { id: "1", title: "The History of Numerology", author: "Jane Doe", type: "Document" },
-    { id: "2", title: "Understanding Oracle Spreads", author: "John Smith", type: "Document" },
-    { id: "3", title: "Elemental Influences", author: "Alice Brown", type: "Document" },
-  ]
-
-  const folders = [
-    { id: "f1", name: "Advanced Readings", type: "Folder" },
-    { id: "f2", name: "Symbolism Guides", type: "Folder" },
-  ]
-
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="mb-6 text-3xl font-bold">Library Management</h1>
+    <div className="p-8 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Library Management</h2>
+          <p className="text-muted-foreground">Manage digital resources, reading lists, and user access.</p>
+        </div>
+        <Link href="/admin/library/add-document">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" /> Add New Document
+          </Button>
+        </Link>
+      </div>
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Add New Library Resource</CardTitle>
-          <CardDescription>Upload a new document or create a new folder for the library.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <Label htmlFor="resource-type">Resource Type</Label>
-              <select
-                id="resource-type"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option>Document</option>
-                <option>Folder</option>
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="resource-name">Name/Title</Label>
-              <Input id="resource-name" placeholder="e.g., New Document Title" />
-            </div>
-            <div className="md:col-span-2">
-              <Label htmlFor="upload-file">Upload File (for documents)</Label>
-              <Input id="upload-file" type="file" />
-            </div>
-            <div className="md:col-span-2">
-              <Button>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Resource
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <Separator />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Existing Library Resources</CardTitle>
-          <CardDescription>Manage your documents and folders.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-700">
-              <thead>
-                <tr>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Type</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Name/Title</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-400">Author</th>
-                  <th className="px-4 py-2 text-right text-sm font-medium text-gray-400">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800">
-                {folders.map((resource) => (
-                  <tr key={resource.id}>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-200">
-                      <Folder className="mr-2 inline-block h-4 w-4" /> {resource.type}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-300">{resource.name}</td>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-300">-</td>
-                    <td className="flex justify-end space-x-2 whitespace-nowrap px-4 py-2 text-sm">
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/admin/library/files?folder=${resource.name}`}>
-                          <Edit className="h-4 w-4" />
-                          <span className="sr-only">View Contents</span>
-                        </Link>
-                      </Button>
-                      <Button variant="destructive" size="sm">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-                {documents.map((resource) => (
-                  <tr key={resource.id}>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-200">
-                      <FileText className="mr-2 inline-block h-4 w-4" /> {resource.type}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-300">{resource.title}</td>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-300">{resource.author}</td>
-                    <td className="flex justify-end space-x-2 whitespace-nowrap px-4 py-2 text-sm">
-                      <Button variant="outline" size="sm">
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
-                      </Button>
-                      <Button variant="destructive" size="sm">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5" /> Documents
+            </CardTitle>
+            <CardDescription>Manage your collection of articles, guides, and other documents.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p>
+              Total Documents: <strong>150</strong>
+            </p>
+            <p>
+              Categories: <strong>12</strong>
+            </p>
+            <Link href="/admin/library/files">
+              <Button variant="outline">Browse Documents</Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" /> User Reading Lists
+            </CardTitle>
+            <CardDescription>View and manage personalized reading lists for users.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p>
+              Active Lists: <strong>75</strong>
+            </p>
+            <p>
+              Popular Articles: <strong>10</strong>
+            </p>
+            <Button variant="outline">Manage Reading Lists</Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Files className="h-5 w-5" /> Files (Legacy)
+            </CardTitle>
+            <CardDescription>Access the legacy file management interface for older library assets.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              This section provides access to files managed outside the primary document system. Consider migrating
+              important assets.
+            </p>
+            <Link href="/admin/files">
+              <Button variant="outline">Go to Legacy File Manager</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

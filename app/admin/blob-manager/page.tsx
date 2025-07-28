@@ -3,56 +3,95 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Progress } from "@/components/ui/progress"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Switch } from "@/components/ui/switch"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Terminal, Upload, Trash2, List, RefreshCw, CheckCircle } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { CheckCircle, XCircle, UploadCloud, List, Trash2, Loader2, AlertTriangle, Eye, RefreshCw } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
+import Image from "next/image"
+import { getCardData } from "@/lib/card-data-access" // Assuming this gives all card metadata
+import {
+  listAllCardBlobs,
+  uploadCardBlob,
+  deleteCardBlob,
+  type BlobEntry,
+  verifyBlobIntegrity,
+} from "@/lib/card-image-blob-handler" // Assuming these are external now
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from "@/components/ui/dialog"
 
-interface BlobFile {
-  pathname: string
-  url: string
-  size: number
-  uploadedAt: string
+interface VerificationResult {
+  filename: string
+  exists: boolean
+  url?: string
+  error?: string
+  expectedPath?: string
 }
 
 export default function BlobManagerPage() {
-  const [files, setFiles] = useState<BlobFile[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [uploading, setUploading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isUploading, setIsUploading] = useState(false)
+  const [blobList, setBlobList] = useState<BlobEntry[]>([])
+  const [isLoadingBlobs, setIsLoadingBlobs] = useState(false)
+  const [selectedCardId, setSelectedCardId] = useState("")
+  const [selectedElement, setSelectedElement] = useState("spirit")
+  const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null)
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [bulkVerificationProgress, setBulkVerificationProgress] = useState(0)
+  const [bulkVerificationResults, setBulkVerificationResults] = useState<VerificationResult[]>([])
+  const [isBulkVerifying, setIsBulkVerifying] = useState(false)
+  const [showOnlyMissing, setShowOnlyMissing] = useState(false)
+  const [showOnlyVerified, setShowOnlyVerified] = useState(false)
+
   const { toast } = useToast()
 
-  const fetchBlobs = async () => {
-    setLoading(true)
-    setError(null)
+  useEffect(() => {
+    fetchBlobList()
+  }, [])
+
+  const fetchBlobList = async () => {
+    setIsLoadingBlobs(true)
     try {
-      const response = await fetch("/api/blob/list-cards")
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      const data = await response.json()
-      if (data.success) {
-        setFiles(data.files)
+      const { blobs, error } = await listAllCardBlobs()
+      if (error) {
+        toast({
+          title: "Error Listing Blobs",
+          description: error,
+          variant: "destructive",
+        })
+        console.error("Error listing blobs:", error)
+        setBlobList([])
       } else {
-        setError(data.error || "Failed to fetch blobs.")
+        setBlobList(blobs)
+        toast({
+          title: "Blob List Updated",
+          description: `${blobs.length} blobs loaded successfully.`,
+        })
       }
-    } catch (err: any) {
-      setError(err.message || "An unknown error occurred while fetching blobs.")
-      console.error("Error fetching blobs:", err)
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: `Failed to fetch blob list: ${error.message}`,
+        variant: "destructive",
+      })
+      console.error("Failed to fetch blob list:", error)
     } finally {
-      setLoading(false)
+      setIsLoadingBlobs(false)
     }
   }
-
-  useEffect(() => {
-    fetchBlobs()
-  }, [])
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -66,182 +105,394 @@ export default function BlobManagerPage() {
     if (!selectedFile) {
       toast({
         title: "No file selected",
-        description: "Please choose a file to upload.",
+        description: "Please select an image file to upload.",
         variant: "destructive",
       })
       return
     }
 
-    setUploading(true)
-    try {
-      const formData = new FormData()
-      formData.append("file", selectedFile)
+    setIsUploading(true)
+    setUploadProgress(0)
 
-      const response = await fetch("/api/files/upload", {
-        method: "POST",
-        body: formData,
+    try {
+      const filename = selectedFile.name
+      const fileType = selectedFile.type
+      const blobPath = `cards/${filename}`
+
+      const { success, url, error } = await uploadCardBlob(selectedFile, blobPath, fileType, (progress) => {
+        setUploadProgress(progress)
       })
 
-      const data = await response.json()
-
-      if (response.ok && data.success) {
+      if (success && url) {
         toast({
           title: "Upload Successful",
-          description: `File ${selectedFile.name} uploaded to ${data.url}`,
-          variant: "default",
+          description: `File "${filename}" uploaded to ${url}`,
         })
         setSelectedFile(null)
-        fetchBlobs() // Refresh the list
+        fetchBlobList() // Refresh the list of blobs
       } else {
-        throw new Error(data.error || "Failed to upload file.")
+        throw new Error(error || "Unknown upload error")
       }
-    } catch (err: any) {
+    } catch (error: any) {
       toast({
         title: "Upload Failed",
-        description: err.message || "An error occurred during upload.",
+        description: error.message,
         variant: "destructive",
       })
-      setError(err.message)
+      console.error("Upload error:", error)
     } finally {
-      setUploading(false)
+      setIsUploading(false)
+      setUploadProgress(0)
     }
   }
 
-  const handleDeleteAllBlobs = async () => {
-    if (!confirm("Are you sure you want to delete ALL card images from blob storage? This action cannot be undone.")) {
+  const handleDelete = async (pathname: string) => {
+    if (!window.confirm(`Are you sure you want to delete ${pathname}?`)) {
+      return
+    }
+    try {
+      const { success, error } = await deleteCardBlob(pathname)
+      if (success) {
+        toast({
+          title: "Deletion Successful",
+          description: `File "${pathname}" deleted.`,
+        })
+        fetchBlobList()
+      } else {
+        throw new Error(error || "Unknown deletion error")
+      }
+    } catch (error: any) {
+      toast({
+        title: "Deletion Failed",
+        description: error.message,
+        variant: "destructive",
+      })
+      console.error("Deletion error:", error)
+    }
+  }
+
+  const handleVerifySingle = async () => {
+    if (!selectedCardId) {
+      toast({
+        title: "Missing Card ID",
+        description: "Please enter a Card ID to verify.",
+        variant: "destructive",
+      })
       return
     }
 
-    setLoading(true)
+    setIsVerifying(true)
+    setVerificationResult(null)
     try {
-      const response = await fetch("/api/admin/delete-card-blobs", {
-        method: "POST",
-      })
-      const data = await response.json()
-      if (response.ok && data.success) {
-        toast({
-          title: "Deletion Successful",
-          description: "All card images have been deleted from blob storage.",
-          variant: "default",
-        })
-        fetchBlobs() // Refresh the list
-      } else {
-        throw new Error(data.error || "Failed to delete blobs.")
-      }
-    } catch (err: any) {
+      const result = await verifyBlobIntegrity({ cardId: selectedCardId, element: selectedElement })
+      setVerificationResult(result)
       toast({
-        title: "Deletion Failed",
-        description: err.message || "An error occurred during deletion.",
+        title: "Verification Complete",
+        description: result.exists ? "Image found and valid!" : "Image not found or invalid.",
+        variant: result.exists ? "default" : "destructive",
+      })
+    } catch (error: any) {
+      toast({
+        title: "Verification Error",
+        description: error.message,
         variant: "destructive",
       })
-      setError(err.message)
+      console.error("Verification error:", error)
     } finally {
-      setLoading(false)
+      setIsVerifying(false)
     }
   }
 
+  const handleBulkVerify = async () => {
+    setIsBulkVerifying(true)
+    setBulkVerificationProgress(0)
+    setBulkVerificationResults([])
+
+    const allCards = getCardData() // Get all card metadata
+    const verificationPromises: Promise<VerificationResult>[] = []
+    let processedCount = 0
+
+    const updateProgress = () => {
+      processedCount++
+      setBulkVerificationProgress(Math.round((processedCount / allCards.length) * 100))
+    }
+
+    for (const card of allCards) {
+      const elements = [card.baseElement, card.synergisticElement]
+      for (const element of elements) {
+        verificationPromises.push(
+          verifyBlobIntegrity({ cardId: card.id, element: element as string }).then((result) => {
+            updateProgress()
+            return result
+          }),
+        )
+      }
+    }
+
+    const results = await Promise.all(verificationPromises)
+    setBulkVerificationResults(results)
+    setIsBulkVerifying(false)
+    toast({
+      title: "Bulk Verification Complete",
+      description: `Checked ${results.length} potential images.`,
+    })
+  }
+
+  const filteredBulkResults = bulkVerificationResults.filter((result) => {
+    if (showOnlyMissing && result.exists) return false
+    if (showOnlyVerified && !result.exists) return false
+    return true
+  })
+
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="mb-6 text-3xl font-bold">Vercel Blob Storage Manager</h1>
+    <div className="container mx-auto p-6 space-y-8">
+      <h1 className="text-3xl font-bold mb-6">Vercel Blob Storage Manager</h1>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Upload New Blob</CardTitle>
-            <CardDescription>Upload a new file to your Vercel Blob Storage.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="file-upload">Select File</Label>
-                <Input id="file-upload" type="file" onChange={handleFileChange} />
+      <Tabs defaultValue="upload">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="upload">Upload</TabsTrigger>
+          <TabsTrigger value="list">List Blobs</TabsTrigger>
+          <TabsTrigger value="verify">Verify Images</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="upload">
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UploadCloud className="h-5 w-5" /> Upload Card Image
+              </CardTitle>
+              <CardDescription>Upload a new card image to your Vercel Blob storage.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="picture">Image File</Label>
+                <Input id="picture" type="file" onChange={handleFileChange} disabled={isUploading} />
               </div>
-              <Button onClick={handleUpload} disabled={uploading || !selectedFile}>
-                {uploading ? (
-                  <>
-                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> Uploading...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="mr-2 h-4 w-4" /> Upload
-                  </>
+              <Button onClick={handleUpload} disabled={isUploading || !selectedFile}>
+                {isUploading ? <Loader2 className="animate-spin mr-2" /> : <UploadCloud className="mr-2" />}
+                {isUploading ? `Uploading ${uploadProgress}%` : "Upload File"}
+              </Button>
+              {isUploading && <Progress value={uploadProgress} className="w-full" />}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="list">
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <List className="h-5 w-5" /> Current Blobs
+              </CardTitle>
+              <CardDescription>View and manage files currently in your blob storage.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={fetchBlobList} disabled={isLoadingBlobs} className="mb-4">
+                {isLoadingBlobs ? <Loader2 className="animate-spin mr-2" /> : <RefreshCw className="mr-2" />}
+                {isLoadingBlobs ? "Loading..." : "Refresh List"}
+              </Button>
+              {isLoadingBlobs ? (
+                <div className="flex justify-center items-center h-40">
+                  <Loader2 className="animate-spin h-8 w-8 text-primary" />
+                </div>
+              ) : (
+                <ScrollArea className="h-[400px] w-full rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Filename</TableHead>
+                        <TableHead>Size</TableHead>
+                        <TableHead>Last Modified</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {blobList.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center">
+                            No blobs found.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        blobList.map((blob) => (
+                          <TableRow key={blob.url}>
+                            <TableCell className="font-medium">{blob.pathname.split("/").pop()}</TableCell>
+                            <TableCell>{(blob.size / 1024).toFixed(2)} KB</TableCell>
+                            <TableCell>{new Date(blob.uploadedAt).toLocaleDateString()}</TableCell>
+                            <TableCell className="text-right">
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="sm" className="mr-2 bg-transparent">
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Image Preview: {blob.pathname.split("/").pop()}</DialogTitle>
+                                    <DialogDescription>
+                                      <Image
+                                        src={blob.url || "/placeholder.svg"}
+                                        alt={blob.pathname.split("/").pop() || "Image Preview"}
+                                        width={400}
+                                        height={600}
+                                        className="object-contain w-full h-auto"
+                                      />
+                                      <p className="mt-2 text-sm text-gray-500 break-all">{blob.url}</p>
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                </DialogContent>
+                              </Dialog>
+                              <Button variant="destructive" size="sm" onClick={() => handleDelete(blob.pathname)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="verify">
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5" /> Verify Card Images
+              </CardTitle>
+              <CardDescription>
+                Verify if specific card images exist and conform to naming conventions in your blob storage.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="cardId">Card ID (e.g., 0-Cauldron)</Label>
+                  <Input
+                    id="cardId"
+                    value={selectedCardId}
+                    onChange={(e) => setSelectedCardId(e.target.value)}
+                    placeholder="e.g., 0-Cauldron"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="element">Element (e.g., Spirit)</Label>
+                  <Input
+                    id="element"
+                    value={selectedElement}
+                    onChange={(e) => setSelectedElement(e.target.value)}
+                    placeholder="e.g., Spirit, Fire"
+                  />
+                </div>
+              </div>
+              <Button onClick={handleVerifySingle} disabled={isVerifying || !selectedCardId}>
+                {isVerifying ? <Loader2 className="animate-spin mr-2" /> : <CheckCircle className="mr-2" />}
+                {isVerifying ? "Verifying..." : "Verify Single Image"}
+              </Button>
+
+              {verificationResult && (
+                <div className="p-4 rounded-md border flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold">{verificationResult.filename}</p>
+                    <p className="text-sm text-gray-500">
+                      Status:{" "}
+                      {verificationResult.exists ? (
+                        <span className="text-green-500">Found</span>
+                      ) : (
+                        <span className="text-red-500">Missing</span>
+                      )}
+                    </p>
+                    {verificationResult.error && (
+                      <p className="text-sm text-red-500">Error: {verificationResult.error}</p>
+                    )}
+                    {verificationResult.url && (
+                      <p className="text-sm text-gray-500 break-all">URL: {verificationResult.url}</p>
+                    )}
+                    {verificationResult.expectedPath && (
+                      <p className="text-sm text-gray-500 break-all">Expected: {verificationResult.expectedPath}</p>
+                    )}
+                  </div>
+                  {verificationResult.exists && verificationResult.url && (
+                    <Image
+                      src={verificationResult.url || "/placeholder.svg"}
+                      alt={verificationResult.filename}
+                      width={60}
+                      height={90}
+                      className="object-cover rounded"
+                    />
+                  )}
+                </div>
+              )}
+
+              <div className="border-t pt-6 mt-6 space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">Bulk Verification</h3>
+                <Button onClick={handleBulkVerify} disabled={isBulkVerifying}>
+                  {isBulkVerifying ? <Loader2 className="animate-spin mr-2" /> : <RefreshCw className="mr-2" />}
+                  {isBulkVerifying ? `Verifying All Cards ${bulkVerificationProgress}%` : "Run Bulk Verification"}
+                </Button>
+                {isBulkVerifying && <Progress value={bulkVerificationProgress} className="w-full" />}
+
+                {bulkVerificationResults.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="show-missing"
+                        checked={showOnlyMissing}
+                        onCheckedChange={setShowOnlyMissing}
+                        disabled={showOnlyVerified}
+                      />
+                      <Label htmlFor="show-missing">Show only missing</Label>
+                      <Switch
+                        id="show-verified"
+                        checked={showOnlyVerified}
+                        onCheckedChange={setShowOnlyVerified}
+                        disabled={showOnlyMissing}
+                      />
+                      <Label htmlFor="show-verified">Show only verified</Label>
+                    </div>
+
+                    <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+                      {filteredBulkResults.map((result, index) => (
+                        <div key={index} className="flex items-center gap-2 mb-2 p-2 border rounded-md">
+                          {result.exists ? (
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <XCircle className="h-4 w-4 text-red-500" />
+                          )}
+                          <span className="font-medium text-sm">
+                            {result.filename}
+                            {result.exists && result.url && (
+                              <a
+                                href={result.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="ml-2 text-blue-500 hover:underline"
+                              >
+                                <Eye className="inline-block h-4 w-4" /> View
+                              </a>
+                            )}
+                          </span>
+                          {result.error && (
+                            <span className="text-red-500 text-xs flex items-center ml-auto">
+                              <AlertTriangle className="h-3 w-3 mr-1" />
+                              {result.error}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                      {filteredBulkResults.length === 0 && (
+                        <p className="text-center text-gray-500">No results to display based on filters.</p>
+                      )}
+                    </ScrollArea>
+                  </div>
                 )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Blob List</CardTitle>
-            <CardDescription>Currently stored blobs (card images only).</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
               </div>
-            ) : error ? (
-              <Alert variant="destructive">
-                <Terminal className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            ) : files.length === 0 ? (
-              <Alert>
-                <Terminal className="h-4 w-4" />
-                <AlertTitle>No Blobs Found</AlertTitle>
-                <AlertDescription>There are no card images in your blob storage.</AlertDescription>
-              </Alert>
-            ) : (
-              <ScrollArea className="h-[300px] rounded-md border p-4">
-                <ul className="space-y-2">
-                  {files.map((file) => (
-                    <li key={file.pathname} className="flex items-center justify-between text-sm">
-                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="truncate hover:underline">
-                        {file.pathname}
-                      </a>
-                      <span className="text-gray-500">{(file.size / 1024).toFixed(2)} KB</span>
-                    </li>
-                  ))}
-                </ul>
-              </ScrollArea>
-            )}
-            <div className="mt-4 flex justify-end">
-              <Button onClick={fetchBlobs} variant="outline" size="sm" className="mr-2 bg-transparent">
-                <List className="mr-2 h-4 w-4" /> Refresh List
-              </Button>
-              <Button
-                onClick={handleDeleteAllBlobs}
-                variant="destructive"
-                size="sm"
-                disabled={files.length === 0 || loading}
-              >
-                <Trash2 className="mr-2 h-4 w-4" /> Delete All Card Blobs
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Separator className="my-8" />
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Blob Diagnostics</CardTitle>
-          <CardDescription>Quick links to related blob management tools.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Button onClick={() => (window.location.href = "/admin/blob-diagnostics")}>
-              <RefreshCw className="mr-2 h-4 w-4" /> Run Diagnostics
-            </Button>
-            <Button onClick={() => (window.location.href = "/admin/verify-card-images")}>
-              <CheckCircle className="mr-2 h-4 w-4" /> Verify Card Images
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

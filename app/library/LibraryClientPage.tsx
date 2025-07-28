@@ -1,139 +1,182 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DocumentCard } from "@/components/library/document-card"
-import { ReadingList } from "@/components/library/reading-list"
-import { LibrarySearch } from "@/components/library/library-search"
-import { PlusCircle, BookOpen, List, Loader2, AlertCircle } from "lucide-react"
-import { getDocuments, getReadingLists } from "@/lib/services/library-service" // Assuming these functions exist
-import type { Document, ReadingList as ReadingListType } from "@/types/library" // Assuming types are defined
+import { useState, useEffect, Suspense } from "react"
 import { useToast } from "@/components/ui/use-toast"
-import { AddDocumentForm } from "@/components/library/add-document-form"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import type { LibraryDocument, LibrarySearchFilters, UserRole } from "@/types/library"
+import LibraryResourceGrid from "@/components/library-resource-grid" // Assuming this component exists
+import HeroSection from "@/components/hero-section" // Import HeroSection
 
-export function LibraryClientPage() {
-  const [documents, setDocuments] = useState<Document[]>([])
-  const [readingLists, setReadingLists] = useState<ReadingListType[]>([])
+export default function LibraryClientPage() {
+  const [documents, setDocuments] = useState<LibraryDocument[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [selectedDocument, setSelectedDocument] = useState<LibraryDocument | null>(null)
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [showViewer, setShowViewer] = useState(false)
+  const [readingListItems, setReadingListItems] = useState<string[]>([])
+  const [activeTab, setActiveTab] = useState("browse")
   const { toast } = useToast()
+  const [userRole, setUserRole] = useState<UserRole | null>(null)
 
-  const fetchLibraryData = async () => {
-    setLoading(true)
-    setError(null)
+  // Mock user ID and role - in a real app, these would come from authentication
+  const userId = "user-123"
+  const userRoleMock = "admin" // Possible values: "admin", "user", "guest"
+
+  useEffect(() => {
+    fetchDocuments()
+    fetchReadingListItems()
+    setUserRole(userRoleMock as UserRole)
+  }, [])
+
+  const fetchDocuments = async (filters?: LibrarySearchFilters) => {
+    setSearchLoading(true)
     try {
-      const [fetchedDocuments, fetchedReadingLists] = await Promise.all([getDocuments(), getReadingLists()])
-      setDocuments(fetchedDocuments)
-      setReadingLists(fetchedReadingLists)
-    } catch (err) {
-      setError("Failed to load library data. Please try again later.")
-      console.error("Error fetching library data:", err)
+      const params = new URLSearchParams()
+      if (filters?.query) params.append("query", filters.query)
+      if (filters?.author) params.append("author", filters.author)
+      if (filters?.category) params.append("category", filters.category)
+      if (filters?.fileType) params.append("fileType", filters.fileType)
+      if (filters?.isPublic !== undefined) params.append("isPublic", filters.isPublic.toString())
+
+      const response = await fetch(`/api/library/documents?${params}`)
+      const result = await response.json()
+
+      if (result.success) {
+        setDocuments(result.data)
+      } else {
+        throw new Error(result.error)
+      }
+    } catch (error) {
+      console.error("Error fetching documents:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load documents",
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
+      setSearchLoading(false)
     }
   }
 
-  useEffect(() => {
-    fetchLibraryData()
-  }, [])
+  const fetchReadingListItems = async () => {
+    try {
+      const response = await fetch(`/api/library/reading-list?userId=${userId}`)
+      const result = await response.json()
 
-  const handleDocumentAdded = () => {
-    toast({
-      title: "Document Added",
-      description: "Your new document has been successfully added to the library.",
-    })
-    fetchLibraryData() // Refresh data
+      if (result.success) {
+        setReadingListItems(result.data.map((item: any) => item.documentId))
+      }
+    } catch (error) {
+      console.error("Error fetching reading list:", error)
+    }
   }
 
-  const filteredDocuments = documents.filter(
-    (doc) =>
-      doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase())),
-  )
-
-  const filteredReadingLists = readingLists.filter(
-    (list) =>
-      list.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      list.description.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
-
-  if (loading) {
-    return (
-      <div className="flex min-h-[calc(100vh-200px)] items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-purple-500" />
-        <p className="ml-4 text-lg text-gray-400">Loading library...</p>
-      </div>
-    )
+  const handleSearch = (filters: LibrarySearchFilters) => {
+    fetchDocuments(filters)
   }
 
-  if (error) {
-    return (
-      <div className="flex min-h-[calc(100vh-200px)] items-center justify-center text-red-500">
-        <AlertCircle className="mr-2 h-6 w-6" />
-        <p>{error}</p>
-      </div>
-    )
+  const handleViewDocument = (document: LibraryDocument) => {
+    setSelectedDocument(document)
+    setShowViewer(true)
   }
+
+  const handleAddToReadingList = async (document: LibraryDocument) => {
+    try {
+      const response = await fetch("/api/library/reading-list", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          documentId: document.id,
+          status: "to_read",
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setReadingListItems((prev) => [...prev, document.id])
+        toast({
+          title: "Success",
+          description: "Added to reading list",
+        })
+      } else {
+        throw new Error(result.error)
+      }
+    } catch (error) {
+      console.error("Error adding to reading list:", error)
+      toast({
+        title: "Error",
+        description: "Failed to add to reading list",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleRemoveFromReadingList = async (document: LibraryDocument) => {
+    try {
+      // Find the reading list item ID
+      const response = await fetch(`/api/library/reading-list?userId=${userId}`)
+      const result = await response.json()
+
+      if (result.success) {
+        const item = result.data.find((item: any) => item.documentId === document.id)
+        if (item) {
+          const deleteResponse = await fetch(`/api/library/reading-list/${item.id}`, {
+            method: "DELETE",
+          })
+
+          const deleteResult = await deleteResponse.json()
+
+          if (deleteResult.success) {
+            setReadingListItems((prev) => prev.filter((id) => id !== document.id))
+            toast({
+              title: "Success",
+              description: "Removed from reading list",
+            })
+          } else {
+            throw new Error(deleteResult.error)
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error removing from reading list:", error)
+      toast({
+        title: "Error",
+        description: "Failed to remove from reading list",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleDocumentAdded = (document: LibraryDocument) => {
+    setDocuments((prev) => [document, ...prev])
+  }
+
+  const stats = {
+    total: documents.length,
+    inReadingList: readingListItems.length,
+    categories: [...new Set(documents.map((doc) => doc.category).filter(Boolean))].length,
+  }
+
+  const canAddDocuments = userRole === "admin" || userRole === "user"
 
   return (
-    <div className="container mx-auto px-4 py-8 md:px-6 lg:py-12">
-      <h1 className="mb-8 text-center text-4xl font-bold text-gray-50">The NUMO Library</h1>
-      <p className="mb-12 text-center text-lg text-gray-300">
-        A curated collection of documents and reading lists to deepen your understanding of numerology and oracle
-        wisdom.
-      </p>
-
-      <div className="mb-8 flex flex-col items-center justify-between gap-4 md:flex-row">
-        <LibrarySearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add New Document
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Add New Document</DialogTitle>
-            </DialogHeader>
-            <AddDocumentForm onDocumentAdded={handleDocumentAdded} />
-          </DialogContent>
-        </Dialog>
+    <div className="relative min-h-screen bg-black">
+      <HeroSection
+        title="NUMO Oracle Library"
+        description="Access a comprehensive collection of resources, guides, and articles."
+        backgroundImage="/open-book-knowledge.png"
+      />
+      <div className="container mx-auto py-8">
+        <Suspense fallback={<div className="text-center py-20 text-white">Loading library resources...</div>}>
+          {/* Assuming LibraryResourceGrid component exists */}
+          <LibraryResourceGrid />
+        </Suspense>
       </div>
-
-      <Tabs defaultValue="documents" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="documents">
-            <BookOpen className="mr-2 h-4 w-4" /> Documents
-          </TabsTrigger>
-          <TabsTrigger value="reading-lists">
-            <List className="mr-2 h-4 w-4" /> Reading Lists
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="documents" className="mt-6">
-          <h2 className="mb-4 text-2xl font-semibold text-gray-50">All Documents</h2>
-          {filteredDocuments.length === 0 ? (
-            <p className="text-center text-gray-400">No documents found matching your search.</p>
-          ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredDocuments.map((doc) => (
-                <DocumentCard key={doc.id} document={doc} />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-        <TabsContent value="reading-lists" className="mt-6">
-          <h2 className="mb-4 text-2xl font-semibold text-gray-50">My Reading Lists</h2>
-          {filteredReadingLists.length === 0 ? (
-            <p className="text-center text-gray-400">No reading lists found matching your search.</p>
-          ) : (
-            <ReadingList readingLists={filteredReadingLists} />
-          )}
-        </TabsContent>
-      </Tabs>
     </div>
   )
 }

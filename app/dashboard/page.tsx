@@ -1,4 +1,4 @@
-import { Suspense, redirect } from "react"
+import { Suspense } from "react"
 import type { Metadata } from "next"
 import HeroSection from "@/components/hero-section" // Import HeroSection
 
@@ -8,9 +8,6 @@ export const metadata: Metadata = {
 }
 
 export default function DashboardPage() {
-  // Redirect to the user dashboard
-  redirect("/user/dashboard")
-
   return (
     <div className="relative min-h-screen bg-black">
       <HeroSection

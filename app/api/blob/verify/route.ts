@@ -3,9 +3,7 @@ import {
   testBlobStorageConnection,
   verifyBlobStorageAndListImages,
   getVerifiedImageMetrics,
-  getVerifiedCardImage,
 } from "@/lib/verified-blob-handler"
-import { head } from "@vercel/blob"
 
 /**
  * API route for blob storage verification and diagnostics
@@ -60,22 +58,6 @@ export async function GET(request: Request) {
           timestamp: new Date().toISOString(),
         })
 
-      case "vercel-connectivity":
-        // Attempt to access a known blob or just list to check connectivity
-        // For a simple connectivity check, we can try to list a small number of blobs
-        // or check for a specific, known test blob.
-        // For now, let's just try to list to see if the service is reachable.
-        const { blobs } = await head("test-connection.txt") // Assuming you have a small test file
-        // If head returns a blob, it means connection is successful.
-        if (blobs) {
-          return NextResponse.json({ success: true, message: "Vercel Blob Storage is accessible." })
-        } else {
-          return NextResponse.json(
-            { success: false, message: "Vercel Blob Storage is not accessible or test file not found." },
-            { status: 500 },
-          )
-        }
-
       default:
         return NextResponse.json({ success: false, error: "Invalid action parameter" }, { status: 400 })
     }
@@ -102,6 +84,9 @@ export async function POST(request: Request) {
       if (!cardId || !element) {
         return NextResponse.json({ success: false, error: "Missing cardId or element" }, { status: 400 })
       }
+
+      // Import the verification function dynamically to avoid circular imports
+      const { getVerifiedCardImage } = await import("@/lib/verified-blob-handler")
 
       const result = await getVerifiedCardImage(cardId, element)
 

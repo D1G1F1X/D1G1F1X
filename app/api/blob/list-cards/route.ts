@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         {
           error: "Blob storage token not configured",
-          files: [],
+          blobs: [],
           fallback: true,
         },
         { status: 200 }, // Return 200 so the client can handle fallback
@@ -18,24 +18,23 @@ export async function GET(request: NextRequest) {
     // List all blobs with the cards prefix
     const { blobs } = await list({
       prefix: "cards/",
-      limit: 1000,
       token: process.env.BLOB_READ_WRITE_TOKEN,
     })
 
     console.log(`📦 API: Found ${blobs.length} card images in blob storage`)
 
     // Transform blob data for client consumption
-    const files = blobs.map((blob) => ({
+    const transformedBlobs = blobs.map((blob) => ({
       pathname: blob.pathname,
       filename: blob.pathname.split("/").pop() || "",
       url: blob.url,
       size: blob.size,
-      uploadedAt: blob.uploadedAt.toISOString(),
+      uploadedAt: blob.uploadedAt,
     }))
 
     return NextResponse.json({
       success: true,
-      files,
+      blobs: transformedBlobs,
       total: blobs.length,
       timestamp: new Date().toISOString(),
     })
@@ -46,7 +45,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : "Unknown error",
-        files: [],
+        blobs: [],
         fallback: true,
         timestamp: new Date().toISOString(),
       },

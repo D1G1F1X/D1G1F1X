@@ -1,104 +1,222 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import type React from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { DashboardShell } from "@/components/admin/dashboard-shell"
+import { ContentEditor } from "@/components/admin/content-editor"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, Save, Upload } from "lucide-react"
-import Link from "next/link"
-import { ColorPicker } from "@/components/admin/color-picker"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { ImagePlus } from "lucide-react"
+import { toast } from "@/components/ui/use-toast"
 
-export default function AdminProductDetailPage({ params }: { params: { id: string } }) {
-  const productId = params.id
-  // Mock data for a single product
-  const product = {
-    id: productId,
-    name: "Deluxe Oracle Deck",
-    slug: "deluxe-oracle-deck",
-    price: 49.99,
-    stock: 150,
-    description: "A comprehensive oracle deck with stunning artwork and a detailed guidebook.",
-    category: "Oracle Cards",
-    imageUrl: "/images/products/deluxe-deck.png",
-    isActive: true,
-    featuredColor: "#8A2BE2", // Blue Violet
+// Mock product data
+const mockProduct = {
+  id: "prod001",
+  name: "Deluxe Oracle Deck",
+  description: "A beautifully designed oracle deck with intricate artwork and a comprehensive guidebook.",
+  price: 79.99,
+  stock: 150,
+  category: "Oracle Decks",
+  isActive: true,
+  imageUrl: "/images/products/deluxe-deck.png",
+}
+
+// Mock categories
+const categories = [
+  { id: "1", name: "Oracle Cards", slug: "oracle-cards" },
+  { id: "2", name: "Numerology", slug: "numerology" },
+  { id: "3", name: "Readings", slug: "readings" },
+  { id: "4", name: "Spiritual Tools", slug: "spiritual-tools" },
+]
+
+interface ProductEditPageProps {
+  params: {
+    id: string
+  }
+}
+
+export default function ProductEditPage({ params }: ProductEditPageProps) {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [product, setProduct] = useState<any>(null)
+
+  useEffect(() => {
+    // In a real app, you would fetch the product data from your API
+    setProduct(mockProduct)
+    setIsLoading(false)
+  }, [params.id])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSaving(true)
+
+    try {
+      // Here you would normally save the product to your database
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      toast({
+        title: "Product updated",
+        description: "Your product has been updated successfully.",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "There was an error updating your product.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <DashboardShell>
+        <div className="flex items-center justify-center h-96">
+          <p>Loading product...</p>
+        </div>
+      </DashboardShell>
+    )
+  }
+
+  if (!product) {
+    return (
+      <DashboardShell>
+        <div className="flex items-center justify-center h-96">
+          <p>Product not found</p>
+        </div>
+      </DashboardShell>
+    )
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Edit Product: {product.name}</h1>
-        <Link href="/admin/products" passHref>
-          <Button variant="outline">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Products
+    <DashboardShell>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Edit Product: {product.name}</h1>
+          <p className="text-muted-foreground">Update product details, pricing, and inventory.</p>
+        </div>
+        <div className="flex space-x-2">
+          <Button variant="outline" onClick={() => router.push("/admin/products")}>
+            Cancel
           </Button>
-        </Link>
+          <Button onClick={handleSubmit} disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save Changes"}
+          </Button>
+        </div>
       </div>
+
+      <Separator />
 
       <Card>
         <CardHeader>
           <CardTitle>Product Information</CardTitle>
-          <CardDescription>Edit the details of this product.</CardDescription>
+          <CardDescription>Basic details about the product.</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
-          <div>
-            <Label htmlFor="product-name">Product Name</Label>
-            <Input id="product-name" defaultValue={product.name} />
-          </div>
-          <div>
-            <Label htmlFor="product-slug">Product Slug</Label>
-            <Input id="product-slug" defaultValue={product.slug} />
-          </div>
-          <div>
-            <Label htmlFor="product-price">Price</Label>
-            <Input id="product-price" type="number" step="0.01" defaultValue={product.price} />
-          </div>
-          <div>
-            <Label htmlFor="product-stock">Stock Quantity</Label>
-            <Input id="product-stock" type="number" defaultValue={product.stock} />
-          </div>
-          <div className="md:col-span-2">
-            <Label htmlFor="product-description">Description</Label>
-            <Textarea id="product-description" defaultValue={product.description} rows={5} />
-          </div>
-          <div>
-            <Label htmlFor="product-category">Category</Label>
-            <select
-              id="product-category"
-              defaultValue={product.category}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option>Oracle Cards</option>
-              <option>Numerology Reports</option>
-              <option>Guidebooks</option>
-              <option>Accessories</option>
-            </select>
-          </div>
-          <div>
-            <Label htmlFor="product-image">Product Image URL</Label>
-            <Input id="product-image" defaultValue={product.imageUrl} />
-            <Button variant="outline" size="sm" className="mt-2 bg-transparent">
-              <Upload className="mr-2 h-4 w-4" /> Upload New Image
-            </Button>
-          </div>
-          <div className="flex items-center space-x-2 md:col-span-2">
-            <Checkbox id="is-active" checked={product.isActive} />
-            <Label htmlFor="is-active">Active Product</Label>
-          </div>
-          <div className="md:col-span-2">
-            <Label htmlFor="featured-color">Featured Color</Label>
-            <ColorPicker value={product.featuredColor} onChange={() => {}} />
-            <p className="text-sm text-gray-400 mt-1">Choose a color to represent this product (e.g., for banners).</p>
-          </div>
-          <div className="md:col-span-2">
-            <Button className="w-full">
-              <Save className="mr-2 h-4 w-4" /> Save Product
-            </Button>
+        <CardContent className="space-y-4">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="name">Product Name</Label>
+              <Input
+                id="name"
+                value={product.name}
+                onChange={(e) => setProduct({ ...product, name: e.target.value })}
+                placeholder="Product name"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <Select value={product.category} onValueChange={(value) => setProduct({ ...product, category: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.slug} value={category.slug}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <ContentEditor
+                initialValue={product.description}
+                onChange={(value) => setProduct({ ...product, description: value })}
+                minHeight="300px"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="price">Price ($)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  value={product.price}
+                  onChange={(e) => setProduct({ ...product, price: Number.parseFloat(e.target.value) })}
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="stock">Stock Quantity</Label>
+                <Input
+                  id="stock"
+                  type="number"
+                  value={product.stock}
+                  onChange={(e) => setProduct({ ...product, stock: Number.parseInt(e.target.value) })}
+                  placeholder="0"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="isActive"
+                checked={product.isActive}
+                onCheckedChange={(checked) => setProduct({ ...product, isActive: checked })}
+              />
+              <Label htmlFor="isActive">Active (Visible in Store)</Label>
+            </div>
           </div>
         </CardContent>
       </Card>
-    </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Product Images</CardTitle>
+          <CardDescription>Manage images for this product.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center space-x-4">
+            {product.imageUrl && (
+              <img
+                src={product.imageUrl || "/placeholder.svg"}
+                alt={product.name}
+                className="w-24 h-24 object-cover rounded-md border"
+              />
+            )}
+            <Button variant="outline">
+              <ImagePlus className="mr-2 h-4 w-4" /> Upload New Image
+            </Button>
+            {/* Add more image management features here, e.g., reordering, deleting */}
+          </div>
+        </CardContent>
+      </Card>
+    </DashboardShell>
   )
 }

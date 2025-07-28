@@ -1,121 +1,128 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Separator } from "@/components/ui/separator"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
+import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Save, Mail, Globe, Lock } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Settings, Mail, Palette, Globe } from "lucide-react"
 
-export default function AdminSettingsPage() {
+export default function SettingsPage() {
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="mb-6 text-3xl font-bold">Site Settings</h1>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>General Settings</CardTitle>
-            <CardDescription>Configure basic site information and features.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="site-name">Site Name</Label>
-              <Input id="site-name" defaultValue="NUMO Oracle" />
-            </div>
-            <div>
-              <Label htmlFor="site-tagline">Site Tagline</Label>
-              <Input id="site-tagline" defaultValue="Discover the wisdom of the NUMO Oracle cards" />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="enable-registration">Enable User Registration</Label>
-              <Switch id="enable-registration" defaultChecked />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="enable-shop">Enable Shop</Label>
-              <Switch id="enable-shop" defaultChecked />
-            </div>
-            <Button>
-              <Save className="mr-2 h-4 w-4" /> Save General Settings
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Email Settings</CardTitle>
-            <CardDescription>Configure email sending for notifications and marketing.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="sender-email">Sender Email</Label>
-              <Input id="sender-email" type="email" defaultValue="noreply@numoracle.com" />
-            </div>
-            <div>
-              <Label htmlFor="sender-name">Sender Name</Label>
-              <Input id="sender-name" defaultValue="NUMO Oracle" />
-            </div>
-            <div>
-              <Label htmlFor="brevo-api-key">Brevo API Key</Label>
-              <Input id="brevo-api-key" type="password" defaultValue="sk_************************" />
-            </div>
-            <Button>
-              <Mail className="mr-2 h-4 w-4" /> Test Email Configuration
-            </Button>
-            <Button className="w-full">
-              <Save className="mr-2 h-4 w-4" /> Save Email Settings
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>SEO Settings</CardTitle>
-            <CardDescription>Manage meta tags and search engine visibility.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="meta-description">Default Meta Description</Label>
-              <Textarea
-                id="meta-description"
-                defaultValue="Explore numerology and oracle card readings for personal insight and guidance."
-                rows={3}
-              />
-            </div>
-            <div>
-              <Label htmlFor="keywords">Keywords (comma-separated)</Label>
-              <Input id="keywords" defaultValue="numerology, oracle cards, spiritual guidance, divination" />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="allow-indexing">Allow Search Engine Indexing</Label>
-              <Switch id="allow-indexing" defaultChecked />
-            </div>
-            <Button>
-              <Globe className="mr-2 h-4 w-4" /> Save SEO Settings
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Security Settings</CardTitle>
-            <CardDescription>Manage authentication and access control.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="admin-username">Admin Username</Label>
-              <Input id="admin-username" defaultValue="admin" />
-            </div>
-            <div>
-              <Label htmlFor="admin-password">Admin Password</Label>
-              <Input id="admin-password" type="password" placeholder="********" />
-              <p className="mt-1 text-sm text-gray-400">Leave blank to keep current password.</p>
-            </div>
-            <Button>
-              <Lock className="mr-2 h-4 w-4" /> Save Security Settings
-            </Button>
-          </CardContent>
-        </Card>
+    <div className="p-8 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
+          <p className="text-muted-foreground">Manage your site settings, integrations, and preferences.</p>
+        </div>
       </div>
+
+      <Separator />
+
+      <Tabs defaultValue="general">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="general" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" /> General
+          </TabsTrigger>
+          <TabsTrigger value="email" className="flex items-center gap-2">
+            <Mail className="h-4 w-4" /> Email
+          </TabsTrigger>
+          <TabsTrigger value="appearance" className="flex items-center gap-2">
+            <Palette className="h-4 w-4" /> Appearance
+          </TabsTrigger>
+          <TabsTrigger value="integrations" className="flex items-center gap-2">
+            <Globe className="h-4 w-4" /> Integrations
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="general" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Site Information</CardTitle>
+              <CardDescription>Update your website&apos;s basic information.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="siteName">Site Name</Label>
+                <Input id="siteName" defaultValue="NUMO Oracle" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tagline">Tagline</Label>
+                <Input id="tagline" defaultValue="Discover the wisdom of the NUMO Oracle cards" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  defaultValue="Your website's main description for SEO and general information."
+                  rows={3}
+                />
+              </div>
+              <Button>Save Changes</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="email" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Email Settings</CardTitle>
+              <CardDescription>Configure settings for transactional emails.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="senderEmail">Sender Email Address</Label>
+                <Input id="senderEmail" type="email" defaultValue="noreply@numoracle.com" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="senderName">Sender Name</Label>
+                <Input id="senderName" defaultValue="NUMO Oracle Team" />
+              </div>
+              <Button>Save Changes</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="appearance" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Appearance Settings</CardTitle>
+              <CardDescription>Customize the visual theme and branding.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="primaryColor">Primary Color</Label>
+                <Input id="primaryColor" type="color" defaultValue="#8a2be2" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fontFamily">Font Family</Label>
+                <Input id="fontFamily" defaultValue="Inter, sans-serif" />
+              </div>
+              <Button>Save Changes</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="integrations" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Integrations</CardTitle>
+              <CardDescription>Connect with third-party services.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="analyticsId">Google Analytics ID</Label>
+                <Input id="analyticsId" placeholder="UA-XXXXX-Y" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="stripeKey">Stripe Public Key</Label>
+                <Input id="stripeKey" placeholder="pk_test_..." />
+              </div>
+              <Button>Save Changes</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

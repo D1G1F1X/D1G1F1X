@@ -1,38 +1,56 @@
-import { DashboardShell } from "@/components/admin/dashboard-shell"
-import { DashboardStats } from "@/components/admin/dashboard/dashboard-stats"
-import { RecentOrders } from "@/components/admin/dashboard/recent-orders"
-import { SalesChart } from "@/components/admin/dashboard/sales-chart"
-import { UserGrowthChart } from "@/components/admin/dashboard/user-growth-chart"
-import { VisitorsChart } from "@/components/admin/dashboard/visitors-chart"
-import { ActivityFeed } from "@/components/admin/dashboard/activity-feed"
-import { TopProducts } from "@/components/admin/dashboard/top-products"
-import { RecentSalesLeads } from "@/components/admin/dashboard/recent-sales-leads"
-import { GeographicDistribution } from "@/components/admin/dashboard/geographic-distribution"
-import { RevenueMetrics } from "@/components/admin/dashboard/revenue-metrics"
+import type { Metadata } from "next"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Users, DollarSign, Package, Newspaper } from "lucide-react"
 
-export default function SimpleDashboardPage() {
+export const metadata: Metadata = {
+  title: "Simple Dashboard | NUMOracle",
+  description: "Simple dashboard for NUMOracle platform",
+}
+
+export default function SimpleAdminDashboardPage() {
   return (
-    <DashboardShell title="Simple Dashboard">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <DashboardStats />
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <SalesChart className="col-span-4" />
-        <RecentSalesLeads className="col-span-3" />
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <UserGrowthChart className="col-span-4" />
-        <RecentOrders className="col-span-3" />
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <VisitorsChart className="col-span-4" />
-        <TopProducts className="col-span-3" />
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <RevenueMetrics className="col-span-4" />
-        <GeographicDistribution className="col-span-3" />
-      </div>
-      <ActivityFeed />
-    </DashboardShell>
+    <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+          <Users className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">1,234</div>
+          <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+          <DollarSign className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">$45,231.89</div>
+          <p className="text-xs text-muted-foreground">+15.5% from last month</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Products Sold</CardTitle>
+          <Package className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">573</div>
+          <p className="text-xs text-muted-foreground">+8.2% from last month</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">New Blog Posts</CardTitle>
+          <Newspaper className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">12</div>
+          <p className="text-xs text-muted-foreground">+3 since last week</p>
+        </CardContent>
+      </Card>
+      {/* Add more simple cards or a basic chart here if desired */}
+    </div>
   )
 }

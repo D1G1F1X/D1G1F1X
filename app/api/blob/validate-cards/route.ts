@@ -1,67 +1,116 @@
 import { NextResponse } from "next/server"
-import { head } from "@vercel/blob"
-import { getAllCards } from "@/lib/card-data-access" // Assuming this function exists
+import { list } from "@vercel/blob"
 
-interface ImageVerificationResult {
-  cardId: string
-  baseElement: string
-  synergisticElement: string
-  baseImageExists: boolean
-  synergisticImageExists: boolean
-  baseImageUrl?: string
-  synergisticImageUrl?: string
-  baseImageError?: string
-  synergisticImageError?: string
-}
+/**
+ * API route to validate that all cards have corresponding images
+ */
+
+// Master card data for validation
+const REQUIRED_CARDS = [
+  { id: "0-Cauldron", elements: ["Spirit", "Fire"] },
+  { id: "1-Cauldron", elements: ["Fire"] },
+  { id: "2-Sword", elements: ["Water"] },
+  { id: "3-Cord", elements: ["Fire", "Spirit"] },
+  { id: "4-Spear", elements: ["Earth", "Air"] },
+  { id: "5-Sword", elements: ["Earth", "Water"] },
+  { id: "6-Stone", elements: ["Earth"] },
+  { id: "7-Spear", elements: ["Air"] },
+  { id: "8-Cord", elements: ["Spirit"] },
+  { id: "9-Stone", elements: ["Air", "Earth"] },
+]
 
 export async function GET() {
   try {
-    const allCards = getAllCards()
-    const results: ImageVerificationResult[] = []
+    const { blobs } = await list({ prefix: "cards/" })
 
-    for (const card of allCards) {
-      const baseFilename = `${card.number.padStart(2, "0")}${card.suit.toLowerCase()}-${card.baseElement.toLowerCase()}.jpg`
-      const synergisticFilename = `${card.number.padStart(2, "0")}${card.suit.toLowerCase()}-${card.synergisticElement.toLowerCase()}.jpg`
-
-      let baseImageExists = false
-      let synergisticImageExists = false
-      let baseImageUrl: string | undefined
-      let synergisticImageUrl: string | undefined
-      let baseImageError: string | undefined
-      let synergisticImageError: string | undefined
-
-      try {
-        const baseBlob = await head(`cards/${baseFilename}`)
-        baseImageExists = !!baseBlob
-        baseImageUrl = baseBlob?.url
-      } catch (error: any) {
-        baseImageError = error.message
+    // Create a map of available images
+    const availableImages = new Set()
+    blobs.forEach((blob) => {
+      const filename = blob.pathname.split("/").pop()
+      if (filename) {
+        availableImages.add(filename.toLowerCase())
       }
+    })
 
-      try {
-        const synergisticBlob = await head(`cards/${synergisticFilename}`)
-        synergisticImageExists = !!synergisticBlob
-        synergisticImageUrl = synergisticBlob?.url
-      } catch (error: any) {
-        synergisticImageError = error.message
-      }
+    // Check each required card
+    const validationResults = []
+    const missingImages = []
 
-      results.push({
+    for (const card of REQUIRED_CARDS) {
+      const cardResult = {
         cardId: card.id,
-        baseElement: card.baseElement,
-        synergisticElement: card.synergisticElement,
-        baseImageExists,
-        synergisticImageExists,
-        baseImageUrl,
-        synergisticImageUrl,
-        baseImageError,
-        synergisticImageError,
-      })
+        elements: card.elements,
+        foundImages: [] as string[],
+        missingImages: [] as string[],
+      }
+
+      for (const element of card.elements) {
+        const possibleNames = generateCardImageNames(card.id, element)
+        let found = false
+
+        for (const imageName of possibleNames) {
+          if (availableImages.has(imageName.toLowerCase())) {
+            cardResult.foundImages.push(imageName)
+            found = true
+            break
+          }
+        }
+
+        if (!found) {
+          cardResult.missingImages.push(`${card.id}-${element}`)
+          missingImages.push(`${card.id}-${element}`)
+        }
+      }
+
+      validationResults.push(cardResult)
     }
 
-    return NextResponse.json({ success: true, results })
+    const totalRequired = REQUIRED_CARDS.reduce((sum, card) => sum + card.elements.length, 0)
+    const totalFound = validationResults.reduce((sum, result) => sum + result.foundImages.length, 0)
+
+    return NextResponse.json({
+      success: true,
+      summary: {
+        totalRequired,
+        totalFound,
+        totalMissing: missingImages.length,
+        completionPercentage: Math.round((totalFound / totalRequired) * 100),
+      },
+      validationResults,
+      missingImages,
+      availableImages: Array.from(availableImages),
+      totalBlobImages: blobs.length,
+    })
   } catch (error) {
-    console.error("Error validating card images in blob storage:", error)
-    return NextResponse.json({ success: false, error: "Failed to validate card images." }, { status: 500 })
+    console.error("Error validating card images:", error)
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to validate card images",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   }
+}
+
+function generateCardImageNames(cardId: string, element: string): string[] {
+  const names: string[] = []
+  const [number, suit] = cardId.split("-")
+  const paddedNumber = number.padStart(2, "0")
+  const lowerSuit = suit?.toLowerCase() || ""
+  const lowerElement = element.toLowerCase()
+
+  names.push(
+    `${paddedNumber}${lowerSuit}-${lowerElement}.jpg`,
+    `${paddedNumber}${lowerSuit}-${lowerElement}.png`,
+    `${number}${lowerSuit}-${lowerElement}.jpg`,
+    `${number}${lowerSuit}-${lowerElement}.png`,
+    `${paddedNumber}-${lowerSuit}-${lowerElement}.jpg`,
+    `${paddedNumber}-${lowerSuit}-${lowerElement}.png`,
+    `${cardId.toLowerCase()}-${lowerElement}.jpg`,
+    `${cardId.toLowerCase()}-${lowerElement}.png`,
+  )
+
+  return names
 }

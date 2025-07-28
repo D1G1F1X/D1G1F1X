@@ -1,29 +1,28 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { AlertCircle } from "lucide-react"
 
-export default function AuthCodeErrorPage() {
+export default function AuthCodeError() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-950 p-4">
-      <Card className="w-full max-w-md text-center">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
         <CardHeader>
-          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-          <CardTitle className="text-2xl font-bold">Authentication Error</CardTitle>
-          <CardDescription>There was an issue with your authentication code or link.</CardDescription>
+          <CardTitle>Authentication Error</CardTitle>
+          <CardDescription>There was a problem confirming your account</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-gray-300">
-            The link may have expired, or the code might be invalid. Please try logging in again or request a new link.
-          </p>
-          <Link href="/login" passHref>
-            <Button className="w-full">Go to Login</Button>
-          </Link>
-          <Link href="/contact" passHref>
-            <Button variant="link" className="w-full text-gray-400 hover:text-gray-200">
-              Contact Support
+        <CardContent>
+          <Alert variant="destructive">
+            <AlertDescription>The authentication link may have expired or been used already.</AlertDescription>
+          </Alert>
+          <div className="mt-4 space-y-2">
+            <Button asChild className="w-full">
+              <Link href="/login">Try Signing In</Link>
             </Button>
-          </Link>
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/register">Create New Account</Link>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

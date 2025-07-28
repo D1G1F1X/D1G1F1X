@@ -1,47 +1,50 @@
 import { NextResponse } from "next/server"
-import { head } from "@vercel/blob"
-import { getCardImageName } from "@/lib/card-data-access" // Assuming this function exists
-import { getAllCards } from "@/lib/card-data-access" // To get card data for image name generation
-import type { CardElement } from "@/types/cards"
+import { getVerifiedCardImage } from "@/lib/verified-blob-handler"
 
+export const dynamic = "force-dynamic" // Added to force dynamic rendering
+
+/**
+ * API route for testing individual card image retrieval
+ */
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const cardId = searchParams.get("cardId")
-  const element = searchParams.get("element") as CardElement
-
-  if (!cardId || !element) {
-    return NextResponse.json({ error: "cardId and element are required" }, { status: 400 })
-  }
-
   try {
-    const allCards = getAllCards()
-    const card = allCards.find((c) => c.id === cardId)
+    const { searchParams } = new URL(request.url)
+    const cardId = searchParams.get("cardId")
+    const element = searchParams.get("element")
 
-    if (!card) {
-      return NextResponse.json(
-        { filename: `${cardId}-${element}.jpg`, exists: false, error: "Card data not found" },
-        { status: 404 },
-      )
+    if (!cardId || !element) {
+      return NextResponse.json({ success: false, error: "Missing cardId or element parameters" }, { status: 400 })
     }
 
-    // Use the utility to get the expected filename
-    const filename = getCardImageName(card, element)
-    const pathname = `cards/${filename}` // Assuming blobs are stored under a 'cards/' prefix
+    console.log(`🧪 Testing card image retrieval: ${cardId}-${element}`)
 
-    console.log(`Testing blob existence for pathname: ${pathname}`)
+    const startTime = Date.now()
+    const result = await getVerifiedCardImage(cardId, element)
+    const totalTime = Date.now() - startTime
 
-    const blob = await head(pathname) // Use head to check existence without downloading
-    console.log(`Blob head result for ${pathname}:`, blob)
-
-    if (blob) {
-      return NextResponse.json({ filename, exists: true, url: blob.url })
-    } else {
-      return NextResponse.json({ filename, exists: false, error: "Blob not found" })
-    }
-  } catch (error: any) {
-    console.error(`Error testing blob for ${cardId}-${element}:`, error)
+    return NextResponse.json({
+      success: true,
+      test: {
+        cardId,
+        element,
+        url: result.url,
+        isPlaceholder: result.isPlaceholder,
+        loadTime: result.loadTime,
+        totalTime,
+        cached: result.cached,
+        error: result.error,
+      },
+      timestamp: new Date().toISOString(),
+    })
+  } catch (error) {
+    console.error("Error testing card image:", error)
     return NextResponse.json(
-      { filename: `${cardId}-${element}.jpg`, exists: false, error: error.message || "Unknown error" },
+      {
+        success: false,
+        error: "Card test failed",
+        details: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString(),
+      },
       { status: 500 },
     )
   }
