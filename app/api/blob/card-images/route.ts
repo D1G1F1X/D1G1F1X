@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { head } from "@vercel/blob"
 import { generateCardImagePath, generateCardImagePathVariants } from "@/lib/card-image-blob-handler"
+import { retryWithBackoff } from "@/lib/api-optimizer" // Import retryWithBackoff
 
 // Define the correct public Vercel Blob URL directly here
 const PUBLIC_BLOB_BASE_URL = "https://0clhhm0umusm8qjw.public.blob.vercel-storage.com"
@@ -20,21 +21,22 @@ export async function GET(request: NextRequest) {
     for (const fileName of possibleFileNames) {
       const blobPath = `cards/${fileName}`
       try {
-        // Use head to check if the blob exists without downloading it
-        await head(blobPath)
+        // Use retryWithBackoff for the head call
+        await retryWithBackoff(async () => {
+          await head(blobPath)
+        })
         // If head succeeds, the blob exists, return its public URL
         const imageUrl = `${PUBLIC_BLOB_BASE_URL}/${blobPath}`
         return NextResponse.json({ success: true, imageUrl })
       } catch (error: any) {
-        // If head fails, it means the blob doesn't exist at this path, try next variant
+        // Log the specific error message for better debugging
+        console.warn(`Error checking blob ${blobPath}: ${error.message}`)
         if (error.message.includes("BlobNotFound")) {
-          // console.log(`Blob not found for path: ${blobPath}, trying next variant.`)
+          // Continue to next variant if blob not found
           continue
         } else {
-          // Other errors (e.g., network issues) should be logged
-          console.error(`Error checking blob ${blobPath}:`, error)
-          // Continue to next variant or rethrow if critical
-          continue
+          // For other errors (e.g., rate limit, network), rethrow to be caught by outer try-catch
+          throw error
         }
       }
     }
@@ -63,8 +65,10 @@ export async function POST(request: NextRequest) {
         for (const fileName of possibleFileNames) {
           const blobPath = `cards/${fileName}`
           try {
-            // Use head to check if the blob exists without downloading it
-            await head(blobPath)
+            // Use retryWithBackoff for the head call
+            await retryWithBackoff(async () => {
+              await head(blobPath)
+            })
             // If head succeeds, the blob exists, return its public URL
             const imageUrl = `${PUBLIC_BLOB_BASE_URL}/${blobPath}`
             return {
@@ -75,15 +79,21 @@ export async function POST(request: NextRequest) {
               format: "blob",
             }
           } catch (error: any) {
-            // If head fails, it means the blob doesn't exist at this path, try next variant
+            // Log the specific error message for better debugging
+            console.warn(`Error checking blob ${blobPath} during POST validation: ${error.message}`)
             if (error.message.includes("BlobNotFound")) {
-              // console.log(`Blob not found for path: ${blobPath}, trying next variant.`)
+              // Continue to next variant if blob not found
               continue
             } else {
-              // Other errors (e.g., network issues) should be logged
-              console.error(`Error checking blob ${blobPath}:`, error)
-              // Continue to next variant or rethrow if critical
-              continue
+              // For other errors, return as not found for this specific card, but don't stop the whole batch
+              return {
+                cardId,
+                element,
+                found: false,
+                path: `/cards/${generateCardImagePath(cardId, element)}`,
+                format: "local-fallback",
+                error: error instanceof Error ? error.message : "Unknown error during blob check",
+              }
             }
           }
         }
