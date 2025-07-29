@@ -410,10 +410,13 @@ export default function CardSimulator() {
       console.log("📥 Response status:", response.status, response.statusText)
 
       let data: any = {}
-      const responseText = await response.text()
-      console.log("📄 Raw response:", responseText.substring(0, 200) + "...")
+      let rawResponseText = "" // Store raw response text
 
       try {
+        const responseText = await response.text()
+        rawResponseText = responseText // Store the raw text
+        console.log("📄 Raw response:", rawResponseText.substring(0, 200) + "...")
+
         data = JSON.parse(responseText)
         console.log("✅ Parsed response:", {
           success: data.success,
@@ -423,23 +426,26 @@ export default function CardSimulator() {
         })
       } catch (parseError) {
         console.error("❌ JSON parse error:", parseError)
+        // Use the raw response text in the error message if available
+        const errorDetail =
+          rawResponseText.length > 0
+            ? `Raw response: "${rawResponseText.substring(0, 100)}..."`
+            : "No raw response available."
         data = {
           success: false,
-          error: "Invalid JSON response from server",
-          reading: "Unable to parse server response. Please try again.",
+          error: `Invalid JSON response from server. ${errorDetail}`,
+          reading: `Unable to parse server response. Please try again. ${errorDetail}`,
           interpretation: "The server returned an invalid response format.",
           guidance: "Please try again or contact support if the issue persists.",
         }
       }
 
-      if (!response.ok) {
-        console.error("❌ HTTP error:", response.status, data?.error)
-        throw new Error(data?.error || `HTTP ${response.status}: ${response.statusText}`)
-      }
-
-      if (!data?.success) {
-        console.error("❌ API error:", data?.error)
-        throw new Error(data?.error || "API returned unsuccessful response")
+      if (!response.ok || !data?.success) {
+        // Check both HTTP status and internal success flag
+        console.error("❌ API error:", data?.error || "Unknown API error")
+        throw new Error(
+          data?.error || `HTTP ${response.status}: ${data?.error || response.statusText || "Unknown error"}`,
+        )
       }
 
       // Success case
@@ -964,7 +970,7 @@ export default function CardSimulator() {
               <div className="text-center py-8">
                 <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
                 <p className="text-lg font-medium text-red-600">
-                  Failed to generate an AI reading: Malformed server response
+                  Failed to generate an AI reading: {reading || "Malformed server response"}
                 </p>
                 <p className="text-sm text-gray-600 mt-2">Please try again later.</p>
               </div>

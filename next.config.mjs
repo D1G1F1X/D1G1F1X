@@ -391,7 +391,40 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'www.india.gov.in',
       },
+      {
+        protocol: 'https',
+        hostname: 'utfs.io',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.clerk.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.builder.io',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.vercel-storage.com',
+      },
     ],
+  },
+  experimental: {
+    serverActions: {
+      allowedOrigins: ["*.numo.oracle.com"],
+    },
   },
 };
 
