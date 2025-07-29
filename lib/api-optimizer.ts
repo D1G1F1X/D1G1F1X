@@ -153,6 +153,3 @@ export async function retryWithBackoff<T>(fn: () => Promise<T>, options?: RetryO
   // This line should theoretically not be reached due to the throw inside the loop
   throw new Error("Unexpected error: retryWithBackoff loop exited without success or throwing.")
 }
-
-// This file is intentionally left blank as per previous instructions.
-// It can be used for API optimization utilities if needed in the future.
