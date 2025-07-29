@@ -91,7 +91,18 @@ export function EnhancedCardImage({
             if (data.success && data.imageUrl) {
               apiProvidedUrl = data.imageUrl
             }
+          } else {
+            // If not JSON, read as text to log for debugging
+            const errorText = await response.text()
+            console.warn(
+              `API response for ${cardId}-${baseElement} was not JSON. Status: ${response.status}, Body: ${errorText.substring(0, 200)}...`,
+            )
           }
+        } else {
+          const errorText = await response.text()
+          console.warn(
+            `API request failed for ${cardId}-${baseElement}. Status: ${response.status}, Body: ${errorText.substring(0, 200)}...`,
+          )
         }
       } catch (apiError) {
         console.warn(`API request failed for ${cardId}-${baseElement}:`, apiError)
