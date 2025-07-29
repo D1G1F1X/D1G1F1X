@@ -5,13 +5,12 @@ import {
   getOpenAIClient,
   getOpenAIAssistant,
   continueAIConversationWithAssistant,
-  generateText, // Keep for potential direct model calls if needed
-  streamText, // Keep for potential direct model calls if needed
   getAssistantStatus,
   testOpenAIAssistant,
   runAssistant, // Import runAssistant
 } from "@/lib/openai-assistant"
 import { getReadingPrompt, getFollowUpPrompt } from "@/lib/ai-prompt-manager"
+import { generateText, streamText } from "@ai-sdk/openai" // Keep for potential direct model calls if needed
 import { openai } from "@ai-sdk/openai"
 import { env } from "@/lib/env"
 import { createOpenAI } from "@ai-sdk/openai"
@@ -25,9 +24,6 @@ import { createDeepInfra } from "@ai-sdk/deepinfra"
 import { createFal } from "@ai-sdk/fal"
 import type { OracleCard } from "@/types/cards"
 import type { ReadableStream } from "stream"
-
-// Removed top-level environment variable checks to prevent synchronous crashes.
-// These checks are now handled within getOpenAIClient and getOpenAIAssistant.
 
 const openaiModel = openai("gpt-4o")
 
