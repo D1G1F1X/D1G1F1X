@@ -52,13 +52,7 @@ export function generateCardImagePathVariants(cardId: string, element: string): 
   variants.add(`${numberStr}${lowerSuit}-${lowerElement}.jpg`)
   variants.add(`${numberStr}${lowerSuit}-${lowerElement}.jpeg`)
 
-  // 5. Specific case for "6-9-Spirit" card, if it exists and has a unique naming
-  if (cardId === "6-9-Spirit") {
-    variants.add(`6-9-spirit.jpg`)
-    variants.add(`6-9-spirit.jpeg`)
-  }
-
-  // 6. Card ID only format (if element is sometimes omitted in filename, e.g., 9-stone.jpg)
+  // 5. Card ID only format (if element is sometimes omitted in filename, e.g., 9-stone.jpg)
   // This is a less common but possible fallback.
   variants.add(`${cardId.toLowerCase()}.jpg`)
   variants.add(`${cardId.toLowerCase()}.jpeg`)
@@ -69,28 +63,34 @@ export function generateCardImagePathVariants(cardId: string, element: string): 
 export async function getCardImageUrl(cardId: string, baseElement: string): Promise<string> {
   const cacheKey = `${cardId}-${baseElement}`
   if (imageUrlCache.has(cacheKey)) {
+    console.log(`[getCardImageUrl] Cache hit for ${cacheKey}: ${imageUrlCache.get(cacheKey)}`)
     return imageUrlCache.get(cacheKey)!
   }
 
   let resolvedUrl: string | null = null
+  const placeholderUrl = `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardId)}`
 
   // Attempt 1: Fetch from the API (which checks blob storage)
+  console.log(`[getCardImageUrl] Attempting API fetch for ${cacheKey}...`)
   try {
     const response = await fetch(`/api/blob/card-images?cardId=${cardId}&element=${baseElement}`)
     const data = await response.json()
 
     if (data.success && data.imageUrl) {
       resolvedUrl = data.imageUrl
-      console.log(`✅ API provided URL for ${cardId}-${baseElement}: ${resolvedUrl}`)
+      console.log(`[getCardImageUrl] ✅ API provided URL for ${cacheKey}: ${resolvedUrl}`)
     } else {
-      console.warn(`API did not provide image URL for ${cardId}-${baseElement}: ${data.message || "Unknown API error"}`)
+      console.warn(
+        `[getCardImageUrl] API did not provide image URL for ${cacheKey}: ${data.message || "Unknown API error"}`,
+      )
     }
   } catch (apiError) {
-    console.warn(`Failed to fetch image URL from API for ${cardId}-${baseElement}:`, apiError)
+    console.warn(`[getCardImageUrl] Failed to fetch image URL from API for ${cacheKey}:`, apiError)
   }
 
   // Attempt 2: Fallback to local static assets if API failed or didn't find it
   if (!resolvedUrl) {
+    console.log(`[getCardImageUrl] API failed or not found, attempting local fallbacks for ${cacheKey}...`)
     const localVariants = generateCardImagePathVariants(cardId, baseElement)
     for (const variant of localVariants) {
       const localPath = `/cards/${variant}`
@@ -103,9 +103,10 @@ export async function getCardImageUrl(cardId: string, baseElement: string): Prom
           img.onerror = () => reject()
         })
         resolvedUrl = localPath
-        console.log(`📁 Found local fallback for ${cardId}-${baseElement}: ${resolvedUrl}`)
+        console.log(`[getCardImageUrl] 📁 Found local fallback for ${cacheKey}: ${resolvedUrl}`)
         break // Found a local image, stop checking
       } catch (localError) {
+        console.log(`[getCardImageUrl] Local path failed for ${cacheKey}: ${localPath}`)
         // Continue to next local variant
       }
     }
@@ -113,8 +114,8 @@ export async function getCardImageUrl(cardId: string, baseElement: string): Prom
 
   // Final Fallback: Placeholder SVG
   if (!resolvedUrl) {
-    resolvedUrl = `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardId)}`
-    console.warn(`Fallback to placeholder for ${cardId}-${baseElement}`)
+    resolvedUrl = placeholderUrl
+    console.warn(`[getCardImageUrl] ❌ All attempts failed for ${cacheKey}. Falling back to placeholder.`)
   }
 
   imageUrlCache.set(cacheKey, resolvedUrl)
@@ -164,7 +165,7 @@ export async function preloadCardImages(
                 resolve(void 0)
               }
               img.onerror = (e) => {
-                console.warn(`Failed to load preloaded image: ${imageUrlToLoad}`, e)
+                console.warn(`[preloadCardImages] Failed to load preloaded image: ${imageUrlToLoad}`, e)
                 failedCount++
                 onProgress?.(loadedCount, totalImages)
                 // Store placeholder URL in cache for failed images
@@ -173,7 +174,7 @@ export async function preloadCardImages(
               }
             })
           } catch (error) {
-            console.warn(`Error preloading image for ${cardId}-${element}:`, error)
+            console.warn(`[preloadCardImages] Error preloading image for ${cacheKey}:`, error)
             failedCount++
             onProgress?.(loadedCount, totalImages)
             imageUrlCache.set(cacheKey, `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardId)}`)
