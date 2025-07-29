@@ -523,6 +523,7 @@ export function CardSimulator() {
       toast({
         title: "No Cards Drawn",
         description: "Please draw cards first before generating an AI reading.",
+        variant: "destructive",
       })
       return
     }
@@ -530,6 +531,7 @@ export function CardSimulator() {
       toast({
         title: "Question Required",
         description: "Please enter a question to enable AI reading.",
+        variant: "destructive",
       })
       return
     }
@@ -709,9 +711,7 @@ export function CardSimulator() {
       navigator
         .share({
           title: "My NUMO Oracle Reading",
-          text: `Question: ${question}
-
-${reading}`,
+          text: `Question: ${question}\n\n${reading}`,
           url: window.location.href,
         })
         .then(() => {
@@ -730,11 +730,7 @@ ${reading}`,
           })
         })
     } else {
-      const shareText = `My NUMO Oracle Reading
-
-Question: ${question}
-
-${reading}`
+      const shareText = `My NUMO Oracle Reading\n\nQuestion: ${question}\n\n${reading}`
       if (navigator.clipboard) {
         navigator.clipboard.writeText(shareText)
         toast({

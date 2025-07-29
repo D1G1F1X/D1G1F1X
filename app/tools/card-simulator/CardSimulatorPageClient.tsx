@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,13 +28,12 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { PrivacyNotice } from "@/components/privacy-notice"
-import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/components/ui/use-toast"
 import dynamic from "next/dynamic"
-import { getAllCards, type OracleCard } from "@/lib/card-data-access" // Import from centralized data access
-import { getCardImageUrl, preloadCardImages } from "@/lib/card-image-blob-handler" // Import blob handler functions
+import { getAllCards, type OracleCard, type CardElement } from "@/lib/card-data-access" // Import from centralized data access
+// Remove the following imports:
+// - import { getCardImageUrl, preloadCardImages } from "@/lib/card-image-blob-handler" // Import blob handler functions
 import { getMembershipStatus, type MembershipStatus } from "@/lib/membership-types"
-import { EnhancedCardImage } from "@/components/enhanced-card-image-handler" // Import the enhanced image handler
 
 // Dynamically import components that might cause SSR issues
 const AssistantChat = dynamic(
@@ -127,6 +127,27 @@ const userDataService = {
   },
 }
 
+// Add a new helper function inside the CardSimulator component, before the `export default function CardSimulator()` line:
+const getLocalImagePathForCard = (card: OracleCard, element: CardElement): string => {
+  const [numberPart, suitPart] = card.id.split("-")
+  const paddedNumber = numberPart.padStart(2, "0")
+  const lowerSuit = suitPart?.toLowerCase() || ""
+  const lowerElement = element.toLowerCase()
+
+  // Try common naming patterns observed in public/cards
+  const potentialPaths = [
+    // Pattern 1: 00-suit-element.jpg (e.g., 00-cauldron-air.jpg)
+    `/cards/${paddedNumber}-${lowerSuit}-${lowerElement}.jpg`,
+    // Pattern 2: 00suit-element.jpg (e.g., 01cauldron-air.jpg)
+    `/cards/${paddedNumber}${lowerSuit}-${lowerElement}.jpg`,
+    // Pattern 3: Original card ID with element (e.g., 6-9-spirit.jpg)
+    `/cards/${card.id.toLowerCase()}-${lowerElement}.jpg`,
+  ]
+
+  // Return the first potential path. The EnhancedCardImage component will handle fallbacks.
+  return potentialPaths[0] || `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(card.fullTitle)}`
+}
+
 export default function CardSimulator() {
   const [selectedCards, setSelectedCards] = useState<OracleCard[]>([])
   const [question, setQuestion] = useState("")
@@ -139,7 +160,6 @@ export default function CardSimulator() {
   const [showDetailedView, setShowDetailedView] = useState(false)
   const [isLoadingImages, setIsLoadingImages] = useState(false)
   const [allAvailableCards, setAllAvailableCards] = useState<OracleCard[]>([]) // Store all cards with image paths
-  const [imageLoadingProgress, setImageLoadingProgress] = useState(0)
   const [imageLoadingStats, setImageLoadingStats] = useState<{
     loaded: number
     total: number
@@ -172,47 +192,43 @@ export default function CardSimulator() {
   useEffect(() => {
     if (!mounted) return
 
+    // In the `useEffect` hook that loads card data and images (the one with `loadCardDataAndImages`):
+    // Replace the entire `loadCardDataAndImages` function with the following:
     const loadCardDataAndImages = async () => {
       setIsLoadingImages(true)
       const masterCardData = getAllCards() // Get all cards from centralized data access
-      setImageLoadingStats({ loaded: 0, total: masterCardData.length, failed: 0, isLoading: true })
+      // Removed imageLoadingStats and imageLoadingProgress as they are tied to blob preloading
+      // and EnhancedCardImage handles its own loading state.
 
       try {
-        const startTime = Date.now()
-
-        // Preload images and get their actual URLs
-        const cardIds = masterCardData.map((card) => card.id)
-        const elements = [...new Set(masterCardData.flatMap((card) => [card.baseElement, card.synergisticElement]))]
-
-        const preloadResults = await preloadCardImages(cardIds, elements, (loaded, total) => {
-          setImageLoadingProgress((loaded / total) * 100)
-          setImageLoadingStats((prev) => ({ ...prev, loaded }))
+        const cardsWithResolvedImages = masterCardData.map((card) => {
+          // Prioritize base element image, then synergistic, then a generic placeholder
+          let imageUrl = getLocalImagePathForCard(card, card.baseElement)
+          if (imageUrl.includes("placeholder.svg")) {
+            imageUrl = getLocalImagePathForCard(card, card.synergisticElement)
+          }
+          // If still a placeholder, ensure it's a proper one
+          if (imageUrl.includes("placeholder.svg")) {
+            imageUrl = `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(card.fullTitle)}`
+          }
+          return { ...card, imagePath: imageUrl }
         })
-
-        // After preloading, resolve image paths for all cards
-        const cardsWithResolvedImages = await Promise.all(
-          masterCardData.map(async (card) => {
-            const imageUrl = await getCardImageUrl(card.id, card.baseElement)
-            return { ...card, imagePath: imageUrl }
-          }),
-        )
 
         setAllAvailableCards(cardsWithResolvedImages)
 
-        const totalTime = Date.now() - startTime
-        if (totalTime > 10000) {
-          setNetworkStatus("slow")
-        } else if (preloadResults.failed > preloadResults.loaded * 0.5) {
-          setNetworkStatus("offline")
-        } else {
+        // Removed preloadCardImages call as it's no longer needed with direct local paths
+        // and EnhancedCardImage handles individual image loading.
+
+        // Simplified network status based on whether cards were loaded
+        if (cardsWithResolvedImages.length > 0) {
           setNetworkStatus("online")
+        } else {
+          setNetworkStatus("offline")
         }
 
-        console.log(
-          `Image loading completed: ${preloadResults.loaded} loaded, ${preloadResults.failed} failed in ${preloadResults.totalTime}ms`,
-        )
+        console.log(`Local image paths assigned for ${cardsWithResolvedImages.length} cards.`)
       } catch (error) {
-        console.error("Error loading card images:", error)
+        console.error("Error assigning local card image paths:", error)
         setNetworkStatus("offline")
         setAllAvailableCards(
           getAllCards().map((card) => ({
@@ -222,7 +238,7 @@ export default function CardSimulator() {
         )
       } finally {
         setIsLoadingImages(false)
-        setImageLoadingStats((prev) => ({ ...prev, isLoading: false }))
+        // Removed imageLoadingStats update
       }
     }
 
@@ -238,6 +254,10 @@ export default function CardSimulator() {
       const shuffled = [...allAvailableCards].sort(() => Math.random() - 0.5)
       const initialDraw = shuffled.slice(0, numCards)
       setSelectedCards(initialDraw)
+      console.log(
+        "DEBUG: Initial cards drawn:",
+        initialDraw.map((card) => ({ id: card.id, imagePath: card.imagePath })),
+      )
       setReading("")
       setAssistantReading("")
       setHasGeneratedAIReading(false)
@@ -343,6 +363,10 @@ export default function CardSimulator() {
     const selected = shuffled.slice(0, numCards)
 
     setSelectedCards(selected)
+    console.log(
+      "DEBUG: Cards drawn after shuffle:",
+      selected.map((card) => ({ id: card.id, imagePath: card.imagePath })),
+    )
     setIsShuffling(false)
   }
 
@@ -385,11 +409,12 @@ export default function CardSimulator() {
         question: question.trim(),
         spread_type: spreadType,
         user_context: JSON.stringify({
+          // Ensure user_context is stringified here
           fullName,
           birthDate,
           birthTime,
           birthPlace,
-          isMember: membershipStatus.verified, // Use membershipStatus.verified
+          isMember: membershipStatus.verified,
         }),
       }
 
@@ -410,14 +435,13 @@ export default function CardSimulator() {
 
       console.log("📥 Response status:", response.status, response.statusText)
 
+      // Get response text first
+      const responseText = await response.text()
+      console.log("📄 Raw response (first 200 chars):", responseText.substring(0, 200) + "...")
+
+      // Check if response is JSON
       let data: any = {}
-      let rawResponseText = "" // Store raw response text
-
       try {
-        const responseText = await response.text()
-        rawResponseText = responseText // Store the raw text
-        console.log("📄 Raw response:", rawResponseText.substring(0, 200) + "...")
-
         data = JSON.parse(responseText)
         console.log("✅ Parsed response:", {
           success: data.success,
@@ -427,26 +451,28 @@ export default function CardSimulator() {
         })
       } catch (parseError) {
         console.error("❌ JSON parse error:", parseError)
-        // Use the raw response text in the error message if available
-        const errorDetail =
-          rawResponseText.length > 0
-            ? `Raw response: "${rawResponseText.substring(0, 100)}..."`
-            : "No raw response available."
-        data = {
-          success: false,
-          error: `Invalid JSON response from server. ${errorDetail}`,
-          reading: `Unable to parse server response. Please try again. ${errorDetail}`,
-          interpretation: "The server returned an invalid response format.",
-          guidance: "Please try again or contact support if the issue persists.",
+        console.error("❌ Response was not JSON:", responseText)
+
+        // Handle non-JSON responses (like HTML error pages)
+        if (responseText.includes("Internal Server Error") || responseText.includes("500")) {
+          throw new Error("Internal server error occurred. Please try again.")
+        } else if (responseText.includes("404")) {
+          throw new Error("API endpoint not found. Please check your configuration.")
+        } else {
+          throw new Error("Server returned an invalid response format. Please try again.")
         }
       }
 
-      if (!response.ok || !data?.success) {
-        // Check both HTTP status and internal success flag
-        console.error("❌ API error:", data?.error || "Unknown API error")
-        throw new Error(
-          data?.error || `HTTP ${response.status}: ${data?.error || response.statusText || "Unknown error"}`,
-        )
+      // Check HTTP status
+      if (!response.ok) {
+        console.error("❌ HTTP error:", response.status, data?.error)
+        throw new Error(data?.error || `HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      // Check API success
+      if (!data?.success) {
+        console.error("❌ API error:", data?.error)
+        throw new Error(data?.error || "API returned unsuccessful response")
       }
 
       // Success case
@@ -467,7 +493,7 @@ export default function CardSimulator() {
       console.error("💥 Error generating AI reading:", error)
 
       const errorMessage = error.message || "Unknown error occurred"
-      const fallbackReading = `I apologize, but I'm unable to provide an AI reading at this time. Error: ${errorMessage}`
+      const fallbackReading = `I apologize, but I'm unable to provide an AI reading at this time. Error: ${errorMessage}\n\nPlease try again in a moment, or contact support if the issue persists.`
 
       setReading(fallbackReading)
       setHasGeneratedAIReading(false)
@@ -599,13 +625,14 @@ export default function CardSimulator() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="relative aspect-[2/3] rounded-lg overflow-hidden border">
-              {/* Use EnhancedCardImage here */}
-              <EnhancedCardImage
-                cardId={card.id}
-                cardTitle={card.fullTitle}
-                baseElement={card.baseElement}
-                synergisticElement={card.synergisticElement}
-                className="w-full h-full"
+              <Image
+                src={card.imagePath || "/placeholder.svg"}
+                alt={card.fullTitle}
+                fill
+                className="object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.svg?height=400&width=300"
+                }}
               />
             </div>
             <div className="space-y-4">
@@ -724,23 +751,9 @@ export default function CardSimulator() {
         </div>
       </div>
 
-      {isLoadingImages && (
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Loading Card Images...</h3>
-                <span className="text-sm text-gray-500">
-                  {imageLoadingStats.loaded}/{imageLoadingStats.total}
-                  {imageLoadingStats.failed > 0 && ` (${imageLoadingStats.failed} failed)`}
-                </span>
-              </div>
-              <Progress value={imageLoadingProgress} className="w-full" />
-              <p className="text-sm text-gray-600 dark:text-gray-400">Preparing your mystical experience...</p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Remove the `isLoadingImages` and `imageLoadingProgress` UI elements: */}
+      {/* Delete the entire `<Card>` block that starts with `{isLoadingImages && (` and ends with `)}` */}
+      {/* This block is located immediately after the network status display and before the "Reading Configuration" card. */}
 
       <Card>
         <CardHeader>
@@ -866,13 +879,14 @@ export default function CardSimulator() {
               {selectedCards.map((card, index) => (
                 <div key={card.id} className="space-y-4">
                   <div className="relative aspect-[2/3] rounded-lg overflow-hidden border shadow-lg">
-                    {/* Use EnhancedCardImage here */}
-                    <EnhancedCardImage
-                      cardId={card.id}
-                      cardTitle={card.fullTitle}
-                      baseElement={card.baseElement}
-                      synergisticElement={card.synergisticElement}
-                      className="w-full h-full"
+                    <Image
+                      src={card.imagePath || "/placeholder.svg"}
+                      alt={card.fullTitle}
+                      fill
+                      className="object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.svg?height=400&width=300"
+                      }}
                     />
                   </div>
                   <div className="text-center space-y-2">
@@ -969,7 +983,7 @@ export default function CardSimulator() {
               <div className="text-center py-8">
                 <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
                 <p className="text-lg font-medium text-red-600">
-                  Failed to generate an AI reading: {reading || "Malformed server response"}
+                  Failed to generate an AI reading: Malformed server response
                 </p>
                 <p className="text-sm text-gray-600 mt-2">Please try again later.</p>
               </div>

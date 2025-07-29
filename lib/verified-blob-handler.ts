@@ -1,12 +1,12 @@
 /**
  * Verified and optimized card image handler for Vercel Blob Storage
- * URL: https://hebbkx1anhila5yf.public.blob.vercel-storage.com/
+ * URL: https://0clhhm0umusm8qjw.public.blob.vercel-storage.com/
  */
 
 import { list } from "@vercel/blob"
 
 // Verified blob storage configuration
-const VERIFIED_BLOB_URL = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com"
+export const VERIFIED_BLOB_URL = "https://0clhhm0umusm8qjw.public.blob.vercel-storage.com" // Updated to the correct Vercel Blob URL
 const CARDS_PREFIX = "cards/"
 
 // Enhanced error types for better debugging
@@ -63,6 +63,9 @@ const CACHE_DURATION = 15 * 60 * 1000 // 15 minutes
 const REQUEST_TIMEOUT = 8000 // 8 seconds
 const MAX_RETRY_ATTEMPTS = 3
 const SUPPORTED_FORMATS = ["jpg", "jpeg", "png", "webp"]
+
+// Helper to extract base filename without extension
+const getBaseFilename = (filename: string) => filename.replace(/\.(jpg|jpeg|png|webp)$/i, "")
 
 /**
  * Verifies the blob storage URL and lists available images
@@ -205,33 +208,43 @@ export async function getVerifiedCardImage(
       await refreshVerifiedImageCache()
     }
 
-    // Generate possible image names with comprehensive patterns
-    const possibleNames = generateComprehensiveImageNames(cardId, element)
+    // Generate possible image names with comprehensive patterns (these are base filenames)
+    const possibleFilenames = generateComprehensiveImageNames(cardId, element)
 
-    // Try each possible name
-    for (const imageName of possibleNames) {
-      const cacheEntry = verifiedImageCache[imageName]
-      if (cacheEntry?.verified) {
-        // Verify the image is still accessible
-        const isAccessible = await verifyImageAccessibility(cacheEntry.url)
-        if (isAccessible) {
-          // Update cache with new timestamp
-          verifiedImageCache[cacheKey] = {
-            ...cacheEntry,
-            timestamp: Date.now(),
-            attempts: (cacheEntry.attempts || 0) + 1,
-          }
+    // Try each possible filename
+    for (const filenamePattern of possibleFilenames) {
+      // Check if we have a verified entry in cache that matches this pattern
+      // We need to iterate through the cache keys to find a match that *starts with* the pattern
+      const matchingCacheEntryKey = Object.keys(verifiedImageCache).find((key) => {
+        const keyBaseName = getBaseFilename(key)
+        const patternBaseName = getBaseFilename(filenamePattern)
+        return keyBaseName.startsWith(patternBaseName) && key.endsWith(filenamePattern.split(".").pop() || "")
+      })
 
-          loadingMetrics.successfulLoads++
-          const loadTime = Date.now() - startTime
-          updateAverageLoadTime(loadTime)
+      if (matchingCacheEntryKey) {
+        const cacheEntry = verifiedImageCache[matchingCacheEntryKey]
+        if (cacheEntry?.verified) {
+          // Verify the image is still accessible
+          const isAccessible = await verifyImageAccessibility(cacheEntry.url)
+          if (isAccessible) {
+            // Update cache with new timestamp
+            verifiedImageCache[cacheKey] = {
+              ...cacheEntry,
+              timestamp: Date.now(),
+              attempts: (cacheEntry.attempts || 0) + 1,
+            }
 
-          console.log(`✅ Found verified image: ${imageName} -> ${cacheEntry.url}`)
-          return {
-            url: cacheEntry.url,
-            isPlaceholder: false,
-            loadTime,
-            cached: false,
+            loadingMetrics.successfulLoads++
+            const loadTime = Date.now() - startTime
+            updateAverageLoadTime(loadTime)
+
+            console.log(`✅ Found verified image: ${filenamePattern} -> ${cacheEntry.url}`)
+            return {
+              url: cacheEntry.url,
+              isPlaceholder: false,
+              loadTime,
+              cached: false,
+            }
           }
         }
       }
@@ -277,7 +290,7 @@ export async function getVerifiedCardImage(
     return {
       url: generateOptimizedPlaceholder(cardId, element),
       isPlaceholder: true,
-      loadTime: Date.now() - startTime,
+      loadTime: Date.Dnow() - startTime,
       cached: false,
       error: errorMessage,
     }
@@ -314,18 +327,22 @@ async function refreshVerifiedImageCache(): Promise<void> {
           const entry: EnhancedImageCacheEntry = {
             url: blob.url,
             timestamp: Date.now(),
-            loadTime: 0,
+            loadTime: 0, // This will be updated when actually loaded
             size: blob.size || validation.size || 0,
             format: validation.format || "unknown",
             verified: true,
             attempts: 0,
           }
 
+          // Store by its full filename (including hash)
           verifiedImageCache[filename] = entry
 
-          // Also cache without extension for easier lookup
-          const nameWithoutExt = filename.replace(/\.[^/.]+$/, "")
-          verifiedImageCache[nameWithoutExt] = entry
+          // Also store by its base name (without hash) for easier lookup
+          const nameWithoutExt = getBaseFilename(filename)
+          // Only add if not already present or if this is a more "primary" match
+          if (!verifiedImageCache[nameWithoutExt] || verifiedImageCache[nameWithoutExt].url.length > blob.url.length) {
+            verifiedImageCache[nameWithoutExt] = entry
+          }
         } else {
           console.warn(`⚠️ Image validation failed for ${filename}:`, validation.error)
         }
@@ -336,7 +353,7 @@ async function refreshVerifiedImageCache(): Promise<void> {
 
     await Promise.allSettled(validationPromises)
 
-    cacheTimestamp = Date.now()
+    cacheTimestamp = Date.Now()
     const loadTime = Date.now() - startTime
     const verifiedCount = Object.values(verifiedImageCache).filter((entry) => entry.verified).length
 
@@ -347,7 +364,9 @@ async function refreshVerifiedImageCache(): Promise<void> {
 }
 
 /**
- * Generates comprehensive image name patterns for better matching
+ * Generates comprehensive image name patterns for better matching.
+ * These are *base filenames* (e.g., "00-cauldron-spirit.jpg") that will be matched
+ * against actual blob filenames which might include hashes.
  */
 function generateComprehensiveImageNames(cardId: string, element: string): string[] {
   const names: string[] = []
@@ -360,11 +379,11 @@ function generateComprehensiveImageNames(cardId: string, element: string): strin
 
   // Comprehensive naming patterns based on common conventions
   const basePatterns = [
-    `${paddedNumber}${lowerSuit}-${lowerElement}`,
-    `${number}${lowerSuit}-${lowerElement}`,
-    `${paddedNumber}-${lowerSuit}-${lowerElement}`,
-    `${cardId.toLowerCase()}-${lowerElement}`,
-    `${cardId}-${element}`,
+    `${paddedNumber}-${lowerSuit}-${lowerElement}`, // e.g., "00-cauldron-spirit"
+    `${number}-${lowerSuit}-${lowerElement}`, // e.g., "0-cauldron-spirit"
+    `${paddedNumber}${lowerSuit}-${lowerElement}`, // e.g., "00cauldron-spirit"
+    `${cardId.toLowerCase()}-${lowerElement}`, // e.g., "0-cauldron-spirit" (if cardId is "0-Cauldron")
+    `${cardId}-${element}`, // e.g., "0-Cauldron-spirit" (original case)
     `${paddedNumber}_${lowerSuit}_${lowerElement}`,
     `card_${paddedNumber}_${lowerSuit}_${lowerElement}`,
     `${lowerSuit}${paddedNumber}${lowerElement}`,
@@ -381,7 +400,7 @@ function generateComprehensiveImageNames(cardId: string, element: string): strin
     })
   })
 
-  return names
+  return Array.from(new Set(names)) // Ensure unique names
 }
 
 /**

@@ -2,13 +2,76 @@
 
 # dependencies
 /node_modules
+/.pnp
+.pnp.js
 
-# next.js
-/.next/
-/out/
+# testing
+/coverage
 
-# production
+# Next.js
+.next/
+out/
+
+# Node.js
+node_modules/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.staging.local
+.env.preview.local
+.env.*.local
+.env
+
+# npm
+npm-debug.log*
+.npm/
+
+# yarn
+yarn-debug.log*
+.yarn-integrity
+.cache/
+
+# pnpm
+pnpm-debug.log*
+.pnpm-store/
+
+# vercel
+.vercel/
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Logs
+logs/
+*.log
+
+# Uploads
+.uploads/
+
+# Database
+*.sqlite
+*.sqlite-journal
+
+# Thumbnails
+.thumbnails/
+
+# Generated files
 /build
+/dist
+
+# misc
+*.pem
+*.key
+*.csr
 
 # debug
 npm-debug.log*
@@ -16,12 +79,44 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files
-.env*
+# local env files
+.env*.local
+.env
 
 # vercel
-.vercel
+.env.development.local
+.env.production.local
 
 # typescript
-*.tsbuildinfo
 next-env.d.ts
+
+# supabase
+supabase/.temp
+supabase/db/wal
+supabase/db/data
+supabase/db/extensions
+supabase/db/snapshots
+supabase/db/migrations
+supabase/db/config.toml
+supabase/db/schema.sql
+supabase/db/functions
+supabase/db/triggers
+supabase/db/views
+supabase/db/types
+supabase/db/roles
+supabase/db/policies
+supabase/db/rls
+supabase/db/auth
+supabase/db/storage
+supabase/db/realtime
+supabase/db/webhooks
+supabase/db/secrets
+supabase/db/tests
+supabase/db/seed.sql
+
+# Custom additions for this project
+# For Vercel Blob uploads, if they are stored locally temporarily
+.blob-cache/
+
+# turbo
+.turbo/

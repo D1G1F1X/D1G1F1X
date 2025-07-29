@@ -1,57 +1,140 @@
-// This file is intended for API optimization utilities.
-// Currently, it's a placeholder.
-// Future enhancements might include:
-// - Caching strategies for API responses
-// - Request batching or debouncing
-// - Response compression utilities
-// - API rate limiting helpers
-// - Centralized error formatting for API responses
+/**
+ * API Optimizer Utility
+ *
+ * This utility provides functions for optimizing API requests through
+ * techniques like request batching, caching, and debouncing.
+ */
+
+import { getCachedReading } from "./services/cache-service"
 
 /**
- * A simple utility to format API success responses.
- * @param data The data to return.
- * @param message An optional success message.
- * @returns A standardized success response object.
+ * Debounces a function call
+ * @param func The function to debounce
+ * @param wait Wait time in milliseconds
  */
-export function apiSuccess<T>(data: T, message = "Success") {
-  return {
-    success: true,
-    message,
-    data,
+export function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout | null = null
+
+  return (...args: Parameters<T>): void => {
+    const later = () => {
+      timeout = null
+      func(...args)
+    }
+
+    if (timeout) clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
   }
 }
 
 /**
- * A simple utility to format API error responses.
- * @param message The error message.
- * @param status The HTTP status code.
- * @param details Optional additional error details.
- * @returns A standardized error response object.
+ * Throttles a function call
+ * @param func The function to throttle
+ * @param limit Limit time in milliseconds
  */
-export function apiError(message = "An unknown error occurred", status = 500, details?: any) {
-  return {
-    success: false,
-    message,
-    status,
-    details,
-  }
-}
+export function throttle<T extends (...args: any[]) => any>(func: T, limit: number): (...args: Parameters<T>) => void {
+  let inThrottle = false
 
-// Example of a potential future utility:
-/**
- * Wraps an API handler function with common error handling.
- * @param handler The async function to wrap.
- * @returns A new async function with error handling.
- */
-export function withApiErrorHandler<T extends (...args: any[]) => Promise<any>>(handler: T) {
-  return async (
-    ...args: Parameters<T>
-  ): Promise<ReturnType<T> | { success: false; message: string; status: number; details?: any }> => {
-    try {
-      return await handler(...args)
-    } catch (error: any) {
-      console.error("API Handler Error:", error)
-      return apiError(error.message || "Internal Server Error", error.status || 500, error)
+  return (...args: Parameters<T>): void => {
+    if (!inThrottle) {
+      func(...args)
+      inThrottle = true
+      setTimeout(() => (inThrottle = false), limit)
     }
   }
+}
+
+/**
+ * Batches multiple API requests into a single request
+ * @param requests Array of request functions
+ * @param batchEndpoint Endpoint for batched requests
+ */
+export async function batchRequests<T>(requests: (() => Promise<T>)[], batchEndpoint: string): Promise<T[]> {
+  // If only one request, execute it directly
+  if (requests.length === 1) {
+    return [await requests[0]()]
+  }
+
+  // Otherwise batch the requests
+  const response = await fetch(batchEndpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ requests: requests.map((r) => r.toString()) }),
+  })
+
+  if (!response.ok) {
+    throw new Error(`Batch request failed: ${response.status}`)
+  }
+
+  return await response.json()
+}
+
+/**
+ * Checks if a cached version of the data exists before making an API request
+ * @param cacheKey Key for the cached data
+ * @param fetchData Function to fetch the data if not cached
+ */
+export async function cachedRequest<T>(cacheKey: string, fetchData: () => Promise<T>): Promise<T> {
+  try {
+    // Try to get cached data
+    const cachedData = await getCachedReading(cacheKey)
+
+    if (cachedData) {
+      return cachedData as T
+    }
+
+    // If not cached, fetch the data
+    const data = await fetchData()
+
+    // Cache the data for future use (handled by the fetchData function)
+    return data
+  } catch (error) {
+    console.error("Error in cachedRequest:", error)
+    // If cache fails, fall back to direct fetch
+    return fetchData()
+  }
+}
+
+/**
+ * Creates a memoized version of a function that caches its results
+ * @param func The function to memoize
+ */
+export function memoize<T extends (...args: any[]) => any>(func: T): T {
+  const cache = new Map<string, ReturnType<T>>()
+
+  return ((...args: Parameters<T>): ReturnType<T> => {
+    const key = JSON.stringify(args)
+
+    if (cache.has(key)) {
+      return cache.get(key) as ReturnType<T>
+    }
+
+    const result = func(...args)
+    cache.set(key, result)
+    return result
+  }) as T
+}
+
+/**
+ * Retries a failed API request with exponential backoff
+ * @param fetchFunc The fetch function to retry
+ * @param maxRetries Maximum number of retries
+ * @param baseDelay Base delay in milliseconds
+ */
+export async function retryWithBackoff<T>(fetchFunc: () => Promise<T>, maxRetries = 3, baseDelay = 300): Promise<T> {
+  let lastError: Error | null = null
+
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fetchFunc()
+    } catch (error) {
+      lastError = error as Error
+      // Exponential backoff
+      const delay = baseDelay * Math.pow(2, i)
+      await new Promise((resolve) => setTimeout(resolve, delay))
+    }
+  }
+
+  throw lastError || new Error("Request failed after retries")
 }

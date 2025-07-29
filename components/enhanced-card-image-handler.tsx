@@ -5,7 +5,6 @@ import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { RefreshCw, AlertCircle, CheckCircle } from "lucide-react"
-import { getCardImageUrl } from "@/lib/card-image-blob-handler" // Import the centralized function
 
 interface CardImageProps {
   cardId: string
@@ -39,33 +38,102 @@ export function EnhancedCardImage({
   })
   const [isRetrying, setIsRetrying] = useState(false)
 
+  // This function is for local fallbacks only, not blob URLs
+  const generateLocalImagePaths = (id: string, element: string): string[] => {
+    const [number, suit] = id.split("-")
+    const paddedNumber = number.padStart(2, "0")
+    const lowerSuit = suit?.toLowerCase() || ""
+    const lowerElement = element.toLowerCase()
+
+    return [
+      // Primary: Zero-padded format (new standard)
+      `/cards/${paddedNumber}-${lowerSuit}-${lowerElement}.jpg`,
+      `/cards/${paddedNumber}-${lowerSuit}-${lowerElement}.jpeg`,
+
+      // Fallback: Single-digit format (legacy)
+      `/cards/${number}-${lowerSuit}-${lowerElement}.jpg`,
+      `/cards/${number}-${lowerSuit}-${lowerElement}.jpeg`,
+
+      // Alternative formats
+      `/cards/${paddedNumber}${lowerSuit}-${lowerElement}.jpg`,
+      `/cards/${paddedNumber}${lowerSuit}-${lowerElement}.jpeg`,
+      `/cards/${id.toLowerCase()}.jpg`,
+      `/cards/${id.toLowerCase()}.jpeg`,
+    ]
+  }
+
   const loadCardImage = async () => {
-    setIsRetrying(true)
-    setImageStatus({ loaded: false, error: false, url: null }) // Reset status
-
     try {
-      const resolvedUrl = await getCardImageUrl(cardId, baseElement)
+      setIsRetrying(true)
+      setImageStatus({ loaded: false, error: false, url: null })
 
-      // Verify the resolved URL can actually be loaded by the browser
-      const testImage = new Image()
-      if (resolvedUrl.startsWith("http")) {
-        testImage.crossOrigin = "anonymous"
+      let finalImageUrl: string | null = null
+
+      // PRIORITY 1: Fetch from the API (which should return the correct blob URL or a local fallback)
+      try {
+        const response = await fetch(`/api/blob/card-images?cardId=${cardId}&element=${baseElement}`, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.imageUrl) {
+            finalImageUrl = data.imageUrl
+            console.log(`API provided image URL: ${finalImageUrl}`)
+          } else {
+            console.warn(
+              `API did not return a valid image URL for ${cardId}-${baseElement}:`,
+              data.message || "Unknown API error",
+            )
+          }
+        } else {
+          console.warn(`API request failed with status ${response.status} for ${cardId}-${baseElement}`)
+        }
+      } catch (apiError) {
+        console.warn(`API request failed for ${cardId}-${baseElement}:`, apiError)
       }
 
-      await new Promise<void>((resolve, reject) => {
-        testImage.onload = () => resolve()
-        testImage.onerror = () => reject(new Error(`Failed to load image from resolved URL: ${resolvedUrl}`))
-        testImage.src = resolvedUrl
-      })
+      // If API didn't provide a URL, or it explicitly returned a local fallback, try local paths directly
+      if (!finalImageUrl || finalImageUrl.startsWith("/cards/")) {
+        const localImagePaths = generateLocalImagePaths(cardId, baseElement)
+        for (const path of localImagePaths) {
+          try {
+            const testImage = new Image()
+            testImage.crossOrigin = "anonymous"
+            const imageLoadPromise = new Promise<string>((resolve, reject) => {
+              testImage.onload = () => resolve(path)
+              testImage.onerror = () => reject(new Error(`Local image not found at ${path}`))
+              testImage.src = path
+            })
+            finalImageUrl = await imageLoadPromise
+            if (finalImageUrl) {
+              console.log(`✅ Found local image at: ${finalImageUrl}`)
+              break
+            }
+          } catch (localError) {
+            // Continue to next path
+          }
+        }
+      }
 
-      setImageStatus({
-        loaded: true,
-        error: false,
-        url: resolvedUrl,
-      })
-      onImageLoad?.(true)
+      // If a final image URL was determined (either from API or local fallback)
+      if (finalImageUrl) {
+        setImageStatus({
+          loaded: true,
+          error: false,
+          url: finalImageUrl,
+        })
+        onImageLoad?.(true)
+        return
+      }
+
+      // If all methods fail
+      throw new Error("All image loading methods failed")
     } catch (error) {
-      console.warn(`Failed to load image for ${cardId} after all attempts:`, error)
+      console.warn(`Failed to load image for ${cardId}:`, error)
       setImageStatus({
         loaded: false,
         error: true,
@@ -79,10 +147,9 @@ export function EnhancedCardImage({
 
   useEffect(() => {
     loadCardImage()
-  }, [cardId, baseElement, synergisticElement]) // Re-run when card data changes
+  }, [cardId, baseElement, synergisticElement])
 
   const handleImageError = () => {
-    // This is a fallback for the Image component itself, if the src set fails for some reason
     setImageStatus((prev) => ({
       ...prev,
       error: true,
@@ -92,9 +159,7 @@ export function EnhancedCardImage({
   }
 
   const handleImageLoad = () => {
-    // This is for the Image component's onload event, confirming it rendered
     if (!imageStatus.error) {
-      // Only set loaded if no prior error was detected
       setImageStatus((prev) => ({ ...prev, loaded: true }))
       onImageLoad?.(true)
     }
@@ -111,7 +176,7 @@ export function EnhancedCardImage({
             className="object-cover transition-opacity duration-300"
             onError={handleImageError}
             onLoad={handleImageLoad}
-            priority={false} // Can be set to true for critical images
+            priority={false}
           />
         ) : (
           <div className="w-full h-full bg-gray-800 flex items-center justify-center">

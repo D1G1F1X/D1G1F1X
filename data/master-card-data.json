@@ -3,27 +3,51 @@
     "id": "0-Cauldron",
     "number": "0",
     "suit": "Cauldron",
-    "fullTitle": "0 Cauldron – The Cauldron of Creation",
+    "fullTitle": "0 Cauldron - The Cauldron of Potential",
     "symbols": [
-      { "key": "Number", "value": "0" },
-      { "key": "Suit", "value": "Cauldron" },
-      { "key": "Element (Base)", "value": "Spirit" },
+      {
+        "key": "Number",
+        "value": "0"
+      },
+      {
+        "key": "Suit",
+        "value": "Cauldron"
+      },
+      {
+        "key": "Element (Base)",
+        "value": "Spirit"
+      },
       {
         "key": "Planet (Internal Influence)",
-        "value": "Pluto – deep transformation, inner renewal, and hidden power."
+        "value": "Pluto – deep transformation, hidden forces, rebirth."
       },
-      { "key": "Astrology (External Domain)", "value": "Scorpio – cycles of death and rebirth, secrets, intensity." },
-      { "key": "Icon", "value": "Pentagram" },
-      { "key": "Orientation", "value": "Cooking" },
-      { "key": "Sacred Geometry", "value": "Dot" },
-      { "key": "Synergistic Element", "value": "Fire" }
+      {
+        "key": "Astrology (External Domain)",
+        "value": "Scorpio – intensity, regeneration, uncovering truths."
+      },
+      {
+        "key": "Icon",
+        "value": "Dot"
+      },
+      {
+        "key": "Orientation",
+        "value": "Cooking"
+      },
+      {
+        "key": "Sacred Geometry",
+        "value": "Pentagram"
+      },
+      {
+        "key": "Synergistic Element",
+        "value": "Fire"
+      }
     ],
     "symbolismBreakdown": [
-      "Number: 0 – Symbol of unmanifest potential—the infinite womb of all creation, representing the void from which all possibilities emerge, a state of pure being before differentiation. It is the alpha and omega, containing everything and nothing simultaneously.",
-      "Suit (Cauldron): In its cooking orientation, the cauldron stews possibility into reality, slowly combining all elements into creation. This signifies a gentle, nurturing, alchemical process where diverse ingredients (experiences, energies, ideas) are patiently blended and transmuted into a new, unified whole.",
-      "Icon (Pentagram): Represents balance of the five elements—earth (stability, form), air (intellect, communication), fire (energy, action), water (emotion, intuition), and spirit (life force, connection to the divine). It symbolizes integration, protection, and the perfected human in harmony with the cosmos.",
+      "Number: 0 – The void, the unmanifest, pure potential. Represents beginnings and endings, the alpha and omega, the space from which all things emerge and to which they return. It signifies wholeness and infinite possibilities.",
+      "Suit (Cauldron): A vessel of transformation, creation, and rebirth. The cauldron symbolizes the womb of creation, where ingredients are combined and transformed into something new. It represents alchemy, healing, and the deep mysteries of life.",
+      "Icon (Dot): The spark of origin—the first point from which all things emerge. It is the singularity, the concentrated seed of potential, the initial impulse of consciousness before expansion into dimension and form. A symbol of unity and wholeness.",
       "Orientation (Cooking): Indicates that the creation is in progress, not yet released. This highlights a phase of internal development, gestation, and careful preparation, where the transformative work is happening beneath the surface, shielded from external view until ready.",
-      "Sacred Geometry (Dot): The spark of origin—the first point from which all things emerge. It is the singularity, the concentrated seed of potential, the initial impulse of consciousness before expansion into dimension and form. A symbol of unity and wholeness.",
+      "Sacred Geometry (Pentagram): The spark of origin—the first point from which all things emerge. It is the singularity, the concentrated seed of potential, the initial impulse of consciousness before expansion into dimension and form. A symbol of unity and wholeness.",
       "Planet (Pluto): Deep, transformative forces working behind the scenes. Pluto governs the subconscious realms, instigating profound metamorphosis by unearthing hidden truths, dismantling old structures, and facilitating regeneration and rebirth from the ashes of what was.",
       "Astrology (Scorpio): Reflects external themes of rebirth, secrecy, and shedding of old layers. Scorpio navigates the depths of existence, confronting power dynamics, intense emotions, and the mysteries of life and death, ultimately leading to profound healing and empowerment.",
       "Synergistic Element (Fire): The combustion of Spirit and Water—the ignition of creation and passion. Fire is the activating, dynamic principle that fuels transformation, provides courage, and illuminates the path, turning inspiration (Spirit) and emotional depth (Water) into tangible manifestation."
@@ -31,13 +55,13 @@
     "keyMeanings": [
       "Creation in Progress: Energy is stirring, but not yet ready to emerge. This signifies a nascent stage where potential is palpable but requires further nurturing and internal development before it can be fully expressed or witnessed externally.",
       "Alchemy and Transformation: Inner metamorphosis is occurring beneath the surface. Like the alchemical process of turning lead into gold, this points to profound internal shifts, healing, and the integration of disparate parts of oneself into a more evolved state.",
-      "Infinite Potential: The presence of the '0' signifies boundless possibilities and the unmanifested. It encourages trust in the unseen forces at play and the recognition that everything is still in a state of becoming, full of untapped power.",
-      "Inner Depths: This card calls for introspection and a journey into the subconscious. It suggests that the answers or the next steps lie within, requiring a deep dive into one's emotional and spiritual core to unearth hidden truths and resources."
+      "Hidden Potential: What is unseen is still powerful. This emphasizes that significant growth and development are happening in the unseen realms, requiring patience and trust in the unfolding process before external manifestation.",
+      "Rebirth and Renewal: A cycle of profound change is underway. This indicates a period of deep personal or situational transformation, where old forms are dissolving to make way for new beginnings and a regenerated sense of purpose."
     ],
     "baseElement": "Spirit",
-    "planetInternalInfluence": "Pluto – deep transformation, inner renewal, and hidden power.",
-    "astrologyExternalDomain": "Scorpio – cycles of death and rebirth, secrets, intensity.",
-    "iconSymbol": "Pentagram",
+    "planetInternalInfluence": "Pluto – deep transformation, hidden forces, rebirth.",
+    "astrologyExternalDomain": "Scorpio – intensity, regeneration, uncovering truths.",
+    "iconSymbol": "Dot",
     "orientation": "Cooking",
     "sacredGeometry": "Dot",
     "synergisticElement": "Fire"
@@ -46,67 +70,118 @@
     "id": "1-Cauldron",
     "number": "1",
     "suit": "Cauldron",
-    "fullTitle": "1 Cauldron – The Cauldron of Manifestation",
+    "fullTitle": "1 Cauldron - The Cauldron of Manifestation",
     "symbols": [
-      { "key": "Number", "value": "1" },
-      { "key": "Suit", "value": "Cauldron" },
-      { "key": "Element (Base)", "value": "Fire" },
-      { "key": "Planet (Internal Influence)", "value": "Sun – creative force, willpower, and illumination." },
+      {
+        "key": "Number",
+        "value": "1"
+      },
+      {
+        "key": "Suit",
+        "value": "Cauldron"
+      },
+      {
+        "key": "Element (Base)",
+        "value": "Spirit"
+      },
+      {
+        "key": "Planet (Internal Influence)",
+        "value": "Sun – vitality, self-expression, conscious will."
+      },
       {
         "key": "Astrology (External Domain)",
-        "value": "Leo – pride in expression, creative passion, dramatic emergence."
+        "value": "Leo – creativity, leadership, bold self-expression."
       },
-      { "key": "Icon", "value": "Pentagram" },
-      { "key": "Orientation", "value": "Pouring" },
-      { "key": "Sacred Geometry", "value": "Plus Sign" },
-      { "key": "Synergistic Element", "value": "Fire" }
+      {
+        "key": "Icon",
+        "value": "Pentagram"
+      },
+      {
+        "key": "Orientation",
+        "value": "Pouring"
+      },
+      {
+        "key": "Sacred Geometry",
+        "value": "Plus Sign"
+      },
+      {
+        "key": "Synergistic Element",
+        "value": "Fire"
+      }
     ],
     "symbolismBreakdown": [
-      "Number: 1 – The number of individuality and manifestation—initiation of purpose. It represents the first step, originality, leadership, and the power of focused will to bring ideas into concrete form. The singular point of action.",
-      "Suit (Cauldron): Pouring forth its contents—the creation is emerging. The vessel now actively releases what has been brewing, symbolizing the sharing of gifts, ideas, or projects with the world. It's an act of giving and outward expression.",
-      "Icon (Pentagram): Balanced elemental structure driving harmonious emergence. Here, the integrated elements provide a stable foundation for the creative output, ensuring that what is manifested is well-rounded and aligned with a greater harmony.",
-      "Orientation (Pouring): Indicates readiness to act—release of the creation. This signifies a conscious decision to move from internal preparation to external action, sharing what has been cultivated. It's a dynamic and generous gesture.",
-      "Sacred Geometry (Plus Sign): The crossroads of action and potential—energy merging. The plus sign represents the intersection of different planes or energies, creating a focal point where intention meets opportunity, leading to active creation and expansion.",
-      "Planet (Sun): Drives inner willpower and identity into radiance. The Sun provides vitality, confidence, and clarity of purpose, illuminating the unique self and empowering its expression. It is the core of one's being shining forth.",
-      "Astrology (Leo): External stage—performance, confidence, leadership. Leo embodies the joy of self-expression, the courage to take center stage, and the magnanimity of a natural leader, inspiring others through its radiant and creative presence.",
-      "Synergistic Element (Fire): Fire and Spirit igniting the fires of birth and radiant will. This highlights the pure, active, and enthusiastic energy that fuels manifestation, transforming divine inspiration (Spirit) into passionate, visible action."
+      "Number: 1 – New beginnings, initiation, individuality. Represents the spark of creation, the first step, and the assertion of self. It signifies leadership, originality, and the power to manifest.",
+      "Suit (Cauldron): A vessel of transformation, creation, and rebirth. The cauldron symbolizes the womb of creation, where ingredients are combined and transformed into something new. It represents alchemy, healing, and the deep mysteries of life.",
+      "Icon (Spark): The initial burst of energy, inspiration, or creation. This symbolizes the moment of ignition, the first impulse that sets a process in motion, or the sudden flash of insight that leads to new ideas.",
+      "Orientation (Overflowing): Indicates abundance, generosity, and the release of creative energy. When the cauldron overflows, it signifies that the creative process has reached a point of fullness, and its fruits are ready to be shared or manifested in the world.",
+      "Sacred Geometry (Seed of Life): The fundamental pattern of creation, representing the blueprint of the universe. This symbol illustrates the interconnectedness of all life and the potential for infinite growth and expansion from a single point of origin.",
+      "Planet (Sun): The core of vitality, consciousness, and self-expression. The Sun represents our ego, our conscious will, and our drive to shine and create. Its influence brings warmth, light, and a sense of purpose.",
+      "Astrology (Leo): A sign of creativity, leadership, and bold self-expression. Leo embodies confidence, generosity, and a desire to be seen and appreciated. It encourages us to embrace our unique talents and share them with the world.",
+      "Synergistic Element (Fire): The combustion of Spirit and Water—the ignition of creation and passion. Fire is the activating, dynamic principle that fuels transformation, provides courage, and illuminates the path, turning inspiration (Spirit) and emotional depth (Water) into tangible manifestation."
     ],
     "keyMeanings": [
-      "Manifestation in Motion: The energy is now ready to be expressed and brought into physical reality. This is a time for active creation, where intentions are transformed into tangible results through focused effort and willpower.",
-      "Personal Power: This card emphasizes the individual's capacity to shape their reality. It encourages stepping into one's unique strength, taking initiative, and leading with confidence to achieve desired outcomes.",
-      "Creative Expression: A call to unleash one's inner artist, innovator, or visionary. It suggests that the current phase is ripe for expressing unique talents and ideas, bringing them to light for others to witness and benefit from.",
-      "Action-Oriented: This signifies a period where decisive action is favored over contemplation. It's a prompt to move forward with courage, to initiate new projects, and to embrace the dynamic energy required to bring plans to fruition."
+      "Creative Spark Ignited: A new idea or project is ready to burst forth. This signifies the moment of inspiration and the readiness to begin a new creative endeavor, fueled by passion and a clear vision.",
+      "Abundant Manifestation: Your efforts are yielding tangible results. This indicates a period of fruitfulness and success, where your intentions and actions are manifesting in the physical world, bringing forth abundance.",
+      "Bold Self-Expression: Share your unique gifts with the world. This encourages you to express your authentic self, to lead with confidence, and to share your creative talents and insights with others.",
+      "Purposeful Creation: Direct your energy towards meaningful outcomes. This emphasizes the importance of aligning your creative efforts with your true purpose, ensuring that your manifestations are both impactful and fulfilling."
     ],
-    "baseElement": "Fire",
-    "planetInternalInfluence": "Sun – creative force, willpower, and illumination.",
-    "astrologyExternalDomain": "Leo – pride in expression, creative passion, dramatic emergence.",
-    "iconSymbol": "Pentagram",
-    "orientation": "Pouring",
-    "sacredGeometry": "Plus Sign",
+    "baseElement": "Spirit",
+    "planetInternalInfluence": "Sun – vitality, self-expression, conscious will.",
+    "astrologyExternalDomain": "Leo – creativity, leadership, bold self-expression.",
+    "iconSymbol": "Spark",
+    "orientation": "Overflowing",
+    "sacredGeometry": "Seed of Life",
     "synergisticElement": "Fire"
   },
   {
     "id": "2-Sword",
     "number": "2",
     "suit": "Sword",
-    "fullTitle": "2 Sword - The Sword of Precision and Perception",
+    "fullTitle": "2 Sword - The Sword of Discernment",
     "symbols": [
-      { "key": "Number", "value": "2" },
-      { "key": "Suit", "value": "Sword" },
-      { "key": "Element (Base)", "value": "Water" },
-      { "key": "Planet (Internal Influence)", "value": "Moon – intuition, reflection, inner perception." },
-      { "key": "Astrology (External Domain)", "value": "Cancer – protection, emotional depth, caregiving." },
-      { "key": "Icon", "value": "Delta" },
-      { "key": "Orientation", "value": "Point First" },
-      { "key": "Sacred Geometry", "value": "Vesica Piscis" },
-      { "key": "Synergistic Element", "value": "Water" }
+      {
+        "key": "Number",
+        "value": "2"
+      },
+      {
+        "key": "Suit",
+        "value": "Sword"
+      },
+      {
+        "key": "Element (Base)",
+        "value": "Water"
+      },
+      {
+        "key": "Planet (Internal Influence)",
+        "value": "Moon – intuition, reflection, inner perception."
+      },
+      {
+        "key": "Astrology (External Domain)",
+        "value": "Cancer – protection, emotional depth, caregiving."
+      },
+      {
+        "key": "Icon",
+        "value": "Delta"
+      },
+      {
+        "key": "Orientation",
+        "value": "Point"
+      },
+      {
+        "key": "Sacred Geometry",
+        "value": "Vesica Piscis"
+      },
+      {
+        "key": "Synergistic Element",
+        "value": "Water"
+      }
     ],
     "symbolismBreakdown": [
-      "Number: 2 – Duality, balance, and reflection. Represents choices, partnerships, the weighing of options, and the need to find equilibrium between opposing forces. It highlights receptivity and the consideration of another perspective.",
-      "Suit (Sword): The sword reflects clarity, intellect, and decision-making. It is a tool of truth, cutting through confusion and illusion, but here, tempered by Water, its precision is guided by feeling as much as logic.",
-      "Icon (Delta): The Greek symbol for change—refinement through separation. Delta signifies a doorway or a point of transition, suggesting that clarity may come from distinguishing one thing from another, or from a shift in perspective.",
-      "Orientation (Point First): Focused awareness and precision. The sword is ready for careful, deliberate action, guided by sharp perception. It implies aiming with intent, but not necessarily striking yet; the focus is on clear sight.",
-      "Sacred Geometry (Vesica Piscis): The divine intersection—understanding through union. Formed by two overlapping circles, it symbolizes the meeting point of spirit and matter, conscious and unconscious, or two distinct entities, creating a space of shared understanding and creativity.",
+      "Number: 2 – Balance, duality, partnership, choice. Represents the need for harmony, cooperation, and careful consideration before action. It signifies intuition and the ability to see both sides of a situation.",
+      "Suit (Sword): A tool of intellect, truth, and clear communication. The sword symbolizes mental clarity, the ability to cut through illusion, and the power of precise thought. It implies discernment and the pursuit of truth.",
+      "Icon (Delta): A symbol of change, transformation, and the flow of energy. The delta represents the convergence of different paths or ideas, leading to a new understanding or direction. It signifies evolution and adaptation.",
+      "Orientation (Point First): Emphasizes directness, focus, and the need for clear intention. When the sword points first, it signifies a direct approach to truth, a sharp focus on a particular issue, and the courage to confront reality head-on.",
+      "Sacred Geometry (Vesica Piscis): The intersection of two circles, symbolizing shared vision, union, and the birth of new possibilities. This sacred geometric form represents the space of creation, where two distinct entities come together to form a harmonious whole.",
       "Planet (Moon): Reflective depth, changeability, and emotional navigation. The Moon governs intuition, the subconscious, and the ebb and flow of emotions. Its influence encourages introspection and listening to inner guidance.",
       "Astrology (Cancer): Emotional awareness applied to outer security and nurturing. Cancer emphasizes the need for a secure emotional foundation, using intuition to protect and care for oneself and others. It brings a sensitive, empathetic quality to perception.",
       "Synergistic Element (Water): Water enhances the sword's clarity by infusing emotional depth into logical discernment, allowing intuition to guide precise thought. This creates a balance where intellect is informed by empathy, leading to more holistic understanding."
@@ -129,42 +204,66 @@
     "id": "3-Cord",
     "number": "3",
     "suit": "Cord",
-    "fullTitle": "3 Cord - The Cord of Connection and Growth",
+    "fullTitle": "3 Cord - The Cord of Connection",
     "symbols": [
-      { "key": "Number", "value": "3" },
-      { "key": "Suit", "value": "Cord" },
-      { "key": "Element (Base)", "value": "Air" },
-      { "key": "Planet (Internal Influence)", "value": "Jupiter – expansion, wisdom, and opportunity." },
+      {
+        "key": "Number",
+        "value": "3"
+      },
+      {
+        "key": "Suit",
+        "value": "Cord"
+      },
+      {
+        "key": "Element (Base)",
+        "value": "Earth"
+      },
+      {
+        "key": "Planet (Internal Influence)",
+        "value": "Venus – harmony, relationship, creative expression."
+      },
       {
         "key": "Astrology (External Domain)",
-        "value": "Sagittarius – exploration, truth-seeking, and broad perspectives."
+        "value": "Libra – balance, partnership, justice."
       },
-      { "key": "Icon", "value": "Spiral" },
-      { "key": "Orientation", "value": "Unfurling" },
-      { "key": "Sacred Geometry", "value": "Triangle" },
-      { "key": "Synergistic Element", "value": "Air" }
+      {
+        "key": "Icon",
+        "value": "Hourglass"
+      },
+      {
+        "key": "Orientation",
+        "value": "Knot Before"
+      },
+      {
+        "key": "Sacred Geometry",
+        "value": "Finite Symbol"
+      },
+      {
+        "key": "Synergistic Element",
+        "value": "Air"
+      }
     ],
     "symbolismBreakdown": [
-      "Number: 3 – Creativity, communication, and growth. Represents synthesis, expression, and the bringing together of two into a third, new entity. It signifies optimism, social interaction, and the unfolding of potential.",
-      "Suit (Cord): The cord symbolizes connection, relationships, and energetic ties. In its unfurling orientation, it suggests the expansion of these bonds, revealing new pathways and opportunities for growth and interaction.",
-      "Icon (Spiral): Represents evolution, journey, and cosmic energy. The spiral signifies continuous growth, the unfolding of consciousness, and the cyclical nature of existence, moving inward to the center and outward into expansion.",
-      "Orientation (Unfurling): Indicates expansion, revelation, and the loosening of restrictions. This suggests a period where connections are becoming clearer, opportunities are opening up, and there is a sense of freedom to explore new avenues.",
-      "Sacred Geometry (Triangle): Represents manifestation, balance, and divine union. The triangle symbolizes the trinity (mind, body, spirit; past, present, future) and the foundational structure for creation, bringing ideas into form.",
-      "Planet (Jupiter): Expansion, wisdom, and opportunity. Jupiter's influence encourages growth, learning, and a broad perspective, often bringing good fortune and a sense of optimism to endeavors.",
-      "Astrology (Sagittarius): Exploration, truth-seeking, and broad perspectives. Sagittarius embodies a quest for knowledge, freedom, and adventure, inspiring a desire to understand the bigger picture and connect with diverse philosophies.",
-      "Synergistic Element (Air): Air enhances the cord's connections by infusing them with clarity, communication, and intellectual exchange. This creates a dynamic where relationships are built on clear understanding and shared ideas, fostering mental and social expansion."
+      "Number: 3 – Growth, creativity, synthesis, expression. Represents expansion, communication, and the bringing together of two into a third. It signifies joy, optimism, and artistic endeavors.",
+      "Suit (Cord): A symbol of binding, connection, and destiny. The cord represents relationships, agreements, and the threads that weave through life, connecting people and events. It implies commitment and the strength of bonds.",
+      "Icon (Knot): A symbol of binding, commitment, or a problem to be untangled. A knot can represent a strong connection, a promise made, or a complex situation that requires careful attention to resolve. It signifies entanglement and resolution.",
+      "Orientation (Loose End): Suggests potential, flexibility, and unfinished business. A loose end implies that there is still room for growth, adaptation, or that a situation is not yet fully resolved, allowing for new possibilities to emerge.",
+      "Sacred Geometry (Triangle): Represents balance, harmony, and the trinity of mind, body, and spirit. The triangle is a fundamental building block of creation, symbolizing stability, strength, and the dynamic interplay of opposing forces.",
+      "Planet (Venus): Governs love, beauty, harmony, and relationships. Venus influences our capacity for connection, our aesthetic appreciation, and our desire for balance and pleasure. Its energy fosters creativity and social grace.",
+      "Astrology (Libra): A sign of balance, partnership, and justice. Libra seeks harmony in relationships, fairness in interactions, and beauty in its surroundings. It emphasizes diplomacy, cooperation, and the pursuit of equilibrium.",
+      "Synergistic Element (Air): Earth giving rise to release and ascension. Spirit here connects to the ethereal, the transcendent. As the earthly cycle (represented by the cord and its binding) completes, there's an opportunity for a release of energy or understanding to a higher level. (Note: Original text says Earth, but Synergistic Element is Spirit; assuming Spirit is the intended focus here for ascension concept)."
     ],
     "keyMeanings": [
-      "Expanding Connections: New relationships or deepening existing ones. This signifies a period of increased social interaction, networking, and the formation of beneficial alliances that support personal and collective growth.",
-      "Creative Communication: Expressing ideas and truths with clarity. It encourages open dialogue, sharing insights, and using words or art to convey messages that inspire and connect with others on a deeper level.",
-      "Optimistic Growth: A positive outlook on unfolding opportunities. This card suggests that the current path is leading towards expansion and success, fostering a hopeful attitude and encouraging bold steps forward.",
-      "Unfurling Potential: Discovering new aspects of self or situation. It points to a time of self-discovery, where hidden talents or possibilities are revealed, leading to a greater understanding of one's capabilities and purpose."
+      "Harmonious Relationships: Bonds are strengthening and flourishing. This indicates a period of positive connection, where relationships are balanced, supportive, and contributing to mutual growth and understanding.",
+      "Creative Expression: Your ideas are finding their form and voice. This encourages you to express your creativity, to communicate your thoughts and feelings, and to bring your artistic visions to life.",
+      "Flexible Commitments: Adaptability within your agreements. This suggests that while commitments are important, there is also a need for flexibility and openness to change within relationships or projects, allowing for evolution.",
+      "Untangling Issues: A call to address unresolved connections. This indicates that there may be lingering issues or misunderstandings in relationships that require open communication and a willingness to work towards resolution."
     ],
-    "baseElement": "Air",
-    "planetInternalInfluence": "Jupiter – expansion, wisdom, and opportunity.",
-    "astrologyExternalDomain": "Sagittarius – exploration, truth-seeking, and broad perspectives.",
-    "iconSymbol": "Spiral",
-    "orientation": "Unfurling",
+    "baseElement": "Earth",
+    "planetInternalInfluence": "Venus – harmony, relationship, creative expression.",
+    "astrologyExternalDomain": "Libra – balance, partnership, justice.",
+    "iconSymbol": "Knot",
+    "orientation": "Loose End",
     "sacredGeometry": "Triangle",
     "synergisticElement": "Air"
   },
@@ -172,315 +271,53 @@
     "id": "4-Spear",
     "number": "4",
     "suit": "Spear",
-    "fullTitle": "4 Spear - The Spear of Foundation and Stability",
+    "fullTitle": "4 Spear - The Spear of Drive and Direction",
     "symbols": [
-      { "key": "Number", "value": "4" },
-      { "key": "Suit", "value": "Spear" },
-      { "key": "Element (Base)", "value": "Earth" },
-      { "key": "Planet (Internal Influence)", "value": "Saturn – discipline, structure, and long-term planning." },
+      {
+        "key": "Number",
+        "value": "4"
+      },
+      {
+        "key": "Suit",
+        "value": "Spear"
+      },
+      {
+        "key": "Element (Base)",
+        "value": "Earth"
+      },
+      {
+        "key": "Planet (Internal Influence)",
+        "value": "Uranus – revolution, innovation, and personal awakening."
+      },
       {
         "key": "Astrology (External Domain)",
-        "value": "Capricorn – ambition, responsibility, and building enduring structures."
+        "value": "Aquarius – humanitarian focus, idealism, breaking tradition."
       },
-      { "key": "Icon", "value": "Square" },
-      { "key": "Orientation", "value": "Grounded" },
-      { "key": "Sacred Geometry", "value": "Cube" },
-      { "key": "Synergistic Element", "value": "Earth" }
-    ],
-    "symbolismBreakdown": [
-      "Number: 4 – Stability, order, and foundation. Represents practicality, hard work, and the establishment of solid structures. It signifies security, discipline, and the building blocks of reality.",
-      "Suit (Spear): The spear symbolizes purpose, direction, and focused energy. In its grounded orientation, it suggests that this energy is being applied to create a stable and secure base, ensuring that efforts are well-rooted.",
-      "Icon (Square): Represents stability, order, and material reality. The square symbolizes the four cardinal directions, the four elements, and the physical world, emphasizing structure, discipline, and a solid foundation.",
-      "Orientation (Grounded): Indicates stability, security, and a firm footing. This suggests a period of building, consolidating resources, and establishing a reliable base from which to operate. It emphasizes practicality and realism.",
-      "Sacred Geometry (Cube): Represents ultimate stability, structure, and the material world. The cube symbolizes the physical manifestation of ideas, providing a solid and unshakeable foundation for growth and development.",
-      "Planet (Saturn): Discipline, structure, and long-term planning. Saturn's influence encourages responsibility, hard work, and the creation of enduring systems. It brings lessons of patience and the importance of solid foundations.",
-      "Astrology (Capricorn): Ambition, responsibility, and building enduring structures. Capricorn embodies a drive for tangible achievements through disciplined effort, strategic planning, and a strong sense of duty, often leading to lasting success.",
-      "Synergistic Element (Earth): Earth reinforces the spear's foundational qualities by grounding purpose into practical action and tangible results. This creates a dynamic where intentions are solidified into concrete plans and efforts yield lasting, material outcomes."
-    ],
-    "keyMeanings": [
-      "Building Foundations: A time for establishing stability and security. This calls for practical planning, diligent work, and creating reliable structures in one's life, whether financial, emotional, or physical.",
-      "Practical Application: Grounding ideas into tangible reality. It encourages focusing on what is achievable and implementing strategies that yield concrete results, emphasizing efficiency and resourcefulness.",
-      "Discipline and Order: The need for structure and methodical approach. This card suggests that success will come through consistent effort, adherence to principles, and organizing one's life or projects effectively.",
-      "Long-Term Security: Creating lasting stability for the future. It points to decisions and actions that contribute to enduring well-being, encouraging foresight and a commitment to building something that will stand the test of time."
-    ],
-    "baseElement": "Earth",
-    "planetInternalInfluence": "Saturn – discipline, structure, and long-term planning.",
-    "astrologyExternalDomain": "Capricorn – ambition, responsibility, and building enduring structures.",
-    "iconSymbol": "Square",
-    "orientation": "Grounded",
-    "sacredGeometry": "Cube",
-    "synergisticElement": "Earth"
-  },
-  {
-    "id": "5-Sword",
-    "number": "5",
-    "suit": "Sword",
-    "fullTitle": "5 Sword - The Sword of Power and Conflict",
-    "symbols": [
-      { "key": "Number", "value": "5" },
-      { "key": "Suit", "value": "Sword" },
-      { "key": "Element (Base)", "value": "Fire" },
-      { "key": "Planet (Internal Influence)", "value": "Mars – assertion, willpower, and conflict." },
-      { "key": "Astrology (External Domain)", "value": "Aries – direct action, courage, and initiating change." },
-      { "key": "Icon", "value": "Cross" },
-      { "key": "Orientation", "value": "Clashing" },
-      { "key": "Sacred Geometry", "value": "Pentagon" },
-      { "key": "Synergistic Element", "value": "Fire" }
-    ],
-    "symbolismBreakdown": [
-      "Number: 5 – Change, challenge, and freedom. Represents disruption, movement, and the need to adapt. It signifies adventure, instability, and the breaking of old patterns to find new paths.",
-      "Suit (Sword): The sword reflects intellect, conflict, and decision-making. In its clashing orientation, it suggests a period of intense mental or ideological struggle, where opposing ideas or forces meet head-on.",
-      "Icon (Cross): Represents crossroads, decision points, and the intersection of forces. The cross symbolizes a moment of choice or a challenge that requires a firm stand, often leading to a significant shift in direction.",
-      "Orientation (Clashing): Indicates conflict, opposition, and direct confrontation. This suggests a period where one's beliefs or actions are challenged, requiring courage and assertiveness to navigate disagreements or overcome obstacles.",
-      "Sacred Geometry (Pentagon): Represents human will, the five senses, and the potential for both harmony and discord. The pentagon symbolizes the individual's power to shape their reality, but also the potential for internal or external struggle when forces are not aligned.",
-      "Planet (Mars): Assertion, willpower, and conflict. Mars' influence brings courage, drive, and the energy to confront challenges directly. It can also signify aggression or disputes, urging one to channel energy constructively.",
-      "Astrology (Aries): Direct action, courage, and initiating change. Aries embodies a pioneering spirit, a willingness to fight for what is believed in, and the drive to start new cycles, even if it means confronting opposition.",
-      "Synergistic Element (Fire): Fire fuels the sword's conflict with passion, intensity, and the drive to overcome. This creates a dynamic where challenges are met with fierce determination, transforming obstacles into opportunities for growth and assertion."
-    ],
-    "keyMeanings": [
-      "Conflict and Challenge: Facing opposition or internal struggle. This card indicates a period of disagreement, competition, or a personal battle that requires courage and a willingness to stand firm in one's convictions.",
-      "Assertive Action: The need to take a strong stance. It encourages direct communication, defending one's boundaries, and engaging actively in situations that require decisive and bold intervention.",
-      "Breaking Patterns: Disrupting the status quo for growth. This signifies a necessary upheaval that, while uncomfortable, leads to liberation from old limitations and opens the door to new, more authentic ways of being.",
-      "Strategic Confrontation: Engaging in conflict with purpose. It suggests that not all conflict is negative; sometimes, a direct confrontation is required to achieve clarity, resolve issues, or assert one's truth, leading to a stronger position."
-    ],
-    "baseElement": "Fire",
-    "planetInternalInfluence": "Mars – assertion, willpower, and conflict.",
-    "astrologyExternalDomain": "Aries – direct action, courage, and initiating change.",
-    "iconSymbol": "Cross",
-    "orientation": "Clashing",
-    "sacredGeometry": "Pentagon",
-    "synergisticElement": "Fire"
-  },
-  {
-    "id": "6-Stone",
-    "number": "6",
-    "suit": "Stone",
-    "fullTitle": "6 Stone - The Stone of Harmony and Nurturing",
-    "symbols": [
-      { "key": "Number", "value": "6" },
-      { "key": "Suit", "value": "Stone" },
-      { "key": "Element (Base)", "value": "Water" },
-      { "key": "Planet (Internal Influence)", "value": "Venus – love, harmony, and aesthetic appreciation." },
-      { "key": "Astrology (External Domain)", "value": "Libra – balance, relationships, and justice." },
-      { "key": "Icon", "value": "Hexagon" },
-      { "key": "Orientation", "value": "Flowing" },
-      { "key": "Sacred Geometry", "value": "Flower of Life" },
-      { "key": "Synergistic Element", "value": "Water" }
-    ],
-    "symbolismBreakdown": [
-      "Number: 6 – Harmony, responsibility, and nurturing. Represents balance, service, and the domestic sphere. It signifies love, compassion, and the creation of a supportive environment.",
-      "Suit (Stone): The stone symbolizes stability, grounding, and material reality. In its flowing orientation, it suggests that stability is found through adaptability and emotional connection, allowing for harmonious movement within established structures.",
-      "Icon (Hexagon): Represents balance, union, and perfect harmony. The hexagon symbolizes the integration of opposing forces into a stable and beautiful whole, often seen in nature's most efficient designs.",
-      "Orientation (Flowing): Indicates adaptability, emotional ease, and harmonious movement. This suggests a period where things are moving smoothly, relationships are balanced, and there is a sense of grace and fluidity in one's interactions.",
-      "Sacred Geometry (Flower of Life): Represents interconnectedness, creation, and the fundamental patterns of existence. The Flower of Life symbolizes the blueprint of the universe, emphasizing unity, divine order, and the sacredness of all life.",
-      "Planet (Venus): Love, harmony, and aesthetic appreciation. Venus's influence encourages connection, beauty, and the pursuit of peace. It fosters compassion and the desire for balanced relationships.",
-      "Astrology (Libra): Balance, relationships, and justice. Libra embodies a quest for equilibrium, fairness, and harmonious partnerships, bringing a diplomatic and aesthetically sensitive quality to interactions.",
-      "Synergistic Element (Water): Water enhances the stone's stability by infusing it with emotional depth, intuition, and adaptability. This creates a dynamic where security is found through empathetic connections and a willingness to flow with life's currents, leading to profound harmony."
-    ],
-    "keyMeanings": [
-      "Seeking Harmony: A call to find balance in relationships and environment. This card encourages fostering peace, resolving conflicts with diplomacy, and creating a supportive and aesthetically pleasing atmosphere.",
-      "Nurturing Connections: Focusing on care and responsibility in relationships. It emphasizes the importance of compassion, empathy, and providing support to loved ones, strengthening bonds through genuine care.",
-      "Emotional Flow: Adapting to changes with grace and intuition. This suggests a period where emotional intelligence is key, allowing one to navigate feelings and situations with fluidity and inner wisdom, leading to peaceful resolutions.",
-      "Sacred Union: Recognizing the interconnectedness of all things. It points to a deeper understanding of unity, encouraging collaboration, partnership, and finding common ground with others to achieve collective well-being."
-    ],
-    "baseElement": "Water",
-    "planetInternalInfluence": "Venus – love, harmony, and aesthetic appreciation.",
-    "astrologyExternalDomain": "Libra – balance, relationships, and justice.",
-    "iconSymbol": "Hexagon",
-    "orientation": "Flowing",
-    "sacredGeometry": "Flower of Life",
-    "synergisticElement": "Water"
-  },
-  {
-    "id": "6-9-Spirit",
-    "number": "6-9",
-    "suit": "Stone",
-    "fullTitle": "6-9 Stone - The Stone of Spiritual Completion",
-    "symbols": [
-      { "key": "Number", "value": "6-9" },
-      { "key": "Suit", "value": "Stone" },
-      { "key": "Element (Base)", "value": "Spirit" },
-      { "key": "Planet (Internal Influence)", "value": "Neptune – spiritual insight, dissolution, and transcendence." },
-      { "key": "Astrology (External Domain)", "value": "Pisces – empathy, intuition, and spiritual awakening." },
-      { "key": "Icon", "value": "Infinity Loop" },
-      { "key": "Orientation", "value": "Dissolving" },
-      { "key": "Sacred Geometry", "value": "Vortex" },
-      { "key": "Synergistic Element", "value": "Spirit" }
-    ],
-    "symbolismBreakdown": [
-      "Number: 6-9 – A compound number signifying a journey from harmony (6) to completion (9) through spiritual understanding. It represents the culmination of nurturing and responsibility, leading to a profound sense of closure and wisdom.",
-      "Suit (Stone): The stone symbolizes grounding and enduring truth. In its dissolving orientation, it suggests that rigid structures are softening, allowing for spiritual truths to emerge and integrate, leading to a release of old forms.",
-      "Icon (Infinity Loop): Represents eternal cycles, interconnectedness, and spiritual continuity. The infinity loop symbolizes the endless flow of energy and wisdom, suggesting that endings are merely transitions to new beginnings within a larger cosmic pattern.",
-      "Orientation (Dissolving): Indicates release, transcendence, and the letting go of material attachments. This suggests a period where boundaries are blurring, old forms are breaking down, and there is a call to surrender to the flow of spiritual evolution.",
-      "Sacred Geometry (Vortex): Represents spiritual transformation, energetic flow, and the convergence of dimensions. The vortex symbolizes a powerful point of energetic shift, drawing in and releasing, facilitating deep spiritual cleansing and renewal.",
-      "Planet (Neptune): Spiritual insight, dissolution, and transcendence. Neptune's influence encourages empathy, intuition, and a connection to the divine. It can also signify the blurring of realities, urging one to seek higher truths.",
-      "Astrology (Pisces): Empathy, intuition, and spiritual awakening. Pisces embodies a deep connection to the collective unconscious, a compassionate nature, and a journey towards spiritual enlightenment, often involving the dissolution of ego.",
-      "Synergistic Element (Spirit): Spirit reinforces the stone's dissolving nature by infusing it with divine energy, intuition, and a sense of universal connection. This creates a dynamic where material concerns fade, allowing for profound spiritual insights and a release into higher consciousness."
-    ],
-    "keyMeanings": [
-      "Spiritual Release: Letting go of what no longer serves your highest good. This card encourages detachment from material outcomes and a surrender to the divine flow, allowing for spiritual cleansing and renewal.",
-      "Transcendence: Moving beyond limitations and earthly concerns. It signifies a period of profound spiritual growth, where one gains a higher perspective and connects with universal truths, leading to a sense of liberation.",
-      "Completion of Cycles: A spiritual culmination and integration of lessons. This points to the end of a significant spiritual journey, where wisdom gained is integrated, and one is prepared for a new phase of existence.",
-      "Empathic Connection: Deepening intuition and compassion for all beings. It emphasizes the importance of listening to inner guidance and extending unconditional love and understanding to oneself and others, fostering spiritual unity."
-    ],
-    "baseElement": "Spirit",
-    "planetInternalInfluence": "Neptune – spiritual insight, dissolution, and transcendence.",
-    "astrologyExternalDomain": "Pisces – empathy, intuition, and spiritual awakening.",
-    "iconSymbol": "Infinity Loop",
-    "orientation": "Dissolving",
-    "sacredGeometry": "Vortex",
-    "synergisticElement": "Spirit"
-  },
-  {
-    "id": "7-Spear",
-    "number": "7",
-    "suit": "Spear",
-    "fullTitle": "7 Spear - The Spear of Insight and Purpose",
-    "symbols": [
-      { "key": "Number", "value": "7" },
-      { "key": "Suit", "value": "Spear" },
-      { "key": "Element (Base)", "value": "Spirit" },
-      { "key": "Planet (Internal Influence)", "value": "Uranus – innovation, awakening, and higher knowledge." },
       {
-        "key": "Astrology (External Domain)",
-        "value": "Aquarius – humanitarian focus, idealism, and breaking tradition."
+        "key": "Icon",
+        "value": "Direction Arrows"
       },
-      { "key": "Icon", "value": "Star" },
-      { "key": "Orientation", "value": "Piercing" },
-      { "key": "Sacred Geometry", "value": "Septagram" },
-      { "key": "Synergistic Element", "value": "Spirit" }
-    ],
-    "symbolismBreakdown": [
-      "Number: 7 – Spirituality, introspection, and wisdom. Represents inner knowing, analysis, and the search for truth. It signifies solitude, mysticism, and the pursuit of deeper understanding.",
-      "Suit (Spear): The spear symbolizes purpose, direction, and focused energy. In its piercing orientation, it suggests that this energy is being used to cut through illusion and reveal profound truths, leading to clear insight and a defined path.",
-      "Icon (Star): Represents hope, guidance, and spiritual connection. The star symbolizes divine inspiration, a guiding light in the darkness, and the realization of one's true purpose, often appearing after a period of challenge.",
-      "Orientation (Piercing): Indicates deep insight, revelation, and cutting through illusion. This suggests a period where hidden truths are brought to light, allowing for a clear understanding of situations and a direct path forward, unburdened by deception.",
-      "Sacred Geometry (Septagram): Represents mysticism, magic, and spiritual perfection. The septagram (seven-pointed star) symbolizes the integration of the spiritual and material, the seven chakras, and the pursuit of higher wisdom and esoteric knowledge.",
-      "Planet (Uranus): Innovation, awakening, and higher knowledge. Uranus's influence brings sudden insights, revolutionary ideas, and a desire to break free from conventional thinking. It encourages originality and a forward-thinking approach.",
-      "Astrology (Aquarius): Humanitarian focus, idealism, and breaking tradition. Aquarius embodies a vision for the future, a commitment to collective well-being, and a willingness to challenge norms in pursuit of progressive ideals.",
-      "Synergistic Element (Spirit): Spirit reinforces the spear's piercing quality by infusing it with divine intuition, universal wisdom, and a connection to higher consciousness. This creates a dynamic where insights are divinely guided, leading to profound spiritual revelations and a clear sense of purpose."
-    ],
-    "keyMeanings": [
-      "Profound Insight: Gaining deep understanding and clarity. This card signifies a breakthrough in perception, where hidden truths are revealed, leading to a more enlightened view of oneself and the world.",
-      "Defined Purpose: Discovering or reaffirming one's true path. It encourages aligning actions with core values and spiritual calling, leading to a sense of direction and meaningful contribution.",
-      "Spiritual Awakening: A period of heightened intuition and connection. This suggests an opening to higher consciousness, where spiritual experiences are more frequent, and one's inner wisdom becomes a primary guide.",
-      "Cutting Through Illusion: Discerning truth from falsehood. It calls for critical thinking and a willingness to challenge assumptions, allowing one to see beyond superficial appearances and grasp the underlying reality of situations."
-    ],
-    "baseElement": "Spirit",
-    "planetInternalInfluence": "Uranus – innovation, awakening, and higher knowledge.",
-    "astrologyExternalDomain": "Aquarius – humanitarian focus, idealism, and breaking tradition.",
-    "iconSymbol": "Star",
-    "orientation": "Piercing",
-    "sacredGeometry": "Septagram",
-    "synergisticElement": "Spirit"
-  },
-  {
-    "id": "8-Cord",
-    "number": "8",
-    "suit": "Cord",
-    "fullTitle": "8 Cord - The Cord of Karma and Resolution",
-    "symbols": [
-      { "key": "Number", "value": "8" },
-      { "key": "Suit", "value": "Cord" },
-      { "key": "Element (Base)", "value": "Spirit" },
-      { "key": "Planet (Internal Influence)", "value": "Saturn – discipline, karmic duty, and mastery." },
-      { "key": "Astrology (External Domain)", "value": "Capricorn – grounded ambition, duty, and achievement." },
-      { "key": "Icon", "value": "Knot" },
-      { "key": "Orientation", "value": "Knot Away" },
-      { "key": "Sacred Geometry", "value": "Infinity Loop" },
-      { "key": "Synergistic Element", "value": "Spirit" }
-    ],
-    "symbolismBreakdown": [
-      "Number: 8 – Balance, abundance, and karma. Represents cycles of cause and effect, power, and material success. It signifies justice, authority, and the manifestation of efforts.",
-      "Suit (Cord): Represents connections, bonds, and energetic ties. In the context of 8, the cord can symbolize commitments, contracts, or energetic links that are now up for review, resolution, or the realization of their long-term implications.",
-      "Icon (Knot): Symbolizes obligations, contracts, or fate-bound energies. The knot signifies something firmly established or an entanglement. Depending on context, it could be a secure bond or a complex issue needing to be untied or resolved. (Original: Hourglass, changed to Knot to match the \"Orientation: Knot Away\")",
-      "Orientation (Knot Away): Something may be sealed, finished, or removed from current influence. Tying a knot \"away\" suggests a deliberate act of concluding, securing an outcome, or releasing something by finalizing its form or connection.",
-      "Sacred Geometry (Infinity Loop): Represents eternal return, looping timelines, or continuous connection. The infinity symbol (lemniscate) highlights cycles, endlessness, and the interconnectedness of all things, suggesting that resolutions often lead to new beginnings within a larger pattern.",
-      "Planet (Saturn): Speaks to long-term structure, karmic duty, and life's harder lessons. Saturn brings discipline, responsibility, and the wisdom gained through facing limitations and fulfilling obligations. It encourages mastery and integrity.",
-      "Astrology (Capricorn): Grounded ambition, duty, and achievement. Capricorn strives for tangible accomplishments through hard work, strategic planning, and a strong sense of responsibility, often building enduring structures.",
-      "Synergistic Element (Spirit): Spirit weaves through bonds, elevating connections beyond the material to reveal karmic lessons and soul-level integration. Spirit infuses the practical and material aspects with higher purpose, helping to understand the deeper meaning behind commitments and resolutions."
-    ],
-    "keyMeanings": [
-      "Karmic Resolution: Addressing past actions and their consequences. This card indicates a period where previous choices come to fruition, requiring accountability and a willingness to learn from experiences to achieve balance.",
-      "Boundaries and Commitments: Defining or releasing energetic ties. It encourages evaluating relationships and obligations, strengthening healthy bonds, and consciously untying knots that no longer serve one's growth.",
-      "Mastery and Integrity: Achieving success through disciplined effort. This signifies a time for taking responsibility, demonstrating competence, and acting with honesty and ethical conduct to manifest desired outcomes.",
-      "Cycles of Abundance: Understanding the flow of giving and receiving. It points to the manifestation of material or spiritual rewards, emphasizing the importance of balance in exchange and recognizing the cyclical nature of prosperity."
-    ],
-    "baseElement": "Spirit",
-    "planetInternalInfluence": "Saturn – discipline, karmic duty, and mastery.",
-    "astrologyExternalDomain": "Capricorn – grounded ambition, duty, and achievement.",
-    "iconSymbol": "Knot",
-    "orientation": "Knot Away",
-    "sacredGeometry": "Infinity Loop",
-    "synergisticElement": "Spirit"
-  },
-  {
-    "id": "9-Stone",
-    "number": "9",
-    "suit": "Stone",
-    "fullTitle": "9 Stone - The Stone of Completion and Wisdom",
-    "symbols": [
-      { "key": "Number", "value": "9" },
-      { "key": "Suit", "value": "Stone" },
-      { "key": "Element (Base)", "value": "Air" },
-      { "key": "Planet (Internal Influence)", "value": "Mars – assertion, willpower, protection." },
       {
-        "key": "Astrology (External Domain)",
-        "value": "Aries – courageous movement, initiating closure, leading through resolve."
+        "key": "Orientation",
+        "value": "Shaft"
       },
-      { "key": "Icon", "value": "Pentagon" },
-      { "key": "Orientation", "value": "Smooth Side" },
-      { "key": "Sacred Geometry", "value": "Eye" },
-      { "key": "Synergistic Element", "value": "Earth" }
+      {
+        "key": "Sacred Geometry",
+        "value": "Ladder"
+      },
+      {
+        "key": "Synergistic Element",
+        "value": "Air"
+      }
     ],
     "symbolismBreakdown": [
-      "Number: 9 – Completion, wisdom, and humanitarianism. Represents the culmination of a cycle, universal love, and spiritual understanding. It signifies endings, transitions, and the integration of lessons learned.",
-      "Suit (Stone): The stone symbolizes grounding, stability, and enduring truth. In its smooth side orientation, it suggests that the lessons learned are now integrated and polished, providing a solid and refined foundation for future endeavors.",
-      "Icon (Pentagon): Represents human will, the five senses, and the potential for both harmony and discord. The pentagon symbolizes the individual's power to shape their reality, but here, in the context of completion, it signifies a refined and integrated will.",
-      "Orientation (Smooth Side): Indicates refinement, integration, and a polished outcome. This suggests that a process has reached a state of completion where all rough edges have been smoothed, and the result is harmonious and well-formed.",
-      "Sacred Geometry (Eye): Represents perception, insight, and divine vision. The eye symbolizes inner wisdom, spiritual awareness, and the ability to see beyond the surface, gaining profound understanding from experiences.",
-      "Planet (Mars): Assertion, willpower, protection. Mars initiates with boldness. In the context of 9, this energy is applied to courageously finalize a chapter, leading the way towards resolution and preparing for new ventures.",
-      "Astrology (Aries): Direct action, courage, and leadership in ending cycles. Aries initiates with boldness. In the context of 9, this energy is applied to courageously finalize a chapter, leading the way towards resolution and preparing for new ventures.",
-      "Synergistic Element (Earth): Where Air unveils patterns and possibilities, Earth gives those patterns substance—turning vision into ritual, ideas into foundations, and fleeting clarity into enduring wisdom. Earth grounds the insights (Air) into tangible, lasting understanding and solidifies the completion."
-    ],
-    "keyMeanings": [
-      "Completion With Honor: What was built can now be let go. Acknowledge accomplishments and the end of a significant phase with grace and integrity, releasing attachments to allow for future growth.",
-      "Witness to the Journey: Acknowledge what has been seen and learned. Reflect upon the entire cycle, integrating the lessons and insights gained. This is a time for deep understanding and acceptance of the path traveled.",
-      "Spiritual Protection: Guard sacred truths and endings. Preserve the wisdom acquired and ensure that the closure process is respected, protecting the sanctity of what has been completed from negativity or disruption.",
-      "Release With Awareness: Let go, but let it teach you. Consciously release people, situations, or beliefs that are part of the concluding cycle, doing so with an understanding of their role in your growth and carrying the lessons forward."
-    ],
-    "baseElement": "Air",
-    "planetInternalInfluence": "Mars – assertion, willpower, protection.",
-    "astrologyExternalDomain": "Aries – courageous movement, initiating closure, leading through resolve.",
-    "iconSymbol": "Pentagon",
-    "orientation": "Smooth Side",
-    "sacredGeometry": "Eye",
-    "synergisticElement": "Earth"
-  },
-  {
-    "id": "10-Cauldron",
-    "number": "10",
-    "suit": "Cauldron",
-    "fullTitle": "10 Cauldron – The Cauldron of Fulfillment",
-    "symbols": [
-      { "key": "Number", "value": "10" },
-      { "key": "Suit", "value": "Cauldron" },
-      { "key": "Element (Base)", "value": "Earth" },
-      { "key": "Planet (Internal Influence)", "value": "Uranus – revolution, innovation, and personal awakening." },
-      { "key": "Astrology (External Domain)", "value": "Aquarius – humanitarian focus, idealism, breaking tradition." },
-      { "key": "Icon", "value": "Direction Arrows" },
-      { "key": "Orientation", "value": "Shaft First" },
-      { "key": "Sacred Geometry", "value": "Ladder" },
-      { "key": "Synergistic Element", "value": "Air" }
-    ],
-    "symbolismBreakdown": [
-      "Number: 10 – Completion, cycles, and new beginnings. Represents the culmination of a journey and the start of a new one, often with a sense of destiny or fate. It signifies wholeness and the turning of the wheel.",
-      "Suit (Cauldron): The cauldron symbolizes creation, transformation, and nurturing. In its shaft first orientation, it suggests a direct and purposeful movement towards a new phase of creation, with the vessel leading the way.",
-      "Icon (Direction Arrows): Represents movement, progress, and a clear path forward. The arrows symbolize a defined trajectory, indicating that efforts are aligned and leading towards a specific, desired outcome.",
-      "Orientation (Shaft First): Indicates direct movement, clear purpose, and leading the way. This suggests a period of focused action where one is confidently moving towards a goal, with a strong sense of direction and initiative.",
-      "Sacred Geometry (Ladder): Represents ascent, progress, and connection between realms. The ladder symbolizes a pathway to higher understanding or achievement, suggesting that progress is made step by step, connecting the material with the spiritual.",
-      "Planet (Uranus): Revolution, innovation, and personal awakening. Uranus's influence brings sudden insights, revolutionary ideas, and a desire to break free from conventional thinking. It encourages originality and a forward-thinking approach.",
-      "Astrology (Aquarius): Humanitarian focus, idealism, and breaking tradition. Aquarius embodies a vision for the future, a commitment to collective well-being, and a willingness to challenge norms in pursuit of progressive ideals.",
+      "Number: 4 – Stability, foundation, the four corners of effort and space. Represents structure, order, practicality, and the establishment of a solid base. It's about building something lasting and reliable.",
+      "Suit (Spear): A symbol of forward movement and protection through assertion. The spear is a tool for focused intention, direct action, and defending one's position or goals. It implies courage and a clear aim.",
+      "Icon (Direction Arrows): Symbolizes the many directions our focus and purpose can take. This highlights choices in path, the ability to aim with precision, and the dynamic nature of pursuing goals. It can also mean clear guidance.",
+      "Orientation (Shaft First): Emphasizes the need to develop stable momentum and a strong inner stance. Before the spearpoint finds its mark, the shaft provides balance, power, and controlled direction, signifying thorough preparation and a solid core.",
+      "Sacred Geometry (Ladder): Represents ascension through structured effort. The ladder is a symbol of step-by-step progress, connecting different levels of understanding or achievement. Each rung is a necessary stage in the upward journey.",
+      "Planet (Uranus): Brings disruptive insight and personal change. Uranus challenges the status quo with sudden breakthroughs, innovative ideas, and a call for freedom and authenticity, often leading to unexpected shifts in direction.",
+      "Astrology (Aquarius): Connects external breakthroughs to idealistic purpose. Aquarius champions progress, humanitarianism, and unconventional thinking, seeking to apply innovative solutions for the betterment of the collective.",
       "Synergistic Element (Air): Fire combined with Air creates movement, clarity, and momentum. Air (intellect, communication) fans the flames of Fire (action, drive), providing strategic thinking and clear articulation to propel initiatives forward. (Note: Element (Base) is Earth, Synergistic is Air, with Fire mentioned. The core idea is Air's contribution to drive.)"
     ],
     "keyMeanings": [
@@ -496,5 +333,340 @@
     "orientation": "Shaft First",
     "sacredGeometry": "Ladder",
     "synergisticElement": "Air"
+  },
+  {
+    "id": "5-Sword",
+    "number": "5",
+    "suit": "Sword",
+    "fullTitle": "5 Sword - The Sword of Power and Conflict",
+    "symbols": [
+      {
+        "key": "Number",
+        "value": "5"
+      },
+      {
+        "key": "Suit",
+        "value": "Sword"
+      },
+      {
+        "key": "Element (Base)",
+        "value": "Water"
+      },
+      {
+        "key": "Planet (Internal Influence)",
+        "value": "Mars – assertion, willpower, protection."
+      },
+      {
+        "key": "Astrology (External Domain)",
+        "value": "Aries – direct action, courage, and leadership in ending cycles."
+      },
+      {
+        "key": "Icon",
+        "value": "Delta"
+      },
+      {
+        "key": "Orientation",
+        "value": "Edge"
+      },
+      {
+        "key": "Sacred Geometry",
+        "value": "Five Fold Circle"
+      },
+      {
+        "key": "Synergistic Element",
+        "value": "Fire"
+      }
+    ],
+    "symbolismBreakdown": [
+      "Number: 5 – Change, instability, conflict, freedom. Represents disruption, challenge, and the need to adapt. It signifies movement, adventure, and the breaking of old patterns.",
+      "Suit (Sword): A tool of intellect, truth, and clear communication. The sword symbolizes mental clarity, the ability to cut through illusion, and the power of precise thought. It implies discernment and the pursuit of truth.",
+      "Icon (Crossed Swords): Symbolizes conflict, opposition, or a standoff. This indicates a situation where forces are at odds, requiring a direct confrontation or a strategic approach to resolve the tension.",
+      "Orientation (Clash): Emphasizes direct confrontation, a struggle for dominance, or a moment of intense opposition. When swords clash, it signifies a head-on conflict where wills are tested and power dynamics are at play.",
+      "Sacred Geometry (Pentagram): Represents the five elements (Spirit, Air, Fire, Water, Earth) in balance, but can also symbolize conflict when out of alignment. It signifies protection, spiritual power, and the interconnectedness of all things.",
+      "Planet (Mars): Governs assertion, aggression, courage, and conflict. Mars influences our drive, our competitive spirit, and our ability to take decisive action. Its energy can be both destructive and constructive.",
+      "Astrology (Aries): Direct action, courage, and leadership in ending cycles. Aries initiates with boldness. In the context of 9, this energy is applied to courageously finalize a chapter, leading the way towards resolution and preparing for new ventures.",
+      "Synergistic Element (Fire): Fire enhances the sword's power by fueling decisive action and courage in conflict. It provides the energy to confront challenges, to assert one's will, and to transform obstacles into opportunities."
+    ],
+    "keyMeanings": [
+      "Confrontation and Challenge: A situation requires direct engagement. This indicates a period of conflict or opposition that demands courage, clear thinking, and a willingness to stand your ground.",
+      "Power Dynamics: An imbalance of power needs addressing. This calls for an awareness of who holds power in a situation and how it is being used, encouraging you to assert your own power or to navigate imbalances strategically.",
+      "Necessary Disruption: Old patterns must be broken for growth. This suggests that current conflicts or challenges are serving to dismantle outdated structures or beliefs, paving the way for new and more authentic ways of being.",
+      "Strategic Engagement: Choose your battles wisely and act with precision. This emphasizes the importance of careful planning and focused action in times of conflict, ensuring that your efforts are effective and lead to desired outcomes."
+    ],
+    "baseElement": "Water",
+    "planetInternalInfluence": "Mars – assertion, willpower, protection.",
+    "astrologyExternalDomain": "Aries – direct action, courage, and leadership in ending cycles.",
+    "iconSymbol": "Crossed Swords",
+    "orientation": "Clash",
+    "sacredGeometry": "Pentagram",
+    "synergisticElement": "Fire"
+  },
+  {
+    "id": "6-Stone",
+    "number": "6",
+    "suit": "Stone",
+    "fullTitle": "6 Stone - The Stone of Harmony",
+    "symbols": [
+      {
+        "key": "Number",
+        "value": "6"
+      },
+      {
+        "key": "Suit",
+        "value": "Stone"
+      },
+      {
+        "key": "Element (Base)",
+        "value": "Air"
+      },
+      {
+        "key": "Planet (Internal Influence)",
+        "value": "Jupiter – expansion, purpose, trust in time."
+      },
+      {
+        "key": "Astrology (External Domain)",
+        "value": "Sagittarius – truth-seeking, life journey, philosophical freedom."
+      },
+      {
+        "key": "Icon",
+        "value": "Hourglass"
+      },
+      {
+        "key": "Orientation",
+        "value": "Knot Before"
+      },
+      {
+        "key": "Sacred Geometry",
+        "value": "Finite Symbol"
+      },
+      {
+        "key": "Synergistic Element",
+        "value": "Spirit"
+      }
+    ],
+    "symbolismBreakdown": [
+      "Number: 6 – Harmony, balance, responsibility, service. Represents nurturing, domesticity, and the pursuit of beauty and perfection. It signifies compassion, healing, and the creation of a stable environment.",
+      "Suit (Stone): A symbol of foundation, stability, and enduring wisdom. The stone represents the physical world, material security, and the grounding forces of life. It implies resilience and a connection to ancient knowledge.",
+      "Icon (Hourglass): Symbolizes the passage of time, the finite nature of moments, and the importance of timing. This indicates that a particular phase is nearing its end, or that a decision needs to be made within a specific timeframe.",
+      "Orientation (Knot Before): Suggests the binding is imminent—preparation for conclusion. A knot tied signifies commitment, a decision made, or a process being secured. \"Knot Before\" implies the final actions leading up to this sealing.",
+      "Sacred Geometry (Finite Symbol): The edge of infinity-what is bounded must resolve. This likely refers to a symbol representing a closed loop or a defined boundary (perhaps the infinity symbol itself, representing cycles), indicating that within any given framework, resolution or completion is sought.",
+      "Planet (Jupiter): Inner expansion through boundaries and endings. Jupiter brings growth, optimism, and a search for meaning. Even as a cycle concludes, Jupiter's influence ensures that this ending paves the way for greater understanding and future opportunities.",
+      "Astrology (Sagittarius): External truth-seeking mission concluding a cycle. Sagittarius is associated with exploration, higher learning, and a quest for truth. This indicates that a particular journey of discovery or understanding is reaching a point of culmination.",
+      "Synergistic Element (Spirit): Earth giving rise to release and ascension. Spirit here connects to the ethereal, the transcendent. As the earthly cycle (represented by the cord and its binding) completes, there's an opportunity for a release of energy or understanding to a higher level. (Note: Original text says Earth, but Synergistic Element is Spirit; assuming Spirit is the intended focus here for ascension concept)."
+    ],
+    "keyMeanings": [
+      "Countdown to Release: A lesson or binding is reaching its final moment. There's a sense of anticipation as a period of learning, commitment, or a particular situation approaches its defined end, preparing for a transition.",
+      "Truth Before Binding: A need to recognize what must be seen before closure. Before a cycle is fully completed or a commitment sealed, it's crucial to acknowledge all relevant truths and insights gained.",
+      "Purpose Realized: The result of your actions must be accepted. The efforts and choices made within this cycle are now culminating, and it's time to own the outcomes, learning from them for future growth.",
+      "Time's End: A cycle completes, but a journey continues inward. While an external phase may be finishing, the internal process of integration, learning, and spiritual development carries on, often deepened by the experience."
+    ],
+    "baseElement": "Air",
+    "planetInternalInfluence": "Jupiter – expansion, purpose, trust in time.",
+    "astrologyExternalDomain": "Sagittarius – truth-seeking, life journey, philosophical freedom.",
+    "iconSymbol": "Hourglass",
+    "orientation": "Knot Before",
+    "sacredGeometry": "Finite Symbol",
+    "synergisticElement": "Spirit"
+  },
+  {
+    "id": "7-Spear",
+    "number": "7",
+    "suit": "Spear",
+    "fullTitle": "7 Spear - The Spear of Victory",
+    "symbols": [
+      {
+        "key": "Number",
+        "value": "7"
+      },
+      {
+        "key": "Suit",
+        "value": "Spear"
+      },
+      {
+        "key": "Element (Base)",
+        "value": "Earth"
+      },
+      {
+        "key": "Planet (Internal Influence)",
+        "value": "Jupiter – expansion, purpose, trust in time."
+      },
+      {
+        "key": "Astrology (External Domain)",
+        "value": "Sagittarius – truth-seeking, life journey, philosophical freedom."
+      },
+      {
+        "key": "Icon",
+        "value": "Hourglass"
+      },
+      {
+        "key": "Orientation",
+        "value": "Knot Before"
+      },
+      {
+        "key": "Sacred Geometry",
+        "value": "Finite Symbol"
+      },
+      {
+        "key": "Synergistic Element",
+        "value": "Spirit"
+      }
+    ],
+    "symbolismBreakdown": [
+      "Number: 7 – Spirituality, introspection, wisdom, solitude. Represents inner knowing, mystical insights, and the pursuit of deeper truths. It signifies reflection, analysis, and a quest for understanding.",
+      "Suit (Spear): A symbol of forward movement and protection through assertion. The spear is a tool for focused intention, direct action, and defending one's position or goals. It implies courage and a clear aim.",
+      "Icon (Hourglass): Symbolizes the passage of time, the finite nature of moments, and the importance of timing. This indicates that a particular phase is nearing its end, or that a decision needs to be made within a specific timeframe.",
+      "Orientation (Knot Before): Suggests the binding is imminent—preparation for conclusion. A knot tied signifies commitment, a decision made, or a process being secured. \"Knot Before\" implies the final actions leading up to this sealing.",
+      "Sacred Geometry (Finite Symbol): The edge of infinity-what is bounded must resolve. This likely refers to a symbol representing a closed loop or a defined boundary (perhaps the infinity symbol itself, representing cycles), indicating that within any given framework, resolution or completion is sought.",
+      "Planet (Jupiter): Inner expansion through boundaries and endings. Jupiter brings growth, optimism, and a search for meaning. Even as a cycle concludes, Jupiter's influence ensures that this ending paves the way for greater understanding and future opportunities.",
+      "Astrology (Sagittarius): External truth-seeking mission concluding a cycle. Sagittarius is associated with exploration, higher learning, and a quest for truth. This indicates that a particular journey of discovery or understanding is reaching a point of culmination.",
+      "Synergistic Element (Spirit): Earth giving rise to release and ascension. Spirit here connects to the ethereal, the transcendent. As the earthly cycle (represented by the cord and its binding) completes, there's an opportunity for a release of energy or understanding to a higher level. (Note: Original text says Earth, but Synergistic Element is Spirit; assuming Spirit is the intended focus here for ascension concept)."
+    ],
+    "keyMeanings": [
+      "Countdown to Release: A lesson or binding is reaching its final moment. There's a sense of anticipation as a period of learning, commitment, or a particular situation approaches its defined end, preparing for a transition.",
+      "Truth Before Binding: A need to recognize what must be seen before closure. Before a cycle is fully completed or a commitment sealed, it's crucial to acknowledge all relevant truths and insights gained.",
+      "Purpose Realized: The result of your actions must be accepted. The efforts and choices made within this cycle are now culminating, and it's time to own the outcomes, learning from them for future growth.",
+      "Time's End: A cycle completes, but a journey continues inward. While an external phase may be finishing, the internal process of integration, learning, and spiritual development carries on, often deepened by the experience."
+    ],
+    "baseElement": "Earth",
+    "planetInternalInfluence": "Jupiter – expansion, purpose, trust in time.",
+    "astrologyExternalDomain": "Sagittarius – truth-seeking, life journey, philosophical freedom.",
+    "iconSymbol": "Hourglass",
+    "orientation": "Knot Before",
+    "sacredGeometry": "Finite Symbol",
+    "synergisticElement": "Spirit"
+  },
+  {
+    "id": "8-Cord",
+    "number": "8",
+    "suit": "Cord",
+    "fullTitle": "8 Cord - The Cord of Destiny",
+    "symbols": [
+      {
+        "key": "Number",
+        "value": "8"
+      },
+      {
+        "key": "Suit",
+        "value": "Cord"
+      },
+      {
+        "key": "Element (Base)",
+        "value": "Spirit"
+      },
+      {
+        "key": "Planet (Internal Influence)",
+        "value": "Saturn – responsibility, karmic patterns, mastery through boundaries."
+      },
+      {
+        "key": "Astrology (External Domain)",
+        "value": "Capricorn – structure, long-term goals, integrity."
+      },
+      {
+        "key": "Icon",
+        "value": "Hourglass"
+      },
+      {
+        "key": "Orientation",
+        "value": "Knot Away"
+      },
+      {
+        "key": "Sacred Geometry",
+        "value": "Infinity Symbol"
+      },
+      {
+        "key": "Synergistic Element",
+        "value": "Spirit"
+      }
+    ],
+    "symbolismBreakdown": [
+      "Number: 8 – Abundance, power, karma, balance. Represents material success, authority, and the consequences of actions. It signifies cycles, ambition, and the manifestation of destiny.",
+      "Suit (Cord): A symbol of binding, connection, and destiny. The cord represents relationships, agreements, and the threads that weave through life, connecting people and events. It implies commitment and the strength of bonds.",
+      "Icon (Hourglass): Symbolizes the passage of time, the finite nature of moments, and the importance of timing. This indicates that a particular phase is nearing its end, or that a decision needs to be made within a specific timeframe.",
+      "Orientation (Knot Away): Suggests a completed binding, a resolution, or a finality. When the knot is tied away, it signifies that a cycle has been concluded, a commitment has been sealed, or a situation has reached its definitive end.",
+      "Sacred Geometry (Infinity Symbol): Represents endless cycles, eternal connection, and the flow of energy. This symbol illustrates the continuous nature of existence, the interconnectedness of all things, and the balance between opposing forces.",
+      "Planet (Saturn): Governs responsibility, discipline, karmic patterns, and mastery through boundaries. Saturn influences our sense of duty, our ability to set limits, and our long-term goals. Its energy brings structure and lessons.",
+      "Astrology (Capricorn): A sign of structure, long-term goals, and integrity. Capricorn embodies discipline, ambition, and a practical approach to achieving success. It emphasizes responsibility, hard work, and building lasting foundations.",
+      "Synergistic Element (Spirit): Earth giving rise to release and ascension. Spirit here connects to the ethereal, the transcendent. As the earthly cycle (represented by the cord and its binding) completes, there's an opportunity for a release of energy or understanding to a higher level. (Note: Original text says Earth, but Synergistic Element is Spirit; assuming Spirit is the intended focus here for ascension concept)."
+    ],
+    "keyMeanings": [
+      "Closure and Finality: Tied energy has reached its endpoint. A cycle of effort, a relationship, or a particular obligation is coming to a definitive conclusion, and its results are becoming clear.",
+      "Sacred Obligation: A contract must be honored—or ended with care. This refers to commitments, whether spoken or unspoken, that require fulfillment or a conscious, respectful process of dissolution if they are no longer serving their purpose.",
+      "Mastery Through Boundaries: Limits clarify power. Understanding and working within defined structures and responsibilities can lead to greater focus, efficiency, and the development of true capability and strength.",
+      "Fated Resolution: Karmic threads are being woven or cut. Events unfold that seem destined, bringing resolution to long-standing issues or patterns, often reflecting the natural consequences of past actions and choices."
+    ],
+    "baseElement": "Spirit",
+    "planetInternalInfluence": "Saturn – responsibility, karmic patterns, mastery through boundaries.",
+    "astrologyExternalDomain": "Capricorn – structure, long-term goals, integrity.",
+    "iconSymbol": "Hourglass",
+    "orientation": "Knot Away",
+    "sacredGeometry": "Infinity Symbol",
+    "synergisticElement": "Spirit"
+  },
+  {
+    "id": "9-Stone",
+    "number": "9",
+    "suit": "Stone",
+    "fullTitle": "9 Stone - The Stone of Witness and Completion",
+    "symbols": [
+      {
+        "key": "Number",
+        "value": "9"
+      },
+      {
+        "key": "Suit",
+        "value": "Stone"
+      },
+      {
+        "key": "Element (Base)",
+        "value": "Air"
+      },
+      {
+        "key": "Planet (Internal Influence)",
+        "value": "Mars – assertion, willpower, protection."
+      },
+      {
+        "key": "Astrology (External Domain)",
+        "value": "Aries – courageous movement, initiating closure, leading through resolve."
+      },
+      {
+        "key": "Icon",
+        "value": "pentagon"
+      },
+      {
+        "key": "Orientation",
+        "value": "Smooth Side"
+      },
+      {
+        "key": "Sacred Geometry",
+        "value": "Eye"
+      },
+      {
+        "key": "Synergistic Element",
+        "value": "Earth"
+      }
+    ],
+    "symbolismBreakdown": [
+      "Number: 9 – Completion, wisdom, humanitarianism, endings. Represents the culmination of a cycle, universal love, and spiritual enlightenment. It signifies compassion, service, and the release of the old to make way for the new.",
+      "Suit (Stone): A symbol of foundation, stability, and enduring wisdom. The stone represents the physical world, material security, and the grounding forces of life. It implies resilience and a connection to ancient knowledge.",
+      "Icon (Pentagon): Represents the five elements in harmony, or the human form in balance. It signifies protection, integrity, and the integration of different aspects of self or a situation.",
+      "Orientation (Smooth Side): Suggests a polished, resolved, or complete state. The smooth side indicates that a process has been refined, a situation has been harmonized, or a cycle has reached a state of peaceful resolution.",
+      "Sacred Geometry (Eye): Symbolizes perception, insight, and divine awareness. The eye represents the ability to see beyond the surface, to gain deeper understanding, and to witness the truth of a situation.",
+      "Planet (Mars): Assertion, willpower, protection. Mars influences our drive, our competitive spirit, and our ability to take decisive action. Its energy can be both destructive and constructive.",
+      "Astrology (Aries): Direct action, courage, and leadership in ending cycles. Aries initiates with boldness. In the context of 9, this energy is applied to courageously finalize a chapter, leading the way towards resolution and preparing for new ventures.",
+      "Synergistic Element (Earth): Where Air unveils patterns and possibilities, Earth gives those patterns substance—turning vision into ritual, ideas into foundations, and fleeting clarity into enduring wisdom. Earth grounds the insights (Air) into tangible, lasting understanding and solidifies the completion."
+    ],
+    "keyMeanings": [
+      "Completion With Honor: What was built can now be let go. Acknowledge accomplishments and the end of a significant phase with grace and integrity, releasing attachments to allow for future growth.",
+      "Witness to the Journey: Acknowledge what has been seen and learned. Reflect upon the entire cycle, integrating the lessons and insights gained. This is a time for deep understanding and acceptance of the path traveled.",
+      "Spiritual Protection: Guard sacred truths and endings. Preserve the wisdom acquired and ensure that the closure process is respected, protecting the sanctity of what has been completed from negativity or disruption.",
+      "Release With Awareness: Let go, but let it teach you. Consciously release people, situations, or beliefs that are part of the concluding cycle, doing so with an understanding of their role in your growth and carrying the lessons forward."
+    ],
+    "baseElement": "Air",
+    "planetInternalInfluence": "Mars – assertion, willpower, protection.",
+    "astrologyExternalDomain": "Aries – courageous movement, initiating closure, leading through resolve.",
+    "iconSymbol": "pentagon",
+    "orientation": "Smooth Side",
+    "sacredGeometry": "Eye",
+    "synergisticElement": "Earth"
   }
 ]
