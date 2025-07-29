@@ -25,7 +25,7 @@ export function generateCardImagePath(cardId: string, element: string): string {
 
 /**
  * Generates an array of possible filename variants for a given card ID and element.
- * This accounts for different naming conventions that might exist in the blob storage.
+ * This accounts for different naming conventions that might exist in the blob storage or local assets.
  * The variants are just the filenames, without the '/cards/' prefix.
  */
 export function generateCardImagePathVariants(cardId: string, element: string): string[] {
@@ -52,7 +52,13 @@ export function generateCardImagePathVariants(cardId: string, element: string): 
   variants.add(`${numberStr}${lowerSuit}-${lowerElement}.jpg`)
   variants.add(`${numberStr}${lowerSuit}-${lowerElement}.jpeg`)
 
-  // 5. Card ID only format (if element is sometimes omitted in filename, e.g., 9-stone.jpg)
+  // 5. Specific case for "6-9-Spirit" card, if it exists and has a unique naming
+  if (cardId === "6-9-Spirit") {
+    variants.add(`6-9-spirit.jpg`)
+    variants.add(`6-9-spirit.jpeg`)
+  }
+
+  // 6. Card ID only format (if element is sometimes omitted in filename, e.g., 9-stone.jpg)
   // This is a less common but possible fallback.
   variants.add(`${cardId.toLowerCase()}.jpg`)
   variants.add(`${cardId.toLowerCase()}.jpeg`)
@@ -66,49 +72,53 @@ export async function getCardImageUrl(cardId: string, baseElement: string): Prom
     return imageUrlCache.get(cacheKey)!
   }
 
+  let resolvedUrl: string | null = null
+
+  // Attempt 1: Fetch from the API (which checks blob storage)
   try {
     const response = await fetch(`/api/blob/card-images?cardId=${cardId}&element=${baseElement}`)
-
-    let responseBodyText: string | null = null
-    try {
-      responseBodyText = await response.text() // Always read as text first
-    } catch (e) {
-      console.warn(`Failed to read response body for ${cardId}-${baseElement}:`, e)
-    }
-
-    if (!response.ok) {
-      let errorMessage = `API call failed with status: ${response.status}`
-      if (responseBodyText) {
-        errorMessage += ` - Response: ${responseBodyText.substring(0, 200)}...` // Limit length for logs
-      }
-      throw new Error(errorMessage)
-    }
-
-    // Attempt to parse as JSON
-    let data: any
-    try {
-      data = JSON.parse(responseBodyText || "{}") // Parse the text as JSON
-    } catch (e) {
-      // If JSON parsing fails, it means the response was not valid JSON.
-      // Treat this as an error, using the raw text as the message.
-      throw new Error(`Invalid JSON response from API. Raw response: ${responseBodyText?.substring(0, 200)}...`)
-    }
+    const data = await response.json()
 
     if (data.success && data.imageUrl) {
-      imageUrlCache.set(cacheKey, data.imageUrl)
-      return data.imageUrl
+      resolvedUrl = data.imageUrl
+      console.log(`✅ API provided URL for ${cardId}-${baseElement}: ${resolvedUrl}`)
     } else {
-      // This handles cases where response.ok is true, but data.success is false (e.g., 404 from our API route)
-      throw new Error(data.message || "Failed to get image URL from API (success: false)")
+      console.warn(`API did not provide image URL for ${cardId}-${baseElement}: ${data.message || "Unknown API error"}`)
     }
-  } catch (error) {
-    console.warn(
-      `Could not get image URL for ${cardId}-${baseElement} from API, falling back to placeholder. Error:`,
-      error,
-    )
-    // Fallback to a generic placeholder if API fails
-    return `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardId)}`
+  } catch (apiError) {
+    console.warn(`Failed to fetch image URL from API for ${cardId}-${baseElement}:`, apiError)
   }
+
+  // Attempt 2: Fallback to local static assets if API failed or didn't find it
+  if (!resolvedUrl) {
+    const localVariants = generateCardImagePathVariants(cardId, baseElement)
+    for (const variant of localVariants) {
+      const localPath = `/cards/${variant}`
+      try {
+        // Check if the local image exists by trying to load it
+        const img = new Image()
+        img.src = localPath
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve()
+          img.onerror = () => reject()
+        })
+        resolvedUrl = localPath
+        console.log(`📁 Found local fallback for ${cardId}-${baseElement}: ${resolvedUrl}`)
+        break // Found a local image, stop checking
+      } catch (localError) {
+        // Continue to next local variant
+      }
+    }
+  }
+
+  // Final Fallback: Placeholder SVG
+  if (!resolvedUrl) {
+    resolvedUrl = `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(cardId)}`
+    console.warn(`Fallback to placeholder for ${cardId}-${baseElement}`)
+  }
+
+  imageUrlCache.set(cacheKey, resolvedUrl)
+  return resolvedUrl
 }
 
 export async function preloadCardImages(
@@ -119,7 +129,7 @@ export async function preloadCardImages(
   const startTime = Date.now()
   let loadedCount = 0
   let failedCount = 0
-  const totalImages = cardIds.length * elements.length
+  const totalImages = cardIds.length * elements.length // Assuming all combinations are relevant for preloading
 
   const imagePromises: Promise<void>[] = []
 
@@ -136,11 +146,14 @@ export async function preloadCardImages(
         (async () => {
           let imageUrlToLoad: string | null = null
           try {
-            // Fetch the correct URL from the API
+            // Fetch the correct URL using the robust getCardImageUrl
             imageUrlToLoad = await getCardImageUrl(cardId, element)
 
             const img = new Image()
-            img.crossOrigin = "anonymous" // Set crossOrigin for CORS
+            // Set crossOrigin only for external URLs (blob storage)
+            if (imageUrlToLoad.startsWith("http")) {
+              img.crossOrigin = "anonymous"
+            }
             img.src = imageUrlToLoad
 
             await new Promise((resolve, reject) => {

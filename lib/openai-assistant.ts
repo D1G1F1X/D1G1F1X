@@ -1,123 +1,168 @@
 import OpenAI from "openai"
-import { env } from "@/lib/env"
-
-let openaiClient: OpenAI | null = null
-let openaiAssistant: OpenAI.Beta.Assistants.Assistant | null = null
 
 // Initialize OpenAI client
-export function getOpenAIClient(): OpenAI {
-  if (!env.OPENAI_API_KEY) {
-    throw new Error("OPENAI_API_KEY environment variable is not set.")
+let openai: OpenAI | null = null
+
+function initializeOpenAI() {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) {
+    console.warn("OPENAI_API_KEY is not set. OpenAI services will be unavailable.")
+    return null
   }
-  if (!openaiClient) {
-    openaiClient = new OpenAI({
-      apiKey: env.OPENAI_API_KEY,
-    })
+  if (!openai) {
+    openai = new OpenAI({ apiKey })
   }
-  return openaiClient
+  return openai
 }
 
-// Initialize OpenAI Assistant
-export async function getOpenAIAssistant(): Promise<OpenAI.Beta.Assistants.Assistant> {
-  if (!env.OPENAI_ASSISTANT_ID) {
-    throw new Error("OPENAI_ASSISTANT_ID environment variable is not set.")
-  }
-  if (!openaiAssistant) {
-    const client = getOpenAIClient()
+// Assistant ID from environment variables
+const assistantId = process.env.OPENAI_ASSISTANT_ID
+
+// Helper function to get or create a thread
+export async function getOrCreateThread(threadId?: string): Promise<OpenAI.Beta.Threads.Thread> {
+  const client = initializeOpenAI()
+  if (!client) throw new Error("OpenAI client not initialized due to missing API key.")
+
+  if (threadId) {
     try {
-      openaiAssistant = await client.beta.assistants.retrieve(env.OPENAI_ASSISTANT_ID)
+      const thread = await client.beta.threads.retrieve(threadId)
+      console.log(`Retrieved existing thread: ${thread.id}`)
+      return thread
     } catch (error) {
-      console.error("Failed to retrieve OpenAI Assistant:", error)
-      throw new Error(
-        `Failed to retrieve OpenAI Assistant with ID ${env.OPENAI_ASSISTANT_ID}. Please check the ID and API key.`,
-      )
+      console.warn(`Failed to retrieve thread ${threadId}, creating a new one. Error:`, error)
     }
   }
-  return openaiAssistant
+  const newThread = await client.beta.threads.create()
+  console.log(`Created new thread: ${newThread.id}`)
+  return newThread
 }
 
-// Create a new thread
-export async function createThread(): Promise<OpenAI.Beta.Threads.Thread> {
-  const client = getOpenAIClient()
-  try {
-    return await client.beta.threads.create()
-  } catch (error) {
-    console.error("Failed to create OpenAI thread:", error)
-    throw new Error("Failed to create a new conversation thread with OpenAI.")
-  }
-}
-
-// Add a message to a thread
+// Helper function to add a message to a thread
 export async function addMessageToThread(
   threadId: string,
   content: string,
+  role: "user" | "assistant" = "user",
 ): Promise<OpenAI.Beta.Threads.Messages.ThreadMessage> {
-  const client = getOpenAIClient()
-  try {
-    return await client.beta.threads.messages.create(threadId, {
-      role: "user",
-      content: content,
-    })
-  } catch (error) {
-    console.error(`Failed to add message to thread ${threadId}:`, error)
-    throw new Error(`Failed to add message to conversation thread ${threadId}.`)
-  }
+  const client = initializeOpenAI()
+  if (!client) throw new Error("OpenAI client not initialized due to missing API key.")
+
+  const message = await client.beta.threads.messages.create(threadId, {
+    role,
+    content,
+  })
+  console.log(`Added message to thread ${threadId}: ${message.id}`)
+  return message
 }
 
-// Get assistant response from a thread
-export async function getAssistantResponse(threadId: string): Promise<string> {
-  const client = getOpenAIClient()
-  const assistant = await getOpenAIAssistant()
+// Helper function to run the assistant on a thread
+export async function runAssistant(threadId: string, instructions?: string): Promise<OpenAI.Beta.Threads.Runs.Run> {
+  const client = initializeOpenAI()
+  if (!client) throw new Error("OpenAI client not initialized due to missing API key.")
+  if (!assistantId) throw new Error("OPENAI_ASSISTANT_ID is not set. Cannot run assistant.")
 
-  try {
-    let run = await client.beta.threads.runs.create(threadId, {
-      assistant_id: assistant.id,
-    })
+  const run = await client.beta.threads.runs.create(threadId, {
+    assistant_id: assistantId,
+    instructions:
+      instructions ||
+      "You are a helpful oracle assistant. Provide insightful and spiritual guidance based on the provided context.",
+  })
+  console.log(`Started run ${run.id} on thread ${threadId}`)
+  return run
+}
 
-    // Poll for the run completion
-    while (run.status === "queued" || run.status === "in_progress" || run.status === "cancelling") {
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait for 1 second
-      run = await client.beta.threads.runs.retrieve(threadId, run.id)
-    }
+// Helper function to retrieve run status
+export async function retrieveRun(threadId: string, runId: string): Promise<OpenAI.Beta.Threads.Runs.Run> {
+  const client = initializeOpenAI()
+  if (!client) throw new Error("OpenAI client not initialized due to missing API key.")
 
-    if (run.status === "completed") {
-      const messages = await client.beta.threads.messages.list(threadId, { order: "desc", limit: 1 })
-      const latestAssistantMessage = messages.data.find((msg) => msg.role === "assistant")?.content[0]
+  const run = await client.beta.threads.runs.retrieve(threadId, runId)
+  return run
+}
 
-      if (latestAssistantMessage && latestAssistantMessage.type === "text") {
-        return latestAssistantMessage.text.value
-      } else {
-        throw new Error("No text content found in assistant's response or response is empty.")
+// Helper function to get messages from a thread
+export async function getMessages(threadId: string): Promise<OpenAI.Beta.Threads.Messages.ThreadMessage[]> {
+  const client = initializeOpenAI()
+  if (!client) throw new Error("OpenAI client not initialized due to missing API key.")
+
+  const messagesPage = await client.beta.threads.messages.list(threadId, { order: "asc" })
+  return messagesPage.data
+}
+
+// Main function to interact with the assistant
+export async function interactWithAssistant(
+  userMessage: string,
+  threadId?: string,
+  instructions?: string,
+): Promise<{ response: string; threadId: string }> {
+  const client = initializeOpenAI()
+  if (!client) throw new Error("OpenAI client not initialized. Please check OPENAI_API_KEY.")
+  if (!assistantId) throw new Error("OPENAI_ASSISTANT_ID is not set. Please configure your environment variables.")
+
+  const thread = await getOrCreateThread(threadId)
+  await addMessageToThread(thread.id, userMessage)
+
+  let run = await runAssistant(thread.id, instructions)
+
+  // Poll for run completion
+  while (run.status === "queued" || run.status === "in_progress" || run.status === "cancelling") {
+    await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait for 1 second
+    run = await retrieveRun(thread.id, run.id)
+  }
+
+  if (run.status === "completed") {
+    const messages = await getMessages(thread.id)
+    const assistantMessages = messages.filter((msg) => msg.role === "assistant")
+    const latestAssistantMessage = assistantMessages[assistantMessages.length - 1]
+
+    if (latestAssistantMessage && latestAssistantMessage.content[0]?.type === "text") {
+      return {
+        response: latestAssistantMessage.content[0].text.value,
+        threadId: thread.id,
       }
     } else {
-      throw new Error(
-        `Assistant run failed with status: ${run.status}. Last error: ${run.last_error?.message || "None"}`,
-      )
+      throw new Error("No text response from assistant.")
     }
-  } catch (error) {
-    console.error(`Error getting assistant response for thread ${threadId}:`, error)
-    throw new Error(`Failed to get AI assistant response: ${error instanceof Error ? error.message : String(error)}`)
+  } else {
+    throw new Error(`Assistant run failed with status: ${run.status}`)
   }
 }
 
-// Function to run the assistant with a given content and optional threadId
-export async function runAssistant(
-  content: string,
-  threadId?: string,
-): Promise<{ response: string; threadId: string }> {
-  const client = getOpenAIClient()
-  const assistant = await getOpenAIAssistant()
-
-  let currentThreadId = threadId
-
-  if (!currentThreadId) {
-    const newThread = await createThread()
-    currentThreadId = newThread.id
+// Function to check assistant status
+export async function checkAssistantStatus(): Promise<{
+  isConfigured: boolean
+  assistantExists: boolean
+  message: string
+}> {
+  const client = initializeOpenAI()
+  if (!client) {
+    return {
+      isConfigured: false,
+      assistantExists: false,
+      message: "OpenAI API Key is not configured.",
+    }
   }
 
-  await addMessageToThread(currentThreadId, content)
+  if (!assistantId) {
+    return {
+      isConfigured: false,
+      assistantExists: false,
+      message: "OPENAI_ASSISTANT_ID is not configured.",
+    }
+  }
 
-  const response = await getAssistantResponse(currentThreadId)
-
-  return { response, threadId: currentThreadId }
+  try {
+    const assistant = await client.beta.assistants.retrieve(assistantId)
+    return {
+      isConfigured: true,
+      assistantExists: true,
+      message: `Assistant "${assistant.name}" (ID: ${assistant.id}) is configured and accessible.`,
+    }
+  } catch (error: any) {
+    console.error("Error retrieving OpenAI Assistant:", error)
+    return {
+      isConfigured: true, // API key is present, but assistant might not exist or be accessible
+      assistantExists: false,
+      message: `Failed to retrieve OpenAI Assistant with ID "${assistantId}". Error: ${error.message}. Please ensure the ID is correct and the API key has permissions.`,
+    }
+  }
 }

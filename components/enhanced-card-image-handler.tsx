@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { RefreshCw, AlertCircle, CheckCircle } from "lucide-react"
+import { getCardImageUrl } from "@/lib/card-image-blob-handler" // Import the centralized function
 
 interface CardImageProps {
   cardId: string
@@ -38,138 +39,33 @@ export function EnhancedCardImage({
   })
   const [isRetrying, setIsRetrying] = useState(false)
 
-  const generateLocalImagePaths = (id: string, element: string): string[] => {
-    const [numberStr, suitStr] = id.split("-")
-    const paddedNumber = numberStr.padStart(2, "0")
-    const lowerSuit = suitStr?.toLowerCase() || ""
-    const lowerElement = element.toLowerCase()
-
-    return [
-      // PRIORITY 1: Non-hyphenated number-suit format (e.g., /cards/01cauldron-air.jpg)
-      `/cards/${paddedNumber}${lowerSuit}-${lowerElement}.jpg`,
-      `/cards/${paddedNumber}${lowerSuit}-${lowerElement}.jpeg`,
-
-      // PRIORITY 2: Standard hyphenated format (e.g., /cards/01-cauldron-air.jpg)
-      `/cards/${paddedNumber}-${lowerSuit}-${lowerElement}.jpg`,
-      `/cards/${paddedNumber}-${lowerSuit}-${lowerElement}.jpeg`,
-
-      // Fallback: Non-padded, non-hyphenated number-suit format (e.g., /cards/1cauldron-air.jpg)
-      `/cards/${numberStr}${lowerSuit}-${lowerElement}.jpg`,
-      `/cards/${numberStr}${lowerSuit}-${lowerElement}.jpeg`,
-
-      // Fallback: Non-padded hyphenated format (e.g., /cards/1-cauldron-air.jpg)
-      `/cards/${numberStr}-${lowerSuit}-${lowerElement}.jpg`,
-      `/cards/${numberStr}-${lowerSuit}-${lowerElement}.jpeg`,
-
-      // General card ID format (e.g., /cards/1-cauldron.jpg)
-      `/cards/${id.toLowerCase()}.jpg`,
-      `/cards/${id.toLowerCase()}.jpeg`,
-    ]
-  }
-
   const loadCardImage = async () => {
+    setIsRetrying(true)
+    setImageStatus({ loaded: false, error: false, url: null }) // Reset status
+
     try {
-      setIsRetrying(true)
-      setImageStatus({ loaded: false, error: false, url: null })
+      const resolvedUrl = await getCardImageUrl(cardId, baseElement)
 
-      let successfulPath: string | null = null
-      let apiProvidedUrl: string | null = null
-
-      // PRIORITY 1: Try fetching from the API (blob URLs)
-      try {
-        const response = await fetch(`/api/blob/card-images?cardId=${cardId}&element=${baseElement}`, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-          },
-        })
-
-        if (response.ok) {
-          const contentType = response.headers.get("content-type")
-          if (contentType && contentType.includes("application/json")) {
-            const data = await response.json()
-            if (data.success && data.imageUrl) {
-              apiProvidedUrl = data.imageUrl
-            }
-          } else {
-            // If not JSON, read as text to log for debugging
-            const errorText = await response.text()
-            console.warn(
-              `API response for ${cardId}-${baseElement} was not JSON. Status: ${response.status}, Body: ${errorText.substring(0, 200)}...`,
-            )
-          }
-        } else {
-          const errorText = await response.text()
-          console.warn(
-            `API request failed for ${cardId}-${baseElement}. Status: ${response.status}, Body: ${errorText.substring(0, 200)}...`,
-          )
-        }
-      } catch (apiError) {
-        console.warn(`API request failed for ${cardId}-${baseElement}:`, apiError)
+      // Verify the resolved URL can actually be loaded by the browser
+      const testImage = new Image()
+      if (resolvedUrl.startsWith("http")) {
+        testImage.crossOrigin = "anonymous"
       }
 
-      // If API provided a URL, attempt to load it to verify accessibility
-      if (apiProvidedUrl) {
-        try {
-          const testImage = new Image()
-          testImage.crossOrigin = "anonymous"
-          const imageLoadPromise = new Promise<string>((resolve, reject) => {
-            testImage.onload = () => resolve(apiProvidedUrl!)
-            testImage.onerror = () => reject(new Error(`API provided image not accessible at ${apiProvidedUrl}`))
-            testImage.src = apiProvidedUrl
-          })
-          successfulPath = await imageLoadPromise // If this succeeds, use it
-          if (successfulPath) {
-            setImageStatus({
-              loaded: true,
-              error: false,
-              url: successfulPath,
-            })
-            onImageLoad?.(true)
-            return // SUCCESS, return here
-          }
-        } catch (validationError) {
-          console.warn(`API provided URL failed validation for ${cardId}-${baseElement}:`, validationError)
-          // Fall through to local paths if API URL is not directly loadable
-        }
-      }
+      await new Promise<void>((resolve, reject) => {
+        testImage.onload = () => resolve()
+        testImage.onerror = () => reject(new Error(`Failed to load image from resolved URL: ${resolvedUrl}`))
+        testImage.src = resolvedUrl
+      })
 
-      // PRIORITY 2: Try local image paths (both new and legacy formats)
-      const localImagePaths = generateLocalImagePaths(cardId, baseElement)
-      for (const path of localImagePaths) {
-        try {
-          const testImage = new Image()
-          testImage.crossOrigin = "anonymous"
-          const imageLoadPromise = new Promise<string>((resolve, reject) => {
-            testImage.onload = () => resolve(path)
-            testImage.onerror = () => reject(new Error(`Local image not found at ${path}`))
-            testImage.src = path
-          })
-          successfulPath = await imageLoadPromise
-          if (successfulPath) {
-            console.log(`✅ Found image at: ${successfulPath}`)
-            break
-          }
-        } catch (localError) {
-          // Continue to next path
-        }
-      }
-
-      // If a path was found from local attempts, use it
-      if (successfulPath) {
-        setImageStatus({
-          loaded: true,
-          error: false,
-          url: successfulPath,
-        })
-        onImageLoad?.(true)
-        return
-      }
-
-      // Final fallback if all methods fail
-      throw new Error("All image loading methods failed")
+      setImageStatus({
+        loaded: true,
+        error: false,
+        url: resolvedUrl,
+      })
+      onImageLoad?.(true)
     } catch (error) {
-      console.warn(`Failed to load image for ${cardId}:`, error)
+      console.warn(`Failed to load image for ${cardId} after all attempts:`, error)
       setImageStatus({
         loaded: false,
         error: true,
@@ -183,9 +79,10 @@ export function EnhancedCardImage({
 
   useEffect(() => {
     loadCardImage()
-  }, [cardId, baseElement, synergisticElement])
+  }, [cardId, baseElement, synergisticElement]) // Re-run when card data changes
 
   const handleImageError = () => {
+    // This is a fallback for the Image component itself, if the src set fails for some reason
     setImageStatus((prev) => ({
       ...prev,
       error: true,
@@ -195,7 +92,9 @@ export function EnhancedCardImage({
   }
 
   const handleImageLoad = () => {
+    // This is for the Image component's onload event, confirming it rendered
     if (!imageStatus.error) {
+      // Only set loaded if no prior error was detected
       setImageStatus((prev) => ({ ...prev, loaded: true }))
       onImageLoad?.(true)
     }
@@ -212,7 +111,7 @@ export function EnhancedCardImage({
             className="object-cover transition-opacity duration-300"
             onError={handleImageError}
             onLoad={handleImageLoad}
-            priority={false}
+            priority={false} // Can be set to true for critical images
           />
         ) : (
           <div className="w-full h-full bg-gray-800 flex items-center justify-center">

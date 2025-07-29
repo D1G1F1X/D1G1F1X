@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -34,6 +33,7 @@ import dynamic from "next/dynamic"
 import { getAllCards, type OracleCard } from "@/lib/card-data-access" // Import from centralized data access
 import { getCardImageUrl, preloadCardImages } from "@/lib/card-image-blob-handler" // Import blob handler functions
 import { getMembershipStatus, type MembershipStatus } from "@/lib/membership-types"
+import { EnhancedCardImage } from "@/components/enhanced-card-image-handler" // Import the enhanced image handler
 
 // Dynamically import components that might cause SSR issues
 const AssistantChat = dynamic(
@@ -189,6 +189,7 @@ export default function CardSimulator() {
           setImageLoadingStats((prev) => ({ ...prev, loaded }))
         })
 
+        // After preloading, resolve image paths for all cards
         const cardsWithResolvedImages = await Promise.all(
           masterCardData.map(async (card) => {
             const imageUrl = await getCardImageUrl(card.id, card.baseElement)
@@ -598,14 +599,13 @@ export default function CardSimulator() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="relative aspect-[2/3] rounded-lg overflow-hidden border">
-              <Image
-                src={card.imagePath || "/placeholder.svg"}
-                alt={card.fullTitle}
-                fill
-                className="object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = "/placeholder.svg?height=400&width=300"
-                }}
+              {/* Use EnhancedCardImage here */}
+              <EnhancedCardImage
+                cardId={card.id}
+                cardTitle={card.fullTitle}
+                baseElement={card.baseElement}
+                synergisticElement={card.synergisticElement}
+                className="w-full h-full"
               />
             </div>
             <div className="space-y-4">
@@ -866,14 +866,13 @@ export default function CardSimulator() {
               {selectedCards.map((card, index) => (
                 <div key={card.id} className="space-y-4">
                   <div className="relative aspect-[2/3] rounded-lg overflow-hidden border shadow-lg">
-                    <Image
-                      src={card.imagePath || "/placeholder.svg"}
-                      alt={card.fullTitle}
-                      fill
-                      className="object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = "/placeholder.svg?height=400&width=300"
-                      }}
+                    {/* Use EnhancedCardImage here */}
+                    <EnhancedCardImage
+                      cardId={card.id}
+                      cardTitle={card.fullTitle}
+                      baseElement={card.baseElement}
+                      synergisticElement={card.synergisticElement}
+                      className="w-full h-full"
                     />
                   </div>
                   <div className="text-center space-y-2">
