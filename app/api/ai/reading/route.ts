@@ -36,16 +36,30 @@ export async function POST(req: NextRequest) {
     // Fetch full OracleCard objects using the provided IDs
     const oracleCards: OracleCard[] = cardIds
       .map((id: string) => getCardById(id))
-      .filter((card): card is OracleCard => card !== undefined) // Filter out any undefined cards
+      .filter((card): card is OracleCard => card !== undefined) // Filter out undefined cards
 
     if (oracleCards.length !== cardIds.length) {
-      console.warn("WARN: Some card IDs provided by client were not found in master data.")
-      // Optionally, return an error or proceed with available cards
+      console.warn(
+        `WARN: Some card IDs provided by client were not found in master data. Expected ${cardIds.length}, found ${oracleCards.length}.`,
+      )
+      // If no cards are found, this could lead to an empty `cards` array being passed to generateOracleReading,
+      // which is handled by a specific error in that function.
+      if (oracleCards.length === 0) {
+        return NextResponse.json(
+          { success: false, error: "No valid cards found for the provided IDs." },
+          { status: 400 },
+        )
+      }
     }
 
     console.log(
-      "DEBUG: Initial cards drawn for AI reading (full data fetched):",
-      oracleCards.map((c) => c.id),
+      "DEBUG: Full OracleCard objects fetched for AI reading:",
+      oracleCards.map((c) => ({
+        id: c.id,
+        fullTitle: c.fullTitle,
+        planetInternalInfluence: c.planetInternalInfluence, // Log these specific fields
+        astrologyExternalDomain: c.astrologyExternalDomain, // Log these specific fields
+      })),
     )
     console.log("DEBUG: Spread Type:", spread_type)
     console.log("DEBUG: User Question:", question)
@@ -53,7 +67,7 @@ export async function POST(req: NextRequest) {
 
     console.log("🔮 Generating AI reading...")
     const { reading, threadId } = await generateOracleReading({
-      cards: oracleCards,
+      cards: oracleCards, // This is the array of full OracleCard objects
       question: question,
       spreadType: spread_type,
       userContext: user_context,

@@ -1,17 +1,12 @@
-/**
- * Minimal prompt templates for NUMO Oracle readings
- * The OpenAI Assistant is already trained with comprehensive knowledge,
- * so these prompts focus on providing specific card draw and user data.
- */
 import type { OracleCard } from "@/types/cards"
 
 /**
- * Generates a detailed prompt for the AI to create an oracle card reading.
- * @param cards The selected OracleCard objects.
- * @param spreadType The type of spread (e.g., "single", "three", "five").
- * @param question The user's question.
- * @param userContext A stringified JSON object containing user profile information (e.g., name, birth info).
- * @param userName The user's full name, extracted from userContext for convenience.
+ * Generates a detailed prompt for the AI based on the selected cards, question, and user context.
+ * @param cards An array of OracleCard objects.
+ * @param spreadType The type of card spread (e.g., "single", "three", "five").
+ * @param question The user's question for the reading.
+ * @param userContext A stringified JSON object containing user details (fullName, birthDate, etc.).
+ * @param userName The user's full name, extracted from userContext.
  * @returns A comprehensive string prompt for the AI.
  */
 export function getReadingPrompt(
@@ -21,56 +16,86 @@ export function getReadingPrompt(
   userContext?: string,
   userName?: string,
 ): string {
+  console.log(
+    "DEBUG: getReadingPrompt received cards (IDs):",
+    cards.map((c) => c.id),
+  )
+  console.log("DEBUG: getReadingPrompt received spreadType:", spreadType)
+  console.log("DEBUG: getReadingPrompt received question:", question)
+  console.log("DEBUG: getReadingPrompt received userContext:", userContext)
+  console.log("DEBUG: getReadingPrompt received userName:", userName)
+
   let prompt = `You are a wise and insightful oracle, providing profound numerological and elemental readings based on the provided card data. Your responses are always in a calm, guiding, and encouraging tone. Do not mention that you are an AI or a language model. Focus solely on the spiritual and practical interpretations of the cards.
 
-The user, ${userName || "a seeker"}, has asked the following question: "${question}"
-
-Here are the cards drawn for their ${spreadType} card spread, along with their core meanings and symbolism:
+Here is the user's request:
+User's Question: "${question}"
+Spread Type: ${spreadType}
 `
+
+  if (userName) {
+    prompt += `User's Name: ${userName}\n`
+  }
+  if (userContext) {
+    try {
+      const parsedContext = JSON.parse(userContext)
+      if (parsedContext.birthDate) prompt += `User's Birth Date: ${parsedContext.birthDate}\n`
+      if (parsedContext.birthTime) prompt += `User's Birth Time: ${parsedContext.birthTime}\n`
+      if (parsedContext.birthPlace) prompt += `User's Birth Place: ${parsedContext.birthPlace}\n`
+    } catch (e) {
+      console.warn("⚠️ getReadingPrompt: Failed to parse userContext for prompt generation:", e)
+    }
+  }
+
+  prompt += `\nHere are the cards drawn for this reading:\n`
 
   cards.forEach((card, index) => {
-    prompt += `
---- Card ${index + 1}: ${card.fullTitle} ---
-- Number: ${card.number}
-- Suit: ${card.suit}
-- Base Element: ${card.baseElement}
-- Synergistic Element: ${card.synergisticElement}
-- Icon Symbol: ${card.iconSymbol}
-- Orientation: ${card.orientation}
-- Sacred Geometry: ${card.sacredGeometry}
-- Key Meanings: ${card.keyMeanings.join("; ")}
-- Symbolism Breakdown: ${card.symbolismBreakdown.join(" ")}
-`
+    prompt += `\n--- Card ${index + 1}: ${card.fullTitle} ---\n`
+    prompt += `Number: ${card.number}\n`
+    prompt += `Suit: ${card.suit}\n`
+    prompt += `Base Element: ${card.baseElement}\n`
+    prompt += `Synergistic Element: ${card.synergisticElement}\n`
+    prompt += `Icon Symbol: ${card.iconSymbol}\n`
+    prompt += `Orientation: ${card.orientation}\n`
+    prompt += `Sacred Geometry: ${card.sacredGeometry}\n`
+    prompt += `Planet (Internal Influence): ${card.planetInternalInfluence}\n` // Corrected field name
+    prompt += `Astrology (External Domain): ${card.astrologyExternalDomain}\n` // Corrected field name
+
+    if (card.keyMeanings && card.keyMeanings.length > 0) {
+      prompt += `Key Meanings: ${card.keyMeanings.join("; ")}\n`
+    }
+    if (card.symbolismBreakdown && card.symbolismBreakdown.length > 0) {
+      prompt += `Symbolism Breakdown:\n`
+      card.symbolismBreakdown.forEach((breakdown) => {
+        prompt += `- ${breakdown}\n`
+      })
+    }
+    if (card.symbols && card.symbols.length > 0) {
+      prompt += `Additional Symbols:\n`
+      card.symbols.forEach((symbol) => {
+        prompt += `- ${symbol.key}: ${symbol.value}\n`
+      })
+    }
   })
 
-  prompt += `
-Based on these cards and the user's question, provide a comprehensive and insightful oracle reading. Structure your response clearly, addressing the question and integrating the symbolism of each card. If a user's name is provided, use it to personalize the reading. If birth information is available in the user context, you may subtly weave in general numerological or astrological insights related to those numbers/signs, but do not perform complex calculations or claim to be an astrologer/numerologist.
+  prompt += `\nBased on the user's question, their context (if provided), and the symbolism of these cards, please provide a comprehensive and insightful oracle reading. Structure your response clearly, addressing the question and integrating the card meanings. Conclude with a guiding thought or affirmation.`
 
-Consider the following for your reading:
-- **Introduction:** Acknowledge the user's question and the spread.
-- **Individual Card Interpretations:** For each card, explain its meaning in the context of the question and its position (if applicable to the spread type).
-- **Overall Message/Synthesis:** Connect the cards to provide a cohesive answer or guidance related to the user's question.
-- **Actionable Advice:** Offer practical, encouraging advice based on the reading.
-- **Closing:** A warm and supportive closing.
-
-${userContext ? `User Profile Context (for personalization, do not explicitly state this information unless relevant to the reading): ${userContext}` : ""}
-
-Please provide the reading now.
-`
   return prompt
 }
 
 /**
- * Generates a prompt for a follow-up question based on an original reading.
- * @param originalReading The previous AI-generated reading.
- * @param followUpQuestion The user's new question.
- * @returns A string prompt for the AI to continue the conversation.
+ * Generates a prompt for a follow-up question.
+ * @param originalReading The full text of the original reading.
+ * @param followUpQuestion The user's follow-up question.
+ * @returns A string prompt for the AI.
  */
 export function getFollowUpPrompt(originalReading: string, followUpQuestion: string): string {
-  return `The previous oracle reading was:
-"${originalReading}"
+  return `The user has asked a follow-up question based on a previous oracle reading.
+Original Reading:
+"""
+${originalReading}
+"""
 
-The user now has a follow-up question: "${followUpQuestion}"
+Follow-up Question: "${followUpQuestion}"
 
-Please provide a concise and helpful response that builds upon the previous reading and directly addresses this new question. Maintain the tone of a wise and insightful oracle. Do not repeat the full original reading. Focus on the new insight or clarification needed.`
+Please provide a concise and helpful answer to this follow-up question, building upon the context of the original reading. Maintain the tone of a wise and insightful oracle.`
 }
