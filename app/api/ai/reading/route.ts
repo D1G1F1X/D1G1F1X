@@ -27,17 +27,11 @@ export async function POST(req: NextRequest) {
 
     const { cards, spread_type, question, user_context } = requestBody
 
-    // Moved environment variable checks to the functions that use them (getOpenAIClient, getOpenAIAssistant)
-    // to prevent synchronous crashes during module loading.
-    // The errors thrown by those functions will now be caught by this try/catch block.
-
     if (!cards || !Array.isArray(cards) || cards.length === 0) {
       console.warn("WARN: Invalid or empty cards array received.")
       return NextResponse.json({ success: false, error: "Invalid card data provided." }, { status: 400 })
     }
 
-    // The client now sends the full card objects, so we don't need to fetch them by ID here.
-    // We just need to ensure they conform to OracleCard type.
     const oracleCards: OracleCard[] = cards.map((card: any) => ({
       id: card.id,
       number: card.number,
@@ -47,8 +41,9 @@ export async function POST(req: NextRequest) {
       symbolismBreakdown: card.description ? [card.description] : [],
       keyMeanings: card.keywords || [],
       baseElement: card.element,
-      planetInternalInfluence: "", // Not provided by client, can be empty
-      astrologyExternalDomain: "", // Not provided by client, can be empty
+      // Updated to match new type definitions
+      planetExternalDomain: "", // Not provided by client, can be empty
+      astrologyInternalInfluence: "", // Not provided by client, can be empty
       iconSymbol: "", // Not provided by client, can be empty
       orientation: "", // Not provided by client, can be empty
       sacredGeometry: "", // Not provided by client, can be empty
@@ -76,7 +71,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, reading, threadId })
   } catch (error: any) {
     console.error("💥 Error generating AI reading:", error)
-    // Ensure the error message is always a string
     const errorMessage =
       typeof error === "string" ? error : error instanceof Error ? error.message : JSON.stringify(error)
     return NextResponse.json(

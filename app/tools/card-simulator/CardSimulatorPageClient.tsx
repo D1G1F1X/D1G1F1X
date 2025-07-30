@@ -649,6 +649,12 @@ export default function CardSimulator() {
               </div>
               <div className="space-y-2">
                 <p>
+                  <strong>Planet (External Domain):</strong> {card.planetExternalDomain}
+                </p>
+                <p>
+                  <strong>Astrology (Internal Influence):</strong> {card.astrologyInternalInfluence}
+                </p>
+                <p>
                   <strong>Icon:</strong> {card.iconSymbol}
                 </p>
                 <p>

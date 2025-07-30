@@ -1,978 +1,693 @@
 "use client"
 
-import type React from "react"
-
-import { useRef } from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Shuffle,
+  Save,
+  Share2,
+  Info,
+  Loader2,
+  Sparkles,
+  MessageCircle,
+  Eye,
+  EyeOff,
+  User,
+  AlertCircle,
+  Clock,
+} from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Skeleton } from "@/components/ui/skeleton"
-import { generateReading } from "@/lib/actions/generate-reading"
-import { useToast } from "@/components/ui/use-toast"
-import type { ReadingData } from "@/types/readings"
-import { cn } from "@/lib/utils"
-import { getSymbolValue, getCardData } from "@/lib/card-data-access" // Import getCardData
 import { Badge } from "@/components/ui/badge"
-import { calculateLifePath } from "@/lib/numerology"
-import { useMembership } from "@/lib/membership-context"
-import type { SavedReading } from "@/types/saved-readings"
-import type { OracleCard } from "@/types/cards"
-import { EnhancedCardImage } from "@/components/enhanced-card-image-handler"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { useToast } from "@/components/ui/use-toast"
+import dynamic from "next/dynamic"
+import { getAllCards, type OracleCard } from "@/lib/card-data-access"
+import { getCardImageUrl, preloadCardImages } from "@/lib/card-image-blob-handler"
+import { getMembershipStatus, type MembershipStatus } from "@/lib/membership-types"
+import Progress from "@/components/ui/progress"
 
-interface SpreadType {
-  id: string
-  name: string
-  description: string
-  positions: {
-    name: string
-    description: string
-  }[]
+// Dynamically import components that might cause SSR issues
+const AssistantChat = dynamic(
+  () => import("@/components/assistant-chat").then((mod) => ({ default: mod.AssistantChat })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center p-4">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    ),
+  },
+)
+
+interface UserProfile {
+  fullName?: string
+  preferredSpread?: string
+  birthDate?: string
+  birthTime?: string
+  birthPlace?: string
+  readingsCount?: number
+  lastUsed?: string
+  createdAt?: string
+  isMember?: boolean
 }
 
-interface UserFormData {
-  fullName: string
-  birthDate: Date | undefined
-  birthPlace: string
-  question: string
+const userDataService = {
+  hasConsent: (): boolean => {
+    if (typeof window === "undefined") return false
+    try {
+      return localStorage.getItem("cardSimulatorConsent") === "true"
+    } catch {
+      return false
+    }
+  },
+  getUserProfile: (): UserProfile | null => {
+    if (typeof window === "undefined") return null
+    try {
+      const profile = localStorage.getItem("numoUserProfile")
+      return profile ? JSON.parse(profile) : null
+    } catch {
+      return null
+    }
+  },
+  saveUserProfile: (data: Partial<UserProfile>): void => {
+    if (typeof window === "undefined") return
+    try {
+      const existing = userDataService.getUserProfile() || {}
+      const updated = { ...existing, ...data, lastUsed: new Date().toISOString() }
+      localStorage.setItem("numoUserProfile", JSON.stringify(updated))
+    } catch (error) {
+      console.error("Failed to save user profile:", error)
+    }
+  },
+  updateLastUsed: (): void => {
+    if (typeof window === "undefined") return
+    try {
+      const profile = userDataService.getUserProfile()
+      if (profile) {
+        userDataService.saveUserProfile({ lastUsed: new Date().toISOString() })
+      }
+    } catch (error) {
+      console.error("Failed to update last used:", error)
+    }
+  },
+  incrementReadingCount: (): void => {
+    if (typeof window === "undefined") return
+    try {
+      const profile = userDataService.getUserProfile() || {}
+      const count = (profile.readingsCount || 0) + 1
+      userDataService.saveUserProfile({ readingsCount: count })
+    } catch (error) {
+      console.error("Failed to increment reading count:", error)
+    }
+  },
+  clearAllData: (): void => {
+    if (typeof window === "undefined") return
+    try {
+      localStorage.removeItem("numoUserProfile")
+      localStorage.removeItem("cardSimulatorConsent")
+    } catch (error) {
+      console.error("Failed to clear data:", error)
+    }
+  },
 }
 
-const basicSpreadTypes: SpreadType[] = [
-  {
-    id: "single",
-    name: "Single Card",
-    description: "A simple draw for daily guidance or a specific question.",
-    positions: [
-      {
-        name: "Guidance",
-        description: "The energy or wisdom offered for your consideration",
-      },
-    ],
-  },
-  {
-    id: "three",
-    name: "Three Card Spread",
-    description: "Reveals past influences, present situation, and future potential.",
-    positions: [
-      {
-        name: "Past",
-        description: "Influences from the past affecting your current situation",
-      },
-      {
-        name: "Present",
-        description: "Current energies and immediate concerns",
-      },
-      {
-        name: "Future",
-        description: "Potential outcomes and developing energies",
-      },
-    ],
-  },
-  {
-    id: "five",
-    name: "Five Elements Spread",
-    description: "Reveals how the five elements influence your situation.",
-    positions: [
-      {
-        name: "Center (Spirit)",
-        description: "The core essence of your question or situation",
-      },
-      {
-        name: "East (Air)",
-        description: "Mental influences and thoughts affecting the outcome",
-      },
-      {
-        name: "South (Fire)",
-        description: "Creative energy and transformative forces at work",
-      },
-      {
-        name: "West (Water)",
-        description: "Emotional aspects and intuitive insights",
-      },
-      {
-        name: "North (Earth)",
-        description: "Material considerations and practical outcomes",
-      },
-    ],
-  },
-]
-
-const advancedSpreadTypes: SpreadType[] = [
-  ...basicSpreadTypes,
-  {
-    id: "celtic",
-    name: "Celtic Cross",
-    description: "A comprehensive spread that examines multiple aspects of your question.",
-    positions: [
-      {
-        name: "Present",
-        description: "The central issue or present situation",
-      },
-      {
-        name: "Challenge",
-        description: "The immediate challenge or crossing influence",
-      },
-      {
-        name: "Foundation",
-        description: "The foundation or root of the matter",
-      },
-      {
-        name: "Recent Past",
-        description: "Recent events or influences that are still relevant",
-      },
-      {
-        name: "Potential",
-        description: "Potential outcome or what could manifest",
-      },
-      {
-        name: "Near Future",
-        description: "Upcoming influences or what's beginning to unfold",
-      },
-      {
-        name: "Self",
-        description: "Your attitude or approach to the situation",
-      },
-      {
-        name: "Environment",
-        description: "External influences, other people's attitudes",
-      },
-      {
-        name: "Hopes/Fears",
-        description: "Your hopes and/or fears about the situation",
-      },
-      {
-        name: "Outcome",
-        description: "The likely outcome if the current course is maintained",
-      },
-    ],
-  },
-  {
-    id: "relationship",
-    name: "Relationship Reading",
-    description: "Explores the dynamics and potential of a relationship.",
-    positions: [
-      {
-        name: "You",
-        description: "Your energy in the relationship",
-      },
-      {
-        name: "Partner",
-        description: "The other person's energy in the relationship",
-      },
-      {
-        name: "Connection",
-        description: "The nature of your connection",
-      },
-      {
-        name: "Challenge",
-        description: "Current challenges in the relationship",
-      },
-      {
-        name: "Potential",
-        description: "Potential for growth and development",
-      },
-      {
-        name: "Guidance",
-        description: "Advice for nurturing the relationship",
-      },
-    ],
-  },
-  {
-    id: "career",
-    name: "Career Path",
-    description: "Guidance for your professional life and career decisions.",
-    positions: [
-      {
-        name: "Current Situation",
-        description: "Your current career position",
-      },
-      {
-        name: "Strengths",
-        description: "Your professional strengths and assets",
-      },
-      {
-        name: "Challenges",
-        description: "Obstacles or areas for growth",
-      },
-      {
-        name: "Hidden Factors",
-        description: "Unseen influences affecting your career",
-      },
-      {
-        name: "Next Steps",
-        description: "Immediate actions to consider",
-      },
-      {
-        name: "Long-term Potential",
-        description: "Future possibilities and direction",
-      },
-    ],
-  },
-  {
-    id: "decision",
-    name: "Decision Making",
-    description: "Helps clarify options and factors in an important decision.",
-    positions: [
-      {
-        name: "Current Situation",
-        description: "The context of your decision",
-      },
-      {
-        name: "Option A",
-        description: "First choice or path",
-      },
-      {
-        name: "Option B",
-        description: "Second choice or path",
-      },
-      {
-        name: "Key Factor",
-        description: "Important consideration that may be overlooked",
-      },
-      {
-        name: "Guidance",
-        description: "Advice for making the best decision",
-      },
-    ],
-  },
-]
-
-const getElementIcon = (element: string) => {
-  switch (element.toLowerCase()) {
-    case "earth":
-      return "⊕"
-    case "water":
-      return "≈"
-    case "fire":
-      return "△"
-    case "air":
-      return "≋"
-    case "spirit":
-      return "✧"
-    default:
-      return "★"
-  }
-}
-
-interface EnhancedCardDealerProps {
-  onReadingGenerated?: (reading: ReadingData) => void
-  className?: string
-  allowFreeReading?: boolean
-  maxCards?: number
-  defaultSpread?: "single" | "three"
-}
-
-export default function EnhancedCardDealer({
-  onReadingGenerated,
-  className,
-  allowFreeReading = false,
-  maxCards = 3,
-  defaultSpread = "three",
-}: EnhancedCardDealerProps) {
-  const [allCards, setAllCards] = useState<OracleCard[]>([]) // Use allCards from central data
+export default function EnhancedCardDealer() {
   const [selectedCards, setSelectedCards] = useState<OracleCard[]>([])
-  const [flippedCards, setFlippedCards] = useState<boolean[]>([])
-  const [isDealing, setIsDealing] = useState(false)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [reading, setReading] = useState<ReadingData | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [spreadType, setSpreadType] = useState<"single" | "three">(defaultSpread)
   const [question, setQuestion] = useState("")
-  const { toast } = useToast()
-  const dealerRef = useRef<HTMLDivElement>(null)
-  const [selectedSpread, setSelectedSpread] = useState<string>("three")
-  const [drawnCardsState, setDrawnCardsState] = useState<{ card: OracleCard; endUp: "first" | "second" }[]>([])
-  const [isDrawing, setIsDrawing] = useState(false)
-  const [showBackside, setShowBackside] = useState(true)
-  const [isFlipping, setIsFlipping] = useState(false)
-  const [showReading, setShowReading] = useState(false)
-  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({})
-  const [showExpandedReading, setShowExpandedReading] = useState(false)
-  const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null)
-  const [showDetailedReading, setShowDetailedReading] = useState(false)
+  const [fullName, setFullName] = useState("")
+  const [spreadType, setSpreadType] = useState("single")
+  const [isShuffling, setIsShuffling] = useState(false)
+  const [reading, setReading] = useState("")
+  const [hasConsent, setHasConsent] = useState(false)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [showDetailedView, setShowDetailedView] = useState(false)
+  const [isLoadingImages, setIsLoadingImages] = useState(false)
+  const [allAvailableCards, setAllAvailableCards] = useState<OracleCard[]>([])
+  const [imageLoadingProgress, setImageLoadingProgress] = useState(0)
+  const [imageLoadingStats, setImageLoadingStats] = useState<{
+    loaded: number
+    total: number
+    failed: number
+    isLoading: boolean
+  }>({ loaded: 0, total: 0, failed: 0, isLoading: false })
+  const [networkStatus, setNetworkStatus] = useState<"online" | "offline" | "slow">("online")
+  const [assistantReading, setAssistantReading] = useState("")
+  const [conversationThreadId, setConversationThreadId] = useState<string>("")
   const [isGeneratingReading, setIsGeneratingReading] = useState(false)
-  const [aiGeneratedReading, setAiGeneratedReading] = useState<string>("")
-  const [currentStep, setCurrentStep] = useState<"form" | "cards" | "reading">("form")
-  const [formData, setFormData] = useState<UserFormData>({
-    fullName: "",
-    birthDate: undefined,
-    birthPlace: "",
-    question: "",
-  })
-  const [formErrors, setFormErrors] = useState<Partial<UserFormData>>({})
-  const [lifePath, setLifePath] = useState<number | null>(null)
-  const dealAreaRef = useRef<HTMLDivElement>(null)
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
-  const [datePickerOpen, setDatePickerOpen] = useState(false)
-  const [readingMode, setReadingMode] = useState<"basic" | "advanced">("basic")
-  const [showLoginModal, setShowLoginModal] = useState(false)
-  const [showHistory, setShowHistory] = useState(false)
-  const [selectedReading, setSelectedReading] = useState<SavedReading | null>(null)
-  const [readingTitle, setReadingTitle] = useState<string>("")
-  const [isSaving, setIsSaving] = useState(false)
-  const [saveSuccess, setSaveSuccess] = useState(false)
-  const [readingNotes, setReadingNotes] = useState<string>("")
-  const [membership, setMembership] = useState({
-    isAuthenticated: false,
-    checkMembership: () => false,
-    login: () => Promise.resolve(false),
-    logout: () => {},
+  const [showAssistantChat, setShowAssistantChat] = useState(false)
+  const [birthDate, setBirthDate] = useState("")
+  const [birthTime, setBirthTime] = useState("")
+  const [birthPlace, setBirthPlace] = useState("")
+  const [hasGeneratedAIReading, setHasGeneratedAIReading] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const [membershipStatus, setMembershipStatus] = useState<MembershipStatus>({
+    type: "free",
+    verified: true,
   })
 
-  const [isAdvancedModeAvailable, setIsAdvancedModeAvailable] = useState(false)
-  const [drawnCards, setDrawnCards] = useState<any[]>([])
-  const [selectedElement, setSelectedElement] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState("overview")
-
-  const context = useMembership()
-  const { isAuthenticated, checkMembership } = context
-  setMembership(context)
+  const { toast } = useToast()
 
   useEffect(() => {
-    // Load all cards from the central data access layer
-    setAllCards(getCardData())
+    setMounted(true)
   }, [])
 
   useEffect(() => {
-    setIsAdvancedModeAvailable(isAuthenticated)
-  }, [isAuthenticated])
+    if (!mounted) return
+
+    const loadCardDataAndImages = async () => {
+      setIsLoadingImages(true)
+      const masterCardData = getAllCards()
+      setImageLoadingStats({ loaded: 0, total: masterCardData.length, failed: 0, isLoading: true })
+
+      try {
+        const startTime = Date.now()
+
+        const cardsWithResolvedImages = await Promise.all(
+          masterCardData.map(async (card, index) => {
+            let imageUrl = `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(card.fullTitle)}`
+
+            try {
+              const baseElementImageUrl = await getCardImageUrl(card.id, card.baseElement)
+              if (!baseElementImageUrl.includes("placeholder.svg")) {
+                imageUrl = baseElementImageUrl
+              } else {
+                const synergisticElementImageUrl = await getCardImageUrl(card.id, card.synergisticElement)
+                if (!synergisticElementImageUrl.includes("placeholder.svg")) {
+                  imageUrl = synergisticElementImageUrl
+                }
+              }
+            } catch (error) {
+              // console.warn(`Could not load image for card ${card.id} with base/synergistic element. Using placeholder.`, error);
+            }
+
+            const loaded = index + 1
+            setImageLoadingProgress((loaded / masterCardData.length) * 100)
+            setImageLoadingStats((prev) => ({ ...prev, loaded }))
+            return { ...card, imagePath: imageUrl }
+          }),
+        )
+
+        setAllAvailableCards(cardsWithResolvedImages)
+
+        const cardIds = masterCardData.map((card) => card.id)
+        const elements = [...new Set(masterCardData.flatMap((card) => [card.baseElement, card.synergisticElement]))]
+
+        const preloadResults = await preloadCardImages(cardIds, elements, (loaded, total) => {
+          setImageLoadingProgress((loaded / total) * 100)
+        })
+
+        const totalTime = Date.now() - startTime
+        if (totalTime > 10000) {
+          setNetworkStatus("slow")
+        } else if (preloadResults.failed > preloadResults.loaded * 0.5) {
+          setNetworkStatus("offline")
+        } else {
+          setNetworkStatus("online")
+        }
+
+        console.log(
+          `Image loading completed: ${preloadResults.loaded} loaded, ${preloadResults.failed} failed in ${preloadResults.totalTime}ms`,
+        )
+      } catch (error) {
+        console.error("Error loading card images:", error)
+        setNetworkStatus("offline")
+        setAllAvailableCards(
+          getAllCards().map((card) => ({
+            ...card,
+            imagePath: `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(card.fullTitle)}`,
+          })),
+        )
+      } finally {
+        setIsLoadingImages(false)
+        setImageLoadingStats((prev) => ({ ...prev, isLoading: false }))
+      }
+    }
+
+    loadCardDataAndImages()
+  }, [mounted])
 
   useEffect(() => {
-    resetDealer()
-  }, [spreadType])
+    if (!mounted) return
 
-  const resetDealer = () => {
-    setSelectedCards([])
-    setFlippedCards([])
-    setIsDealing(false)
-    setReading(null)
-    setError(null)
-  }
-
-  const dealCards = async () => {
-    if (isDealing) return
-
-    resetDealer()
-    setIsDealing(true)
-
-    const numCards = spreadType === "single" ? 1 : 3
-    const shuffled = [...allCards].sort(() => Math.random() - 0.5) // Use allCards here
-    const newSelectedCards = shuffled.slice(0, numCards)
-
-    for (let i = 0; i < numCards; i++) {
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      setSelectedCards((prev) => [...prev, newSelectedCards[i]])
-      setFlippedCards((prev) => [...prev, false])
+    if (allAvailableCards.length > 0 && selectedCards.length === 0 && !isLoadingImages) {
+      const numCards = spreadType === "single" ? 1 : spreadType === "three" ? 3 : 5
+      const shuffled = [...allAvailableCards].sort(() => Math.random() - 0.5)
+      const initialDraw = shuffled.slice(0, numCards)
+      setSelectedCards(initialDraw)
+      console.log(
+        "DEBUG: Initial cards drawn:",
+        initialDraw.map((card) => ({ id: card.id, imagePath: card.imagePath })),
+      )
+      setReading("")
+      setAssistantReading("")
+      setHasGeneratedAIReading(false)
     }
+  }, [allAvailableCards, selectedCards.length, isLoadingImages, spreadType, mounted])
 
-    setIsDealing(false)
-  }
+  useEffect(() => {
+    if (!mounted) return
 
-  const flipCard = (index: number) => {
-    if (isDealing || flippedCards[index]) return
-
-    const newFlippedCards = [...flippedCards]
-    newFlippedCards[index] = true
-    setFlippedCards(newFlippedCards)
-  }
-
-  const generateReadingFromCards = async () => {
-    if (isGenerating || selectedCards.length === 0) return
-
-    if (!flippedCards.every((flipped) => flipped)) {
-      toast({
-        title: "Flip all cards",
-        description: "Please flip all cards before generating a reading",
-        variant: "destructive",
-      })
-      return
+    const checkMembership = async () => {
+      try {
+        const userId = localStorage.getItem("numoUserId") || "app-user-123"
+        const status = await getMembershipStatus(userId)
+        setMembershipStatus(status)
+      } catch (error) {
+        console.error("Failed to check membership status:", error)
+      }
     }
-
-    if (!question.trim()) {
-      toast({
-        title: "Question required",
-        description: "Please enter your question for the reading",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsGenerating(true)
-    setError(null)
+    checkMembership()
 
     try {
-      const readingData = await generateReading({
-        cards: selectedCards,
-        question: question,
-      })
+      const consent = userDataService.hasConsent()
+      setHasConsent(consent)
 
-      setReading(readingData)
-      if (onReadingGenerated) {
-        onReadingGenerated(readingData)
-      }
-    } catch (err) {
-      console.error("Error generating reading:", err)
-      setError("Failed to generate reading. Please try again.")
-      toast({
-        title: "Error",
-        description: "Failed to generate reading. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsGenerating(false)
-    }
-  }
-
-  const cardWidth = spreadType === "single" ? "w-64" : "w-48"
-  const cardHeight = spreadType === "single" ? "h-96" : "h-72"
-
-  const availableSpreadTypes = readingMode === "basic" ? basicSpreadTypes : advancedSpreadTypes
-  const currentSpread = availableSpreadTypes.find((spread) => spread.id === selectedSpread) || availableSpreadTypes[0]
-
-  const handleInputChange = (field: keyof UserFormData, value: any) => {
-    setFormData({ ...formData, [field]: value })
-
-    if (formErrors[field]) {
-      const newErrors = { ...formErrors }
-      delete newErrors[field]
-      setFormErrors(newErrors)
-    }
-  }
-
-  const validateForm = () => {
-    const errors: Partial<UserFormData> = {}
-
-    if (!formData.fullName.trim()) {
-      errors.fullName = "Full name is required"
-    }
-
-    if (!formData.question.trim()) {
-      errors.question = "Question is required"
-    }
-
-    setFormErrors(errors)
-    return Object.keys(errors).length === 0
-  }
-
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (validateForm()) {
-      if (formData.birthDate) {
-        const lifePathNumber = calculateLifePath(formData.birthDate)
-        setLifePath(lifePathNumber)
-      }
-
-      setCurrentStep("cards")
-
-      setTimeout(() => {
-        dealAreaRef.current?.scrollIntoView({ behavior: "smooth" })
-      }, 100)
-    }
-  }
-
-  const handleDrawCards = () => {
-    setIsDrawing(true)
-    setShowReading(false)
-    setShowBackside(true)
-    setShowExpandedReading(false)
-    setShowDetailedReading(false)
-    setAiGeneratedReading("")
-    setReadingTitle("")
-    setSaveSuccess(false)
-
-    setTimeout(() => {
-      dealAreaRef.current?.scrollIntoView({ behavior: "smooth" })
-    }, 100)
-
-    setDrawnCards([])
-
-    setTimeout(() => {
-      const numCards = currentSpread.positions.length
-
-      if (!allCards || allCards.length === 0) {
-        // Use allCards here
-        console.error("No card data available")
-        setIsDrawing(false)
-        return
-      }
-
-      let shuffled = [...allCards] // Use allCards here
-      while (shuffled.length < numCards) {
-        shuffled = [...shuffled, ...allCards] // Use allCards here
-      }
-
-      shuffled = shuffled.sort(() => 0.5 - Math.random())
-      const selected = shuffled.slice(0, numCards).map((card) => ({
-        card,
-        endUp: Math.random() > 0.5 ? "first" : ("second" as "first" | "second"),
-      }))
-
-      setDrawnCards(selected)
-      setIsDrawing(false)
-
-      setTimeout(() => {
-        setIsFlipping(true)
-        setTimeout(() => {
-          setShowBackside(false)
-          setIsFlipping(false)
-
-          setTimeout(() => {
-            setShowReading(true)
-            setCurrentStep("reading")
-          }, 500)
-        }, 600)
-      }, 1000)
-    }, 1500)
-  }
-
-  const handleImageError = (cardId: string) => {
-    setImageErrors((prev) => ({
-      ...prev,
-      [cardId]: true,
-    }))
-  }
-
-  const getElementColor = (element: string) => {
-    switch (element.toLowerCase()) {
-      case "earth":
-        return "bg-green-900/20 border-green-500/30 text-green-300"
-      case "water":
-        return "bg-blue-900/20 border-blue-500/30 text-blue-300"
-      case "fire":
-        return "bg-red-900/20 border-red-500/30 text-red-300"
-      case "air":
-        return "bg-yellow-900/20 border-yellow-500/30 text-yellow-300"
-      case "spirit":
-        return "bg-purple-900/20 border-purple-500/30 text-purple-300"
-      default:
-        return "bg-gray-900/20 border-gray-500/30 text-gray-300"
-    }
-  }
-
-  const getElementSymbol = (element: string) => {
-    switch (element.toLowerCase()) {
-      case "earth":
-        return "⊕"
-      case "water":
-        return "≈"
-      case "fire":
-        return "△"
-      case "air":
-        return "≋"
-      case "spirit":
-        return "✧"
-      default:
-        return "★"
-    }
-  }
-
-  const generateDetailedReading = async () => {
-    setIsGeneratingReading(true)
-
-    try {
-      // Call the new server-side API
-      const response = await fetch("/api/generateReading", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: `Generate a detailed reading for: ${formData.question}`,
-          fullName: formData.fullName,
-          dateOfBirth: formData.birthDate?.toISOString(),
-          question: formData.question,
-          selectedCards: drawnCards.map((dc) => dc.card),
-          spreadType: selectedSpread,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok && data.success) {
-        // Store the thread ID for potential follow-up questions
-        // You could expand this to actually get the assistant's response
-        console.log("Reading thread created:", data.threadId)
-
-        // For now, continue with the simulated reading
-        const reading = generateSimulatedReading()
-        setAiGeneratedReading(reading)
-        setShowDetailedReading(true)
-      } else {
-        console.warn("API reading failed, using simulated reading:", data?.error)
-        const reading = generateSimulatedReading()
-        setAiGeneratedReading(reading)
-        setShowDetailedReading(true)
+      if (consent) {
+        const profile = userDataService.getUserProfile()
+        if (profile) {
+          setUserProfile(profile)
+          setFullName(profile.fullName || "")
+          setSpreadType(profile.preferredSpread || "single")
+          setBirthDate(profile.birthDate || "")
+          setBirthTime(profile.birthTime || "")
+          setBirthPlace(profile.birthPlace || "")
+        }
       }
     } catch (error) {
-      console.error("Error generating reading:", error)
-      // Fallback to simulated reading
-      const reading = generateSimulatedReading()
-      setAiGeneratedReading(reading)
-      setShowDetailedReading(true)
+      console.error("Error loading user data:", error)
+    }
+  }, [mounted])
+
+  useEffect(() => {
+    if (!mounted) return
+
+    if (hasConsent && (fullName || spreadType !== "single" || birthPlace || birthDate || birthTime)) {
+      const profileData: Partial<UserProfile> = {}
+
+      if (fullName) profileData.fullName = fullName
+      if (spreadType !== "single") profileData.preferredSpread = spreadType
+      if (birthDate) profileData.birthDate = birthDate
+      if (birthTime) profileData.birthTime = birthTime
+      if (birthPlace) profileData.birthPlace = birthPlace
+
+      userDataService.saveUserProfile(profileData)
+    }
+  }, [fullName, spreadType, birthPlace, birthDate, birthTime, hasConsent, mounted])
+
+  const handleConsentChange = useCallback(
+    (consent: boolean) => {
+      if (!mounted) return
+
+      setHasConsent(consent)
+
+      if (consent) {
+        const profile = userDataService.getUserProfile()
+        if (profile) {
+          setUserProfile(profile)
+          setFullName(profile.fullName || "")
+          setSpreadType(profile.preferredSpread || "single")
+          setBirthDate(profile.birthDate || "")
+          setBirthTime(profile.birthTime || "")
+          setBirthPlace(profile.birthPlace || "")
+        }
+      } else {
+        userDataService.clearAllData()
+        setUserProfile(null)
+        setFullName("")
+        setSpreadType("single")
+        setBirthDate("")
+        setBirthTime("")
+        setBirthPlace("")
+      }
+    },
+    [mounted],
+  )
+
+  const shuffleCards = async () => {
+    setIsShuffling(true)
+    setReading("")
+    setAssistantReading("")
+    setHasGeneratedAIReading(false)
+
+    if (hasConsent) {
+      userDataService.updateLastUsed()
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+
+    const numCards = spreadType === "single" ? 1 : spreadType === "three" ? 3 : 5
+    const shuffled = [...allAvailableCards].sort(() => Math.random() - 0.5)
+    const selected = shuffled.slice(0, numCards)
+
+    setSelectedCards(selected)
+    console.log(
+      "DEBUG: Cards drawn after shuffle:",
+      selected.map((card) => ({ id: card.id, imagePath: card.imagePath })),
+    )
+    setIsShuffling(false)
+  }
+
+  const generateAIReading = async () => {
+    if (selectedCards.length === 0) {
+      toast({
+        title: "No Cards Drawn",
+        description: "Please draw cards first before generating an AI reading.",
+        variant: "destructive",
+      })
+      return
+    }
+    if (!question.trim()) {
+      toast({
+        title: "Question Required",
+        description: "Please enter a question to enable AI reading.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsGeneratingReading(true)
+    setHasGeneratedAIReading(true)
+
+    try {
+      console.log("🔮 Generating AI reading...")
+
+      const requestBody = {
+        cards: selectedCards.map((card) => ({
+          id: card.id,
+          name: card.fullTitle,
+          element: card.baseElement,
+          tool: card.suit,
+          number: Number.parseInt(card.number),
+          meaning: card.keyMeanings.join(", "),
+          description: card.symbolismBreakdown.join(" "),
+          keywords: card.keyMeanings,
+        })),
+        question: question.trim(),
+        spread_type: spreadType,
+        user_context: JSON.stringify({
+          fullName,
+          birthDate,
+          birthTime,
+          birthPlace,
+          isMember: membershipStatus.verified,
+        }),
+      }
+
+      console.log("📤 Sending request:", {
+        cardCount: requestBody.cards.length,
+        hasQuestion: !!requestBody.question,
+        spreadType: requestBody.spread_type,
+      })
+
+      const response = await fetch("/api/ai/reading", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      console.log("📥 Response status:", response.status, response.statusText)
+
+      const responseText = await response.text()
+      console.log("📄 Raw response (first 200 chars):", responseText.substring(0, 200) + "...")
+
+      if (!response.ok) {
+        let errorMessage = `HTTP Error ${response.status}: ${response.statusText}`
+        if (responseText) {
+          try {
+            const errorData = JSON.parse(responseText)
+            errorMessage = errorData.error || errorMessage
+          } catch (parseError) {
+            errorMessage = responseText
+          }
+        }
+        console.error("❌ API request failed:", errorMessage)
+        throw new Error(errorMessage)
+      }
+
+      let data: any = {}
+      try {
+        data = JSON.parse(responseText)
+        console.log("✅ Parsed response:", {
+          success: data.success,
+          hasReading: !!data.reading,
+          method: data.method,
+          error: data.error,
+        })
+      } catch (parseError) {
+        console.error("❌ JSON parse error on successful response:", parseError)
+        console.error("❌ Response was not valid JSON despite OK status:", responseText)
+        throw new Error("Server returned an invalid JSON response. Please try again.")
+      }
+
+      if (!data?.success) {
+        console.error("❌ API error:", data?.error)
+        throw new Error(data?.error || "API returned unsuccessful response")
+      }
+
+      console.log("✅ Reading generated successfully")
+      setConversationThreadId(data.threadId || "")
+      setAssistantReading(data.reading || "")
+      setReading(data.reading || "")
+
+      toast({
+        title: "Reading Generated!",
+        description: "Your personalized oracle reading is ready.",
+      })
+
+      if (hasConsent) {
+        userDataService.incrementReadingCount()
+      }
+    } catch (error: any) {
+      console.error("💥 Error generating AI reading:", error)
+
+      const errorMessage = error.message || "Unknown error occurred"
+      const fallbackReading = `I apologize, but I'm unable to provide an AI reading at this time. Error: ${errorMessage}\n\nPlease try again in a moment, or contact support if the issue persists.`
+
+      setReading(fallbackReading)
+      setHasGeneratedAIReading(false)
+
+      toast({
+        title: "Reading Failed",
+        description: errorMessage,
+        variant: "destructive",
+      })
     } finally {
       setIsGeneratingReading(false)
     }
   }
 
-  const generateSimulatedReading = (): string => {
-    const userName = formData.fullName.split(" ")[0] || "Seeker"
-    const question = formData.question
-    const spreadName = currentSpread.name
-
-    const intro = `# NUMO Oracle Reading for ${userName}
-
-## Your Question
-"${question}"
-
-I've consulted the NUMO Oracle cards to provide guidance on your question. The ${spreadName} reveals important insights about your situation.`
-
-    const cardInterpretations = drawnCards
-      .map((drawnCard, index) => {
-        const { card, endUp } = drawnCard
-        const position = currentSpread.positions[index]
-
-        const planet = card.planetExternalDomain
-        const astrology = card.astrologyInternalInfluence
-        const sacredGeometry = getSymbolValue(card, "Sacred Geometry")
-        const icon = getSymbolValue(card, "Icon")
-        const orientation = getSymbolValue(card, "Orientation")
-
-        // Use the correct number from the card data - directly from the number field
-        const cardNumber = card.number || "0"
-
-        return `
-### ${position.name}: ${card.fullTitle} (${card.baseElement})
-
-**Card Number:** ${cardNumber}
-**Element:** ${endUp === "first" ? card.baseElement : card.synergisticElement}
-
-This ${card.baseElement} card in the ${position.name} position reveals:
-- **Key Meanings:** ${card.keyMeanings?.join(", ") || "N/A"}
-
-**Symbolism Breakdown:**
-${card.symbolismBreakdown.map((s) => `- ${s.replace(/^Number: \d+ – /, "")}`).join("\n")}
-
-**Additional Symbolism:**
-- **Sacred Geometry:** ${sacredGeometry}
-- **Planet (External Domain):** ${planet}
-- **Astrology (Internal Influence):** ${astrology}
-- **Icon:** ${icon}
-- **Orientation:** ${orientation}
-`
+  const saveReading = () => {
+    if (!question.trim()) {
+      toast({
+        title: "Question Missing",
+        description: "Please enter a question before saving your reading.",
+        variant: "destructive",
       })
-      .join("\n")
-
-    const patterns = `
-## Patterns and Connections
-
-${getPatternInsight()}
-
-${getElementalInsight()}
-
-${getNumerologicalInsight()}`
-
-    const guidance = `
-## Guidance and Recommendations
-
-Based on these cards, consider the following actions:
-
-1. ${getActionRecommendation(1)}
-2. ${getActionRecommendation(2)}
-3. ${getActionRecommendation(3)}
-
-## Timing Considerations
-
-${getTimingInsight()}
-
-## Final Thoughts
-
-Remember that you have the power to shape your path forward. These cards offer guidance, but your free will and choices ultimately determine your journey. Trust your intuition as you integrate these insights.`
-
-    return `${intro}\n\n## Card Interpretations\n${cardInterpretations}\n${patterns}\n${guidance}`
-  }
-
-  const getNumberMeaning = (number: number): string => {
-    const meanings = {
-      0: "infinite potential and the void from which all creation emerges",
-      1: "new beginnings, independence, and leadership",
-      2: "balance, partnership, and duality",
-      3: "creativity, expression, and growth",
-      4: "stability, structure, and foundation",
-      5: "change, freedom, and adventure",
-      6: "harmony, responsibility, and nurturing",
-      7: "spirituality, wisdom, and inner knowing",
-      8: "abundance, power, and manifestation",
-      9: "completion, humanitarianism, and wisdom",
+      return
+    }
+    if (!reading.trim()) {
+      toast({
+        title: "No Reading to Save",
+        description: "Please generate a reading first before saving.",
+        variant: "destructive",
+      })
+      return
     }
 
-    return meanings[number as keyof typeof meanings] || "personal transformation and spiritual growth"
-  }
-
-  const getPatternInsight = (): string => {
-    const elements = drawnCards.map((item) => item.card.baseElement.toLowerCase())
-    const dominantElement = getMostCommonElement(elements)
-
-    return `The cards show a predominance of ${dominantElement} energy, suggesting that ${getElementalAdvice(dominantElement)}.`
-  }
-
-  const getElementalInsight = (): string => {
-    const elements = drawnCards.map((item) => item.card.baseElement.toLowerCase())
-    const missingElements = ["fire", "water", "air", "earth", "spirit"].filter((el) => !elements.includes(el))
-
-    if (missingElements.length > 0) {
-      return `You may benefit from consciously incorporating more ${missingElements.join(", ")} energy into your approach, as these elements are not strongly represented in your reading.`
-    } else {
-      return `Your reading shows a balanced representation of all elemental energies, suggesting a holistic approach to your situation.`
-    }
-  }
-
-  const getNumerologicalInsight = (): string => {
-    if (lifePath) {
-      return `Your Life Path number ${lifePath} resonates with the energy of ${getLifePathMeaning(lifePath)}. This core vibration influences how you interact with the energies shown in the cards.`
-    } else {
-      const cardNumbers = drawnCards.map((item) => Number.parseInt(item.card.number || "0", 10))
-      const averageNumber = Math.round(cardNumbers.reduce((sum, num) => sum + num, 0) / cardNumbers.length)
-      return `The numerical vibrations in your cards (${cardNumbers.join(", ")}) suggest patterns of ${getNumberMeaning(averageNumber)}.`
-    }
-  }
-
-  const getLifePathMeaning = (lifePath: number): string => {
-    const meanings = {
-      1: "independence, leadership, and pioneering new paths",
-      2: "cooperation, diplomacy, and sensitivity to others",
-      3: "creative expression, joy, and communication",
-      4: "stability, practicality, and building solid foundations",
-      5: "freedom, change, and adaptability",
-      6: "responsibility, nurturing, and harmony",
-      7: "analysis, wisdom, and spiritual seeking",
-      8: "abundance, power, and material mastery",
-      9: "compassion, humanitarianism, and completion",
-      11: "spiritual insight, intuition, and inspiration",
-      22: "practical mastery and building for the greater good",
-      33: "selfless service and spiritual teaching",
+    const readingData = {
+      id: `reading-${Date.now()}`,
+      question,
+      cards: selectedCards,
+      reading,
+      spreadType,
+      fullName,
+      birthPlace,
+      date: new Date().toISOString(),
+      isFavorite: false,
     }
 
-    return meanings[lifePath as keyof typeof meanings] || "personal growth and spiritual development"
-  }
-
-  const getRandomNumerologicalInsight = (): string => {
-    const insights = [
-      "transformation and personal growth",
-      "stability balanced with necessary change",
-      "creative expression and emotional depth",
-      "practical wisdom and spiritual insight",
-      "building new foundations while honoring the past",
-    ]
-
-    return insights[Math.floor(Math.random() * insights.length)]
-  }
-
-  const getActionRecommendation = (index: number): string => {
-    const recommendations = [
-      "Trust your intuition more fully, especially regarding matters of timing.",
-      "Create more structure in your approach to this situation.",
-      "Express your feelings more openly with those involved.",
-      "Research additional information before making a final decision.",
-      "Allow yourself time for reflection before taking action.",
-      "Seek input from someone with expertise in this area.",
-      "Consider how your past experiences are influencing your current perspective.",
-      "Focus on practical, step-by-step progress rather than seeking immediate results.",
-      "Explore creative solutions that you haven't previously considered.",
-      "Pay attention to recurring symbols or patterns in your daily life.",
-      "Balance your analytical thinking with emotional intelligence.",
-      "Create a specific ritual or practice to help you connect with your inner wisdom.",
-    ]
-
-    const adjustedIndex = (index * 3 + drawnCards.length) % recommendations.length
-    return recommendations[adjustedIndex]
-  }
-
-  const getTimingInsight = (): string => {
-    const insights = [
-      "The cards suggest that timing is particularly important in this situation. The presence of multiple elemental energies indicates that you may need to coordinate different aspects carefully.",
-      "This reading indicates that the coming month will be particularly significant for developments related to your question.",
-      "The energies shown here suggest that patience is needed. Allow situations to develop naturally rather than forcing outcomes.",
-      "There appears to be an acceleration of energy around your situation. Be prepared for developments to unfold more quickly than expected.",
-      "Cycles are highlighted in this reading. Pay attention to patterns from your past as they may offer insights about timing.",
-    ]
-
-    return insights[Math.floor(Math.random() * insights.length)]
-  }
-
-  const getMostCommonElement = (elements: string[]): string => {
-    const counts: Record<string, number> = {}
-    elements.forEach((element) => {
-      counts[element] = (counts[element] || 0) + 1
-    })
-
-    let maxElement = elements[0]
-    let maxCount = 0
-
-    Object.entries(counts).forEach(([element, count]) => {
-      if (count > maxCount) {
-        maxElement = element
-        maxCount = count
+    try {
+      if (typeof window !== "undefined") {
+        const existingReadings = JSON.parse(localStorage.getItem("numoReadings") || "[]")
+        existingReadings.push(readingData)
+        localStorage.setItem("numoReadings", JSON.stringify(existingReadings))
+        toast({
+          title: "Reading Saved!",
+          description: "Your reading has been successfully saved.",
+          variant: "default",
+        })
       }
-    })
-
-    return maxElement
-  }
-
-  const getElementalAdvice = (element: string): string => {
-    const advice = {
-      fire: "passion, creativity, and transformation are key themes in your situation",
-      water: "emotions, intuition, and relationships are central to your question",
-      air: "communication, mental clarity, and new ideas will be important",
-      earth: "practical matters, stability, and material concerns need attention",
-      spirit: "spiritual connection, purpose, and higher guidance are significant",
+    } catch (error) {
+      console.error("Error saving reading:", error)
+      toast({
+        title: "Save Failed",
+        description: "Failed to save reading. Please try again.",
+        variant: "destructive",
+      })
     }
-
-    return advice[element as keyof typeof advice] || "balance between different aspects of life is important"
   }
 
-  const renderCard = (drawnCard: { card: OracleCard; endUp: "first" | "second" } | undefined, index: number) => {
-    if (!drawnCard) return null
+  const shareReading = () => {
+    if (!reading.trim()) {
+      toast({
+        title: "No Reading to Share",
+        description: "Please generate a reading first before sharing.",
+        variant: "destructive",
+      })
+      return
+    }
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator
+        .share({
+          title: "My NUMO Oracle Reading",
+          text: `Question: ${question}\n\n${reading}`,
+          url: window.location.href,
+        })
+        .then(() => {
+          toast({
+            title: "Reading Shared!",
+            description: "Your reading has been shared successfully.",
+            variant: "default",
+          })
+        })
+        .catch((error) => {
+          console.error("Error sharing reading:", error)
+          toast({
+            title: "Share Failed",
+            description: `Could not share reading: ${error.message}.`,
+            variant: "destructive",
+          })
+        })
+    } else {
+      const shareText = `My NUMO Oracle Reading\n\nQuestion: ${question}\n\n${reading}`
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(shareText)
+        toast({
+          title: "Copied to Clipboard!",
+          description: "The reading has been copied to your clipboard.",
+          variant: "default",
+        })
+      } else {
+        toast({
+          title: "Share Not Supported",
+          description: "Your browser does not support sharing or clipboard copy.",
+          variant: "destructive",
+        })
+      }
+    }
+  }
 
-    const { card, endUp } = drawnCard
-    const hasImageError = imageErrors[card.id]
-
-    // Use the correct numerical value from the card - directly from the number field
-    const cardNumber = card.number || "0"
-
-    return (
-      <div
-        key={`${card.id}-${index}`}
-        className={cn(
-          "transition-all duration-1000 transform",
-          isFlipping ? "scale-[0.01] rotate-y-90" : "scale-100",
-          isDrawing ? "opacity-0 scale-95" : "opacity-100",
-        )}
-        style={{
-          transitionDelay: `${index * 300}ms`,
-          perspective: "1000px",
-        }}
-      >
-        <div
-          className="w-[180px] h-[280px] rounded-lg overflow-hidden shadow-[0_0_20px_rgba(128,0,128,0.3)] cursor-pointer hover:shadow-[0_0_30px_rgba(128,0,128,0.5)] transition-shadow duration-300"
-          onClick={() => {
-            setActiveCardIndex(index)
-            setShowExpandedReading(true)
-          }}
-        >
-          {showBackside ? (
-            <div className="w-full h-full bg-black flex items-center justify-center">
+  const CardDetailModal = ({ card }: { card: OracleCard }) => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="mt-2">
+          <Info className="h-4 w-4 mr-1" />
+          Details
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{card.fullTitle}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="relative aspect-[2/3] rounded-lg overflow-hidden border">
               <Image
-                src="/back.jpg"
-                alt="Card Back"
-                width={180}
-                height={280}
+                src={card.imagePath || "/placeholder.svg"}
+                alt={card.fullTitle}
+                fill
                 className="object-cover"
-                onError={() => {}}
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.svg?height=400&width=300"
+                }}
               />
             </div>
-          ) : (
-            <>
-              {!hasImageError ? (
-                <EnhancedCardImage
-                  cardId={card.id} // Use card.id, which now correctly maps to imagePath
-                  cardTitle={card.fullTitle}
-                  baseElement={card.baseElement}
-                  synergisticElement={card.synergisticElement}
-                  className="w-full h-full"
-                  onImageLoad={(success) => {
-                    if (!success) handleImageError(card.id)
-                  }}
-                />
-              ) : (
-                <div
-                  className={`w-full h-full ${getElementColor(card.baseElement).split(" ").slice(0, 2).join(" ")} flex flex-col items-center justify-center p-4`}
-                >
-                  <div className="text-center mb-2 text-sm font-medium text-white">{card.fullTitle}</div>
-                  <div className="w-24 h-24 my-4 rounded-full bg-gray-800/50 border border-gray-300/30 flex items-center justify-center">
-                    <span className={getElementColor(card.baseElement).split(" ").slice(2).join(" ") + " text-4xl"}>
-                      {getElementSymbol(card.baseElement)}
-                    </span>
-                  </div>
-                  <div className="text-xs text-center text-white/80 mt-2">
-                    {card.suit} • {card.baseElement}
-                  </div>
-                  <div className="text-lg font-bold text-white mt-2">{cardNumber}</div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2">
+                <Badge variant="outline">Number: {card.number}</Badge>
+                <Badge variant="outline">Suit: {card.suit}</Badge>
+                <Badge variant="outline">Base: {card.baseElement}</Badge>
+                <Badge variant="outline">Synergistic: {card.synergisticElement}</Badge>
+              </div>
+              <div className="space-y-2">
+                <p>
+                  <strong>Planet (External Domain):</strong> {card.planetExternalDomain}
+                </p>
+                <p>
+                  <strong>Astrology (Internal Influence):</strong> {card.astrologyInternalInfluence}
+                </p>
+                <p>
+                  <strong>Icon:</strong> {card.iconSymbol}
+                </p>
+                <p>
+                  <strong>Orientation:</strong> {card.orientation}
+                </p>
+                <p>
+                  <strong>Sacred Geometry:</strong> {card.sacredGeometry}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Symbols</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {(card.symbols || []).map((symbol, index) => (
+                <div key={index} className="bg-gray-100 dark:bg-gray-800 p-3 rounded">
+                  <strong>{symbol.key}:</strong> {symbol.value}
                 </div>
-              )}
-            </>
-          )}
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Key Meanings</h3>
+            <div className="space-y-3">
+              {(card.keyMeanings || []).map((meaning, i) => (
+                <div key={i} className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                  <p className="text-sm">{meaning}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Symbolism Breakdown</h3>
+            <Accordion type="single" collapsible>
+              {(card.symbolismBreakdown || []).map((breakdown, index) => (
+                <AccordionItem key={index} value={`item-${index}`}>
+                  <AccordionTrigger className="text-left">{breakdown.split(":")[0]}</AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      {breakdown.split(":").slice(1).join(":").trim()}
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
         </div>
-      </div>
-    )
-  }
+      </DialogContent>
+    </Dialog>
+  )
 
-  const renderExpandedCardReading = () => {
-    if (!showExpandedReading || activeCardIndex === null || !drawnCards[activeCardIndex]) return null
-
-    const selectedCard = drawnCards[activeCardIndex]
-    if (!selectedCard) return null
-
-    const { card, endUp } = selectedCard
-    const cardNumber = card.number || "0"
-
+  if (!mounted) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 p-4">
-        <div className="bg-gray-900 border border-purple-500/30 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="p-4">
-            <h2 className="text-2xl font-bold text-white mb-4">{card.fullTitle}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <EnhancedCardImage
-                  cardId={card.id} // Use card.id, which now correctly maps to imagePath
-                  cardTitle={card.fullTitle}
-                  baseElement={card.baseElement}
-                  synergisticElement={card.synergisticElement}
-                  className="w-[300px] h-[420px]"
-                />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-purple-300 mb-2">Card Details</h3>
-                <div className="text-gray-300 space-y-2">
-                  <div>
-                    <strong>Number:</strong> {cardNumber}
-                  </div>
-                  <div>
-                    <strong>Element:</strong> {card.baseElement}
-                  </div>
-                  <div>
-                    <strong>Suit:</strong> {card.suit}
-                  </div>
-                  <div>
-                    <strong>Sacred Geometry:</strong> {card.sacredGeometry}
-                  </div>
-                  <div>
-                    <strong>Planet:</strong> {card.planetExternalDomain}
-                  </div>
-                  <div>
-                    <strong>Astrological Sign:</strong> {card.astrologyInternalInfluence}
-                  </div>
-                  <div>
-                    <strong>Orientation:</strong> {card.orientation}
-                  </div>
-                  <div>
-                    <strong>Synergistic Element:</strong> {card.synergisticElement}
-                  </div>
-                  <div>
-                    <strong>Icon:</strong> {card.iconSymbol}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="mt-4">
-              <button
-                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
-                onClick={() => setShowExpandedReading(false)}
-              >
-                Close
-              </button>
-            </div>
+      <div className="max-w-6xl mx-auto p-6 space-y-8">
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            NUMO Oracle Card Simulator
+          </h1>
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
           </div>
         </div>
       </div>
@@ -980,158 +695,356 @@ Remember that you have the power to shape your path forward. These cards offer g
   }
 
   return (
-    <div className={cn("flex flex-col items-center gap-6", className)} ref={dealerRef}>
-      {allowFreeReading && (
-        <div className="w-full max-w-md space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="question">Your Question</Label>
-            <Textarea
-              id="question"
-              placeholder="What would you like to ask the oracle?"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              className="min-h-24"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Reading Type</Label>
-            <RadioGroup
-              defaultValue={spreadType}
-              onValueChange={(value) => setSpreadType(value as "single" | "three")}
-              className="flex space-x-4"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="single" id="single" />
-                <Label htmlFor="single">Single Card</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="three" id="three" />
-                <Label htmlFor="three">Three Card Spread</Label>
-              </div>
-            </RadioGroup>
-          </div>
-        </div>
-      )}
-
-      <div className="flex flex-wrap justify-center gap-4">
-        {selectedCards.map((card, index) => (
-          <div
-            key={index}
-            className={`relative w-64 h-96 perspective-1000 cursor-pointer transition-transform duration-500 transform hover:scale-105`}
-            onClick={() => flipCard(index)}
-          >
-            <div
-              className={`absolute w-full h-full transition-transform duration-500 transform-style-3d ${
-                flippedCards[index] ? "rotate-y-180" : ""
-              }`}
-            >
-              <div className="absolute w-full h-full backface-hidden">
-                <Image
-                  src="/back.jpg"
-                  alt="Card Back"
-                  width={300}
-                  height={450}
-                  className="rounded-lg object-cover w-64 h-96"
-                />
-              </div>
-
-              <div className="absolute w-full h-full backface-hidden rotate-y-180">
-                <Image
-                  src={card.imagePath || "/placeholder.svg"} // Use card.imagePath directly
-                  alt={card.fullTitle}
-                  width={300}
-                  height={450}
-                  className="rounded-lg object-cover w-64 h-96"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-center">
-                  <div className="text-sm font-medium text-white">{card.fullTitle}</div>
-                  <div className="text-xs text-gray-300">
-                    {card.number} • {card.baseElement}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {isDealing && (
-          <div className="w-64 h-96 flex items-center justify-center">
-            <Skeleton className="w-64 h-96 rounded-lg" />
-          </div>
-        )}
+    <div className="max-w-6xl mx-auto p-6 space-y-8">
+      <div className="text-center space-y-4">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          NUMO Oracle Card Simulator
+        </h1>
+        <p className="text-lg text-gray-600 dark:text-gray-300">
+          Experience the wisdom of the Five Sacred Treasures through digital divination
+        </p>
       </div>
 
-      <div className="flex flex-wrap gap-4 justify-center mt-4">
-        <Button onClick={dealCards} disabled={isDealing || isGenerating} size="lg">
-          {selectedCards.length === 0 ? "Deal Cards" : "Redeal"}
-        </Button>
-
-        {selectedCards.length > 0 && (
-          <Button
-            onClick={generateReadingFromCards}
-            disabled={isGenerating || !selectedCards.length || !flippedCards.every((flipped) => flipped)}
-            size="lg"
-            variant="secondary"
-          >
-            {isGenerating ? "Generating..." : "Generate Reading"}
-          </Button>
-        )}
-      </div>
-
-      {error && <div className="text-red-500 mt-4">{error}</div>}
-
-      {reading && (
-        <Card className="w-full max-w-3xl mt-8">
+      {isLoadingImages && (
+        <Card>
           <CardContent className="p-6">
-            <h3 className="text-2xl font-bold mb-4">Your Reading</h3>
-            <div className="prose dark:prose-invert">
-              <div dangerouslySetInnerHTML={{ __html: reading.content }} />
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Loading Card Images...</h3>
+                <span className="text-sm text-gray-500">
+                  {imageLoadingStats.loaded}/{imageLoadingStats.total}
+                  {imageLoadingStats.failed > 0 && ` (${imageLoadingStats.failed} failed)`}
+                </span>
+              </div>
+              <Progress value={imageLoadingProgress} className="w-full" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">Preparing your mystical experience...</p>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {drawnCards.length > 0 && (
-        <div className="space-y-8">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-purple-300 mb-4">Reading Interpretation</h3>
-            <p className="text-gray-300 mb-6">Your cards have been drawn. Here's what they reveal:</p>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Reading Configuration
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Your Name (Optional)</Label>
+              <Input
+                id="fullName"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter your full name for personalized readings"
+                disabled={!hasConsent}
+              />
+              {!hasConsent && <p className="text-xs text-gray-500">Enable privacy consent to save your name</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="birthDate">Date of Birth (Optional)</Label>
+              <Input
+                id="birthDate"
+                type="date"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                disabled={!hasConsent}
+              />
+              {!hasConsent && <p className="text-xs text-gray-500">Enable privacy consent to save birth information</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="birthTime">Time of Birth (Optional)</Label>
+              <Input
+                id="birthTime"
+                type="time"
+                value={birthTime}
+                onChange={(e) => setBirthTime(e.target.value)}
+                disabled={!hasConsent}
+                placeholder="HH:MM"
+              />
+              {!hasConsent && <p className="text-xs text-gray-500">Enable privacy consent to save birth information</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="birthPlace">Place of Birth (Optional)</Label>
+              <Input
+                id="birthPlace"
+                value={birthPlace}
+                onChange={(e) => setBirthPlace(e.target.value)}
+                placeholder="City, Country"
+                disabled={!hasConsent}
+              />
+              {!hasConsent && <p className="text-xs text-gray-500">Enable privacy consent to save birth information</p>}
+            </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-6 mb-8">
-            {drawnCards.map((drawnCard, index) => renderCard(drawnCard, index))}
+          <div className="space-y-2">
+            <Label htmlFor="question">Your Question</Label>
+            <Textarea
+              id="question"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="What guidance do you seek from the Oracle?"
+              rows={3}
+            />
           </div>
+        </CardContent>
+      </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {drawnCards.map((drawnCard, index) => {
-              const { card } = drawnCard
-              // Use the direct number field from the card data
-              const cardNumber = card.number || "0"
+      <div className="text-center">
+        <Button
+          onClick={shuffleCards}
+          disabled={isShuffling || isLoadingImages}
+          size="lg"
+          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+        >
+          {isShuffling ? (
+            <>
+              <Shuffle className="mr-2 h-5 w-5 animate-spin" />
+              Shuffling the Sacred Deck...
+            </>
+          ) : (
+            <>
+              <Shuffle className="mr-2 h-5 w-5" />
+              Draw New Cards
+            </>
+          )}
+        </Button>
+      </div>
 
-              return (
-                <Card key={index} className="bg-gray-800/50 border-purple-500/30">
-                  <CardContent className="p-4">
-                    <h4 className="text-lg font-semibold text-purple-300 mb-2">
-                      Card {index + 1}: {card.fullTitle}
-                    </h4>
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      <Badge variant="secondary">{card.suit}</Badge>
-                      <Badge variant="outline">Number: {cardNumber}</Badge>
-                      <Badge variant="destructive">{card.baseElement}</Badge>
+      {selectedCards.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Your Sacred Cards</span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setShowDetailedView(!showDetailedView)}>
+                  {showDetailedView ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showDetailedView ? "Simple View" : "Detailed View"}
+                </Button>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div
+              className={`grid gap-6 ${selectedCards.length === 1 ? "grid-cols-1 max-w-md mx-auto" : selectedCards.length === 3 ? "grid-cols-1 md:grid-cols-3" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"}`}
+            >
+              {selectedCards.map((card, index) => (
+                <div key={card.id} className="space-y-4">
+                  <div className="relative aspect-[2/3] rounded-lg overflow-hidden border shadow-lg">
+                    <Image
+                      src={card.imagePath || "/placeholder.svg"}
+                      alt={card.fullTitle}
+                      fill
+                      className="object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.svg?height=400&width=300"
+                      }}
+                    />
+                  </div>
+                  <div className="text-center space-y-2">
+                    <h3 className="font-semibold text-lg">{card.fullTitle}</h3>
+                    <div className="flex justify-center gap-2 flex-wrap">
+                      <Badge variant="secondary">{card.baseElement}</Badge>
+                      <Badge variant="outline">{card.synergisticElement}</Badge>
                     </div>
-                    <p className="text-gray-300 text-sm leading-relaxed">
-                      {card.keyMeanings?.[0] || "This card brings wisdom and guidance for your journey."}
-                    </p>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
+                    {showDetailedView && (
+                      <div className="space-y-2 text-sm">
+                        <p>
+                          <strong>Sacred Geometry:</strong> {card.sacredGeometry}
+                        </p>
+                        <p>
+                          <strong>Orientation:</strong> {card.orientation}
+                        </p>
+                        <p>
+                          <strong>Icon:</strong> {card.iconSymbol}
+                        </p>
+                      </div>
+                    )}
+                    <CardDetailModal card={card} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {selectedCards.length > 0 && !hasGeneratedAIReading && (
+        <div className="text-center">
+          <Button
+            onClick={generateAIReading}
+            disabled={isGeneratingReading || !question.trim()}
+            size="lg"
+            className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700"
+          >
+            {isGeneratingReading ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Generating AI Reading...
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-5 w-5" />
+                Get Advanced AI Reading
+              </>
+            )}
+          </Button>
+          {!question.trim() && (
+            <p className="text-sm text-red-500 mt-2">Please enter a question to enable AI reading.</p>
+          )}
         </div>
       )}
 
-      {renderExpandedCardReading()}
+      {(reading || isGeneratingReading || hasGeneratedAIReading) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Your Oracle Reading</span>
+              <div className="flex gap-2">
+                {conversationThreadId && (
+                  <Button variant="outline" size="sm" onClick={() => setShowAssistantChat(true)}>
+                    <MessageCircle className="h-4 w-4 mr-1" />
+                    Ask Follow-up
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={saveReading} disabled={!reading.trim()}>
+                  <Save className="h-4 w-4 mr-1" />
+                  Save
+                </Button>
+                <Button variant="outline" size="sm" onClick={shareReading} disabled={!reading.trim()}>
+                  <Share2 className="h-4 w-4 mr-1" />
+                  Share
+                </Button>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isGeneratingReading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-center space-y-4">
+                  <Loader2 className="h-8 w-8 animate-spin mx-auto text-purple-600" />
+                  <p className="text-lg font-medium">The Oracle is consulting the sacred wisdom...</p>
+                  <p className="text-sm text-gray-600">This may take a moment as we channel divine insights</p>
+                </div>
+              </div>
+            ) : reading ? (
+              <div className="prose dark:prose-invert max-w-none">
+                <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 leading-relaxed">{reading}</div>
+              </div>
+            ) : hasGeneratedAIReading ? (
+              <div className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                <p className="text-lg font-medium text-red-600">
+                  Failed to generate an AI reading: Malformed server response
+                </p>
+                <p className="text-sm text-gray-600 mt-2">Please try again later.</p>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            How to Use the Oracle
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto">
+                <span className="text-xl font-bold text-purple-600 dark:text-purple-400">1</span>
+              </div>
+              <h3 className="font-semibold">Focus Your Intent</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Clear your mind and formulate a specific question. The more focused your intent, the clearer the
+                guidance.
+              </p>
+            </div>
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto">
+                <span className="text-xl font-bold text-blue-600 dark:text-blue-400">2</span>
+              </div>
+              <h3 className="font-semibold">Choose Your Spread</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Select single card for focus, three cards for past-present-future, or five for elemental balance.
+              </p>
+            </div>
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto">
+                <span className="text-xl font-bold text-green-600 dark:text-green-400">3</span>
+              </div>
+              <h3 className="font-semibold">Receive Guidance</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Draw your cards and receive personalized insights from the Oracle through AI-powered interpretation.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {hasConsent && userProfile && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Your Oracle Journey
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div>
+                <p className="text-2xl font-bold text-purple-600">{userProfile.readingsCount || 0}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Total Readings</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-blue-600">{userProfile.preferredSpread || "Single"}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Preferred Spread</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-green-600">
+                  {userProfile.lastUsed ? new Date(userProfile.lastUsed).toLocaleDateString() : "Today"}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Last Reading</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-orange-600">
+                  {userProfile.createdAt
+                    ? Math.floor((Date.now() - new Date(userProfile.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+                    : 0}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Days Active</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {showAssistantChat && conversationThreadId && (
+        <Dialog open={showAssistantChat} onOpenChange={setShowAssistantChat}>
+          <DialogContent className="max-w-4xl max-h-[80vh]">
+            <DialogHeader>
+              <DialogTitle>Continue Your Conversation with the Oracle</DialogTitle>
+            </DialogHeader>
+            <AssistantChat
+              threadId={conversationThreadId}
+              initialContext={{
+                cards: selectedCards,
+                question,
+                reading: assistantReading,
+                userProfile: userProfile || undefined,
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }
