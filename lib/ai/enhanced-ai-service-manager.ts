@@ -215,11 +215,10 @@ export async function generateAIReadingWithAssistant(
 
   let run
   try {
-    console.log(`DEBUG: Creating assistant run for thread ${threadId}...`)
-    run = await runAssistant(threadId, assistant.id) // Use the imported runAssistant
-    console.log(`DEBUG: Assistant run created and completed with ID: ${run.id}`)
+    console.log(`DEBUG: Creating and running assistant for thread ${threadId}...`)
+    run = await runAssistant(threadId, assistant.id) // Use the imported runAssistant which now polls
+    console.log(`DEBUG: Assistant run completed with ID: ${run.id}`)
   } catch (runError) {
-    // Changed variable name to avoid conflict
     console.error(`ERROR: Failed during assistant run for thread ${threadId}:`, runError)
     throw new Error(`Failed during assistant run: ${runError instanceof Error ? runError.message : String(runError)}`)
   }
