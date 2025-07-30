@@ -1,90 +1,74 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { generateOracleReading } from "@/lib/ai/enhanced-ai-service-manager"
-import { getCardById } from "@/lib/card-data-access" // Import getCardById
-import type { OracleCard } from "@/types/cards"
+import { NextResponse } from "next/server"
+import { aiServiceManager } from "@/lib/ai/enhanced-ai-service-manager"
+import { getAllCards, type OracleCard } from "@/lib/card-data-access" // Import to get full card data
 
-export const runtime = "nodejs"
-export const maxDuration = 30
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    console.log("🔮 API Route: /api/ai/reading POST request received.")
+    const { cardIds, question, spread_type, user_context } = await req.json()
 
-    let requestBody: any
-
-    try {
-      requestBody = await req.json()
-      console.log("📥 Request body parsed successfully")
-    } catch (parseError) {
-      console.error("❌ Failed to parse request body:", parseError)
-      return NextResponse.json(
-        { success: false, error: "Invalid JSON in request body" },
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        },
-      )
-    }
-
-    const { cardIds, spread_type, question, user_context } = requestBody // Expect cardIds instead of full cards
-
+    // 1. Basic input validation
     if (!cardIds || !Array.isArray(cardIds) || cardIds.length === 0) {
-      console.warn("WARN: Invalid or empty cardIds array received.")
-      return NextResponse.json({ success: false, error: "Invalid card data provided." }, { status: 400 })
+      console.error("API Error: Missing or invalid 'cardIds' in request body.")
+      return NextResponse.json({ success: false, error: "Missing or invalid card IDs." }, { status: 400 })
+    }
+    if (!question || typeof question !== "string" || question.trim() === "") {
+      console.error("API Error: Missing or empty 'question' in request body.")
+      return NextResponse.json({ success: false, error: "Question is required." }, { status: 400 })
     }
 
-    // Fetch full OracleCard objects using the provided IDs
-    const oracleCards: OracleCard[] = cardIds
-      .map((id: string) => getCardById(id))
-      .filter((card): card is OracleCard => card !== undefined) // Filter out undefined cards
+    // 2. Reconstruct full OracleCard objects from IDs
+    const allAvailableCards = getAllCards()
+    const selectedFullCards: OracleCard[] = cardIds
+      .map((id: string) => allAvailableCards.find((card) => card.id === id))
+      .filter(Boolean) as OracleCard[] // Filter out undefined and assert type
 
-    if (oracleCards.length !== cardIds.length) {
-      console.warn(
-        `WARN: Some card IDs provided by client were not found in master data. Expected ${cardIds.length}, found ${oracleCards.length}.`,
+    if (selectedFullCards.length !== cardIds.length) {
+      const missingCardIds = cardIds.filter((id: string) => !allAvailableCards.some((card) => card.id === id))
+      console.error(`API Error: Could not find full card data for some IDs. Missing: ${missingCardIds.join(", ")}`)
+      return NextResponse.json(
+        { success: false, error: "One or more selected cards could not be found." },
+        { status: 400 },
       )
-      // If no cards are found, this could lead to an empty `cards` array being passed to generateOracleReading,
-      // which is handled by a specific error in that function.
-      if (oracleCards.length === 0) {
-        return NextResponse.json(
-          { success: false, error: "No valid cards found for the provided IDs." },
-          { status: 400 },
-        )
-      }
     }
 
-    console.log(
-      "DEBUG: Full OracleCard objects fetched for AI reading:",
-      oracleCards.map((c) => ({
-        id: c.id,
-        fullTitle: c.fullTitle,
-        planetInternalInfluence: c.planetInternalInfluence, // Log these specific fields
-        astrologyExternalDomain: c.astrologyExternalDomain, // Log these specific fields
-      })),
-    )
-    console.log("DEBUG: Spread Type:", spread_type)
-    console.log("DEBUG: User Question:", question)
-    console.log("DEBUG: User Context:", user_context ? "Present (stringified)" : "Absent")
-
-    console.log("🔮 Generating AI reading...")
-    const { reading, threadId } = await generateOracleReading({
-      cards: oracleCards, // This is the array of full OracleCard objects
-      question: question,
+    // 3. Generate the oracle reading using the AI service manager
+    console.log("API Route: Calling aiServiceManager.generateOracleReading...")
+    const { reading, threadId, method } = await aiServiceManager.generateOracleReading({
+      cards: selectedFullCards,
+      question,
       spreadType: spread_type,
       userContext: user_context,
     })
-    console.log("✅ AI reading generated successfully.")
+    console.log("API Route: aiServiceManager.generateOracleReading completed successfully.")
 
-    return NextResponse.json({ success: true, reading, threadId })
+    // 4. Return success response
+    return NextResponse.json({ success: true, reading, threadId, method }, { status: 200 })
   } catch (error: any) {
-    console.error("💥 Error generating AI reading:", error)
-    const errorMessage =
-      typeof error === "string" ? error : error instanceof Error ? error.message : JSON.stringify(error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: errorMessage || "An unexpected error occurred while generating the reading. Please try again.",
-      },
-      { status: 500 },
-    )
+    // 5. Centralized error handling for the API route
+    console.error("API Route Error (/api/ai/reading):", error)
+    console.error("Error name:", error.name)
+    console.error("Error message:", error.message)
+    if (error.stack) {
+      console.error("Error stack:", error.stack)
+    }
+
+    // Provide a more informative error message to the client if possible
+    let clientErrorMessage = "An unexpected error occurred while generating the reading."
+    if (error.message.includes("OPENAI_API_KEY") || error.message.includes("OPENAI_ASSISTANT_ID")) {
+      clientErrorMessage = "AI service configuration error. Please check server environment variables."
+    } else if (
+      error.message.includes("Failed to create OpenAI thread") ||
+      error.message.includes("Failed during assistant run")
+    ) {
+      clientErrorMessage = "AI service communication error. Please try again."
+    } else if (error.message.includes("No text content found")) {
+      clientErrorMessage = "AI generated an unexpected response format. Please try again."
+    } else if (error.message.includes("API returned unsuccessful response")) {
+      clientErrorMessage = "The AI service returned an unsuccessful response. Please try again."
+    } else if (error.message.includes("Failed to prepare AI prompt")) {
+      clientErrorMessage = "There was an issue preparing the AI prompt. Please try a different question."
+    }
+
+    return NextResponse.json({ success: false, error: clientErrorMessage }, { status: 500 })
   }
 }
