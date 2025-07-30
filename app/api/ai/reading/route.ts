@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { generateOracleReading } from "@/lib/ai/enhanced-ai-service-manager"
+import { getCardById } from "@/lib/card-data-access" // Import getCardById
 import type { OracleCard } from "@/types/cards"
 
 export const runtime = "nodejs"
@@ -25,34 +26,25 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { cards, spread_type, question, user_context } = requestBody
+    const { cardIds, spread_type, question, user_context } = requestBody // Expect cardIds instead of full cards
 
-    if (!cards || !Array.isArray(cards) || cards.length === 0) {
-      console.warn("WARN: Invalid or empty cards array received.")
+    if (!cardIds || !Array.isArray(cardIds) || cardIds.length === 0) {
+      console.warn("WARN: Invalid or empty cardIds array received.")
       return NextResponse.json({ success: false, error: "Invalid card data provided." }, { status: 400 })
     }
 
-    const oracleCards: OracleCard[] = cards.map((card: any) => ({
-      id: card.id,
-      number: card.number,
-      suit: card.tool, // Map 'tool' from client to 'suit' for OracleCard
-      fullTitle: card.name,
-      symbols: [], // Not strictly needed for AI prompt, but keep type consistency
-      symbolismBreakdown: card.description ? [card.description] : [],
-      keyMeanings: card.keywords || [],
-      baseElement: card.element,
-      // Updated to match new type definitions
-      planetExternalDomain: "", // Not provided by client, can be empty
-      astrologyInternalInfluence: "", // Not provided by client, can be empty
-      iconSymbol: "", // Not provided by client, can be empty
-      orientation: "", // Not provided by client, can be empty
-      sacredGeometry: "", // Not provided by client, can be empty
-      synergisticElement: "", // Not provided by client, can be empty
-      imagePath: card.imagePath, // Keep imagePath if available
-    }))
+    // Fetch full OracleCard objects using the provided IDs
+    const oracleCards: OracleCard[] = cardIds
+      .map((id: string) => getCardById(id))
+      .filter((card): card is OracleCard => card !== undefined) // Filter out any undefined cards
+
+    if (oracleCards.length !== cardIds.length) {
+      console.warn("WARN: Some card IDs provided by client were not found in master data.")
+      // Optionally, return an error or proceed with available cards
+    }
 
     console.log(
-      "DEBUG: Initial cards drawn for AI reading:",
+      "DEBUG: Initial cards drawn for AI reading (full data fetched):",
       oracleCards.map((c) => c.id),
     )
     console.log("DEBUG: Spread Type:", spread_type)
@@ -64,7 +56,7 @@ export async function POST(req: NextRequest) {
       cards: oracleCards,
       question: question,
       spreadType: spread_type,
-      userContext: user_context, // Pass the stringified user context directly
+      userContext: user_context,
     })
     console.log("✅ AI reading generated successfully.")
 

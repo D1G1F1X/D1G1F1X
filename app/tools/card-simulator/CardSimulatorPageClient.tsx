@@ -398,20 +398,10 @@ export default function CardSimulator() {
       console.log("🔮 Generating AI reading...")
 
       const requestBody = {
-        cards: selectedCards.map((card) => ({
-          id: card.id,
-          name: card.fullTitle,
-          element: card.baseElement,
-          tool: card.suit,
-          number: Number.parseInt(card.number),
-          meaning: card.keyMeanings.join(", "),
-          description: card.symbolismBreakdown.join(" "),
-          keywords: card.keyMeanings,
-        })),
+        cardIds: selectedCards.map((card) => card.id), // Send only card IDs
         question: question.trim(),
         spread_type: spreadType,
         user_context: JSON.stringify({
-          // Ensure user_context is stringified here
           fullName,
           birthDate,
           birthTime,
@@ -421,7 +411,7 @@ export default function CardSimulator() {
       }
 
       console.log("📤 Sending request:", {
-        cardCount: requestBody.cards.length,
+        cardIds: requestBody.cardIds, // Log cardIds
         hasQuestion: !!requestBody.question,
         spreadType: requestBody.spread_type,
       })
@@ -649,10 +639,10 @@ export default function CardSimulator() {
               </div>
               <div className="space-y-2">
                 <p>
-                  <strong>Planet (External Domain):</strong> {card.planetExternalDomain}
+                  <strong>Planet (Internal Influence):</strong> {card.planetInternalInfluence}
                 </p>
                 <p>
-                  <strong>Astrology (Internal Influence):</strong> {card.astrologyInternalInfluence}
+                  <strong>Astrology (External Domain):</strong> {card.astrologyExternalDomain}
                 </p>
                 <p>
                   <strong>Icon:</strong> {card.iconSymbol}

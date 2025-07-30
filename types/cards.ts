@@ -14,18 +14,18 @@ export interface Symbol {
 export interface OracleCard {
   id: string
   number: string
-  suit: string
+  suit: CardSuit
   fullTitle: string
-  symbols: { key: string; value: string }[]
+  symbols: Symbol[]
   symbolismBreakdown: string[]
   keyMeanings: string[]
-  baseElement: string
-  planetExternalDomain: string // Planet now represents external domain
-  astrologyInternalInfluence: string // Astrology now represents internal influence
+  baseElement: CardElement
+  planetInternalInfluence: string // Matches source data: "Planet (Internal Influence)"
+  astrologyExternalDomain: string // Matches source data: "Astrology (External Domain)"
   iconSymbol: string
   orientation: string
   sacredGeometry: string
-  synergisticElement: string
+  synergisticElement: CardElement
   imagePath?: string // Optional, for client-side image handling
 }
 

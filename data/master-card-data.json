@@ -8,9 +8,12 @@
       { "key": "Number", "value": "0" },
       { "key": "Suit", "value": "Cauldron" },
       { "key": "Element (Base)", "value": "Water" },
-      { "key": "Planet (External Domain)", "value": "Pluto – deep transformation, subconscious forces." },
-      { "key": "Astrology (Internal Influence)", "value": "Scorpio – rebirth, secrecy, shedding old layers." },
-      { "key": "Icon", "value": "cauldron" },
+      {
+        "key": "Planet (Internal Influence)",
+        "value": "Pluto – deep, transformative forces working behind the scenes."
+      },
+      { "key": "Astrology (External Domain)", "value": "Scorpio – rebirth, secrecy, and shedding of old layers." },
+      { "key": "Icon", "value": "Cauldron" },
       { "key": "Orientation", "value": "Cooking" },
       { "key": "Sacred Geometry", "value": "Dot" },
       { "key": "Synergistic Element", "value": "Fire" }
@@ -19,15 +22,12 @@
       "Orientation (Cooking): Indicates that the creation is in progress, not yet released. This highlights a phase of internal development, gestation, and careful preparation, where the transformative work is happening beneath the surface, shielded from external view until ready.",
       "Sacred Geometry (Dot): The spark of origin—the first point from which all things emerge. It is the singularity, the concentrated seed of potential, the initial impulse of consciousness before expansion into dimension and form. A symbol of unity and wholeness.",
       "Planet (Pluto): Deep, transformative forces working behind the scenes. Pluto governs the subconscious realms, instigating profound metamorphosis by unearthing hidden truths, dismantling old structures, and facilitating regeneration and rebirth from the ashes of what was.",
-      "Astrology (Scorpio): Reflects themes of rebirth, secrecy, and shedding of old layers. Scorpio navigates the depths of existence, confronting power dynamics, intense emotions, and the mysteries of life and death, ultimately leading to profound healing and empowerment.",
+      "Astrology (Scorpio): Reflects external themes of rebirth, secrecy, and shedding of old layers. Scorpio navigates the depths of existence, confronting power dynamics, intense emotions, and the mysteries of life and death, ultimately leading to profound healing and empowerment.",
       "Synergistic Element (Fire): The combustion of Spirit and Water—the ignition of creation and passion. Fire is the activating, dynamic principle that fuels transformation, provides courage, and illuminates the path, turning inspiration (Spirit) and emotional depth (Water) into tangible manifestation."
     ],
     "keyMeanings": [
       "Creation in Progress: Energy is stirring, but not yet ready to emerge. This signifies a nascent stage where potential is palpable but requires further nurturing and internal development before it can be fully expressed or witnessed externally.",
-      "Alchemy and Transformation: Inner metamorphosis is occurring beneath the surface. Like the alchemical process of turning lead into gold, this points to profound internal shifts, healing, and the integration of disparate parts of oneself into a more evolved state.",
-      "Unseen Forces at Play: Hidden dynamics are shaping the path forward. This suggests that significant influences are at work behind the scenes, requiring trust in the unfolding process even if the full picture isn't yet visible.",
-      "Incubation and Gestation: A period of internal development before external manifestation. Like a seed germinating underground, this phase is crucial for growth and strengthening before new ideas or projects are ready to be revealed.",
-      "Profound Rebirth: A deep, transformative process leading to a new beginning. This indicates a powerful cycle of ending and renewal, where old patterns are shed to make way for a more authentic and empowered self."
+      "Alchemy and Transformation: Inner metamorphosis is occurring beneath the surface. Like the alchemical process of turning lead into gold, this points to profound internal shifts, healing, and the integration of disparate parts of oneself into a more evolved state."
     ],
     "baseElement": "Water",
     "planetExternalDomain": "Pluto – deep transformation, subconscious forces.",
@@ -379,9 +379,9 @@
       { "key": "Number", "value": "9" },
       { "key": "Suit", "value": "Stone" },
       { "key": "Element (Base)", "value": "Air" },
-      { "key": "Planet (External Domain)", "value": "Mars – assertion, willpower, protection." },
+      { "key": "Planet (Internal Influence)", "value": "Mars – assertion, willpower, protection." },
       {
-        "key": "Astrology (Internal Influence)",
+        "key": "Astrology (External Domain)",
         "value": "Aries – courageous movement, initiating closure, leading through resolve."
       },
       { "key": "Icon", "value": "pentagon" },
