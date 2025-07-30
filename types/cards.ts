@@ -20,8 +20,8 @@ export interface OracleCard {
   symbolismBreakdown: string[]
   keyMeanings: string[]
   baseElement: CardElement // This will be derived from suit as per the rule
-  planetExternalDomain: string // Renamed from planetInternalInfluence
-  astrologyInternalInfluence: string // Renamed from astrologyExternalDomain
+  planetExternalDomain: string // Planet now represents external domain
+  astrologyInternalInfluence: string // Astrology now represents internal influence
   iconSymbol: string
   orientation: string
   sacredGeometry: string

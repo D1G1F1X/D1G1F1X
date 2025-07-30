@@ -633,8 +633,8 @@ I've consulted the NUMO Oracle cards to provide guidance on your question. The $
         const { card, endUp } = drawnCard
         const position = currentSpread.positions[index]
 
-        const planet = getSymbolValue(card, "Planet (Internal Influence)")
-        const astrology = getSymbolValue(card, "Astrology (External Domain)")
+        const planet = card.planetExternalDomain
+        const astrology = card.astrologyInternalInfluence
         const sacredGeometry = getSymbolValue(card, "Sacred Geometry")
         const icon = getSymbolValue(card, "Icon")
         const orientation = getSymbolValue(card, "Orientation")
@@ -656,8 +656,8 @@ ${card.symbolismBreakdown.map((s) => `- ${s.replace(/^Number: \d+ – /, "")}`).
 
 **Additional Symbolism:**
 - **Sacred Geometry:** ${sacredGeometry}
-- **Planet (Internal Influence):** ${planet}
-- **Astrology (External Domain):** ${astrology}
+- **Planet (External Domain):** ${planet}
+- **Astrology (Internal Influence):** ${astrology}
 - **Icon:** ${icon}
 - **Orientation:** ${orientation}
 `
@@ -948,10 +948,10 @@ Remember that you have the power to shape your path forward. These cards offer g
                     <strong>Sacred Geometry:</strong> {card.sacredGeometry}
                   </div>
                   <div>
-                    <strong>Planet:</strong> {card.planetInternalInfluence}
+                    <strong>Planet:</strong> {card.planetExternalDomain}
                   </div>
                   <div>
-                    <strong>Astrological Sign:</strong> {card.astrologyExternalDomain}
+                    <strong>Astrological Sign:</strong> {card.astrologyInternalInfluence}
                   </div>
                   <div>
                     <strong>Orientation:</strong> {card.orientation}

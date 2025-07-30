@@ -31,6 +31,7 @@ import { PrivacyNotice } from "@/components/privacy-notice"
 import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/components/ui/use-toast"
 import dynamic from "next/dynamic"
+import { getAllCards } from "@/lib/card-data-access" // Import getAllCards
 
 // Dynamically import components that might cause SSR issues
 const AssistantChat = dynamic(
@@ -45,7 +46,7 @@ const AssistantChat = dynamic(
   },
 )
 
-// Complete NUMO Oracle Card Data Structure
+// Complete NUMO Oracle Card Data Structure - Updated to match types/cards.ts
 export interface Symbol {
   key: string
   value: string
@@ -60,8 +61,8 @@ export interface OracleCard {
   symbolismBreakdown: string[]
   keyMeanings: string[]
   baseElement: string
-  planetInternalInfluence: string
-  astrologyExternalDomain: string
+  planetExternalDomain: string // Updated field name
+  astrologyInternalInfluence: string // Updated field name
   iconSymbol: string
   orientation: string
   sacredGeometry: string
@@ -193,115 +194,6 @@ const preloadCardImages = async (
   }
 }
 
-// Complete MASTER Card Data from the JSON
-const masterCardData: OracleCard[] = [
-  {
-    id: "0-Cauldron",
-    number: "0",
-    suit: "Cauldron",
-    fullTitle: "0 Cauldron – The Cauldron of Creation",
-    symbols: [
-      { key: "Number", value: "0" },
-      { key: "Suit", value: "Cauldron" },
-      { key: "Element (Base)", value: "Spirit" },
-      { key: "Planet (Internal Influence)", value: "Pluto – deep transformation, inner renewal, and hidden power." },
-      { key: "Astrology (External Domain)", value: "Scorpio – cycles of death and rebirth, secrets, intensity." },
-      { key: "Icon", value: "Pentagram" },
-      { key: "Orientation", value: "Cooking" },
-      { key: "Sacred Geometry", value: "Dot" },
-      { key: "Synergistic Element", value: "Fire" },
-    ],
-    symbolismBreakdown: [
-      "Number: 0 – Symbol of unmanifest potential—the infinite womb of all creation, representing the void from which all possibilities emerge, a state of pure being before differentiation. It is the alpha and omega, containing everything and nothing simultaneously.",
-      "Suit (Cauldron): In its cooking orientation, the cauldron stews possibility into reality, slowly combining all elements into creation. This signifies a gentle, nurturing, alchemical process where diverse ingredients (experiences, energies, ideas) are patiently blended and transmuted into a new, unified whole.",
-      "Icon (Pentagram): Represents balance of the five elements—earth (stability, form), air (intellect, communication), fire (energy, action), water (emotion, intuition), and spirit (life force, connection to the divine). It symbolizes integration, protection, and the perfected human in harmony with the cosmos.",
-      "Orientation (Cooking): Indicates that the creation is in progress, not yet released. This highlights a phase of internal development, gestation, and careful preparation, where the transformative work is happening beneath the surface, shielded from external view until ready.",
-      "Sacred Geometry (Dot): The spark of origin—the first point from which all things emerge. It is the singularity, the concentrated seed of potential, the initial impulse of consciousness before expansion into dimension and form. A symbol of unity and wholeness.",
-      "Planet (Pluto): Deep, transformative forces working behind the scenes. Pluto governs the subconscious realms, instigating profound metamorphosis by unearthing hidden truths, dismantling old structures, and facilitating regeneration and rebirth from the ashes of what was.",
-      "Astrology (Scorpio): Reflects external themes of rebirth, secrecy, and shedding of old layers. Scorpio navigates the depths of existence, confronting power dynamics, intense emotions, and the mysteries of life and death, ultimately leading to profound healing and empowerment.",
-      "Synergistic Element (Fire): The combustion of Spirit and Water—the ignition of creation and passion. Fire is the activating, dynamic principle that fuels transformation, provides courage, and illuminates the path, turning inspiration (Spirit) and emotional depth (Water) into tangible manifestation.",
-    ],
-    keyMeanings: ["Creation in Progress", "Alchemy and Transformation", "Infinite Potential", "Inner Depths"],
-    baseElement: "Spirit",
-    planetInternalInfluence: "Pluto – deep transformation, inner renewal, and hidden power.",
-    astrologyExternalDomain: "Scorpio – cycles of death and rebirth, secrets, intensity.",
-    iconSymbol: "Pentagram",
-    orientation: "Cooking",
-    sacredGeometry: "Dot",
-    synergisticElement: "Fire",
-  },
-  {
-    id: "1-Cauldron",
-    number: "1",
-    suit: "Cauldron",
-    fullTitle: "1 Cauldron – The Cauldron of Manifestation",
-    symbols: [
-      { key: "Number", value: "1" },
-      { key: "Suit", value: "Cauldron" },
-      { key: "Element (Base)", value: "Fire" },
-      { key: "Planet (Internal Influence)", value: "Sun – creative force, willpower, and illumination." },
-      { key: "Astrology (External Domain)", value: "Leo – pride in expression, creative passion, dramatic emergence." },
-      { key: "Icon", value: "Pentagram" },
-      { key: "Orientation", value: "Pouring" },
-      { key: "Sacred Geometry", value: "Plus Sign" },
-      { key: "Synergistic Element", value: "Fire" },
-    ],
-    symbolismBreakdown: [
-      "Number: 1 – The number of individuality and manifestation—initiation of purpose. It represents the first step, originality, leadership, and the power of focused will to bring ideas into concrete form. The singular point of action.",
-      "Suit (Cauldron): Pouring forth its contents—the creation is emerging. The vessel now actively releases what has been brewing, symbolizing the sharing of gifts, ideas, or projects with the world. It's an act of giving and outward expression.",
-      "Icon (Pentagram): Balanced elemental structure driving harmonious emergence. Here, the integrated elements provide a stable foundation for the creative output, ensuring that what is manifested is well-rounded and aligned with a greater harmony.",
-      "Orientation (Pouring): Indicates readiness to act—release of the creation. This signifies a conscious decision to move from internal preparation to external action, sharing what has been cultivated. It's a dynamic and generous gesture.",
-      "Sacred Geometry (Plus Sign): The crossroads of action and potential—energy merging. The plus sign represents the intersection of different planes or energies, creating a focal point where intention meets opportunity, leading to active creation and expansion.",
-      "Planet (Sun): Drives inner willpower and identity into radiance. The Sun provides vitality, confidence, and clarity of purpose, illuminating the unique self and empowering its expression. It is the core of one's being shining forth.",
-      "Astrology (Leo): External stage—performance, confidence, leadership. Leo embodies the joy of self-expression, the courage to take center stage, and the magnanimity of a natural leader, inspiring others through its radiant and creative presence.",
-      "Synergistic Element (Fire): Fire and Spirit igniting the fires of birth and radiant will. This highlights the pure, active, and enthusiastic energy that fuels manifestation, transforming divine inspiration (Spirit) into passionate, visible action.",
-    ],
-    keyMeanings: ["Manifestation in Motion", "Personal Power", "Creative Expression", "Action-Oriented"],
-    baseElement: "Fire",
-    planetInternalInfluence: "Sun – creative force, willpower, and illumination.",
-    astrologyExternalDomain: "Leo – pride in expression, creative passion, dramatic emergence.",
-    iconSymbol: "Pentagram",
-    orientation: "Pouring",
-    sacredGeometry: "Plus Sign",
-    synergisticElement: "Fire",
-  },
-  {
-    id: "2-Sword",
-    number: "2",
-    suit: "Sword",
-    fullTitle: "2 Sword - The Sword of Precision and Perception",
-    symbols: [
-      { key: "Number", value: "2" },
-      { key: "Suit", value: "Sword" },
-      { key: "Element (Base)", value: "Water" },
-      { key: "Planet (Internal Influence)", value: "Moon – intuition, reflection, inner perception." },
-      { key: "Astrology (External Domain)", value: "Cancer – protection, emotional depth, caregiving." },
-      { key: "Icon", value: "Delta" },
-      { key: "Orientation", value: "Point First" },
-      { key: "Sacred Geometry", value: "Vesica Piscis" },
-      { key: "Synergistic Element", value: "Water" },
-    ],
-    symbolismBreakdown: [
-      "Number: 2 – Duality, balance, and reflection. Represents choices, partnerships, the weighing of options, and the need to find equilibrium between opposing forces. It highlights receptivity and the consideration of another perspective.",
-      "Suit (Sword): The sword reflects clarity, intellect, and decision-making. It is a tool of truth, cutting through confusion and illusion, but here, tempered by Water, its precision is guided by feeling as much as logic.",
-      "Icon (Delta): The Greek symbol for change—refinement through separation. Delta signifies a doorway or a point of transition, suggesting that clarity may come from distinguishing one thing from another, or from a shift in perspective.",
-      "Orientation (Point First): Focused awareness and precision. The sword is ready for careful, deliberate action, guided by sharp perception. It implies aiming with intent, but not necessarily striking yet; the focus is on clear sight.",
-      "Sacred Geometry (Vesica Piscis): The divine intersection—understanding through union. Formed by two overlapping circles, it symbolizes the meeting point of spirit and matter, conscious and unconscious, or two distinct entities, creating a space of shared understanding and creativity.",
-      "Planet (Moon): Reflective depth, changeability, and emotional navigation. The Moon governs intuition, the subconscious, and the ebb and flow of emotions. Its influence encourages introspection and listening to inner guidance.",
-      "Astrology (Cancer): Emotional awareness applied to outer security and nurturing. Cancer emphasizes the need for a secure emotional foundation, using intuition to protect and care for oneself and others. It brings a sensitive, empathetic quality to perception.",
-      "Synergistic Element (Water): Water enhances the sword's clarity by infusing emotional depth into logical discernment, allowing intuition to guide precise thought. This creates a balance where intellect is informed by empathy, leading to more holistic understanding.",
-    ],
-    keyMeanings: ["Focused Awareness", "Emotional Intelligence", "Hesitation with Purpose", "Mental Alignment"],
-    baseElement: "Water",
-    planetInternalInfluence: "Moon – intuition, reflection, inner perception.",
-    astrologyExternalDomain: "Cancer – protection, emotional depth, caregiving.",
-    iconSymbol: "Delta",
-    orientation: "Point First",
-    sacredGeometry: "Vesica Piscis",
-    synergisticElement: "Water",
-  },
-]
-
 export function CardSimulator() {
   const [selectedCards, setSelectedCards] = useState<OracleCard[]>([])
   const [question, setQuestion] = useState("")
@@ -345,20 +237,21 @@ export function CardSimulator() {
 
     const loadCardImages = async () => {
       setIsLoadingImages(true)
-      setImageLoadingStats({ loaded: 0, total: masterCardData.length, failed: 0, isLoading: true })
+      const allMasterCards = getAllCards() // Use getAllCards from data access
+      setImageLoadingStats({ loaded: 0, total: allMasterCards.length, failed: 0, isLoading: true })
 
       try {
         const startTime = Date.now()
 
         const cardsWithBlobImages = await Promise.all(
-          masterCardData.map(async (card, index) => {
+          allMasterCards.map(async (card, index) => {
             try {
               let imagePath = await getCardImageUrl(card.id, card.baseElement)
               if (imagePath.includes("placeholder.svg")) {
                 imagePath = await getCardImageUrl(card.id, card.synergisticElement)
               }
               const loaded = index + 1
-              setImageLoadingProgress((loaded / masterCardData.length) * 100)
+              setImageLoadingProgress((loaded / allMasterCards.length) * 100)
               setImageLoadingStats((prev) => ({ ...prev, loaded }))
               return { ...card, imagePath }
             } catch (error) {
@@ -374,8 +267,8 @@ export function CardSimulator() {
 
         setCardsWithImages(cardsWithBlobImages)
 
-        const cardIds = masterCardData.map((card) => card.id)
-        const elements = [...new Set(masterCardData.flatMap((card) => [card.baseElement, card.synergisticElement]))]
+        const cardIds = allMasterCards.map((card) => card.id)
+        const elements = [...new Set(allMasterCards.flatMap((card) => [card.baseElement, card.synergisticElement]))]
 
         const preloadResults = await preloadCardImages(cardIds, elements, (loaded, total) => {
           setImageLoadingProgress((loaded / total) * 100)
@@ -397,7 +290,7 @@ export function CardSimulator() {
         console.error("Error loading card images:", error)
         setNetworkStatus("offline")
         setCardsWithImages(
-          masterCardData.map((card) => ({
+          allMasterCards.map((card) => ({
             ...card,
             imagePath: `/placeholder.svg?height=420&width=270&query=${encodeURIComponent(card.fullTitle)}`,
           })),
@@ -552,6 +445,8 @@ export function CardSimulator() {
           meaning: card.keyMeanings.join(", "),
           description: card.symbolismBreakdown.join(" "),
           keywords: card.keyMeanings,
+          planetExternalDomain: card.planetExternalDomain, // Updated field name
+          astrologyInternalInfluence: card.astrologyInternalInfluence, // Updated field name
         })),
         question: question.trim(),
         spread_type: spreadType,
