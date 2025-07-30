@@ -201,6 +201,9 @@ export default function CardSimulator() {
               // Continue to the next potential path
             }
 
+            // Add a console log to see the resolved image URL for each card
+            console.log(`DEBUG: Resolved image URL for ${card.id}-${card.baseElement}: ${imageUrl}`)
+
             const loaded = index + 1
             setImageLoadingProgress((loaded / masterCardData.length) * 100)
             setImageLoadingStats((prev) => ({ ...prev, loaded }))
