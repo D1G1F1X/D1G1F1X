@@ -69,22 +69,24 @@ export function getCardByNumberAndSuit(number: string, suit: CardSuit): CardData
 
 /**
  * Generates the image file name for a given card and synergistic element.
+ * This function now generates names with a hyphen between the padded number and suit
+ * to align with the primary lookup pattern of the image handler.
  * @param card The OracleCard object.
  * @param synergisticElement The synergistic element for the image.
- * @returns The image file name (e.g., "00cauldron-fire.jpg").
+ * @returns The image file name (e.g., "00-cauldron-fire.jpg").
  */
 export function getCardImageName(card: CardData, synergisticElement: CardElement): string {
   const number = card.number.padStart(2, "0")
   const suit = card.suit.toLowerCase()
   const element = synergisticElement.toLowerCase()
-  return `${number}${suit}-${element}.jpg`
+  return `${number}-${suit}-${element}.jpg` // Changed to hyphenated format
 }
 
 /**
  * Generates the full image path for a given card and synergistic element.
  * @param card The OracleCard object.
  * @param synergisticElement The synergistic element for the image.
- * @returns The full image path (e.g., "/cards/00cauldron-fire.jpg").
+ * @returns The full image path (e.g., "/cards/00-cauldron-fire.jpg").
  */
 export function getCardImagePath(card: CardData, synergisticElement: CardElement): string {
   const imageName = getCardImageName(card, synergisticElement)
