@@ -6,7 +6,7 @@ import { brevoEmailService } from "@/lib/services/brevo-email-service"
 
 // Define the schema for a single item in the order
 const OrderItemSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string().min(1, "Item ID is required."),
   productId: z.string().optional(),
   name: z.string().min(1, "Item name cannot be empty.").max(100, "Item name too long."),
   quantity: z.coerce.number().int().positive("Quantity must be a positive integer.").max(99, "Quantity too high."),

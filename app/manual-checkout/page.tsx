@@ -15,7 +15,24 @@ export const metadata: Metadata = {
   },
 }
 
-export default function ManualCheckoutPage() {
+interface ManualCheckoutPageProps {
+  searchParams: {
+    productId?: string
+    productName?: string
+    price?: string
+    image?: string
+  }
+}
+
+export default function ManualCheckoutPage({ searchParams }: ManualCheckoutPageProps) {
+  // Parse initial data from URL parameters
+  const initialData = {
+    productId: searchParams.productId || "",
+    productName: searchParams.productName || "",
+    price: searchParams.price ? parseFloat(searchParams.price) : 0,
+    image: searchParams.image || "",
+  }
+
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <HeroSection
@@ -42,7 +59,7 @@ export default function ManualCheckoutPage() {
                 you with payment instructions.
               </p>
             </div>
-            <ManualCheckoutForm />
+            <ManualCheckoutForm initialData={initialData} />
           </div>
         </div>
       </Suspense>

@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 import { useState, useTransition } from "react"
 import { Plus, Trash2, ShoppingCart, User, MapPin, FileText, AlertCircle, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { submitManualOrder } from "@/app/manual-checkout/actions"
 import { availableProducts } from "@/lib/products"
+import { generateId } from "@/lib/utils"
 
 export interface OrderItem {
   id: string
@@ -21,6 +22,13 @@ export interface OrderItem {
   quantity: number
   price: number
   description?: string
+}
+
+export interface InitialData {
+  productId?: string
+  productName?: string
+  price?: number
+  image?: string
 }
 
 // Predefined products for easy selection, sourced from lib/products.ts
@@ -56,7 +64,21 @@ const COUNTRIES = [
   "Other",
 ]
 
-const initialState = {
+interface OrderSubmissionResult {
+  message: string
+  success: boolean
+  errors?: Record<string, string[] | undefined> | null
+  fieldErrors?: Record<string, string[] | undefined> | null
+  itemErrors?: { index: number; field: keyof OrderItem; message: string }[] | null
+  orderId?: string | null
+  emailStatus?: {
+    customerEmailSent: boolean
+    adminEmailSent: boolean
+    emailErrors?: string[]
+  }
+}
+
+const initialState: OrderSubmissionResult = {
   message: "",
   success: false,
   errors: null,
@@ -66,7 +88,11 @@ const initialState = {
   emailStatus: undefined,
 }
 
-const ManualCheckoutForm: React.FC = () => {
+interface ManualCheckoutFormProps {
+  initialData?: InitialData
+}
+
+const ManualCheckoutForm: React.FC<ManualCheckoutFormProps> = ({ initialData }) => {
   const [state, setState] = useState(initialState)
   const [isPending, startTransition] = useTransition()
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -74,11 +100,11 @@ const ManualCheckoutForm: React.FC = () => {
   // Form state
   const [orderItems, setOrderItems] = useState<OrderItem[]>([
     {
-      id: crypto.randomUUID(),
-      productId: "",
-      name: "",
+      id: generateId(),
+      productId: initialData?.productId || "",
+      name: initialData?.productName || "",
       quantity: 1,
-      price: 0,
+      price: initialData?.price || 0,
       description: "",
     },
   ])
@@ -88,7 +114,7 @@ const ManualCheckoutForm: React.FC = () => {
     setOrderItems([
       ...orderItems,
       {
-        id: crypto.randomUUID(),
+        id: generateId(),
         productId: "",
         name: "",
         quantity: 1,
@@ -189,47 +215,51 @@ const ManualCheckoutForm: React.FC = () => {
       return
     }
 
-    startTransition(async () => {
-      try {
-        // Add order items to form data
-        formData.set("orderItems", JSON.stringify(orderItems))
+    startTransition(() => {
+      const submitForm = async () => {
+        try {
+          // Add order items to form data
+          formData.set("orderItems", JSON.stringify(orderItems))
 
-        // Add honeypot field check
-        const honeypot = formData.get("website") as string
-        if (honeypot && honeypot.length > 0) {
+          // Add honeypot field check
+          const honeypot = formData.get("website") as string
+          if (honeypot && honeypot.length > 0) {
+            setState({
+              ...initialState,
+              success: false,
+              message: "Submission rejected. Please try again.",
+            })
+            return
+          }
+
+          const result = await submitManualOrder(state, formData)
+          setState(result)
+
+          if (result.success) {
+            setIsSubmitted(true)
+            // Reset form on success, but preserve initial data if available
+            setOrderItems([
+              {
+                id: generateId(),
+                productId: initialData?.productId || "",
+                name: initialData?.productName || "",
+                quantity: 1,
+                price: initialData?.price || 0,
+                description: "",
+              },
+            ])
+          }
+        } catch (error) {
+          console.error("Form submission error:", error)
           setState({
             ...initialState,
             success: false,
-            message: "Submission rejected. Please try again.",
+            message: "An unexpected error occurred. Please try again.",
           })
-          return
         }
-
-        const result = await submitManualOrder(state, formData)
-        setState(result)
-
-        if (result.success) {
-          setIsSubmitted(true)
-          // Reset form on success
-          setOrderItems([
-            {
-              id: crypto.randomUUID(),
-              productId: "",
-              name: "",
-              quantity: 1,
-              price: 0,
-              description: "",
-            },
-          ])
-        }
-      } catch (error) {
-        console.error("Form submission error:", error)
-        setState({
-          ...initialState,
-          success: false,
-          message: "An unexpected error occurred. Please try again.",
-        })
       }
+      
+      submitForm()
     })
   }
 
@@ -262,6 +292,17 @@ const ManualCheckoutForm: React.FC = () => {
             onClick={() => {
               setIsSubmitted(false)
               setState(initialState)
+              // Reset form with initial data if available
+              setOrderItems([
+                {
+                  id: generateId(),
+                  productId: initialData?.productId || "",
+                  name: initialData?.productName || "",
+                  quantity: 1,
+                  price: initialData?.price || 0,
+                  description: "",
+                },
+              ])
             }}
             className="bg-purple-600 hover:bg-purple-700"
           >
