@@ -32,20 +32,32 @@ export async function POST(req: NextRequest) {
 
     // Create a new thread
     const thread = await openai.beta.threads.create()
+    const threadId = thread.id
+
+    // Validate thread ID
+    if (!threadId) {
+      return NextResponse.json(
+        {
+          error: "Failed to create conversation thread",
+          success: false,
+        },
+        { status: 500 },
+      )
+    }
 
     // Add the user's message to the thread
-    await openai.beta.threads.messages.create(thread.id, {
+    await openai.beta.threads.messages.create(threadId, {
       role: "user",
       content: body.message || "Tell me something cool",
     })
 
     // Create a run with the assistant
-    const run = await openai.beta.threads.runs.create(thread.id, {
+    const run = await openai.beta.threads.runs.create(threadId, {
       assistant_id: process.env.OPENAI_ASSISTANT_ID,
     })
 
     return NextResponse.json({
-      threadId: thread.id,
+      threadId: threadId,
       runId: run.id,
       success: true,
     })

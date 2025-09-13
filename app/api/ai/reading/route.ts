@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Validate required fields
-    if (!body.fullName || !body.question || !body.selectedCards) {
+    if (!body.question || !body.selectedCards) {
       console.error("[API] Missing required fields:", {
         fullName: !!body.fullName,
         question: !!body.question,
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "Missing required fields: fullName, question, or selectedCards",
+          error: "Missing required fields: question or selectedCards",
           fallback: true,
         },
         { status: 400 },
@@ -47,12 +47,25 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate selectedCards is an array
-    if (!Array.isArray(body.selectedCards) || body.selectedCards.length === 0) {
+    if (!Array.isArray(body.selectedCards)) {
       console.error("[API] Invalid selectedCards:", body.selectedCards)
       return NextResponse.json(
         {
           success: false,
-          error: "selectedCards must be a non-empty array",
+          error: "selectedCards must be an array",
+          fallback: true,
+        },
+        { status: 400 },
+      )
+    }
+
+    // For chat initialization, allow empty cards array, otherwise require at least one card
+    if (body.spreadType !== "chat_init" && body.selectedCards.length === 0) {
+      console.error("[API] Empty selectedCards for non-chat spread:", body.selectedCards)
+      return NextResponse.json(
+        {
+          success: false,
+          error: "selectedCards must contain at least one card for card readings",
           fallback: true,
         },
         { status: 400 },
@@ -60,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     const readingRequest: ReadingRequest = {
-      fullName: body.fullName,
+      fullName: body.fullName || "Anonymous User",
       dateOfBirth: body.dateOfBirth || undefined,
       timeOfBirth: body.timeOfBirth || undefined,
       birthPlace: body.birthPlace || undefined,

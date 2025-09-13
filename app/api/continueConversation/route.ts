@@ -43,7 +43,9 @@ export async function POST(req: NextRequest) {
     })
 
     // Poll for completion (simplified)
-    let runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id)
+    let runStatus = await openai.beta.threads.runs.retrieve(run.id, {
+      thread_id: threadId
+    })
     let attempts = 0
     const maxAttempts = 30
 
@@ -52,7 +54,9 @@ export async function POST(req: NextRequest) {
         break
       }
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id)
+      runStatus = await openai.beta.threads.runs.retrieve(run.id, {
+        thread_id: threadId
+      })
       attempts++
     }
 

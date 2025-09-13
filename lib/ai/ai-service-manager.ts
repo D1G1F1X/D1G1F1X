@@ -170,19 +170,42 @@ While this reading is generated as a fallback, the energy you bring to interpret
 
     try {
       console.log("[AI] Starting reading generation for:", request.fullName)
+      console.log("[AI] Client status:", {
+        hasClient: !!this.openaiClient,
+        isConfigured: this.isConfigured,
+        assistantId: this.config.openai.assistantId
+      })
 
-      // Create thread
+      // Create thread with detailed logging
+      console.log("[AI] Creating thread...")
       const thread = await this.openaiClient!.beta.threads.create()
-      console.log("[AI] Thread created:", thread.id)
+      console.log("[AI] Thread object:", JSON.stringify(thread, null, 2))
+
+      const threadId = thread.id
+      console.log("[AI] Thread created with ID:", threadId)
+      console.log("[AI] Thread ID type:", typeof threadId)
+
+      // Validate thread ID
+      if (!threadId) {
+        console.error("[AI] Thread creation failed - no ID returned")
+        console.error("[AI] Full thread object:", thread)
+        return this.createFallbackResponse("Failed to create conversation thread")
+      }
+
+      // Additional validation for thread ID format
+      if (typeof threadId !== 'string' || !threadId.startsWith('thread_')) {
+        console.error("[AI] Invalid thread ID format:", threadId)
+        return this.createFallbackResponse("Invalid thread ID format")
+      }
 
       // Add message to thread
-      await this.openaiClient!.beta.threads.messages.create(thread.id, {
+      await this.openaiClient!.beta.threads.messages.create(threadId, {
         role: "user",
         content: prompt,
       })
 
       // Create and poll run
-      let run = await this.openaiClient!.beta.threads.runs.create(thread.id, {
+      let run = await this.openaiClient!.beta.threads.runs.create(threadId, {
         assistant_id: this.config.openai.assistantId!,
       })
 
@@ -194,9 +217,14 @@ While this reading is generated as a fallback, the energy you bring to interpret
         await new Promise((resolve) => setTimeout(resolve, 1000))
 
         try {
-          run = await this.openaiClient!.beta.threads.runs.retrieve(thread.id, run.id)
+          console.log(`[AI] Polling attempt ${attempts + 1}: threadId=${threadId}, runId=${run.id}`)
+          // Correct (current signature)
+          run = await this.openaiClient!.beta.threads.runs.retrieve(run.id, {
+            thread_id: threadId
+          })
         } catch (pollError: any) {
           console.error(`[AI] Error polling run status:`, pollError)
+          console.error(`[AI] Polling context - threadId: ${threadId}, runId: ${run.id}`)
           return this.createFallbackResponse(`Polling error: ${pollError.message}`)
         }
 
@@ -208,7 +236,7 @@ While this reading is generated as a fallback, the energy you bring to interpret
       }
 
       if (run.status === "completed") {
-        const messages = await this.openaiClient!.beta.threads.messages.list(thread.id, {
+        const messages = await this.openaiClient!.beta.threads.messages.list(threadId, {
           order: "desc",
           limit: 1,
         })
@@ -219,7 +247,7 @@ While this reading is generated as a fallback, the energy you bring to interpret
           return {
             success: true,
             reading: assistantMessage.content[0].text.value,
-            threadId: thread.id,
+            threadId: threadId,
             runId: run.id,
           }
         }
@@ -261,7 +289,9 @@ While this reading is generated as a fallback, the energy you bring to interpret
 
       while (["queued", "in_progress", "cancelling"].includes(run.status) && attempts < maxAttempts) {
         await new Promise((resolve) => setTimeout(resolve, 1000))
-        run = await this.openaiClient!.beta.threads.runs.retrieve(threadId, run.id)
+        run = await this.openaiClient!.beta.threads.runs.retrieve(run.id, {
+          thread_id: threadId
+        })
         attempts++
       }
 
