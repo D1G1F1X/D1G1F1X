@@ -210,7 +210,8 @@ While this reading is generated as a fallback, the energy you bring to interpret
       })
 
       // Poll for completion with better error handling
-      const maxAttempts = 30
+      // Keep within typical serverless time limits (~10s default on Edge)
+      const maxAttempts = 8
       let attempts = 0
 
       while (["queued", "in_progress", "cancelling"].includes(run.status) && attempts < maxAttempts) {
@@ -257,6 +258,16 @@ While this reading is generated as a fallback, the energy you bring to interpret
         return this.createFallbackResponse(`AI run failed: ${run.last_error?.message || "Unknown error"}`)
       }
 
+      // If still queued/in_progress after our timebox, return IDs so the client can poll
+      if (["queued", "in_progress", "cancelling"].includes(run.status)) {
+        return {
+          success: true,
+          reading: "Response is being generated...",
+          threadId: threadId,
+          runId: run.id,
+        }
+      }
+
       return this.createFallbackResponse(`AI run completed with unexpected status: ${run.status}`)
     } catch (error: any) {
       console.error("[AI] Error generating reading:", error)
@@ -282,7 +293,7 @@ While this reading is generated as a fallback, the energy you bring to interpret
       })
 
       // Poll for completion (similar to generateOracleReading)
-      const maxAttempts = 30
+      const maxAttempts = 8
       let attempts = 0
 
       while (["queued", "in_progress", "cancelling"].includes(run.status) && attempts < maxAttempts) {
@@ -305,6 +316,16 @@ While this reading is generated as a fallback, the energy you bring to interpret
             threadId,
             runId: run.id,
           }
+        }
+      }
+
+      // If still not done, return IDs for client-side polling
+      if (["queued", "in_progress", "cancelling"].includes(run.status)) {
+        return {
+          success: true,
+          reading: "Response is being generated...",
+          threadId,
+          runId: run.id,
         }
       }
 

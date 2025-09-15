@@ -1,4 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
+
+// Ensure Node runtime and allow longer processing window than 10s Edge default
+export const runtime = "nodejs"
+export const maxDuration = 30
+export const dynamic = "force-dynamic"
 import { aiServiceManager } from "@/lib/ai/ai-service-manager"
 import type { ReadingRequest } from "@/lib/ai/ai-service-manager"
 
