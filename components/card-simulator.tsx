@@ -697,49 +697,47 @@ export function CardSimulator() {
     setHasGeneratedAIReading(true) // Set flag that AI reading is being generated
 
     try {
-      const response = await fetch("/api/ai/reading", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          fullName,
-          dateOfBirth: birthDate,
-          timeOfBirth: birthTime,
-          birthPlace,
-          question,
-          selectedCards,
-          spreadType,
-          isMember: userProfile?.isMember ?? false,
-        }),
+      // Show initial loading message
+      setReading("Generating your personalized reading...")
+      
+      const { generateAIReading } = await import("@/lib/ai-polling")
+      
+      const result = await generateAIReading({
+        fullName,
+        dateOfBirth: birthDate,
+        timeOfBirth: birthTime,
+        birthPlace,
+        question,
+        selectedCards,
+        spreadType,
+        isMember: userProfile?.isMember ?? false,
+      }, {
+        maxAttempts: 60,
+        intervalMs: 1000,
+        onProgress: (attempt, status) => {
+          console.log(`[AI Reading] Attempt ${attempt}, status: ${status}`)
+          if (status === "in_progress") {
+            setReading("AI is analyzing your cards and question...")
+          }
+        }
       })
 
-      // ---------- new safer response handling ----------
-      let data: any = {}
-      try {
-        data = await response.json()
-      } catch {
-        data = { success: false, error: "Malformed server response" }
-      }
-
-      if (!response.ok || !data?.success) {
-        console.error("AI reading generation failed:", data?.error ?? response.statusText)
-        setAssistantReading(data.reading ?? "")
-        setReading(
-          data.reading ??
-            `Failed to generate an AI reading${data?.error ? `: ${data.error}` : "."}  Please try again later.`,
-        )
+      if (!result.success) {
+        console.error("AI reading generation failed:", result.error)
+        setAssistantReading(result.reading)
+        setReading(result.reading)
         toast({
           title: "Reading Failed",
-          description: data?.error ?? "Internal server error.",
+          description: result.error || "Failed to generate reading",
           variant: "destructive",
         })
         setHasGeneratedAIReading(false)
       } else {
-        setConversationThreadId(data.threadId)
-        setAssistantReading(data.reading ?? "")
-        setReading(data.reading ?? "")
+        setConversationThreadId(result.threadId)
+        setAssistantReading(result.reading)
+        setReading(result.reading)
         toast({ title: "Reading Generated!", description: "Your personalized oracle reading is ready." })
       }
-      // ---------- end new handling ----------
     } catch (error: any) {
       console.error("Error generating AI reading:", error)
       setReading("Failed to generate an advanced reading due to a network or server error. Please try again later.")

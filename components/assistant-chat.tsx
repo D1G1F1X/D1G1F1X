@@ -73,26 +73,34 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ initialReading, threadId:
       if (!currentThreadId) {
         // If no thread exists, create one with the initial reading
         console.log("[AssistantChat] Creating new conversation thread...")
-        const response = await fetch("/api/ai/reading", {
-          // Use new AI reading endpoint
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fullName: "User", // Placeholder, ideally from user context
-            question: userMessage,
-            selectedCards: [], // Placeholder, ideally from current reading context
-            spreadType: "chat_init",
-          }),
+        
+        const { generateAIReading } = await import("@/lib/ai-polling")
+        
+        const result = await generateAIReading({
+          fullName: "User", // Placeholder, ideally from user context
+          question: userMessage,
+          selectedCards: [], // Placeholder, ideally from current reading context
+          spreadType: "chat_init",
+        }, {
+          maxAttempts: 60,
+          intervalMs: 1000,
+          onProgress: (attempt, status) => {
+            console.log(`[AssistantChat] Attempt ${attempt}, status: ${status}`)
+          }
         })
 
-        responseData = await response.json()
-
-        if (response.ok && responseData.success) {
-          setCurrentThreadId(responseData.threadId)
-          onThreadCreated?.(responseData.threadId)
-          console.log("[AssistantChat] New thread created:", responseData.threadId)
+        if (result.success) {
+          responseData = {
+            success: true,
+            reading: result.reading,
+            threadId: result.threadId,
+            runId: result.runId,
+          }
+          setCurrentThreadId(result.threadId)
+          onThreadCreated?.(result.threadId)
+          console.log("[AssistantChat] New thread created:", result.threadId)
         } else {
-          throw new Error(responseData.error || "Failed to create conversation thread")
+          throw new Error(result.error || "Failed to create conversation thread")
         }
       } else {
         // Continue existing conversation

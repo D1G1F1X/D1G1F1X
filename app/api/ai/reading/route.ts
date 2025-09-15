@@ -1,5 +1,4 @@
 import { type NextRequest, NextResponse } from "next/server"
-import OpenAI from "openai"
 
 // Ensure Node runtime and allow longer processing window than 10s Edge default
 export const runtime = "nodejs"
@@ -99,54 +98,7 @@ export async function POST(request: NextRequest) {
       error: response.error,
     })
 
-    // In development (or when explicitly requested), block and poll until completion to restore local behavior
-    const url = new URL(request.url)
-    const wantBlocking = url.searchParams.get("blocking") === "true"
-    const isDev = process.env.NODE_ENV !== "production"
-
-    if (response.success && response.threadId && response.runId && (isDev || wantBlocking)) {
-      console.log("[API] Dev/blocking mode: polling run until completion")
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-
-      let attempts = 0
-      const maxAttempts = 25 // ~25s
-      let status: string | undefined
-      let finalContent: string | null = null
-
-      while (attempts < maxAttempts) {
-        const run = await openai.beta.threads.runs.retrieve(response.threadId, response.runId)
-        status = run.status
-        if (status === "completed") {
-          const messages = await openai.beta.threads.messages.list(response.threadId, { order: "desc", limit: 1 })
-          const assistantMessage = messages.data[0]
-          if (assistantMessage?.content?.[0]?.type === "text") {
-            finalContent = assistantMessage.content[0].text.value
-          }
-          break
-        }
-        if (status === "failed") {
-          console.error("[API] Run failed while blocking:", run.last_error)
-          break
-        }
-        await new Promise((r) => setTimeout(r, 1000))
-        attempts++
-      }
-
-      if (finalContent) {
-        return NextResponse.json({
-          success: true,
-          reading: finalContent,
-          threadId: response.threadId,
-          runId: response.runId,
-        })
-      }
-
-      // Fall back to non-blocking response if not completed within timebox
-      console.log("[API] Dev/blocking mode timed out, returning non-blocking payload")
-      return NextResponse.json(response)
-    }
-
-    // Default: return immediately and let the client poll
+    // Always return immediately and let the client poll in both dev and production
     return NextResponse.json(response)
   } catch (error: any) {
     console.error("[API] Unexpected error in AI reading route:", error)
