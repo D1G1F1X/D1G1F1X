@@ -22,11 +22,18 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ['lucide-react'],
+    // Reduce memory usage during build
+    memoryBasedWorkersCount: true,
   },
+  // Optimize for Vercel deployment
+  output: 'standalone',
+  // Reduce build complexity
+  swcMinify: true,
+  compress: true,
   // Ensure static files are properly served
   assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
   trailingSlash: false,
-  // Add headers for better caching
+  // Simplified headers for better performance
   async headers() {
     return [
       {
@@ -39,19 +46,6 @@ const nextConfig = {
           {
             key: 'X-Frame-Options',
             value: 'DENY',
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-        ],
-      },
-      {
-        source: '/images/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
