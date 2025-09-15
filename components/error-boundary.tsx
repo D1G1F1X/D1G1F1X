@@ -17,18 +17,42 @@ export function ErrorBoundary({ children, fallback }: ErrorBoundaryProps) {
   const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    const errorHandler = (error: ErrorEvent) => {
-      console.error("Caught in error boundary:", error)
-      setError(error.error)
+    const isIgnorableErrorEvent = (ev: ErrorEvent) => {
+      const message = ev?.message || ev?.error?.message || ""
+      // Common Chromium benign errors that shouldn't crash the app UI
+      if (/ResizeObserver loop (limit exceeded|completed with undelivered notifications)/i.test(message)) {
+        return true
+      }
+      return false
+    }
+
+    const errorHandler = (ev: ErrorEvent) => {
+      if (isIgnorableErrorEvent(ev)) {
+        // Prevent noisy, non-fatal errors from tripping the UI fallback
+        ev.preventDefault?.()
+        return
+      }
+      console.error("Caught in error boundary:", ev)
+      const nextError = ev.error instanceof Error ? ev.error : new Error(ev.message || "Unknown error")
+      setError(nextError)
+      setHasError(true)
+    }
+
+    const rejectionHandler = (ev: PromiseRejectionEvent) => {
+      console.error("Unhandled promise rejection:", ev.reason)
+      const nextError = ev.reason instanceof Error ? ev.reason : new Error(String(ev.reason))
+      setError(nextError)
       setHasError(true)
     }
 
     // Add global error handler
-    window.addEventListener("error", errorHandler)
+    window.addEventListener("error", errorHandler, { capture: true })
+    window.addEventListener("unhandledrejection", rejectionHandler)
 
     // Clean up
     return () => {
-      window.removeEventListener("error", errorHandler)
+      window.removeEventListener("error", errorHandler, { capture: true } as any)
+      window.removeEventListener("unhandledrejection", rejectionHandler)
     }
   }, [])
 
