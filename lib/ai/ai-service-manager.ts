@@ -211,7 +211,7 @@ While this reading is generated as a fallback, the energy you bring to interpret
 
       // Poll for completion with better error handling
       // Keep within typical serverless time limits (~10s default on Edge)
-      const maxAttempts = 8
+      const maxAttempts = 30
       let attempts = 0
 
       while (["queued", "in_progress", "cancelling"].includes(run.status) && attempts < maxAttempts) {
