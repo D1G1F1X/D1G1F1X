@@ -5,9 +5,11 @@ export interface UserProfile {
   currentName?: string
   nicknames?: string
   birthDate?: string
+  birthTime?: string
   birthPlace?: string
   email?: string
   preferredSpread?: string
+  isMember?: boolean
   lastUsed?: string
   // Numerology specific data
   lastCalculation?: {

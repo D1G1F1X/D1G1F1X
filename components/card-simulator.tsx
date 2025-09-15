@@ -733,7 +733,7 @@ export function CardSimulator() {
         })
         setHasGeneratedAIReading(false)
       } else {
-        setConversationThreadId(result.threadId)
+        if (result.threadId) setConversationThreadId(result.threadId)
         setAssistantReading(result.reading)
         setReading(result.reading)
         toast({ title: "Reading Generated!", description: "Your personalized oracle reading is ready." })
@@ -949,18 +949,7 @@ export function CardSimulator() {
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
       {/* Privacy Notice */}
-      <PrivacyNotice
-        title="Card Simulator Privacy"
-        description="This tool can optionally remember your name and preferences to personalize your readings."
-        onConsentChange={handleConsentChange}
-        storageKey="cardSimulatorConsent"
-        features={[
-          "Save your name for personalized readings",
-          "Remember your preferred spread type",
-          "Track usage for better experience",
-          "Store birth information for astrological insights",
-        ]}
-      />
+      <PrivacyNotice context="card-simulator" onConsentChange={handleConsentChange} />
 
       {/* Header */}
       <div className="text-center space-y-4">
@@ -1248,19 +1237,7 @@ export function CardSimulator() {
             <DialogHeader>
               <DialogTitle>Continue Your Reading</DialogTitle>
             </DialogHeader>
-            <AssistantChat
-              threadId={conversationThreadId}
-              context={{
-                fullName,
-                question,
-                selectedCards,
-                reading: assistantReading,
-                spreadType,
-                birthDate,
-                birthTime,
-                birthPlace,
-              }}
-            />
+            <AssistantChat threadId={conversationThreadId} />
           </DialogContent>
         </Dialog>
       )}
@@ -1277,7 +1254,7 @@ export function CardSimulator() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div>
-                <p className="text-2xl font-bold text-purple-600">{userProfile.readingsCount || 0}</p>
+                <p className="text-2xl font-bold text-purple-600">{(userProfile as any).readingsCount || 0}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Readings</p>
               </div>
               <div>
@@ -1292,8 +1269,8 @@ export function CardSimulator() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-orange-600">
-                  {userProfile.createdAt
-                    ? Math.floor((Date.now() - new Date(userProfile.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+                  {(userProfile as any).createdAt
+                    ? Math.floor((Date.now() - new Date((userProfile as any).createdAt).getTime()) / (1000 * 60 * 60 * 24))
                     : 0}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Days Active</p>

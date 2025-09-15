@@ -96,9 +96,11 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ initialReading, threadId:
             threadId: result.threadId,
             runId: result.runId,
           }
-          setCurrentThreadId(result.threadId)
-          onThreadCreated?.(result.threadId)
-          console.log("[AssistantChat] New thread created:", result.threadId)
+          if (result.threadId) {
+            setCurrentThreadId(result.threadId)
+            onThreadCreated?.(result.threadId)
+            console.log("[AssistantChat] New thread created:", result.threadId)
+          }
         } else {
           throw new Error(result.error || "Failed to create conversation thread")
         }
