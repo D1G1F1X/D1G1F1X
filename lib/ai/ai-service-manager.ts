@@ -219,9 +219,7 @@ While this reading is generated as a fallback, the energy you bring to interpret
         try {
           console.log(`[AI] Polling attempt ${attempts + 1}: threadId=${threadId}, runId=${run.id}`)
           // Correct (current signature)
-          run = await this.openaiClient!.beta.threads.runs.retrieve(run.id, {
-            thread_id: threadId
-          })
+          run = await this.openaiClient!.beta.threads.runs.retrieve(threadId, run.id)
         } catch (pollError: any) {
           console.error(`[AI] Error polling run status:`, pollError)
           console.error(`[AI] Polling context - threadId: ${threadId}, runId: ${run.id}`)
@@ -289,9 +287,7 @@ While this reading is generated as a fallback, the energy you bring to interpret
 
       while (["queued", "in_progress", "cancelling"].includes(run.status) && attempts < maxAttempts) {
         await new Promise((resolve) => setTimeout(resolve, 1000))
-        run = await this.openaiClient!.beta.threads.runs.retrieve(run.id, {
-          thread_id: threadId
-        })
+        run = await this.openaiClient!.beta.threads.runs.retrieve(threadId, run.id,)
         attempts++
       }
 
