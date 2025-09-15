@@ -204,71 +204,17 @@ While this reading is generated as a fallback, the energy you bring to interpret
         content: prompt,
       })
 
-      // Create and poll run
-      let run = await this.openaiClient!.beta.threads.runs.create(threadId, {
+      // Create run and immediately return IDs for client-side polling
+      const run = await this.openaiClient!.beta.threads.runs.create(threadId, {
         assistant_id: this.config.openai.assistantId!,
       })
 
-      // Poll for completion with better error handling
-      // Keep within typical serverless time limits (~10s default on Edge)
-      const maxAttempts = 30
-      let attempts = 0
-
-      while (["queued", "in_progress", "cancelling"].includes(run.status) && attempts < maxAttempts) {
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        try {
-          console.log(`[AI] Polling attempt ${attempts + 1}: threadId=${threadId}, runId=${run.id}`)
-          // Correct (current signature)
-          run = await this.openaiClient!.beta.threads.runs.retrieve(threadId, run.id)
-        } catch (pollError: any) {
-          console.error(`[AI] Error polling run status:`, pollError)
-          console.error(`[AI] Polling context - threadId: ${threadId}, runId: ${run.id}`)
-          return this.createFallbackResponse(`Polling error: ${pollError.message}`)
-        }
-
-        attempts++
-
-        if (attempts % 5 === 0) {
-          console.log(`[AI] Polling attempt ${attempts}, status: ${run.status}`)
-        }
+      return {
+        success: true,
+        reading: "Response is being generated...",
+        threadId: threadId,
+        runId: run.id,
       }
-
-      if (run.status === "completed") {
-        const messages = await this.openaiClient!.beta.threads.messages.list(threadId, {
-          order: "desc",
-          limit: 1,
-        })
-
-        const assistantMessage = messages.data[0]
-        if (assistantMessage?.content[0]?.type === "text") {
-          console.log("[AI] Reading generated successfully")
-          return {
-            success: true,
-            reading: assistantMessage.content[0].text.value,
-            threadId: threadId,
-            runId: run.id,
-          }
-        }
-      }
-
-      console.warn(`[AI] Run completed with status: ${run.status}`)
-      if (run.status === "failed") {
-        console.error("[AI] Run failed with error:", run.last_error)
-        return this.createFallbackResponse(`AI run failed: ${run.last_error?.message || "Unknown error"}`)
-      }
-
-      // If still queued/in_progress after our timebox, return IDs so the client can poll
-      if (["queued", "in_progress", "cancelling"].includes(run.status)) {
-        return {
-          success: true,
-          reading: "Response is being generated...",
-          threadId: threadId,
-          runId: run.id,
-        }
-      }
-
-      return this.createFallbackResponse(`AI run completed with unexpected status: ${run.status}`)
     } catch (error: any) {
       console.error("[AI] Error generating reading:", error)
       return this.createFallbackResponse(`AI service error: ${error.message}`)
@@ -288,48 +234,17 @@ While this reading is generated as a fallback, the energy you bring to interpret
         content: message,
       })
 
-      let run = await this.openaiClient!.beta.threads.runs.create(threadId, {
+      // Create run and immediately return IDs for client-side polling
+      const run = await this.openaiClient!.beta.threads.runs.create(threadId, {
         assistant_id: this.config.openai.assistantId!,
       })
 
-      // Poll for completion (similar to generateOracleReading)
-      const maxAttempts = 8
-      let attempts = 0
-
-      while (["queued", "in_progress", "cancelling"].includes(run.status) && attempts < maxAttempts) {
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-        run = await this.openaiClient!.beta.threads.runs.retrieve(threadId, run.id,)
-        attempts++
+      return {
+        success: true,
+        reading: "Response is being generated...",
+        threadId,
+        runId: run.id,
       }
-
-      if (run.status === "completed") {
-        const messages = await this.openaiClient!.beta.threads.messages.list(threadId, {
-          order: "desc",
-          limit: 1,
-        })
-
-        const assistantMessage = messages.data[0]
-        if (assistantMessage?.content[0]?.type === "text") {
-          return {
-            success: true,
-            reading: assistantMessage.content[0].text.value,
-            threadId,
-            runId: run.id,
-          }
-        }
-      }
-
-      // If still not done, return IDs for client-side polling
-      if (["queued", "in_progress", "cancelling"].includes(run.status)) {
-        return {
-          success: true,
-          reading: "Response is being generated...",
-          threadId,
-          runId: run.id,
-        }
-      }
-
-      return this.createFallbackResponse(`Conversation failed with status: ${run.status}`)
     } catch (error: any) {
       console.error("[AI] Error continuing conversation:", error)
       return this.createFallbackResponse(`Conversation error: ${error.message}`)
