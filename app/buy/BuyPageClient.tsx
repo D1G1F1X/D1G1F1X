@@ -5,9 +5,10 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useState, useTransition } from "react"
-import { ShoppingBag, Info, AlertCircle, CheckCircle } from "lucide-react"
+import { ShoppingBag, Info, AlertCircle, CheckCircle, CreditCard } from "lucide-react"
 
 import { submitSalesInquiry, type SalesInquiryState } from "./actions"
+import StripeCheckoutButton from "@/components/stripe-payment-form"
 
 const products = [
   {
@@ -306,13 +307,31 @@ export default function BuyPageClient() {
                       Coming Soon - ${product.price.toFixed(2)}
                     </Button>
                   ) : (
-                    <Button asChild className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-                      <Link
-                        href={`/manual-checkout?productId=${encodeURIComponent(product.id)}&productName=${encodeURIComponent(product.name)}&price=${product.price}&image=${encodeURIComponent(product.image || "/images/products/ai-fallback-oracle-product.png")}`}
+                    <div className="space-y-2 w-full">
+                      {/* Stripe Checkout Button */}
+                      <StripeCheckoutButton
+                        items={[{
+                          id: product.id,
+                          name: product.name,
+                          description: product.description,
+                          price: product.price,
+                          quantity: 1,
+                          image: product.image
+                        }]}
+                        className="w-full"
                       >
-                        Buy Now / Manual Order
-                      </Link>
-                    </Button>
+                        Pay with Stripe - ${product.price.toFixed(2)}
+                      </StripeCheckoutButton>
+                      
+                      {/* Manual Checkout Option */}
+                      <Button asChild variant="outline" className="w-full">
+                        <Link
+                          href={`/manual-checkout?productId=${encodeURIComponent(product.id)}&productName=${encodeURIComponent(product.name)}&price=${product.price}&image=${encodeURIComponent(product.image || "/images/products/ai-fallback-oracle-product.png")}`}
+                        >
+                          Manual Order / Other Payment
+                        </Link>
+                      </Button>
+                    </div>
                   )}
                 </CardFooter>
               </Card>
