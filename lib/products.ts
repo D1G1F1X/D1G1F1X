@@ -16,12 +16,12 @@ export const availableProducts: Product[] = [
     image: "/images/products/novice-deck-symbols.jpg",
     description:
       "Larger format 25-card deck with keywords printed on cards, perfect for beginners. Includes premium website access.",
-    isSelectable: true,
+    isSelectable: false,
   },
   {
     id: "adepts-oracle-deck",
     name: "The Adepts Oracle Deck",
-    price: 22,
+    price: 33,
     image: "/images/products/01cauldron-fire.jpg",
     description:
       "Standard size 25-card deck without printed keywords, designed for experienced readers. Includes premium website access.",
@@ -33,7 +33,7 @@ export const availableProducts: Product[] = [
     price: 11,
     image: "/images/tools/generated/elemental-dice-feature.png",
     description: "A set of elemental dice for divination.",
-    isSelectable: true,
+    isSelectable: false,
   },
   {
     id: "numo-spread-cloth",
@@ -41,7 +41,7 @@ export const availableProducts: Product[] = [
     price: 11,
     image: "/images/products/speardcloth01.jpg.jpg",
     description: "A beautiful spread cloth with an accompanying guide.",
-    isSelectable: true,
+    isSelectable: false,
   },
   {
     id: "standard-deck",
@@ -49,7 +49,7 @@ export const availableProducts: Product[] = [
     price: 33,
     image: "/images/products/standard-deck.png",
     description: "The foundational Numo Oracle deck.",
-    isSelectable: true,
+    isSelectable: false,
   },
   {
     id: "deluxe-deck",
@@ -57,7 +57,7 @@ export const availableProducts: Product[] = [
     price: 55,
     image: "/images/products/deluxe-deck.png",
     description: "A premium version of the Numo Oracle deck with enhanced features.",
-    isSelectable: true,
+    isSelectable: false,
   },
   {
     id: "guidebook",
@@ -65,7 +65,7 @@ export const availableProducts: Product[] = [
     price: 15,
     image: "/images/products/guidebook.png",
     description: "A comprehensive guidebook to the Numo Oracle system.",
-    isSelectable: true,
+    isSelectable: false,
   },
   {
     id: "crystal-set",
@@ -73,7 +73,7 @@ export const availableProducts: Product[] = [
     price: 20,
     image: "/images/products/crystal-set.png",
     description: "A set of crystals aligned with elemental energies.",
-    isSelectable: true,
+    isSelectable: false,
   },
 ]
 

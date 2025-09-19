@@ -25,14 +25,14 @@ const products = [
       "Includes Premium Website Access",
       "Perfect for Beginners",
     ],
-    status: "available",
+    status: "out-of-stock",
   },
   {
     id: "adepts-oracle-deck",
     name: "The Adepts Oracle Deck",
     description:
       "For the experienced practitioner, this standard-sized 25-card deck offers a more compact and refined experience without printed keywords for a cleaner aesthetic.",
-    price: 22.0,
+    price: 33.0,
     image: "/images/products/01cauldron-fire.jpg",
     features: [
       "25 Premium Cards in Standard Size",
@@ -51,7 +51,7 @@ const products = [
     price: 11.0,
     image: "/images/tools/elemental-dice.png",
     features: ["Set of 5 Custom Dice", "Engraved Elemental Symbols", "Portable Divination Tool"],
-    status: "coming-soon",
+    status: "out-of-stock",
   },
   {
     id: "numo-spread-cloth",
@@ -61,7 +61,7 @@ const products = [
     price: 11.0,
     image: "/images/products/speardcloth01.jpg.jpg",
     features: ["High-Quality Fabric", "Symbolic Print", "Includes Layout Guide"],
-    status: "available",
+    status: "out-of-stock",
   },
 ]
 
@@ -74,22 +74,23 @@ function SalesInquiryFormComponent() {
   const [isPending, startTransition] = useTransition()
 
   const handleSubmit = async (formData: FormData) => {
-    startTransition(async () => {
-      try {
-        const result = await submitSalesInquiry(formState, formData)
-        setFormState(result)
-      } catch (error) {
-        setFormState({
-          message: "An error occurred while submitting your inquiry.",
-          success: false,
-          fieldErrors: {},
+    startTransition(() => {
+      submitSalesInquiry(formState, formData)
+        .then((result) => {
+          setFormState(result)
         })
-      }
+        .catch((error) => {
+          setFormState({
+            message: "An error occurred while submitting your inquiry.",
+            success: false,
+            fieldErrors: {},
+          })
+        })
     })
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4 text-left">
+    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(new FormData(e.currentTarget)); }} className="space-y-4 text-left">
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-300">
           Full Name
@@ -257,7 +258,7 @@ export default function BuyPageClient() {
               <Card
                 key={product.id}
                 className={`bg-gray-800 border-gray-700 shadow-xl flex flex-col overflow-hidden transition-shadow duration-300 ${
-                  product.status === "coming-soon" ? "opacity-70" : "hover:shadow-purple-500/30"
+                  product.status === "out-of-stock" ? "opacity-70" : "hover:shadow-purple-500/30"
                 }`}
               >
                 <CardHeader className="p-0">
@@ -279,9 +280,9 @@ export default function BuyPageClient() {
                 <CardContent className="p-6 flex-grow flex flex-col">
                   <CardTitle className="text-xl font-semibold text-purple-300 mb-2 flex items-center justify-between">
                     {product.name}
-                    {product.status === "coming-soon" && (
-                      <span className="ml-2 text-xs bg-yellow-500 text-black font-bold py-0.5 px-2 rounded-full">
-                        SOON
+                    {product.status === "out-of-stock" && (
+                      <span className="ml-2 text-xs bg-red-500 text-white font-bold py-0.5 px-2 rounded-full text-center">
+                        OUT OF STOCK
                       </span>
                     )}
                   </CardTitle>
@@ -298,13 +299,13 @@ export default function BuyPageClient() {
                   <p className="text-2xl font-bold text-yellow-400 mb-auto">${product.price.toFixed(2)}</p>
                 </CardContent>
                 <CardFooter className="p-6 bg-gray-800/50 border-t border-gray-700/50">
-                  {product.status === "coming-soon" ? (
+                  {product.status === "out-of-stock" ? (
                     <Button
                       disabled
                       className="w-full bg-gray-600 hover:bg-gray-600 text-gray-400 cursor-not-allowed flex items-center justify-center"
                     >
                       <Info className="mr-2 h-4 w-4" />
-                      Coming Soon - ${product.price.toFixed(2)}
+                      Out of Stock
                     </Button>
                   ) : (
                     <div className="space-y-2 w-full">
