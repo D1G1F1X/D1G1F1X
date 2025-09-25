@@ -212,14 +212,21 @@ export default function EnhancedBlogPosts() {
             {post.featuredImage && (
               <div className="relative overflow-hidden rounded-md">
                 <Image
-                  src={post.featuredImage || "/placeholder.svg"}
+                  src={post.featuredImage}
                   alt={post.title}
                   width={600}
                   height={400}
                   className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement
-                    target.src = "/images/placeholder/generic-blog-fallback.png"
+                    // Try fallback images in order
+                    if (target.src.includes('mystical-sword-symbolism')) {
+                      target.src = "/images/blog/generated/spiritual-significance-cauldron-symbol.png"
+                    } else if (target.src.includes('sacred-cord-symbolism')) {
+                      target.src = "/images/blog/generated/understanding-five-elements-numerology.png"
+                    } else {
+                      target.src = "/images/blog/cauldron-symbolism.png"
+                    }
                   }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

@@ -190,12 +190,12 @@ export default function Navbar() {
                   src="/numo-logo-with-emblem.png"
                   alt="NUMO Oracle Logo"
                   width={150}
-                  height={40}
+                  height={37}
                   priority
                   className="h-10 w-auto"
                   onError={(e) => {
                     console.error("Logo failed to load, using fallback")
-                    e.currentTarget.src = "/placeholder.svg?height=40&width=150"
+                    e.currentTarget.src = "/placeholder.svg?height=37&width=150"
                   }}
                 />
               </Link>

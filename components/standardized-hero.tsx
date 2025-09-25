@@ -40,7 +40,10 @@ export default function StandardizedHero({
             </span>
           </div>
         )}
-        <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 tracking-tight">About NUMO</h1>
+        <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 tracking-tight">
+          {title}
+          {subtitle && <span className="block text-2xl md:text-4xl text-purple-300 mt-2">{subtitle}</span>}
+        </h1>
         <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-6">{description}</p>
         {features && (
           <div className="flex flex-wrap justify-center gap-4 text-sm">

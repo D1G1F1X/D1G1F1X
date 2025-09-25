@@ -478,7 +478,13 @@ export default function HomeContent() {
                   className="transition-opacity hover:opacity-80 focus:outline-none"
                   aria-label="Restart card animation"
                 >
-                  <Image src="/numoracle-full-logo.png" alt="NUMO ORACLE" width={300} height={60} className="mb-2" />
+                  <Image 
+                    src="/numoracle-full-logo.png" 
+                    alt="NUMO ORACLE" 
+                    width={300} 
+                    height={50} 
+                    className="mb-2 w-auto h-auto"
+                  />
                 </button>
                 <p className="text-lg text-gray-300 mb-6">{pageData?.description}</p>
               </div>

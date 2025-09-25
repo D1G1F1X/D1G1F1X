@@ -12,7 +12,13 @@ export default function Footer() {
           {/* Logo and About */}
           <div className="col-span-1 md:col-span-1">
             <Link href="/" className="inline-block mb-4">
-              <Image src="/numoracle-full-logo.png" alt="NUMO ORACLE" width={180} height={36} />
+              <Image 
+                src="/numoracle-full-logo.png" 
+                alt="NUMO ORACLE" 
+                width={180} 
+                height={30}
+                className="w-auto h-auto"
+              />
             </Link>
             <p className="text-gray-400 text-sm mb-4">
               Discover the ancient wisdom of numerology combined with elemental oracle cards for profound spiritual

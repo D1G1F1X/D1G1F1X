@@ -27,16 +27,22 @@ export class EnhancedBlogSystem {
    * Works whether the module exports `getAllPosts()` or a `posts` array.
    */
   private async loadAllPosts(): Promise<Post[]> {
-    const mod = await import("@/lib/content")
-    if (typeof mod.getAllPosts === "function") {
-      return await mod.getAllPosts()
+    try {
+      const mod = await import("@/lib/content")
+      
+      if (typeof mod.getAllPosts === "function") {
+        return await mod.getAllPosts()
+      }
+      // Fallback: static array export
+      if (Array.isArray(mod.posts)) {
+        return mod.posts
+      }
+      console.error("Content module did not provide posts. Available exports:", Object.keys(mod))
+      return []
+    } catch (error) {
+      console.error("Error loading content module:", error)
+      return []
     }
-    // Fallback: static array export
-    if (Array.isArray(mod.posts)) {
-      return mod.posts
-    }
-    console.error("Content module did not provide posts.")
-    return []
   }
 
   setCurrentUser(user: BlogUser | null) {
