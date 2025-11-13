@@ -336,7 +336,7 @@ export default function BuyPageClient() {
                           image: product.image
                         }]}
                         className="w-full"
-                        cancelUrl={product.id === "private-reading" ? `${window.location.origin}/buy` : undefined}
+                        cancelUrl={product.id === "private-reading" && typeof window !== "undefined" ? `${window.location.origin}/buy` : undefined}
                       >
                         Pay with Stripe - ${product.price.toFixed(2)}
                       </StripeCheckoutButton>
