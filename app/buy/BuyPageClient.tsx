@@ -63,6 +63,22 @@ const products = [
     features: ["High-Quality Fabric", "Symbolic Print", "Includes Layout Guide"],
     status: "out-of-stock",
   },
+  {
+    id: "private-reading",
+    name: "Private Reading Session",
+    description:
+      "A personalized, one-on-one reading session with our expert readers. This private session is tailored to your specific questions and needs, providing deep insights and guidance.",
+    price: 100.0,
+    image: "/images/products/ai-fallback-oracle-product.png",
+    features: [
+      "Personalized One-on-One Session",
+      "Expert Reader Consultation",
+      "Confidential & Private",
+      "Detailed Insights & Guidance",
+      "Follow-up Support Available",
+    ],
+    status: "available",
+  },
 ]
 
 function SalesInquiryFormComponent() {
@@ -320,6 +336,7 @@ export default function BuyPageClient() {
                           image: product.image
                         }]}
                         className="w-full"
+                        cancelUrl={product.id === "private-reading" ? `${window.location.origin}/buy` : undefined}
                       >
                         Pay with Stripe - ${product.price.toFixed(2)}
                       </StripeCheckoutButton>
