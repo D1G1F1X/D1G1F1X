@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 import type { Metadata } from "next"
-import HeroSection from "@/components/hero-section" // Import HeroSection
+import HeroSection from "@/components/hero-section"
+import SignInForm from "@/components/auth/sign-in-form"
 
 export const metadata: Metadata = {
   title: "Login | NUMO Oracle",
@@ -16,9 +17,8 @@ export default function LoginPage() {
         backgroundImage="/abstract-login-background.png"
       />
       <Suspense fallback={<div className="text-center py-20 text-white">Loading login form...</div>}>
-        <div className="container mx-auto py-8">
-          <h1 className="text-3xl font-bold mb-6 text-center text-white">Login</h1>
-          <p className="text-center text-gray-300">Login form goes here.</p>
+        <div className="container mx-auto py-8 px-4">
+          <SignInForm />
         </div>
       </Suspense>
     </div>

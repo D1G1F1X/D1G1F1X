@@ -20,6 +20,8 @@ interface StripeCheckoutButtonProps {
   onError?: (error: string) => void
   className?: string
   children?: React.ReactNode
+  successUrl?: string
+  cancelUrl?: string
 }
 
 export default function StripeCheckoutButton({ 
@@ -28,7 +30,9 @@ export default function StripeCheckoutButton({
   onSuccess, 
   onError, 
   className,
-  children 
+  children,
+  successUrl,
+  cancelUrl
 }: StripeCheckoutButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -46,8 +50,8 @@ export default function StripeCheckoutButton({
         body: JSON.stringify({
           items,
           customerEmail,
-          successUrl: `${window.location.origin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
-          cancelUrl: `${window.location.origin}/buy`,
+          successUrl: successUrl || `${window.location.origin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: cancelUrl || `${window.location.origin}/buy`,
         }),
       })
 

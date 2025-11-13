@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 import type { Metadata } from "next"
-import HeroSection from "@/components/hero-section" // Import HeroSection
+import HeroSection from "@/components/hero-section"
+import SignUpForm from "@/components/auth/sign-up-form"
 
 export const metadata: Metadata = {
   title: "Register | NUMO Oracle",
@@ -16,9 +17,8 @@ export default function RegisterPage() {
         backgroundImage="/placeholder.svg?height=500&width=1500"
       />
       <Suspense fallback={<div className="text-center py-20 text-white">Loading registration form...</div>}>
-        <div className="container mx-auto py-8">
-          <h1 className="text-3xl font-bold mb-6 text-center text-white">Register</h1>
-          <p className="text-center text-gray-300">Registration form goes here.</p>
+        <div className="container mx-auto py-8 px-4">
+          <SignUpForm />
         </div>
       </Suspense>
     </div>
