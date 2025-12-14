@@ -19,11 +19,12 @@ export const publicSupabaseConfig = {
  * Returns true if valid, false otherwise. Logs warnings instead of throwing during build.
  */
 export function validateDigifixIntegration(): boolean {
-  if (
-    !SUPABASE_CONFIG.url ||
-    (!SUPABASE_CONFIG.url.includes("digifix") && !SUPABASE_CONFIG.url.includes("your-digifix-project-id"))
-  ) {
-    console.warn("⚠️  Invalid Supabase integration - DIGIFIX project URL not found. Some features may not work.")
+  if (!SUPABASE_CONFIG.url) {
+    console.warn("⚠️  NEXT_PUBLIC_SUPABASE_URL is not set. Some features may not work.")
+    return false
+  }
+  if (!SUPABASE_CONFIG.anonKey) {
+    console.warn("⚠️  NEXT_PUBLIC_SUPABASE_ANON_KEY is not set. Some features may not work.")
     return false
   }
   if (!SUPABASE_CONFIG.serviceRoleKey) {

@@ -6,6 +6,15 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  webpack: (config, { isServer }) => {
+    // Suppress critical dependency warnings from Supabase realtime package
+    config.module = {
+      ...config.module,
+      exprContextCritical: false,
+      unknownContextCritical: false,
+    }
+    return config
+  },
   images: {
     remotePatterns: [
       {
