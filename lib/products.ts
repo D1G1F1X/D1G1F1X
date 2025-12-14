@@ -75,6 +75,15 @@ export const availableProducts: Product[] = [
     description: "A set of crystals aligned with elemental energies.",
     isSelectable: false,
   },
+  {
+    id: "private-reading",
+    name: "Private Reading Session",
+    price: 500,
+    image: "/images/products/ai-fallback-oracle-product.png",
+    description:
+      "A personalized, one-on-one reading session with our expert readers. This private session is tailored to your specific questions and needs, providing deep insights and guidance.",
+    isSelectable: false,
+  },
 ]
 
 // General list of selectable products (all products marked isSelectable and not "Coming Soon")

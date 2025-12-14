@@ -1,23 +1,38 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import StripeCheckoutButton from "@/components/stripe-payment-form"
 import { useAuth } from "@/contexts/auth-context"
 import { Sparkles, Lock, Heart, Star, CheckCircle } from "lucide-react"
-
-const PRIVATE_READING_PRICE = 100
+import { availableProducts } from "@/lib/products"
 
 export default function PrivateReadingClient() {
   const { user } = useAuth()
+  const [cancelUrl, setCancelUrl] = useState<string | undefined>(undefined)
+  const [successUrl, setSuccessUrl] = useState<string | undefined>(undefined)
+
+  // Set URLs on client side only
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCancelUrl(`${window.location.origin}/private-reading`)
+      setSuccessUrl(`${window.location.origin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`)
+    }
+  }, [])
+
+  // Get the private reading product from the products list
+  const privateReadingProduct = availableProducts.find((p) => p.id === "private-reading")
 
   const privateReadingItem = {
-    id: "private-reading",
-    name: "Private Reading Session",
-    description: "A personalized, one-on-one reading session with our expert readers. This private session is tailored to your specific questions and needs, providing deep insights and guidance.",
-    price: PRIVATE_READING_PRICE,
+    id: privateReadingProduct?.id || "private-reading",
+    name: privateReadingProduct?.name || "Private Reading Session",
+    description:
+      privateReadingProduct?.description ||
+      "A personalized, one-on-one reading session with our expert readers. This private session is tailored to your specific questions and needs, providing deep insights and guidance.",
+    price: privateReadingProduct?.price || 500,
     quantity: 1,
-    image: "/images/products/ai-fallback-oracle-product.png",
+    image: privateReadingProduct?.image || "/images/products/ai-fallback-oracle-product.png",
   }
 
   return (
@@ -139,7 +154,7 @@ export default function PrivateReadingClient() {
           <div className="text-center">
             <div className="inline-block bg-purple-600/20 border border-purple-500/50 rounded-lg px-6 py-4">
               <p className="text-sm text-gray-400 mb-1">Price</p>
-              <p className="text-4xl font-bold text-white">${PRIVATE_READING_PRICE.toFixed(2)}</p>
+              <p className="text-4xl font-bold text-white">${privateReadingItem.price.toFixed(2)}</p>
             </div>
           </div>
 
@@ -155,10 +170,10 @@ export default function PrivateReadingClient() {
               items={[privateReadingItem]}
               customerEmail={user?.email}
               className="w-full"
-              cancelUrl={`${window.location.origin}/private-reading`}
-              successUrl={`${window.location.origin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`}
+              cancelUrl={cancelUrl}
+              successUrl={successUrl}
             >
-              Purchase Private Reading - ${PRIVATE_READING_PRICE.toFixed(2)}
+              Purchase Private Reading - ${privateReadingItem.price.toFixed(2)}
             </StripeCheckoutButton>
           </div>
 
