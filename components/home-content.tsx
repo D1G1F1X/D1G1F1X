@@ -537,7 +537,7 @@ export default function HomeContent() {
                 onMouseLeave={() => setIsHovering(false)}
                 key={animationKey}
               >
-                {randomizedCards.map((card) => (
+                {randomizedCards.map((card, index) => (
                   <div
                     key={card.id}
                     className="absolute top-1/2 left-1/2 transition-all duration-700"
@@ -570,6 +570,7 @@ export default function HomeContent() {
                           width={240}
                           height={360}
                           className="w-full h-full object-cover"
+                          priority={index === 0 || card.src === "/cards/83cord-air.jpg"}
                         />
                       </div>
                     </div>

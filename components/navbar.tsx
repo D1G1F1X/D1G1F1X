@@ -193,6 +193,7 @@ export default function Navbar() {
                   height={37}
                   priority
                   className="h-10 w-auto"
+                  suppressHydrationWarning
                   onError={(e) => {
                     console.error("Logo failed to load, using fallback")
                     e.currentTarget.src = "/placeholder.svg?height=37&width=150"

@@ -18,6 +18,7 @@ export default function Footer() {
                 width={180} 
                 height={30}
                 className="w-auto h-auto"
+                suppressHydrationWarning
               />
             </Link>
             <p className="text-gray-400 text-sm mb-4">

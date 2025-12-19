@@ -3,26 +3,54 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import StripeCheckoutButton from "@/components/stripe-payment-form"
 import { useAuth } from "@/contexts/auth-context"
 import { Sparkles, Lock, Heart, Star, CheckCircle } from "lucide-react"
 import { availableProducts } from "@/lib/products"
 
+const PRIVATE_READING_PRICE_KEY = "privateReadingPrice"
+
 export default function PrivateReadingClient() {
   const { user } = useAuth()
   const [cancelUrl, setCancelUrl] = useState<string | undefined>(undefined)
   const [successUrl, setSuccessUrl] = useState<string | undefined>(undefined)
+  const [mounted, setMounted] = useState(false)
+  
+  // Get default price from products (same on server and client to avoid hydration mismatch)
+  const privateReadingProduct = availableProducts.find((p) => p.id === "private-reading")
+  const defaultPrice = privateReadingProduct?.price || 500
+  
+  // Start with default price to match server render
+  const [price, setPrice] = useState(defaultPrice)
 
-  // Set URLs on client side only
+  // Set URLs and load price from localStorage after mount (client-side only)
   useEffect(() => {
+    setMounted(true)
+    
     if (typeof window !== "undefined") {
       setCancelUrl(`${window.location.origin}/private-reading`)
       setSuccessUrl(`${window.location.origin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`)
+      
+      // Load saved price from localStorage after mount
+      const saved = localStorage.getItem(PRIVATE_READING_PRICE_KEY)
+      if (saved) {
+        const parsed = parseFloat(saved)
+        if (!isNaN(parsed) && parsed > 0) {
+          setPrice(parsed)
+        }
+      }
     }
   }, [])
 
-  // Get the private reading product from the products list
-  const privateReadingProduct = availableProducts.find((p) => p.id === "private-reading")
+  // Save price to localStorage when it changes
+  const handlePriceChange = (newPrice: number) => {
+    setPrice(newPrice)
+    if (typeof window !== "undefined") {
+      localStorage.setItem(PRIVATE_READING_PRICE_KEY, newPrice.toString())
+    }
+  }
 
   const privateReadingItem = {
     id: privateReadingProduct?.id || "private-reading",
@@ -30,7 +58,7 @@ export default function PrivateReadingClient() {
     description:
       privateReadingProduct?.description ||
       "A personalized, one-on-one reading session with our expert readers. This private session is tailored to your specific questions and needs, providing deep insights and guidance.",
-    price: privateReadingProduct?.price || 500,
+    price: price,
     quantity: 1,
     image: privateReadingProduct?.image || "/images/products/ai-fallback-oracle-product.png",
   }
@@ -151,10 +179,29 @@ export default function PrivateReadingClient() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="text-center">
+          <div className="text-center space-y-4">
             <div className="inline-block bg-purple-600/20 border border-purple-500/50 rounded-lg px-6 py-4">
               <p className="text-sm text-gray-400 mb-1">Price</p>
               <p className="text-4xl font-bold text-white">${privateReadingItem.price.toFixed(2)}</p>
+            </div>
+            
+            {/* Price Editor - Simple input box */}
+            <div className="max-w-xs mx-auto">
+              <Label htmlFor="price-input" className="text-sm text-gray-400 mb-2 block">
+                Edit Price ($)
+              </Label>
+              <Input
+                id="price-input"
+                type="number"
+                step="0.01"
+                min="0"
+                value={price}
+                onChange={(e) => {
+                  const newPrice = parseFloat(e.target.value) || 0
+                  handlePriceChange(newPrice)
+                }}
+                className="bg-gray-800/50 border-gray-600 text-white text-center text-lg font-semibold"
+              />
             </div>
           </div>
 
@@ -209,4 +256,5 @@ export default function PrivateReadingClient() {
     </div>
   )
 }
+
 
