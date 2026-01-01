@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -30,17 +31,22 @@ export const metadata: Metadata = {
 
 export default function ResearchDevelopmentPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-950 to-gray-900">
+      {/* Animated Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-500/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-500" />
+        {/* Particle grid overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(148_163_184/0.05)_1px,transparent_0)] bg-[size:40px_40px]" />
+      </div>
+
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 via-background to-accent/5 -z-10" />
-        <div className="absolute top-20 right-10 w-96 h-96 bg-primary-500/5 rounded-full blur-3xl -z-10" />
-        <div className="absolute bottom-10 left-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl -z-10" />
-
-        <div className="container mx-auto max-w-7xl">
+        <div className="container mx-auto max-w-7xl relative z-10">
           <div className="flex items-center gap-2 mb-6">
-            <FlaskConical className="w-6 h-6 text-primary-500" />
-            <Badge variant="outline" className="text-sm border-primary-500/50">
+            <FlaskConical className="w-6 h-6 text-primary-400" />
+            <Badge variant="outline" className="text-sm border-primary-400/50 text-primary-300 bg-primary-950/30">
               Research & Development Division
             </Badge>
           </div>
@@ -48,7 +54,7 @@ export default function ResearchDevelopmentPage() {
           <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white leading-tight">
             Pioneering the Future
             <br />
-            <span className="text-gradient bg-gradient-to-r from-primary-400 via-accent to-primary-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary-400 via-purple-400 to-accent bg-clip-text text-transparent">
               of Computation
             </span>
           </h1>
@@ -59,11 +65,15 @@ export default function ResearchDevelopmentPage() {
           </p>
 
           <div className="flex flex-wrap gap-4">
-            <Button size="lg" className="bg-primary-500 hover:bg-primary-600">
+            <Button size="lg" className="bg-primary-500 hover:bg-primary-600 shadow-lg shadow-primary-500/50">
               <BookOpen className="w-5 h-5 mr-2" />
               View Publications
             </Button>
-            <Button size="lg" variant="outline">
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-primary-400/50 hover:bg-primary-950/30 bg-transparent"
+            >
               <GitBranch className="w-5 h-5 mr-2" />
               Open Source Projects
             </Button>
@@ -71,8 +81,8 @@ export default function ResearchDevelopmentPage() {
         </div>
       </section>
 
-      {/* Core Research Areas */}
-      <section className="py-20 px-4">
+      {/* Core Research Areas with Generated Images */}
+      <section className="py-20 px-4 relative z-10">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">Core Research Areas</h2>
@@ -83,7 +93,18 @@ export default function ResearchDevelopmentPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            <Card className="bg-card/50 backdrop-blur-sm border-primary-500/20 hover:border-primary-500/50 transition-all">
+            {/* Quaternionic Computing */}
+            <Card className="bg-gray-900/80 backdrop-blur-sm border-primary-500/30 hover:border-primary-500 transition-all group overflow-hidden">
+              <div className="relative h-48 overflow-hidden">
+                <Image
+                  src="/abstract-quaternion-mathematics-visualization-with.jpg"
+                  alt="Quaternionic Computing Visualization"
+                  width={800}
+                  height={400}
+                  className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
+              </div>
               <CardHeader>
                 <div className="w-12 h-12 bg-primary-500/10 rounded-lg flex items-center justify-center mb-4">
                   <Atom className="w-6 h-6 text-primary-400" />
@@ -116,7 +137,18 @@ export default function ResearchDevelopmentPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-card/50 backdrop-blur-sm border-accent/20 hover:border-accent/50 transition-all">
+            {/* RUBIC */}
+            <Card className="bg-gray-900/80 backdrop-blur-sm border-accent/30 hover:border-accent transition-all group overflow-hidden">
+              <div className="relative h-48 overflow-hidden">
+                <Image
+                  src="/reversible-computing-circuit-diagram-with-bidirect.jpg"
+                  alt="RUBIC Reversible Computing"
+                  width={800}
+                  height={400}
+                  className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
+              </div>
               <CardHeader>
                 <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
                   <Cpu className="w-6 h-6 text-accent" />
@@ -149,10 +181,21 @@ export default function ResearchDevelopmentPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-card/50 backdrop-blur-sm border-primary-500/20 hover:border-primary-500/50 transition-all">
+            {/* Cauldron */}
+            <Card className="bg-gray-900/80 backdrop-blur-sm border-purple-500/30 hover:border-purple-500 transition-all group overflow-hidden">
+              <div className="relative h-48 overflow-hidden">
+                <Image
+                  src="/quantum-state-visualization-with-10-interconnected.jpg"
+                  alt="The Cauldron System"
+                  width={800}
+                  height={400}
+                  className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
+              </div>
               <CardHeader>
-                <div className="w-12 h-12 bg-primary-500/10 rounded-lg flex items-center justify-center mb-4">
-                  <Layers className="w-6 h-6 text-primary-400" />
+                <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-4">
+                  <Layers className="w-6 h-6 text-purple-400" />
                 </div>
                 <CardTitle className="text-2xl text-white">The Cauldron System</CardTitle>
                 <CardDescription className="text-gray-300">
@@ -167,25 +210,36 @@ export default function ResearchDevelopmentPage() {
                 </p>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start">
-                    <Binary className="w-4 h-4 mr-2 mt-0.5 text-primary-400 flex-shrink-0" />
+                    <Binary className="w-4 h-4 mr-2 mt-0.5 text-purple-400 flex-shrink-0" />
                     <span>Four canonical delta-pairs with octagonal reflection symmetry</span>
                   </li>
                   <li className="flex items-start">
-                    <Binary className="w-4 h-4 mr-2 mt-0.5 text-primary-400 flex-shrink-0" />
+                    <Binary className="w-4 h-4 mr-2 mt-0.5 text-purple-400 flex-shrink-0" />
                     <span>SO(8) triality and minimal nontrivial spinor representation</span>
                   </li>
                   <li className="flex items-start">
-                    <Binary className="w-4 h-4 mr-2 mt-0.5 text-primary-400 flex-shrink-0" />
+                    <Binary className="w-4 h-4 mr-2 mt-0.5 text-purple-400 flex-shrink-0" />
                     <span>Five-suit symbolic system mapping to elemental oppositions</span>
                   </li>
                 </ul>
               </CardContent>
             </Card>
 
-            <Card className="bg-card/50 backdrop-blur-sm border-accent/20 hover:border-accent/50 transition-all">
+            {/* AI Research */}
+            <Card className="bg-gray-900/80 backdrop-blur-sm border-green-500/30 hover:border-green-500 transition-all group overflow-hidden">
+              <div className="relative h-48 overflow-hidden">
+                <Image
+                  src="/artificial-intelligence-neural-network-with-glowin.jpg"
+                  alt="AI Research"
+                  width={800}
+                  height={400}
+                  className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
+              </div>
               <CardHeader>
-                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                  <Brain className="w-6 h-6 text-accent" />
+                <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mb-4">
+                  <Brain className="w-6 h-6 text-green-400" />
                 </div>
                 <CardTitle className="text-2xl text-white">Artificial Intelligence Research</CardTitle>
                 <CardDescription className="text-gray-300">Next-generation AI systems and applications</CardDescription>
@@ -197,15 +251,15 @@ export default function ResearchDevelopmentPage() {
                 </p>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start">
-                    <Sparkles className="w-4 h-4 mr-2 mt-0.5 text-accent flex-shrink-0" />
+                    <Sparkles className="w-4 h-4 mr-2 mt-0.5 text-green-400 flex-shrink-0" />
                     <span>LLM-powered analysis and content generation systems</span>
                   </li>
                   <li className="flex items-start">
-                    <Sparkles className="w-4 h-4 mr-2 mt-0.5 text-accent flex-shrink-0" />
+                    <Sparkles className="w-4 h-4 mr-2 mt-0.5 text-green-400 flex-shrink-0" />
                     <span>Symbolic reasoning integrated with neural networks</span>
                   </li>
                   <li className="flex items-start">
-                    <Sparkles className="w-4 h-4 mr-2 mt-0.5 text-accent flex-shrink-0" />
+                    <Sparkles className="w-4 h-4 mr-2 mt-0.5 text-green-400 flex-shrink-0" />
                     <span>AI-assisted software development and optimization tools</span>
                   </li>
                 </ul>
@@ -216,7 +270,7 @@ export default function ResearchDevelopmentPage() {
       </section>
 
       {/* Current Projects */}
-      <section className="py-20 px-4 bg-gradient-to-br from-primary-500/5 to-accent/5">
+      <section className="py-20 px-4 relative z-10">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">Active Research Projects</h2>
@@ -226,7 +280,7 @@ export default function ResearchDevelopmentPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="bg-card/80 backdrop-blur-sm border-border/50">
+            <Card className="bg-gray-900/80 backdrop-blur-sm border-green-500/30 hover:border-green-500 transition-all hover:shadow-lg hover:shadow-green-500/20">
               <CardHeader>
                 <Badge className="w-fit mb-2 bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
                 <CardTitle className="text-xl text-white">NUMO Oracle Platform</CardTitle>
@@ -245,7 +299,7 @@ export default function ResearchDevelopmentPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-card/80 backdrop-blur-sm border-border/50">
+            <Card className="bg-gray-900/80 backdrop-blur-sm border-blue-500/30 hover:border-blue-500 transition-all hover:shadow-lg hover:shadow-blue-500/20">
               <CardHeader>
                 <Badge className="w-fit mb-2 bg-blue-500/20 text-blue-400 border-blue-500/30">Research</Badge>
                 <CardTitle className="text-xl text-white">Quaternionic OS Layer</CardTitle>
@@ -262,7 +316,7 @@ export default function ResearchDevelopmentPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-card/80 backdrop-blur-sm border-border/50">
+            <Card className="bg-gray-900/80 backdrop-blur-sm border-purple-500/30 hover:border-purple-500 transition-all hover:shadow-lg hover:shadow-purple-500/20">
               <CardHeader>
                 <Badge className="w-fit mb-2 bg-purple-500/20 text-purple-400 border-purple-500/30">Beta</Badge>
                 <CardTitle className="text-xl text-white">M.E.L.T. Platform</CardTitle>
@@ -287,7 +341,7 @@ export default function ResearchDevelopmentPage() {
       </section>
 
       {/* Research Publications */}
-      <section className="py-20 px-4">
+      <section className="py-20 px-4 relative z-10">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">Research Publications</h2>
@@ -295,7 +349,7 @@ export default function ResearchDevelopmentPage() {
           </div>
 
           <div className="space-y-6">
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50 hover:border-primary-500/50 transition-all">
+            <Card className="bg-gray-900/80 backdrop-blur-sm border-primary-500/30 hover:border-primary-500 transition-all">
               <CardContent className="p-6">
                 <div className="flex items-start gap-6">
                   <div className="w-16 h-16 bg-primary-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -306,8 +360,11 @@ export default function ResearchDevelopmentPage() {
                       <h3 className="text-xl font-semibold text-white">
                         Quaternionic Unification Across the Cauldron, CORE/NUMO, and RUBIC Systems
                       </h3>
-                      <Badge variant="outline" className="text-xs whitespace-nowrap">
-                        Dec 2025
+                      <Badge
+                        variant="outline"
+                        className="text-xs whitespace-nowrap border-primary-400/50 text-primary-300"
+                      >
+                        Dec 2024
                       </Badge>
                     </div>
                     <p className="text-gray-400 text-sm mb-2">
@@ -320,20 +377,24 @@ export default function ResearchDevelopmentPage() {
                       ecosystem.
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-primary-950/50 text-primary-300">
                         Quaternions
                       </Badge>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-primary-950/50 text-primary-300">
                         Reversible Computing
                       </Badge>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-primary-950/50 text-primary-300">
                         D8 Symmetry
                       </Badge>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-primary-950/50 text-primary-300">
                         OS Optimization
                       </Badge>
                     </div>
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-primary-400/50 hover:bg-primary-950/30 bg-transparent"
+                    >
                       <BookOpen className="w-4 h-4 mr-2" />
                       Read Full Paper
                     </Button>
@@ -342,19 +403,22 @@ export default function ResearchDevelopmentPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50 hover:border-primary-500/50 transition-all">
+            <Card className="bg-gray-900/80 backdrop-blur-sm border-purple-500/30 hover:border-purple-500 transition-all">
               <CardContent className="p-6">
                 <div className="flex items-start gap-6">
-                  <div className="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <FileText className="w-8 h-8 text-accent" />
+                  <div className="w-16 h-16 bg-purple-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-8 h-8 text-purple-400" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-start justify-between gap-4 mb-2">
                       <h3 className="text-xl font-semibold text-white">
                         The Cauldron: A Minimal Exactly-Solvable 10-State Quantum Universe with D8 × Z2 Symmetry
                       </h3>
-                      <Badge variant="outline" className="text-xs whitespace-nowrap">
-                        Nov 2025
+                      <Badge
+                        variant="outline"
+                        className="text-xs whitespace-nowrap border-purple-400/50 text-purple-300"
+                      >
+                        Nov 2024
                       </Badge>
                     </div>
                     <p className="text-gray-400 text-sm mb-2">Lumen Helix Solutions Research Division</p>
@@ -364,20 +428,24 @@ export default function ResearchDevelopmentPage() {
                       embedding, and connections to SO(8) triality and E8 root lattice.
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-purple-950/50 text-purple-300">
                         Quantum Systems
                       </Badge>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-purple-950/50 text-purple-300">
                         Dihedral Symmetry
                       </Badge>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-purple-950/50 text-purple-300">
                         Clifford Algebras
                       </Badge>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-purple-950/50 text-purple-300">
                         E8 Lattice
                       </Badge>
                     </div>
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-purple-400/50 hover:bg-purple-950/30 bg-transparent"
+                    >
                       <BookOpen className="w-4 h-4 mr-2" />
                       Read Full Paper
                     </Button>
@@ -386,48 +454,7 @@ export default function ResearchDevelopmentPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50 hover:border-primary-500/50 transition-all">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-6">
-                  <div className="w-16 h-16 bg-primary-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <FileText className="w-8 h-8 text-primary-400" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                      <h3 className="text-xl font-semibold text-white">
-                        Fixing the Canonical Ordering of the Delta-Pairs in NUMO Field Systems
-                      </h3>
-                      <Badge variant="outline" className="text-xs whitespace-nowrap">
-                        2025
-                      </Badge>
-                    </div>
-                    <p className="text-gray-400 text-sm mb-2">Lumen Helix Solutions Research Division</p>
-                    <p className="text-gray-300 mb-4">
-                      Defines canonical ordering for delta-pair reflection axes using the quadratic moment functional.
-                      Establishes deterministic labeling that removes arbitrary choices while preserving the underlying
-                      D8 octagonal symmetry.
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      <Badge variant="secondary" className="text-xs">
-                        Group Theory
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        Canonical Forms
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        Symmetry Breaking
-                      </Badge>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      Read Full Paper
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50 hover:border-primary-500/50 transition-all">
+            <Card className="bg-gray-900/80 backdrop-blur-sm border-accent/30 hover:border-accent transition-all">
               <CardContent className="p-6">
                 <div className="flex items-start gap-6">
                   <div className="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -436,35 +463,81 @@ export default function ResearchDevelopmentPage() {
                   <div className="flex-1">
                     <div className="flex items-start justify-between gap-4 mb-2">
                       <h3 className="text-xl font-semibold text-white">
-                        RUBIC: Reversible Unified Boundary-Integrated Core System Architecture
+                        Glossary and Analysis of NUMO Field, Cauldron, and RUBIC Frameworks
                       </h3>
-                      <Badge variant="outline" className="text-xs whitespace-nowrap">
-                        Nov 2025
+                      <Badge variant="outline" className="text-xs whitespace-nowrap border-accent/50 text-accent">
+                        Oct 2024
                       </Badge>
                     </div>
-                    <p className="text-gray-400 text-sm mb-2">Lumen Helix Solutions Research Division</p>
+                    <p className="text-gray-400 text-sm mb-2">Lumen Helix Solutions Research Team</p>
                     <p className="text-gray-300 mb-4">
-                      Introduces RUBIC architecture where every operation is time-reversible and system boundaries are
-                      active integrated elements. Presents Reversible Processing Units (RPUs), Boundary Managers,
-                      push-pull data flow paradigm, and applications to thermodynamically efficient computing.
+                      Comprehensive glossary defining technical terms, symbolic representations, and mathematical
+                      structures across the NUMO Field ecosystem. Includes detailed explanations of delta-pairs,
+                      octagonal symmetry, and reversible computation principles.
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      <Badge variant="secondary" className="text-xs">
-                        Reversible Computing
+                      <Badge variant="secondary" className="text-xs bg-gray-800 text-gray-300">
+                        Documentation
                       </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        Architecture
+                      <Badge variant="secondary" className="text-xs bg-gray-800 text-gray-300">
+                        Technical Reference
                       </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        Energy Efficiency
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        Information Theory
+                      <Badge variant="secondary" className="text-xs bg-gray-800 text-gray-300">
+                        Framework Analysis
                       </Badge>
                     </div>
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-accent/50 hover:bg-gray-800/50 bg-transparent"
+                    >
                       <BookOpen className="w-4 h-4 mr-2" />
-                      Read Full Paper
+                      Read Documentation
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-900/80 backdrop-blur-sm border-green-500/30 hover:border-green-500 transition-all">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-6">
+                  <div className="w-16 h-16 bg-green-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-8 h-8 text-green-400" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between gap-4 mb-2">
+                      <h3 className="text-xl font-semibold text-white">
+                        RUBIC: Reversible Unified Boundary-Integrated Core Architecture
+                      </h3>
+                      <Badge variant="outline" className="text-xs whitespace-nowrap border-green-400/50 text-green-300">
+                        Sep 2024
+                      </Badge>
+                    </div>
+                    <p className="text-gray-400 text-sm mb-2">Advanced Computing Architectures Lab</p>
+                    <p className="text-gray-300 mb-4">
+                      Introduces RUBIC architecture principles for thermodynamically efficient computing through
+                      reversible operations, boundary integration, and minimal-history state management. Demonstrates
+                      practical implementation patterns and energy efficiency gains.
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Badge variant="secondary" className="text-xs bg-green-950/50 text-green-300">
+                        Architecture
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs bg-green-950/50 text-green-300">
+                        Energy Efficiency
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs bg-green-950/50 text-green-300">
+                        Reversibility
+                      </Badge>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-green-400/50 hover:bg-green-950/30 bg-transparent"
+                    >
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      Read Specification
                     </Button>
                   </div>
                 </div>
@@ -474,298 +547,173 @@ export default function ResearchDevelopmentPage() {
         </div>
       </section>
 
-      {/* Technical Framework Overview */}
-      <section className="py-20 px-4 bg-gradient-to-br from-primary-500/5 to-accent/5">
+      {/* Framework Overview */}
+      <section className="py-20 px-4 relative z-10">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">Framework Integration</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">Unified Framework</h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              How our research frameworks interconnect to form a unified computational paradigm
+              How Cauldron, CORE, and RUBIC interconnect to form a complete computational paradigm
             </p>
           </div>
 
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8 bg-card/50">
+            <TabsList className="grid w-full grid-cols-4 bg-gray-900/80 backdrop-blur-sm border border-primary-500/30">
               <TabsTrigger value="overview" className="data-[state=active]:bg-primary-500/20">
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="numo" className="data-[state=active]:bg-primary-500/20">
-                NUMO Field
-              </TabsTrigger>
-              <TabsTrigger value="cauldron" className="data-[state=active]:bg-primary-500/20">
+              <TabsTrigger value="cauldron" className="data-[state=active]:bg-purple-500/20">
                 Cauldron
               </TabsTrigger>
-              <TabsTrigger value="rubic" className="data-[state=active]:bg-primary-500/20">
+              <TabsTrigger value="core" className="data-[state=active]:bg-primary-500/20">
+                CORE/NUMO
+              </TabsTrigger>
+              <TabsTrigger value="rubic" className="data-[state=active]:bg-accent/20">
                 RUBIC
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="overview" className="space-y-6">
-              <Card className="bg-card/80 backdrop-blur-sm border-border/50">
-                <CardHeader>
-                  <CardTitle className="text-2xl text-white">Unified Computational Paradigm</CardTitle>
-                  <CardDescription className="text-gray-300">
-                    Three frameworks working in harmony to create reversible, symmetric, quantum-inspired computing
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-gray-200 space-y-4">
-                  <p>
-                    Our research demonstrates that the NUMO Field, Cauldron, and RUBIC systems form a coherent
-                    computational paradigm united by fundamental principles of symmetry, reversibility, and duality:
+            <TabsContent value="overview" className="mt-6">
+              <Card className="bg-gray-900/80 backdrop-blur-sm border-primary-500/30">
+                <CardContent className="p-8">
+                  <h3 className="text-2xl font-bold text-white mb-4">The Complete Ecosystem</h3>
+                  <p className="text-gray-300 mb-6 leading-relaxed">
+                    Our research framework integrates three fundamental components: the <strong>Cauldron</strong>{" "}
+                    provides the theoretical quantum foundation with D8 × Z2 symmetry, <strong>CORE/NUMO</strong>{" "}
+                    implements constraint-based processing and observable field dynamics, and <strong>RUBIC</strong>{" "}
+                    ensures all operations remain reversible and thermodynamically efficient.
                   </p>
-
-                  <div className="grid md:grid-cols-3 gap-4 my-6">
-                    <div className="p-4 bg-primary-500/10 rounded-lg border border-primary-500/20">
-                      <h4 className="font-semibold text-white mb-2 flex items-center">
-                        <Network className="w-5 h-5 mr-2 text-primary-400" />
-                        NUMO Field
-                      </h4>
-                      <p className="text-sm text-gray-300">
-                        Discrete backbone with delta-pairs and D8 symmetry providing canonical state labeling
-                      </p>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-purple-500/10 rounded-lg border border-purple-500/30">
+                      <Layers className="w-8 h-8 text-purple-400 mb-2" />
+                      <h4 className="text-lg font-semibold text-white mb-2">Cauldron</h4>
+                      <p className="text-sm text-gray-300">Quantum substrate with exact algebraic structure</p>
                     </div>
-                    <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
-                      <h4 className="font-semibold text-white mb-2 flex items-center">
-                        <Layers className="w-5 h-5 mr-2 text-accent" />
-                        Cauldron
-                      </h4>
-                      <p className="text-sm text-gray-300">
-                        10-state quantum system realizing exact dual-aspect monism with SO(8) triality
-                      </p>
+                    <div className="p-4 bg-primary-500/10 rounded-lg border border-primary-500/30">
+                      <Network className="w-8 h-8 text-primary-400 mb-2" />
+                      <h4 className="text-lg font-semibold text-white mb-2">CORE/NUMO</h4>
+                      <p className="text-sm text-gray-300">Constraint processing and field observations</p>
                     </div>
-                    <div className="p-4 bg-primary-500/10 rounded-lg border border-primary-500/20">
-                      <h4 className="font-semibold text-white mb-2 flex items-center">
-                        <Cpu className="w-5 h-5 mr-2 text-primary-400" />
-                        RUBIC
-                      </h4>
-                      <p className="text-sm text-gray-300">
-                        Reversible computing architecture with boundary integration and time-invertible operations
-                      </p>
+                    <div className="p-4 bg-accent/10 rounded-lg border border-accent/30">
+                      <Cpu className="w-8 h-8 text-accent mb-2" />
+                      <h4 className="text-lg font-semibold text-white mb-2">RUBIC</h4>
+                      <p className="text-sm text-gray-300">Reversible architecture implementation</p>
                     </div>
                   </div>
-
-                  <p>
-                    The quaternionic unification layer bridges all three, providing associative algebra for rotations,
-                    reflections, and norm-preserving transformations that can be implemented efficiently in modern
-                    operating systems.
-                  </p>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="numo" className="space-y-6">
-              <Card className="bg-card/80 backdrop-blur-sm border-border/50">
-                <CardHeader>
-                  <CardTitle className="text-2xl text-white">NUMO Field Framework</CardTitle>
-                  <CardDescription className="text-gray-300">
-                    Mathematical foundation with D8 octagonal symmetry
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-gray-200 space-y-4">
-                  <p>
-                    The NUMO Field establishes a discrete ring of states (2 through 9) with embedded symmetry operations
-                    forming the dihedral group D8. This provides the geometric and algebraic backbone for both symbolic
-                    and computational applications.
+            <TabsContent value="cauldron" className="mt-6">
+              <Card className="bg-gray-900/80 backdrop-blur-sm border-purple-500/30">
+                <CardContent className="p-8">
+                  <h3 className="text-2xl font-bold text-white mb-4">The Cauldron: Quantum Foundation</h3>
+                  <p className="text-gray-300 mb-6 leading-relaxed">
+                    The Cauldron represents a 10-state quantum system with perfect D8 × Z2 symmetry, providing the
+                    theoretical foundation for all our computational work. It decomposes into a 2-state qubit (light vs.
+                    shadow) and an 8-state dihedral ring (the octagonal delta-pair structure).
                   </p>
-
-                  <h4 className="font-semibold text-white mt-6 mb-3">Key Components:</h4>
-                  <ul className="space-y-3">
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-primary-400 rounded-full mr-3 mt-2 flex-shrink-0" />
-                      <div>
-                        <span className="font-semibold text-white">Loop Operator (L):</span>
-                        <span className="text-gray-300">
-                          {" "}
-                          The 8-cycle generates rotations around the octagonal ring, defining a canonical orientation
-                        </span>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-primary-400 rounded-full mr-3 mt-2 flex-shrink-0" />
-                      <div>
-                        <span className="font-semibold text-white">Delta-Pairs:</span>
-                        <span className="text-gray-300">
-                          {" "}
-                          Four antipodal pairs corresponding to reflection axes through the octagon center
-                        </span>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-primary-400 rounded-full mr-3 mt-2 flex-shrink-0" />
-                      <div>
-                        <span className="font-semibold text-white">Quadratic Moment:</span>
-                        <span className="text-gray-300">
-                          {" "}
-                          Function provides canonical ordering of delta-pairs without external reference
-                        </span>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-primary-400 rounded-full mr-3 mt-2 flex-shrink-0" />
-                      <div>
-                        <span className="font-semibold text-white">Applications:</span>
-                        <span className="text-gray-300">
-                          {" "}
-                          Numerological systems, oracle platforms, symbolic computation, state machine design
-                        </span>
-                      </div>
-                    </li>
-                  </ul>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-lg font-semibold text-white mb-2">Key Properties</h4>
+                      <ul className="space-y-2 text-gray-300">
+                        <li className="flex items-start">
+                          <Binary className="w-5 h-5 mr-2 mt-0.5 text-purple-400 flex-shrink-0" />
+                          <span>
+                            <strong>Exact solvability:</strong> Complete analytical solutions for all state transitions
+                          </span>
+                        </li>
+                        <li className="flex items-start">
+                          <Binary className="w-5 h-5 mr-2 mt-0.5 text-purple-400 flex-shrink-0" />
+                          <span>
+                            <strong>Dual-aspect monism:</strong> Perfect correspondence between algebraic and
+                            phenomenological descriptions
+                          </span>
+                        </li>
+                        <li className="flex items-start">
+                          <Binary className="w-5 h-5 mr-2 mt-0.5 text-purple-400 flex-shrink-0" />
+                          <span>
+                            <strong>Octagonal symmetry:</strong> D8 dihedral group with 8 rotations and 8 reflections
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="cauldron" className="space-y-6">
-              <Card className="bg-card/80 backdrop-blur-sm border-border/50">
-                <CardHeader>
-                  <CardTitle className="text-2xl text-white">The Cauldron Quantum System</CardTitle>
-                  <CardDescription className="text-gray-300">
-                    Minimal exactly-solvable 10-state universe with dual-aspect monism
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-gray-200 space-y-4">
-                  <p>
-                    The Cauldron is a 10-dimensional Hilbert space that decomposes into a 2-state qubit combined with an
-                    8-state ring, carrying full D8 × Z2 symmetry. It represents the cleanest known finite example where
-                    algebraic and phenomenological descriptions are in exact one-to-one correspondence.
+            <TabsContent value="core" className="mt-6">
+              <Card className="bg-gray-900/80 backdrop-blur-sm border-primary-500/30">
+                <CardContent className="p-8">
+                  <h3 className="text-2xl font-bold text-white mb-4">CORE/NUMO: Constraint Processing</h3>
+                  <p className="text-gray-300 mb-6 leading-relaxed">
+                    CORE (Constraint-Oriented Reality Engine) and NUMO (Numerological Observable Field) provide the
+                    middle layer that translates quantum substrate into observable, meaningful patterns through
+                    constraint satisfaction and field dynamics.
                   </p>
-
-                  <h4 className="font-semibold text-white mt-6 mb-3">Mathematical Structure:</h4>
-                  <ul className="space-y-3">
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-accent rounded-full mr-3 mt-2 flex-shrink-0" />
-                      <div>
-                        <span className="font-semibold text-white">Symmetry Group:</span>
-                        <span className="text-gray-300">
-                          {" "}
-                          D8 × Z2 with 8 rotations, 8 reflections on the ring, and a qubit flip operation
-                        </span>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-accent rounded-full mr-3 mt-2 flex-shrink-0" />
-                      <div>
-                        <span className="font-semibold text-white">Clifford Algebra:</span>
-                        <span className="text-gray-300">
-                          {" "}
-                          Delta-pair operators generate part of Cl(0,8), connecting to spinor representations and SO(8)
-                          triality
-                        </span>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-accent rounded-full mr-3 mt-2 flex-shrink-0" />
-                      <div>
-                        <span className="font-semibold text-white">E8 Connection:</span>
-                        <span className="text-gray-300">
-                          {" "}
-                          The 10D space lies one projection away from the 240-root lattice of the exceptional E8 Lie
-                          group
-                        </span>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-accent rounded-full mr-3 mt-2 flex-shrink-0" />
-                      <div>
-                        <span className="font-semibold text-white">Symbolic Mapping:</span>
-                        <span className="text-gray-300">
-                          {" "}
-                          Five-suit system maps to elemental oppositions with exact algebraic correspondence
-                        </span>
-                      </div>
-                    </li>
-                  </ul>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-lg font-semibold text-white mb-2">Core Functions</h4>
+                      <ul className="space-y-2 text-gray-300">
+                        <li className="flex items-start">
+                          <Sparkles className="w-5 h-5 mr-2 mt-0.5 text-primary-400 flex-shrink-0" />
+                          <span>
+                            <strong>Constraint satisfaction:</strong> Resolves competing requirements into coherent
+                            states
+                          </span>
+                        </li>
+                        <li className="flex items-start">
+                          <Sparkles className="w-5 h-5 mr-2 mt-0.5 text-primary-400 flex-shrink-0" />
+                          <span>
+                            <strong>Field observation:</strong> Extracts meaningful patterns from quantum substrate
+                          </span>
+                        </li>
+                        <li className="flex items-start">
+                          <Sparkles className="w-5 h-5 mr-2 mt-0.5 text-primary-400 flex-shrink-0" />
+                          <span>
+                            <strong>Numerological encoding:</strong> Maps abstract states to symbolic representations
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="rubic" className="space-y-6">
-              <Card className="bg-card/80 backdrop-blur-sm border-border/50">
-                <CardHeader>
-                  <CardTitle className="text-2xl text-white">RUBIC Architecture</CardTitle>
-                  <CardDescription className="text-gray-300">
-                    Reversible Unified Boundary-Integrated Core computing system
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-gray-200 space-y-4">
-                  <p>
-                    RUBIC realizes reversible computing at the architectural level, treating every operation as
-                    invertible and every system boundary as an active component. This enables thermodynamically
-                    efficient computation with perfect state recovery.
+            <TabsContent value="rubic" className="mt-6">
+              <Card className="bg-gray-900/80 backdrop-blur-sm border-accent/30">
+                <CardContent className="p-8">
+                  <h3 className="text-2xl font-bold text-white mb-4">RUBIC: Reversible Architecture</h3>
+                  <p className="text-gray-300 mb-6 leading-relaxed">
+                    RUBIC (Reversible Unified Boundary-Integrated Core) ensures all computational operations remain
+                    time-reversible, minimizing entropy generation and enabling perfect state recovery for debugging,
+                    time-travel, and energy efficiency.
                   </p>
-
-                  <h4 className="font-semibold text-white mt-6 mb-3">Core Components:</h4>
-                  <ul className="space-y-3">
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-primary-400 rounded-full mr-3 mt-2 flex-shrink-0" />
-                      <div>
-                        <span className="font-semibold text-white">Reversible Processing Units (RPUs):</span>
-                        <span className="text-gray-300">
-                          {" "}
-                          Execute computations using reversible gates that preserve all input information through
-                          ancillary bits or invertible algorithms
-                        </span>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-primary-400 rounded-full mr-3 mt-2 flex-shrink-0" />
-                      <div>
-                        <span className="font-semibold text-white">Boundary Manager:</span>
-                        <span className="text-gray-300">
-                          {" "}
-                          Makes inter-module interfaces reversible by logging every crossing with full context for exact
-                          rollback
-                        </span>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-primary-400 rounded-full mr-3 mt-2 flex-shrink-0" />
-                      <div>
-                        <span className="font-semibold text-white">Memory & State Registry:</span>
-                        <span className="text-gray-300">
-                          {" "}
-                          Records minimal differential state using checkpoint stacks for efficient reversibility
-                        </span>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-primary-400 rounded-full mr-3 mt-2 flex-shrink-0" />
-                      <div>
-                        <span className="font-semibold text-white">Push-Pull Data Flow:</span>
-                        <span className="text-gray-300">
-                          {" "}
-                          Forward operations push data and log hooks; reverse operations pull states back in opposite
-                          order
-                        </span>
-                      </div>
-                    </li>
-                  </ul>
-
-                  <h4 className="font-semibold text-white mt-6 mb-3">Benefits:</h4>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="p-3 bg-primary-500/5 rounded border border-primary-500/20">
-                      <p className="text-sm">
-                        <span className="font-semibold text-white">Energy Efficiency:</span> Minimizes heat generation
-                        through reversible operations
-                      </p>
-                    </div>
-                    <div className="p-3 bg-primary-500/5 rounded border border-primary-500/20">
-                      <p className="text-sm">
-                        <span className="font-semibold text-white">Perfect Rollback:</span> Any computation can be
-                        exactly undone to previous states
-                      </p>
-                    </div>
-                    <div className="p-3 bg-primary-500/5 rounded border border-primary-500/20">
-                      <p className="text-sm">
-                        <span className="font-semibold text-white">Unified Design:</span> Hardware, firmware, and
-                        software layers work as integrated whole
-                      </p>
-                    </div>
-                    <div className="p-3 bg-primary-500/5 rounded border border-primary-500/20">
-                      <p className="text-sm">
-                        <span className="font-semibold text-white">Audit Trail:</span> Complete provenance tracking for
-                        all operations and state changes
-                      </p>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-lg font-semibold text-white mb-2">Architecture Principles</h4>
+                      <ul className="space-y-2 text-gray-300">
+                        <li className="flex items-start">
+                          <Zap className="w-5 h-5 mr-2 mt-0.5 text-accent flex-shrink-0" />
+                          <span>
+                            <strong>Invertible operations:</strong> Every computational step has an exact inverse
+                          </span>
+                        </li>
+                        <li className="flex items-start">
+                          <Zap className="w-5 h-5 mr-2 mt-0.5 text-accent flex-shrink-0" />
+                          <span>
+                            <strong>Boundary integration:</strong> No rigid interfaces, seamless component interaction
+                          </span>
+                        </li>
+                        <li className="flex items-start">
+                          <Zap className="w-5 h-5 mr-2 mt-0.5 text-accent flex-shrink-0" />
+                          <span>
+                            <strong>Minimal history:</strong> Efficient state checkpointing for rollback capability
+                          </span>
+                        </li>
+                      </ul>
                     </div>
                   </div>
                 </CardContent>
@@ -775,116 +723,34 @@ export default function ResearchDevelopmentPage() {
         </div>
       </section>
 
-      {/* Software Development Excellence */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">Software Development Research</h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Advancing the practice of software engineering through research-driven innovation
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader>
-                <Code2 className="w-10 h-10 text-primary-400 mb-3" />
-                <CardTitle className="text-lg text-white">Type Systems & Safety</CardTitle>
-              </CardHeader>
-              <CardContent className="text-gray-300">
-                <p className="text-sm">
-                  Exploring advanced type systems, dependent types, and formal verification methods to eliminate entire
-                  classes of bugs at compile time.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader>
-                <Network className="w-10 h-10 text-accent mb-3" />
-                <CardTitle className="text-lg text-white">Distributed Systems</CardTitle>
-              </CardHeader>
-              <CardContent className="text-gray-300">
-                <p className="text-sm">
-                  Researching consensus algorithms, eventual consistency models, and fault-tolerant architectures for
-                  large-scale distributed applications.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader>
-                <Zap className="w-10 h-10 text-primary-400 mb-3" />
-                <CardTitle className="text-lg text-white">Performance Optimization</CardTitle>
-              </CardHeader>
-              <CardContent className="text-gray-300">
-                <p className="text-sm">
-                  Developing compiler optimizations, runtime improvements, and algorithmic enhancements that push the
-                  boundaries of computational efficiency.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader>
-                <GitBranch className="w-10 h-10 text-accent mb-3" />
-                <CardTitle className="text-lg text-white">Version Control & CI/CD</CardTitle>
-              </CardHeader>
-              <CardContent className="text-gray-300">
-                <p className="text-sm">
-                  Innovating in continuous integration, deployment pipelines, and version control strategies that enable
-                  rapid, reliable software delivery.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader>
-                <Brain className="w-10 h-10 text-primary-400 mb-3" />
-                <CardTitle className="text-lg text-white">AI-Assisted Development</CardTitle>
-              </CardHeader>
-              <CardContent className="text-gray-300">
-                <p className="text-sm">
-                  Building tools that leverage large language models and machine learning to assist developers with code
-                  generation, refactoring, and debugging.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader>
-                <Layers className="w-10 h-10 text-accent mb-3" />
-                <CardTitle className="text-lg text-white">Architecture Patterns</CardTitle>
-              </CardHeader>
-              <CardContent className="text-gray-300">
-                <p className="text-sm">
-                  Researching and documenting software architecture patterns that balance maintainability, scalability,
-                  and development velocity.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action */}
-      <section className="py-20 px-4 bg-gradient-to-r from-primary-500/10 to-accent/10">
-        <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">Join Our Research Journey</h2>
-          <p className="text-xl text-gray-300 mb-8">
-            We're always looking for collaborators, researchers, and forward-thinking organizations interested in
-            pushing the boundaries of computation.
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Button size="lg" className="bg-primary-500 hover:bg-primary-600">
-              <Mail className="w-5 h-5 mr-2" />
-              Collaborate With Us
-            </Button>
-            <Button size="lg" variant="outline">
-              <BookOpen className="w-5 h-5 mr-2" />
-              Access Research Portal
-            </Button>
-          </div>
+      {/* CTA Section */}
+      <section className="py-20 px-4 relative z-10">
+        <div className="container mx-auto max-w-4xl">
+          <Card className="bg-gradient-to-br from-primary-500/20 to-purple-500/20 backdrop-blur-sm border-primary-500/50">
+            <CardContent className="p-12 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Collaborate with Our Research Team</h2>
+              <p className="text-xl text-gray-300 mb-8">
+                Interested in our work? We welcome collaborations, partnerships, and research inquiries.
+              </p>
+              <div className="flex flex-wrap gap-4 justify-center">
+                <Button size="lg" className="bg-primary-500 hover:bg-primary-600 shadow-lg shadow-primary-500/50">
+                  <Mail className="w-5 h-5 mr-2" />
+                  Contact Research Team
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-primary-400/50 hover:bg-primary-950/30 bg-transparent"
+                  asChild
+                >
+                  <Link href="/portfolio">
+                    <Code2 className="w-5 h-5 mr-2" />
+                    View All Projects
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
     </div>
