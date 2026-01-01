@@ -5,14 +5,16 @@ import ProjectCard from "@/components/project-card"
 import { Badge } from "@/components/ui/badge"
 
 export default function PortfolioPage() {
-  const stageColors = {
+  const stageColors: Record<string, string> = {
     concept: "bg-secondary-500",
     building: "bg-primary-500",
     beta: "bg-secondary-600",
     deployed: "bg-accent-500",
+    "in-progress": "bg-primary-500",
+    completed: "bg-accent-500",
   }
 
-  const categoryColors = {
+  const categoryColors: Record<string, string> = {
     "in-house": "bg-primary-600",
     client: "bg-accent-600",
   }
@@ -41,11 +43,10 @@ export default function PortfolioPage() {
             {recentlyDeployedProjects.map((project) => (
               <div key={project.id} className="relative">
                 <ProjectCard project={project} stageColors={stageColors} categoryColors={categoryColors} />
-                {project.developmentTimeline && (
+                {project.timeline && (
                   <div className="mt-4 p-3 bg-gray-800/60 backdrop-blur-sm rounded-lg border border-gray-700/50">
                     <p className="text-sm text-gray-300">
-                      <span className="font-semibold text-primary-400">Development Timeline:</span>{" "}
-                      {project.developmentTimeline}
+                      <span className="font-semibold text-primary-400">Development Timeline:</span> {project.timeline}
                     </p>
                   </div>
                 )}

@@ -13,7 +13,8 @@ interface ProjectCardProps {
     description: string
     image: string
     category: "in-house" | "client"
-    stage: "concept" | "building" | "beta" | "deployed"
+    stage?: "concept" | "building" | "beta" | "deployed"
+    status?: "in-progress" | "beta" | "completed"
     tags: string[]
   }
   stageColors: Record<string, string>
@@ -28,6 +29,8 @@ export default function ProjectCard({ project, stageColors, categoryColors }: Pr
   const handleImageError = () => {
     setImageSrc(`/placeholder.svg?height=200&width=300&text=${encodeURIComponent(project.title)}`)
   }
+
+  const stageLabel = project.stage ?? project.status ?? "deployed"
 
   return (
     <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 group border border-gray-700/50 hover:border-primary-500/50 relative transform hover:-translate-y-1">
@@ -75,8 +78,8 @@ export default function ProjectCard({ project, stageColors, categoryColors }: Pr
           <Badge className={cn("text-white", categoryColors[project.category])}>
             {project.category === "in-house" ? "In-House" : "Client"}
           </Badge>
-          <Badge className={cn("text-white", stageColors[project.stage])}>
-            {project.stage.charAt(0).toUpperCase() + project.stage.slice(1)}
+          <Badge className={cn("text-white", stageColors[stageLabel] ?? "bg-gray-600")}>
+            {stageLabel.charAt(0).toUpperCase() + stageLabel.slice(1)}
           </Badge>
         </div>
 
