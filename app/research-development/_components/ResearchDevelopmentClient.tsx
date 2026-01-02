@@ -280,9 +280,7 @@ export default function ResearchDevelopmentClient() {
                   at numoracle.com with over 1,000 active users.
                 </p>
                 <Link href="/portfolio/numoracle-oracle-cards">
-                  <Button variant="link" className="p-0 h-auto text-primary-400 hover:text-primary-300">
-                    View Project <ArrowRight className="w-4 h-4 ml-1" />
-                  </Button>
+                  
                 </Link>
               </CardContent>
             </Card>
@@ -298,9 +296,7 @@ export default function ResearchDevelopmentClient() {
                   eBPF-based instrumentation suite implementing symmetry-aware scheduling and memory management using
                   quaternionic state encodings for Red Hat ecosystem.
                 </p>
-                <Button variant="link" className="p-0 h-auto text-primary-400 hover:text-primary-300">
-                  Read Paper <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
+                
               </CardContent>
             </Card>
 
