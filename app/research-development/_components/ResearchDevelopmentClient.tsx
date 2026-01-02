@@ -203,8 +203,8 @@ export default function ResearchDevelopmentClient() {
               <CardContent className="text-gray-300">
                 <p className="mb-4">
                   A minimal exactly-solvable quantum system with D8 × Z2 symmetry, decomposing into a 2-state qubit and
-                  an 8-state dihedral ring. The Cauldron demonstrates complete algebraic-phenomenological duality with
-                  connections to E8 lattice structures.
+                  an 8-state dihedral ring. The Cauldron demonstrates complete algebraic structure with D8 × Z2
+                  symmetry, Clifford algebra Cl(0,8) embedding, and connections to SO(8) triality and E8 root lattice.
                 </p>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start">
@@ -388,14 +388,6 @@ export default function ResearchDevelopmentClient() {
                         OS Optimization
                       </Badge>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-primary-400/50 hover:bg-primary-950/30 bg-transparent"
-                    >
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      Read Full Paper
-                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -439,14 +431,6 @@ export default function ResearchDevelopmentClient() {
                         E8 Lattice
                       </Badge>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-purple-400/50 hover:bg-purple-950/30 bg-transparent"
-                    >
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      Read Full Paper
-                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -484,14 +468,6 @@ export default function ResearchDevelopmentClient() {
                         Framework Analysis
                       </Badge>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-accent/50 hover:bg-gray-800/50 bg-transparent"
-                    >
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      Read Documentation
-                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -529,14 +505,6 @@ export default function ResearchDevelopmentClient() {
                         Reversibility
                       </Badge>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-green-400/50 hover:bg-green-950/30 bg-transparent"
-                    >
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      Read Specification
-                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -743,7 +711,6 @@ export default function ResearchDevelopmentClient() {
                   size="lg"
                   variant="outline"
                   className="border-primary-400/50 hover:bg-primary-950/30 bg-transparent"
-                  asChild
                 >
                   <Link href="/portfolio">
                     <Code2 className="w-5 h-5 mr-2" />
