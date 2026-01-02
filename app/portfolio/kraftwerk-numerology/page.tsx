@@ -30,7 +30,7 @@ export default function KraftwerkNumerologyProjectPage() {
             <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/50 mb-8">
               <img
                 src="/images/projects/kraftwerk-numerology.jpg"
-                alt="Kraftwerk Numerology Platform"
+                alt="Kraftwerk Numerology Platform - Where Ancient Wisdom Meets AI"
                 className="w-full h-96 object-cover"
               />
             </div>
