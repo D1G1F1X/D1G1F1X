@@ -1,5 +1,6 @@
 "use client"
 
+import { LicensingPopup } from "./LicensingPopup"
 import Link from "next/link"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
@@ -27,6 +28,8 @@ import {
 export default function ResearchDevelopmentClient() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-950 to-gray-900">
+      <LicensingPopup />
+
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-500/20 rounded-full blur-3xl animate-pulse" />
