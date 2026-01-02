@@ -1,5 +1,93 @@
 export const posts = [
   {
+    id: "quantum-computing-breakthroughs-2025",
+    title: "Quantum Computing Breakthroughs: Practical Applications in 2025",
+    excerpt:
+      "Discover the latest advancements in quantum computing and how organizations are translating theoretical breakthroughs into real-world applications.",
+    date: "May 18, 2025",
+    author: "Chris Phillips",
+    image: "/images/blog/quantum-computing-breakthroughs.jpg",
+    category: "Research & Development",
+    tags: ["Quantum Computing", "Research", "Innovation", "Technology"],
+  },
+  {
+    id: "reversible-computing-future",
+    title: "The Future of Reversible Computing: Energy Efficiency and Sustainability",
+    excerpt:
+      "Explore how reversible computing architectures promise to revolutionize data processing with minimal energy consumption and environmental impact.",
+    date: "June 15, 2025",
+    author: "Chris Phillips",
+    image: "/images/blog/reversible-computing-future.jpg",
+    category: "Research & Development",
+    tags: ["Reversible Computing", "Sustainability", "Energy Efficiency", "Architecture"],
+  },
+  {
+    id: "ai-ethics-responsible-development",
+    title: "AI Ethics and Responsible Development: Frameworks for Ethical Innovation",
+    excerpt:
+      "Learn best practices for developing artificial intelligence systems with ethical considerations at the core, ensuring responsible innovation.",
+    date: "July 12, 2025",
+    author: "Chris Phillips",
+    image: "/images/blog/ai-ethics-responsible.jpg",
+    category: "AI",
+    tags: ["AI Ethics", "Responsible AI", "Governance", "Ethics"],
+  },
+  {
+    id: "cloud-infrastructure-scalability",
+    title: "Cloud Infrastructure and Scalability: Building for the Future",
+    excerpt:
+      "Understand modern cloud architecture patterns and strategies for building scalable systems that grow with your organization's needs.",
+    date: "August 10, 2025",
+    author: "Chris Phillips",
+    image: "/images/blog/cloud-infrastructure-scalability.jpg",
+    category: "Cloud Computing",
+    tags: ["Cloud Architecture", "Scalability", "Infrastructure", "DevOps"],
+  },
+  {
+    id: "cauldron-framework-deterministic-systems",
+    title: "Cauldron Framework Deep Dive: Building Deterministic Quantum Systems",
+    excerpt:
+      "An in-depth exploration of the Cauldron framework's 10-state quantum model and how deterministic approaches enhance system reliability.",
+    date: "September 8, 2025",
+    author: "Chris Phillips",
+    image: "/images/blog/cauldron-framework-systems.jpg",
+    category: "Research & Development",
+    tags: ["Cauldron Framework", "Quantum Systems", "Architecture", "Determinism"],
+  },
+  {
+    id: "numerology-artificial-intelligence",
+    title: "Where Numerology Meets Artificial Intelligence: Insights from NUMO Field",
+    excerpt:
+      "Discover how ancient numerological principles combine with modern AI technology to unlock new patterns and insights in data analysis.",
+    date: "October 5, 2025",
+    author: "Chris Phillips",
+    image: "/images/blog/numerology-ai-insights.jpg",
+    category: "AI",
+    tags: ["Numerology", "AI", "NUMO Field", "Data Analysis", "Pattern Recognition"],
+  },
+  {
+    id: "rubic-architecture-resilient-systems",
+    title: "Building Resilient Systems with RUBIC Architecture: Boundary-First Design",
+    excerpt:
+      "Learn how RUBIC's reversible unified boundary integration creates systems that are inherently more resilient, maintainable, and efficient.",
+    date: "November 3, 2025",
+    author: "Chris Phillips",
+    image: "/images/blog/rubic-architecture-resilient.jpg",
+    category: "Research & Development",
+    tags: ["RUBIC", "System Architecture", "Resilience", "Reversibility"],
+  },
+  {
+    id: "2025-lumen-helix-innovation-highlights",
+    title: "2025 in Review: Lumen Helix Innovation Highlights and What's Ahead",
+    excerpt:
+      "Reflect on our major achievements, research breakthroughs, and project milestones from 2025, and explore our vision for the future.",
+    date: "December 1, 2025",
+    author: "Chris Phillips",
+    image: "/images/blog/2025-innovation-highlights.jpg",
+    category: "Company Updates",
+    tags: ["Year in Review", "Innovation", "Research", "Future Vision"],
+  },
+  {
     id: "effective-project-management-methodologies",
     title: "Effective Project Management Methodologies for Digital Transformation",
     excerpt:
