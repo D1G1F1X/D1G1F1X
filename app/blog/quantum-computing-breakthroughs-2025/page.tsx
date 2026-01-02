@@ -88,36 +88,36 @@ export default function QuantumBreakthroughsBlogPost() {
               <div className="prose prose-lg max-w-none prose-invert">
                 <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
 
-                <h2>The Quantum Era Arrives</h2>
-                <p>
+                <h2 className="text-white">The Quantum Era Arrives</h2>
+                <p className="text-gray-100">
                   2025 marks a pivotal moment in quantum computing history. What was once purely theoretical is now
                   delivering measurable business value. Major tech companies, financial institutions, and research
                   organizations are moving beyond proof-of-concept and deploying quantum solutions to real problems.
                 </p>
 
-                <h2>Quantum Advantage in Drug Discovery</h2>
-                <p>
+                <h2 className="text-white">Quantum Advantage in Drug Discovery</h2>
+                <p className="text-gray-100">
                   One of the most significant breakthroughs has been in pharmaceutical research. Quantum computers are
                   now simulating molecular interactions with unprecedented accuracy, reducing drug discovery timelines
                   from years to months. This advancement alone could accelerate our ability to respond to health crises.
                 </p>
 
-                <h2>Financial Modeling Transformed</h2>
-                <p>
+                <h2 className="text-white">Financial Modeling Transformed</h2>
+                <p className="text-gray-100">
                   In finance, quantum algorithms are revolutionizing portfolio optimization and risk analysis.
                   Institutions are using quantum computing to model thousands of scenarios simultaneously, leading to
                   better investment strategies and risk management.
                 </p>
 
-                <h2>The Hybrid Future</h2>
-                <p>
+                <h2 className="text-white">The Hybrid Future</h2>
+                <p className="text-gray-100">
                   Most practical applications today use hybrid approaches, combining classical and quantum computing.
                   This balanced strategy leverages the strengths of both paradigms while managing quantum's current
                   limitations.
                 </p>
 
-                <h2>Challenges Remain</h2>
-                <p>
+                <h2 className="text-white">Challenges Remain</h2>
+                <p className="text-gray-100">
                   Error correction, scalability, and temperature stability remain significant challenges. However,
                   progress is accelerating, and solutions are emerging faster than predicted.
                 </p>

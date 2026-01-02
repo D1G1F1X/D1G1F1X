@@ -64,33 +64,33 @@ export default function CauldronFrameworkBlogPost() {
               <div className="prose prose-lg max-w-none prose-invert">
                 <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
 
-                <h2>Determinism in Quantum Computing</h2>
-                <p>
+                <h2 className="text-white">Determinism in Quantum Computing</h2>
+                <p className="text-gray-100">
                   The Cauldron framework bridges classical determinism with quantum computing by employing a 10-state
                   model that maintains predictability while harnessing quantum advantages.
                 </p>
 
-                <h2>The 10-State Model</h2>
-                <p>
+                <h2 className="text-white">The 10-State Model</h2>
+                <p className="text-gray-100">
                   Unlike traditional quantum systems with infinite superposition states, Cauldron's discrete 10-state
                   architecture provides bounded complexity and predictable outcomes—ideal for critical applications.
                 </p>
 
-                <h2>Reliability and Reproducibility</h2>
-                <p>
+                <h2 className="text-white">Reliability and Reproducibility</h2>
+                <p className="text-gray-100">
                   Deterministic systems can be replayed and debugged. This makes Cauldron suitable for applications
                   where reproducibility and auditability are essential: financial systems, healthcare, critical
                   infrastructure.
                 </p>
 
-                <h2>Integration with Classical Systems</h2>
-                <p>
+                <h2 className="text-white">Integration with Classical Systems</h2>
+                <p className="text-gray-100">
                   Cauldron's architecture seamlessly integrates with classical computing infrastructure, enabling hybrid
                   approaches that maximize both quantum and classical benefits.
                 </p>
 
-                <h2>Future Applications</h2>
-                <p>
+                <h2 className="text-white">Future Applications</h2>
+                <p className="text-gray-100">
                   Organizations seeking quantum advantages without sacrificing reliability should explore Cauldron-based
                   approaches. The framework represents the future of practical quantum computing.
                 </p>

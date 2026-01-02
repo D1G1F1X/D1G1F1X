@@ -64,33 +64,33 @@ export default function LumenHelixHighlightsBlogPost() {
               <div className="prose prose-lg max-w-none prose-invert">
                 <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
 
-                <h2>A Year of Transformation</h2>
-                <p>
+                <h2 className="text-white">A Year of Transformation</h2>
+                <p className="text-gray-100">
                   2025 has been extraordinary for Lumen Helix Solutions. From groundbreaking research to innovative
                   client projects, we've pushed the boundaries of what's possible in quantum computing, AI, and
                   sustainable technology.
                 </p>
 
-                <h2>Research Breakthroughs</h2>
-                <p>
+                <h2 className="text-white">Research Breakthroughs</h2>
+                <p className="text-gray-100">
                   Our R&D team published four major peer-reviewed papers on Cauldron, RUBIC, and NUMO Field frameworks.
                   These contributions have influenced academic research and industry practices worldwide.
                 </p>
 
-                <h2>Project Milestones</h2>
-                <p>
+                <h2 className="text-white">Project Milestones</h2>
+                <p className="text-gray-100">
                   Key projects including M.E.L.T., OIQ, and the NUMO Oracle Cards platform achieved major functionality
                   milestones. Client feedback has been overwhelmingly positive, with retention rates exceeding 98%.
                 </p>
 
-                <h2>Team Growth</h2>
-                <p>
+                <h2 className="text-white">Team Growth</h2>
+                <p className="text-gray-100">
                   We expanded our team with top talent in quantum computing, AI ethics, and reversible architecture
                   design. Our growing team reflects our commitment to advancing the field.
                 </p>
 
-                <h2>Looking Forward to 2026</h2>
-                <p>
+                <h2 className="text-white">Looking Forward to 2026</h2>
+                <p className="text-gray-100">
                   2026 promises even greater innovations. We're launching new research initiatives, expanding into new
                   markets, and pushing toward quantum advantage in practical applications. Join us on this exciting
                   journey.

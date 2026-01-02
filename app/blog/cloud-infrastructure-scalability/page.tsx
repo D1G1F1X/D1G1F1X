@@ -64,32 +64,32 @@ export default function CloudInfrastructureBlogPost() {
               <div className="prose prose-lg max-w-none prose-invert">
                 <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
 
-                <h2>Scalability as a Strategic Asset</h2>
-                <p>
+                <h2 className="text-white">Scalability as a Strategic Asset</h2>
+                <p className="text-gray-100">
                   Modern businesses must handle unpredictable growth. Cloud infrastructure enables organizations to
                   scale seamlessly, paying only for resources used while maintaining performance.
                 </p>
 
-                <h2>Architecture Patterns for Scale</h2>
-                <p>
+                <h2 className="text-white">Architecture Patterns for Scale</h2>
+                <p className="text-gray-100">
                   Microservices, containerization, and serverless computing have revolutionized how we build scalable
                   systems. Each pattern offers unique advantages for different workloads.
                 </p>
 
-                <h2>Distributed Database Strategies</h2>
-                <p>
+                <h2 className="text-white">Distributed Database Strategies</h2>
+                <p className="text-gray-100">
                   Scaling databases requires careful planning. Techniques like sharding, replication, and distributed
                   transactions enable databases to handle massive scale while maintaining consistency.
                 </p>
 
-                <h2>Monitoring and Observability</h2>
-                <p>
+                <h2 className="text-white">Monitoring and Observability</h2>
+                <p className="text-gray-100">
                   As systems scale, visibility becomes critical. Advanced monitoring and observability tools allow teams
                   to maintain performance and reliability at scale.
                 </p>
 
-                <h2>Future-Proofing Infrastructure</h2>
-                <p>
+                <h2 className="text-white">Future-Proofing Infrastructure</h2>
+                <p className="text-gray-100">
                   The best scalable systems are built with flexibility in mind. Organizations should design
                   infrastructure that adapts to future needs without complete overhauls.
                 </p>

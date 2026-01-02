@@ -64,34 +64,34 @@ export default function NumerologyAIBlogPost() {
               <div className="prose prose-lg max-w-none prose-invert">
                 <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
 
-                <h2>Ancient Wisdom Meets Modern Computation</h2>
-                <p>
+                <h2 className="text-white">Ancient Wisdom Meets Modern Computation</h2>
+                <p className="text-gray-100">
                   Numerological principles have fascinated humanity for millennia. Now, AI systems are revealing that
                   these ancient patterns contain mathematical structures recognizable to modern algorithms.
                 </p>
 
-                <h2>The NUMO Field Revolution</h2>
-                <p>
+                <h2 className="text-white">The NUMO Field Revolution</h2>
+                <p className="text-gray-100">
                   The NUMO Field framework integrates numerological principles with AI to create a novel approach to
                   pattern recognition. This hybrid methodology uncovers relationships invisible to conventional
                   analysis.
                 </p>
 
-                <h2>Pattern Recognition at Scale</h2>
-                <p>
+                <h2 className="text-white">Pattern Recognition at Scale</h2>
+                <p className="text-gray-100">
                   By combining ancient numerical wisdom with neural networks, NUMO enables AI systems to recognize
                   patterns in complex data with unprecedented accuracy. Applications span from financial forecasting to
                   biological research.
                 </p>
 
-                <h2>Cultural Bridge</h2>
-                <p>
+                <h2 className="text-white">Cultural Bridge</h2>
+                <p className="text-gray-100">
                   NUMO Field demonstrates that ancient and modern knowledge systems can coexist and enhance each other.
                   This perspective is reshaping how we approach AI development.
                 </p>
 
-                <h2>The Future of Hybrid Systems</h2>
-                <p>
+                <h2 className="text-white">The Future of Hybrid Systems</h2>
+                <p className="text-gray-100">
                   Organizations exploring unconventional combinations of human wisdom and machine intelligence will lead
                   the next wave of AI innovation. NUMO is just the beginning.
                 </p>

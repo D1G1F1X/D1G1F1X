@@ -64,33 +64,33 @@ export default function RUBICArcitectureBlogPost() {
               <div className="prose prose-lg max-w-none prose-invert">
                 <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
 
-                <h2>Rethinking System Architecture</h2>
-                <p>
+                <h2 className="text-white">Rethinking System Architecture</h2>
+                <p className="text-gray-100">
                   Traditional systems often fail at boundaries—where different components interact. RUBIC (Reversible
                   Unified Boundary Integration Computing) prioritizes these boundaries, creating inherently more
                   resilient architectures.
                 </p>
 
-                <h2>Boundary-First Philosophy</h2>
-                <p>
+                <h2 className="text-white">Boundary-First Philosophy</h2>
+                <p className="text-gray-100">
                   Instead of designing components first and connecting them later, RUBIC starts with boundary design.
                   This approach ensures clean interfaces, predictable interactions, and graceful degradation.
                 </p>
 
-                <h2>Reversibility as a Feature</h2>
-                <p>
+                <h2 className="text-white">Reversibility as a Feature</h2>
+                <p className="text-gray-100">
                   RUBIC systems are reversible by design. Operations can be undone, states can be replayed, and errors
                   can be corrected without cascading failures. This fundamentally changes how we think about resilience.
                 </p>
 
-                <h2>Practical Applications</h2>
-                <p>
+                <h2 className="text-white">Practical Applications</h2>
+                <p className="text-gray-100">
                   Financial systems, medical devices, and critical infrastructure all benefit from RUBIC's approach. The
                   cost of failure in these domains makes RUBIC's resilience requirements non-negotiable.
                 </p>
 
-                <h2>The Resilience Revolution</h2>
-                <p>
+                <h2 className="text-white">The Resilience Revolution</h2>
+                <p className="text-gray-100">
                   Organizations adopting RUBIC architecture report 85% fewer critical failures and dramatically faster
                   recovery times. This is the future of system design in high-consequence environments.
                 </p>
