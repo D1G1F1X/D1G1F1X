@@ -86,7 +86,7 @@ export default function QuantumBreakthroughsBlogPost() {
               </div>
 
               <div className="prose prose-lg max-w-none prose-invert">
-                <p className="text-gray-300 mb-6 text-lg">{post.excerpt}</p>
+                <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
 
                 <h2>The Quantum Era Arrives</h2>
                 <p>
