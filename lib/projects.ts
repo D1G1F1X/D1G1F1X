@@ -36,6 +36,22 @@ const toStage = (status: Project["status"]): Project["stage"] => {
 /* ------------------------  Projects list  ---------------------- */
 export const projects: Project[] = [
   {
+    id: "oiq",
+    title: "OIQ - Conscious Technology for Humanity",
+    description:
+      "A conscious technology platform rewriting the corporation with a moral core. Multi-tool ecosystem for humanitarian crisis response, community coordination, and ethical AI—powered by NUMO Field, Cauldron, and RUBIC frameworks.",
+    image: "/images/projects/oiq-platform.jpg",
+    category: "in-house",
+    status: "in-progress",
+    stage: toStage("in-progress"),
+    tags: ["Quantum Computing", "AI Ethics", "Three.js", "Voice Engine", "Community Tools", "Research"],
+    domain: "oiq.to",
+    liveSiteUrl: "https://oiq.to",
+    deploymentDate: "2025-01-01",
+    timeline: "2024 – Present",
+    featured: true,
+  },
+  {
     id: "numoracle-oracle-cards",
     title: "Numoracle Oracle Cards",
     description: "A digital oracle-card experience that combines numerology analytics with intuitive daily guidance.",
