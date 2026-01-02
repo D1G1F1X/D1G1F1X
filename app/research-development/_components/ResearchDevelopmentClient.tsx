@@ -63,18 +63,8 @@ export default function ResearchDevelopmentClient() {
           </p>
 
           <div className="flex flex-wrap gap-4">
-            <Button size="lg" className="bg-primary-500 hover:bg-primary-600 shadow-lg shadow-primary-500/50">
-              <BookOpen className="w-5 h-5 mr-2" />
-              View Publications
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-primary-400/50 hover:bg-primary-950/30 bg-transparent"
-            >
-              <GitBranch className="w-5 h-5 mr-2" />
-              Open Source Projects
-            </Button>
+            
+            
           </div>
         </div>
       </section>
