@@ -18,6 +18,7 @@ export type Project = {
   deploymentDate?: string
   timeline?: string
   featured?: boolean
+  archived?: boolean
 }
 
 /* Helper to convert the newer “status” to the legacy “stage” label */
@@ -50,6 +51,7 @@ export const projects: Project[] = [
     deploymentDate: "2025-01-01",
     timeline: "2024 – Present",
     featured: true,
+    archived: false,
   },
   {
     id: "numoracle-oracle-cards",
@@ -65,6 +67,7 @@ export const projects: Project[] = [
     deploymentDate: "2024-06-15",
     timeline: "2024 – Present",
     featured: true,
+    archived: false,
   },
   {
     id: "kraftwerk-numerology",
@@ -81,6 +84,7 @@ export const projects: Project[] = [
     deploymentDate: "2024-05-20",
     timeline: "2023 – Present",
     featured: true,
+    archived: false,
   },
   {
     id: "hodge-documentary",
@@ -97,6 +101,7 @@ export const projects: Project[] = [
     deploymentDate: "2023-11-01",
     timeline: "2023",
     featured: true,
+    archived: false,
   },
   {
     id: "melt",
@@ -113,6 +118,7 @@ export const projects: Project[] = [
     deploymentDate: "2024-07-05",
     timeline: "2023 – Present",
     featured: true,
+    archived: false,
   },
   {
     id: "lolita-wilson-portfolio",
@@ -128,6 +134,7 @@ export const projects: Project[] = [
     deploymentDate: "2023-09-10",
     timeline: "2023",
     featured: false,
+    archived: false,
   },
   {
     id: "nowo-radio",
@@ -143,6 +150,7 @@ export const projects: Project[] = [
     deploymentDate: "2022-08-20",
     timeline: "2022",
     featured: false,
+    archived: false,
   },
   {
     id: "oyah-love",
@@ -158,6 +166,7 @@ export const projects: Project[] = [
     deploymentDate: "2022-03-05",
     timeline: "2022",
     featured: false,
+    archived: false,
   },
   {
     id: "ai-content-generator",
@@ -171,6 +180,7 @@ export const projects: Project[] = [
     deploymentDate: "2023-10-20",
     timeline: "2023",
     featured: false,
+    archived: false,
   },
   {
     id: "brand-identity-system",
@@ -184,6 +194,7 @@ export const projects: Project[] = [
     deploymentDate: "2023-07-15",
     timeline: "2023",
     featured: false,
+    archived: false,
   },
   {
     id: "data-visualization-dashboard",
@@ -197,6 +208,7 @@ export const projects: Project[] = [
     deploymentDate: "2023-05-01",
     timeline: "2023",
     featured: false,
+    archived: false,
   },
   {
     id: "e-commerce-platform",
@@ -210,6 +222,7 @@ export const projects: Project[] = [
     deploymentDate: "2022-11-30",
     timeline: "2022",
     featured: false,
+    archived: false,
   },
   {
     id: "enterprise-project-management-system",
@@ -223,6 +236,7 @@ export const projects: Project[] = [
     deploymentDate: "2022-09-01",
     timeline: "2022",
     featured: false,
+    archived: false,
   },
   {
     id: "virtual-event-platform",
@@ -236,21 +250,24 @@ export const projects: Project[] = [
     deploymentDate: "2022-06-20",
     timeline: "2022",
     featured: false,
+    archived: false,
   },
 ]
 
 /* -----------------------  Helper selectors  -------------------- */
 
-export const featuredProjects = projects.filter((p) => p.featured)
+export const featuredProjects = projects.filter((p) => p.featured && !p.archived)
 
-export const getBetaProjects = () => projects.filter((p) => p.stage === "beta")
+export const getBetaProjects = () => projects.filter((p) => p.stage === "beta" && !p.archived)
 
-export const getInHouseProjects = () => projects.filter((p) => p.category === "in-house")
+export const getInHouseProjects = () => projects.filter((p) => p.category === "in-house" && !p.archived)
 
-export const getClientProjects = () => projects.filter((p) => p.category === "client")
+export const getClientProjects = () => projects.filter((p) => p.category === "client" && !p.archived)
 
 export const getRecentlyDeployedProjects = (limit = 6) =>
   [...projects]
-    .filter((p) => p.deploymentDate)
+    .filter((p) => p.deploymentDate && !p.archived)
     .sort((a, b) => new Date(b.deploymentDate ?? 0).getTime() - new Date(a.deploymentDate ?? 0).getTime())
     .slice(0, limit)
+
+export const getArchivedProjects = () => projects.filter((p) => p.archived)
