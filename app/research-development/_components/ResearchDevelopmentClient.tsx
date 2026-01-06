@@ -441,49 +441,7 @@ export default function ResearchDevelopmentClient() {
             </Card>
 
             <Card className="bg-gray-900/80 backdrop-blur-sm border-primary-500/30 hover:border-primary-500 transition-all">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-6">
-                  <div className="w-16 h-16 bg-primary-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <FileText className="w-8 h-8 text-primary-400" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                      <h3 className="text-xl font-semibold text-white mb-2">
-                        Quaternionic Unification Across the Cauldron, CORE/NUMO, and RUBIC Systems
-                      </h3>
-                      <Badge
-                        variant="outline"
-                        className="text-xs whitespace-nowrap border-primary-400/50 text-primary-300"
-                      >
-                        Dec 2024
-                      </Badge>
-                    </div>
-                    <p className="text-gray-400 text-sm mb-2">
-                      Christopher Gordon Phillips (Raziel Ali) and Astra (AI collaborator)
-                    </p>
-                    <p className="text-gray-300 mb-4">
-                      Proposes a quaternionic middle layer unifying three components of the NUMO Field ecosystem,
-                      demonstrating how quaternions provide practical associative algebra for delta-pair reflections,
-                      ring rotations, and reversible update rules. Includes OS-level implementation path for Red Hat
-                      ecosystem.
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      <Badge variant="secondary" className="text-xs bg-primary-950/50 text-primary-300">
-                        Quaternions
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs bg-primary-950/50 text-primary-300">
-                        Reversible Computing
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs bg-primary-950/50 text-primary-300">
-                        D8 Symmetry
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs bg-primary-950/50 text-primary-300">
-                        OS Optimization
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
+              
             </Card>
 
             <Card className="bg-gray-900/80 backdrop-blur-sm border-purple-500/30 hover:border-purple-500 transition-all">
