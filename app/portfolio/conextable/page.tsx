@@ -27,36 +27,36 @@ export default function ConextablePage() {
         <div className="max-w-6xl mx-auto px-4 py-16 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
-              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Conextable</h1>
-              <p className="text-xl text-gray-300 mb-6">
-                Interactive relational database and knowledge management system designed for organizing complex
-                information architectures and building semantic connections.
+              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">ConnectABLE</h1>
+              <p className="text-xl text-gray-100 mb-6">
+                Connect. Share. Grow. Together. A supportive community platform designed for neurodivergent individuals
+                to connect with others, exchange skills, collaborate on projects, and build meaningful relationships.
               </p>
               <div className="flex flex-wrap gap-2 mb-8">
                 <span className="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full text-sm border border-cyan-500/30">
-                  Database
+                  Community
                 </span>
                 <span className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm border border-blue-500/30">
-                  Knowledge Management
+                  Neurodivergent Support
                 </span>
                 <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm border border-purple-500/30">
-                  Next.js
+                  Skill-Sharing
                 </span>
                 <span className="px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-sm border border-green-500/30">
-                  Information Architecture
+                  Collaboration
                 </span>
               </div>
               <div className="flex gap-4">
                 <a href="https://conextable.vercel.app" target="_blank" rel="noopener noreferrer">
                   <Button className="bg-cyan-500 hover:bg-cyan-600 text-white">
-                    Visit Live Site
+                    Join the Community
                     <ExternalLink className="w-4 h-4 ml-2" />
                   </Button>
                 </a>
               </div>
             </div>
             <div className="relative h-80 rounded-lg overflow-hidden border border-blue-500/30">
-              <Image src="/images/projects/conextable.jpg" alt="Conextable" fill className="object-cover" />
+              <Image src="/images/projects/conextable.jpg" alt="ConnectABLE" fill className="object-cover" />
             </div>
           </div>
         </div>
@@ -70,48 +70,81 @@ export default function ConextablePage() {
             {/* Overview */}
             <Card className="bg-slate-800/50 border-blue-500/30">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">Project Overview</h2>
+                <h2 className="text-2xl font-bold text-white mb-4">About ConnectABLE</h2>
                 <div className="space-y-4 text-gray-100">
                   <p>
-                    Conextable is an innovative relational database and knowledge management system that transforms how
-                    complex information is organized and connected. Built with modern technologies, it enables users to
-                    create sophisticated information architectures with intuitive semantic connections.
+                    ConnectABLE is a revolutionary community platform built specifically for neurodivergent individuals.
+                    It creates a safe, supportive space where users can connect with others who share similar interests,
+                    exchange practical skills, collaborate on meaningful projects, and build lasting relationships.
                   </p>
                   <p>
-                    The platform excels at handling complex data relationships, allowing teams and individuals to map
-                    connections between concepts, entities, and data points in ways that traditional databases cannot.
-                    It bridges the gap between rigid database structures and flexible knowledge graphs.
+                    The platform recognizes that neurodivergent individuals often have diverse learning styles and
+                    communication needs. ConnectABLE is designed from the ground up to accommodate these differences,
+                    making community engagement accessible, intuitive, and meaningful for everyone.
                   </p>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Key Features */}
+            {/* Core Features */}
             <Card className="bg-slate-800/50 border-blue-500/30">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">Key Features</h2>
-                <ul className="space-y-3 text-gray-100">
-                  <li className="flex items-start gap-3">
-                    <span className="text-cyan-400 font-bold mt-1">•</span>
-                    <span>Interactive relation mapping with real-time visualization of data connections</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-cyan-400 font-bold mt-1">•</span>
-                    <span>Semantic tagging and context-aware search across your entire knowledge base</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-cyan-400 font-bold mt-1">•</span>
-                    <span>Flexible schema definition allowing custom data types and relationships</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-cyan-400 font-bold mt-1">•</span>
-                    <span>Collaborative features for team-based knowledge management</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-cyan-400 font-bold mt-1">•</span>
-                    <span>Export and integration capabilities with other tools and platforms</span>
-                  </li>
-                </ul>
+                <h2 className="text-2xl font-bold text-white mb-4">Core Features</h2>
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-cyan-300 font-semibold mb-2">Connect</h3>
+                    <p className="text-gray-100 text-sm">
+                      Find and connect with others who share your interests or have complementary skills, building
+                      genuine friendships and professional relationships.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-cyan-300 font-semibold mb-2">Skill Exchange</h3>
+                    <p className="text-gray-100 text-sm">
+                      Exchange skills and knowledge in a supportive environment designed for diverse learning styles.
+                      Categories include Tech, Creative, Organizational, Social, and Domestic skills.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-cyan-300 font-semibold mb-2">Micro-Projects</h3>
+                    <p className="text-gray-100 text-sm">
+                      Join or start small collaborative projects that make a difference in your community while building
+                      valuable connections and experience.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-cyan-300 font-semibold mb-2">Domestic Skills Trading</h3>
+                    <p className="text-gray-100 text-sm">
+                      Share practical household skills like meal prep, home organization, basic repairs, sustainable
+                      cleaning, and plant care with other community members.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Skill Categories */}
+            <Card className="bg-slate-800/50 border-blue-500/30">
+              <CardContent className="p-6">
+                <h2 className="text-2xl font-bold text-white mb-4">Featured Opportunities</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-700/30 p-4 rounded border border-cyan-500/20">
+                    <p className="text-cyan-300 font-semibold text-sm mb-1">Web Development</p>
+                    <p className="text-gray-100 text-xs">Learn HTML, CSS, JavaScript fundamentals</p>
+                  </div>
+                  <div className="bg-slate-700/30 p-4 rounded border border-purple-500/20">
+                    <p className="text-purple-300 font-semibold text-sm mb-1">Digital Art</p>
+                    <p className="text-gray-100 text-xs">Master digital brushes and techniques</p>
+                  </div>
+                  <div className="bg-slate-700/30 p-4 rounded border border-green-500/20">
+                    <p className="text-green-300 font-semibold text-sm mb-1">Financial Planning</p>
+                    <p className="text-gray-100 text-xs">Learn budgeting and saving strategies</p>
+                  </div>
+                  <div className="bg-slate-700/30 p-4 rounded border border-blue-500/20">
+                    <p className="text-blue-300 font-semibold text-sm mb-1">Communication</p>
+                    <p className="text-gray-100 text-xs">Develop better communication skills</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -132,10 +165,10 @@ export default function ConextablePage() {
                   <div>
                     <h3 className="text-cyan-400 font-semibold mb-2">Features</h3>
                     <ul className="space-y-1 text-sm">
-                      <li>Interactive UI Components</li>
+                      <li>Interactive UI</li>
                       <li>Real-time Updates</li>
-                      <li>Data Visualization</li>
-                      <li>Responsive Design</li>
+                      <li>Accessible Design</li>
+                      <li>Responsive</li>
                     </ul>
                   </div>
                 </div>
@@ -163,7 +196,7 @@ export default function ConextablePage() {
                   </div>
                   <div>
                     <p className="text-gray-400 mb-1">Domain</p>
-                    <p className="text-white font-semibold">conextable.vercel.app</p>
+                    <p className="text-cyan-300 font-semibold">conextable.vercel.app</p>
                   </div>
                 </div>
               </CardContent>
@@ -177,11 +210,36 @@ export default function ConextablePage() {
                     href="https://conextable.vercel.app"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block w-full px-4 py-2 bg-cyan-500/20 text-cyan-300 rounded border border-cyan-500/30 hover:bg-cyan-500/30 transition text-center text-sm"
+                    className="block w-full px-4 py-2 bg-cyan-500/20 text-cyan-300 rounded border border-cyan-500/30 hover:bg-cyan-500/30 transition text-center text-sm font-medium"
                   >
-                    View Live Demo
+                    Visit Community
+                  </a>
+                  <a
+                    href="https://conextable.vercel.app/demo"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full px-4 py-2 bg-blue-500/20 text-blue-300 rounded border border-blue-500/30 hover:bg-blue-500/30 transition text-center text-sm font-medium"
+                  >
+                    Try Demo
                   </a>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-slate-800/50 border-green-500/30">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-bold text-white mb-3">Join the Movement</h3>
+                <p className="text-gray-100 text-sm mb-4">
+                  Be part of a supportive community designed specifically for neurodivergent individuals.
+                </p>
+                <a
+                  href="https://conextable.vercel.app/register"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full px-4 py-2 bg-green-500/20 text-green-300 rounded border border-green-500/30 hover:bg-green-500/30 transition text-center text-sm font-medium"
+                >
+                  Get Started
+                </a>
               </CardContent>
             </Card>
           </div>

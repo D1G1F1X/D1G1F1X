@@ -55,14 +55,14 @@ export const projects: Project[] = [
   },
   {
     id: "conextable",
-    title: "Conextable",
+    title: "ConnectABLE",
     description:
-      "Interactive relational database and knowledge management system designed for organizing complex information architectures and building semantic connections.",
+      "A supportive community platform designed specifically for neurodivergent individuals to connect, share skills, collaborate on meaningful projects, and build lasting relationships. Features skill-exchange opportunities, micro-projects, and domestic skills trading.",
     image: "/images/projects/conextable.jpg",
     category: "in-house",
     status: "in-progress",
     stage: toStage("in-progress"),
-    tags: ["Database", "Knowledge Management", "Next.js", "React", "Information Architecture"],
+    tags: ["Community", "Neurodivergent", "Skill-Sharing", "Collaboration", "React", "Next.js"],
     domain: "conextable.vercel.app",
     liveSiteUrl: "https://conextable.vercel.app",
     deploymentDate: "2025-01-09",
