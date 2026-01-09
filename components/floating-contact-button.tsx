@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { MessageCircle, X } from "lucide-react"
-import ChatTab from "@/app/contact/_components/ChatTab"
+import ContactTabsContainer from "@/app/contact/_components/ContactTabsContainer"
 
 export default function FloatingContactButton() {
   const [isOpen, setIsOpen] = useState(false)
@@ -20,15 +20,14 @@ export default function FloatingContactButton() {
         </span>
       </button>
 
-      {/* Modal Dialog */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden border border-gray-800 flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-gray-800 flex flex-col">
             {/* Header */}
             <div className="flex justify-between items-center p-6 border-b border-gray-800 bg-gray-800/50">
               <div>
-                <h2 className="text-xl font-bold text-white">Contact Us</h2>
-                <p className="text-sm text-gray-400">Chat with our AI assistant</p>
+                <h2 className="text-xl font-bold text-white">Contact Lumen Helix Solutions</h2>
+                <p className="text-sm text-gray-400">Multiple ways to reach us</p>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
@@ -38,9 +37,9 @@ export default function FloatingContactButton() {
               </button>
             </div>
 
-            {/* Chat Content */}
+            {/* Contact Tabs Content */}
             <div className="flex-1 overflow-y-auto p-6">
-              <ChatTab />
+              <ContactTabsContainer />
             </div>
           </div>
         </div>

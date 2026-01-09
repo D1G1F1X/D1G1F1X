@@ -54,6 +54,23 @@ export const projects: Project[] = [
     archived: false,
   },
   {
+    id: "conextable",
+    title: "Conextable",
+    description:
+      "Interactive relational database and knowledge management system designed for organizing complex information architectures and building semantic connections.",
+    image: "/images/projects/conextable.jpg",
+    category: "in-house",
+    status: "in-progress",
+    stage: toStage("in-progress"),
+    tags: ["Database", "Knowledge Management", "Next.js", "React", "Information Architecture"],
+    domain: "conextable.vercel.app",
+    liveSiteUrl: "https://conextable.vercel.app",
+    deploymentDate: "2025-01-09",
+    timeline: "2024 – Present",
+    featured: false,
+    archived: false,
+  },
+  {
     id: "numoracle-oracle-cards",
     title: "Numoracle Oracle Cards",
     description: "A digital oracle-card experience that combines numerology analytics with intuitive daily guidance.",
