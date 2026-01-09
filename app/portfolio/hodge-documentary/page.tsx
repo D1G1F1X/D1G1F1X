@@ -29,9 +29,9 @@ export default function HodgeDocumentaryProjectPage() {
           <div className="lg:col-span-2">
             <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/50 mb-8">
               <img
-                src="/images/projects/hodge-documentary.jpg"
-                alt="The Hodge Documentary Website"
-                className="w-full h-96 object-cover"
+                src="/images/projects/hodge-documentary-hero.jpg"
+                alt="The Hodge Documentary Website - Cleveland Artists Platform"
+                className="w-full h-auto object-cover"
               />
             </div>
 
