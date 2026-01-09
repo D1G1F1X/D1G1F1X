@@ -109,7 +109,7 @@ export default function DataDrivenMarketingBlogPost() {
               </div>
 
               <div className="prose prose-lg max-w-none prose-invert">
-                <p className="text-gray-300 mb-6 text-lg">{post.excerpt}</p>
+                <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
 
                 <h2>The Data Revolution in Marketing</h2>
                 <p>
@@ -211,6 +211,11 @@ export default function DataDrivenMarketingBlogPost() {
                   </li>
                 </ul>
 
+                <p>
+                  For an e-commerce client, our implementation of predictive segmentation led to a 28% increase in email
+                  campaign conversion rates and a 15% reduction in customer acquisition costs.
+                </p>
+
                 <h3>Predictive Segmentation</h3>
                 <p>
                   Advanced analytics can move segmentation from descriptive (what customers have done) to predictive
@@ -233,8 +238,8 @@ export default function DataDrivenMarketingBlogPost() {
                 </ul>
 
                 <p>
-                  For an e-commerce client, our implementation of predictive segmentation led to a 28% increase in email
-                  campaign conversion rates and a 15% reduction in customer acquisition costs.
+                  A retail client implementing these personalization strategies saw a 32% increase in average order
+                  value and a 24% improvement in customer retention rates.
                 </p>
 
                 <h2>Personalization at Scale</h2>

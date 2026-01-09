@@ -31,7 +31,7 @@ export default function OyahLovePage() {
               <Badge className="bg-primary-500 text-white">Building</Badge>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">Oyah Love Spiritual Platform</h1>
-            <p className="text-xl text-gray-300 mb-8">
+            <p className="text-xl text-gray-100 mb-8">
               A mystical wellness and spiritual transformation platform featuring beautiful imagery and empowering
               content. Designed to help users embrace change and discover their inner strength through curated
               experiences.
@@ -74,7 +74,7 @@ export default function OyahLovePage() {
               <Heart className="h-6 w-6 text-purple-400 mr-3" />
               <h3 className="text-lg font-semibold text-white">Spiritual Wellness</h3>
             </div>
-            <p className="text-gray-300">
+            <p className="text-gray-100">
               A platform dedicated to spiritual growth and personal transformation, helping users embrace change and
               find inner strength.
             </p>
@@ -85,7 +85,7 @@ export default function OyahLovePage() {
               <Sparkles className="h-6 w-6 text-yellow-400 mr-3" />
               <h3 className="text-lg font-semibold text-white">Mystical Design</h3>
             </div>
-            <p className="text-gray-300">
+            <p className="text-gray-100">
               Beautiful, ethereal design featuring powerful imagery, lightning effects, and a transformative visual
               experience.
             </p>
@@ -96,7 +96,7 @@ export default function OyahLovePage() {
               <ShoppingBag className="h-6 w-6 text-accent-400 mr-3" />
               <h3 className="text-lg font-semibold text-white">E-commerce Integration</h3>
             </div>
-            <p className="text-gray-300">
+            <p className="text-gray-100">
               Full e-commerce functionality with curated collections, blog content, and seamless shopping experience.
             </p>
           </div>
@@ -108,7 +108,7 @@ export default function OyahLovePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <h3 className="text-lg font-semibold text-purple-400 mb-4">Frontend Technologies</h3>
-              <ul className="space-y-2 text-gray-300">
+              <ul className="space-y-2 text-gray-100">
                 <li>• Next.js for optimal performance and SEO</li>
                 <li>• Responsive design with mobile-first approach</li>
                 <li>• Custom animations and visual effects</li>
@@ -117,7 +117,7 @@ export default function OyahLovePage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-yellow-400 mb-4">Platform Features</h3>
-              <ul className="space-y-2 text-gray-300">
+              <ul className="space-y-2 text-gray-100">
                 <li>• Multi-section navigation (Home, About, Blog, Shop)</li>
                 <li>• Integrated blog platform for content</li>
                 <li>• E-commerce shop functionality</li>
@@ -135,7 +135,7 @@ export default function OyahLovePage() {
               <div className="w-2 h-2 rounded-full bg-purple-400 mt-2 mr-4 flex-shrink-0" />
               <div>
                 <h4 className="font-semibold text-white mb-1">Empowering Brand Message</h4>
-                <p className="text-gray-300">
+                <p className="text-gray-100">
                   "Embrace the Winds of Change, Find Your Inner Storm" - a powerful message of transformation and
                   personal growth woven throughout the entire user experience.
                 </p>
@@ -145,7 +145,7 @@ export default function OyahLovePage() {
               <div className="w-2 h-2 rounded-full bg-yellow-400 mt-2 mr-4 flex-shrink-0" />
               <div>
                 <h4 className="font-semibold text-white mb-1">Stunning Visual Identity</h4>
-                <p className="text-gray-300">
+                <p className="text-gray-100">
                   Features beautiful, culturally-rich imagery with butterfly symbolism representing transformation,
                   complemented by lightning effects and mystical elements.
                 </p>
@@ -155,7 +155,7 @@ export default function OyahLovePage() {
               <div className="w-2 h-2 rounded-full bg-accent-400 mt-2 mr-4 flex-shrink-0" />
               <div>
                 <h4 className="font-semibold text-white mb-1">Comprehensive Platform</h4>
-                <p className="text-gray-300">
+                <p className="text-gray-100">
                   Full-featured platform combining spiritual content, e-commerce capabilities, blog functionality, and
                   community engagement tools in one cohesive experience.
                 </p>

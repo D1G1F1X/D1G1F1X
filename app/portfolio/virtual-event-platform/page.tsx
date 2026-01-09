@@ -12,11 +12,11 @@ export const metadata: Metadata = {
 const VirtualEventPlatformPage = () => {
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-6">Virtual Event Platform</h1>
+      <h1 className="text-3xl font-bold mb-6 text-white">Virtual Event Platform</h1>
 
       <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Overview</h2>
-        <p className="text-gray-700">
+        <h2 className="text-2xl font-semibold mb-4 text-white">Overview</h2>
+        <p className="text-gray-100">
           A comprehensive virtual event platform designed to host and manage online conferences, webinars, and
           workshops. This platform provides features such as live streaming, interactive Q&A sessions, virtual booths,
           and networking opportunities.
@@ -24,8 +24,8 @@ const VirtualEventPlatformPage = () => {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Key Features</h2>
-        <ul className="list-disc list-inside text-gray-700">
+        <h2 className="text-2xl font-semibold mb-4 text-white">Key Features</h2>
+        <ul className="list-disc list-inside text-gray-100">
           <li>Live Streaming with real-time chat</li>
           <li>Interactive Q&A and Polling</li>
           <li>Virtual Booths for exhibitors</li>
@@ -36,8 +36,8 @@ const VirtualEventPlatformPage = () => {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Technologies Used</h2>
-        <ul className="list-disc list-inside text-gray-700">
+        <h2 className="text-2xl font-semibold mb-4 text-white">Technologies Used</h2>
+        <ul className="list-disc list-inside text-gray-100">
           <li>Next.js</li>
           <li>React</li>
           <li>Tailwind CSS</li>
@@ -47,7 +47,7 @@ const VirtualEventPlatformPage = () => {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Screenshots</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-white">Screenshots</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <ImageWithFallback
             src="/images/virtual-event-platform/screenshot1.png"
@@ -77,7 +77,7 @@ const VirtualEventPlatformPage = () => {
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold mb-4">Links</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-white">Links</h2>
         <div className="flex gap-4">
           <Button asChild>
             <Link href="https://github.com/your-repo" target="_blank" rel="noopener noreferrer">

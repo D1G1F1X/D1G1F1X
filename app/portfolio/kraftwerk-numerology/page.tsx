@@ -37,18 +37,18 @@ export default function KraftwerkNumerologyProjectPage() {
 
             <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl p-8 border border-gray-700/50 mb-8">
               <h2 className="text-2xl font-bold text-white mb-6">Project Overview</h2>
-              <p className="text-gray-300 mb-6 leading-relaxed">
+              <p className="text-gray-100 mb-6 leading-relaxed">
                 Kraftwerk Numerology represents the pinnacle of digital numerological analysis, combining ancient wisdom
                 with cutting-edge computational power. This comprehensive platform provides users with deep insights
                 into their numerical patterns, life paths, and spiritual connections through advanced calculation
                 algorithms.
               </p>
-              <p className="text-gray-300 mb-6 leading-relaxed">
+              <p className="text-gray-100 mb-6 leading-relaxed">
                 The platform features a sophisticated loading system that processes complex numerological calculations
                 in real-time, delivering personalized reports and insights that help users understand their cosmic
                 connections and life purpose through the power of numbers.
               </p>
-              <p className="text-gray-300 leading-relaxed">
+              <p className="text-gray-100 leading-relaxed">
                 Built with performance optimization in mind, the platform handles intensive calculations while
                 maintaining a smooth user experience through progressive loading and intelligent caching systems.
               </p>
@@ -63,7 +63,7 @@ export default function KraftwerkNumerologyProjectPage() {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold mb-2">Advanced Calculations</h3>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-100 text-sm">
                       Complex numerological algorithms for precise life path and destiny number analysis.
                     </p>
                   </div>
@@ -74,7 +74,7 @@ export default function KraftwerkNumerologyProjectPage() {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold mb-2">Real-time Processing</h3>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-100 text-sm">
                       Instant calculation results with progressive loading for complex analyses.
                     </p>
                   </div>
@@ -85,7 +85,7 @@ export default function KraftwerkNumerologyProjectPage() {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold mb-2">SaaS Architecture</h3>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-100 text-sm">
                       Scalable cloud-based platform with user accounts and subscription management.
                     </p>
                   </div>
@@ -96,7 +96,7 @@ export default function KraftwerkNumerologyProjectPage() {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold mb-2">Analytics Dashboard</h3>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-100 text-sm">
                       Comprehensive reporting and trend analysis for numerological patterns.
                     </p>
                   </div>
@@ -106,12 +106,12 @@ export default function KraftwerkNumerologyProjectPage() {
 
             <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl p-8 border border-gray-700/50">
               <h2 className="text-2xl font-bold text-white mb-6">Technical Implementation</h2>
-              <p className="text-gray-300 mb-4 leading-relaxed">
+              <p className="text-gray-100 mb-4 leading-relaxed">
                 The platform utilizes advanced mathematical libraries and custom algorithms to perform complex
                 numerological calculations with high precision. The progressive loading system ensures optimal user
                 experience even during intensive computational processes.
               </p>
-              <p className="text-gray-300 leading-relaxed">
+              <p className="text-gray-100 leading-relaxed">
                 Built with scalability in mind, the platform can handle thousands of concurrent calculations while
                 maintaining sub-second response times through intelligent load balancing and distributed computing
                 architecture.

@@ -96,72 +96,74 @@ export default function ProjectPage() {
 
           {/* Project details */}
           <div className="prose prose-lg max-w-none prose-invert mb-16">
-            <h2>Project Overview</h2>
-            <p>
+            <h2 className="text-white">Project Overview</h2>
+            <p className="text-gray-100">
               The AI Content Generator is a sophisticated platform that leverages advanced language models to create
               high-quality, contextually relevant content for various marketing channels. Developed as an in-house
               product by Lumen Helix Solutions, this tool addresses the growing demand for efficient content creation
               while maintaining brand voice and quality standards.
             </p>
 
-            <p>
+            <p className="text-gray-100">
               This system represents our expertise in AI implementation and content strategy, combining natural language
               processing with marketing best practices to deliver a powerful solution for modern content needs.
             </p>
 
-            <h2>Key Features</h2>
+            <h2 className="text-white">Key Features</h2>
 
-            <h3>Multi-Channel Content Generation</h3>
-            <p>
+            <h3 className="text-white">Multi-Channel Content Generation</h3>
+            <p className="text-gray-100">
               The AI Content Generator creates tailored content for various platforms and formats, enabling marketing
               teams to:
             </p>
-            <ul>
+            <ul className="text-gray-100">
               <li>Generate blog posts with SEO optimization built-in</li>
               <li>Create social media content tailored to specific platforms (Twitter, LinkedIn, Instagram, etc.)</li>
               <li>Develop email marketing campaigns with customizable templates</li>
               <li>Produce product descriptions that highlight key features and benefits</li>
             </ul>
 
-            <h3>Brand Voice Customization</h3>
-            <p>
+            <h3 className="text-white">Brand Voice Customization</h3>
+            <p className="text-gray-100">
               One of the most powerful aspects of our AI Content Generator is its ability to learn and adapt to specific
               brand voices:
             </p>
-            <ul>
+            <ul className="text-gray-100">
               <li>Brand voice analysis and replication through machine learning</li>
               <li>Customizable tone settings (professional, casual, technical, etc.)</li>
               <li>Industry-specific terminology and compliance checks</li>
               <li>Style guide integration to ensure brand consistency</li>
             </ul>
 
-            <h3>Collaborative Workflow Integration</h3>
-            <p>
+            <h3 className="text-white">Collaborative Workflow Integration</h3>
+            <p className="text-gray-100">
               The platform is designed to enhance human creativity, not replace it, with features that support
               collaborative content development:
             </p>
-            <ul>
+            <ul className="text-gray-100">
               <li>Content briefs and outlines generation to jumpstart the creative process</li>
               <li>Revision and editing suggestions based on best practices</li>
               <li>Version control and approval workflows</li>
               <li>Integration with popular CMS platforms and marketing tools</li>
             </ul>
 
-            <h3>Analytics and Optimization</h3>
-            <p>The AI Content Generator includes powerful analytics to continuously improve content performance:</p>
-            <ul>
+            <h3 className="text-white">Analytics and Optimization</h3>
+            <p className="text-gray-100">
+              The AI Content Generator includes powerful analytics to continuously improve content performance:
+            </p>
+            <ul className="text-gray-100">
               <li>Content performance tracking across channels</li>
               <li>A/B testing capabilities for headlines and content variations</li>
               <li>Audience engagement analysis</li>
               <li>SEO impact measurement and optimization recommendations</li>
             </ul>
 
-            <h2>Technical Implementation</h2>
-            <p>
+            <h2 className="text-white">Technical Implementation</h2>
+            <p className="text-gray-100">
               The AI Content Generator was built using cutting-edge technologies to ensure scalability, accuracy, and
               user-friendliness:
             </p>
-            <ul>
+            <ul className="text-gray-100">
               <li>Fine-tuned large language models (LLMs) for specialized content generation</li>
               <li>React-based frontend with an intuitive user interface</li>
               <li>Node.js backend with efficient API handling</li>
@@ -171,9 +173,11 @@ export default function ProjectPage() {
               <li>Enterprise-grade security with role-based access control</li>
             </ul>
 
-            <h2>Results and Impact</h2>
-            <p>Since its deployment, the AI Content Generator has delivered significant benefits to organizations:</p>
-            <ul>
+            <h2 className="text-white">Results and Impact</h2>
+            <p className="text-gray-100">
+              Since its deployment, the AI Content Generator has delivered significant benefits to organizations:
+            </p>
+            <ul className="text-gray-100">
               <li>70% reduction in content creation time</li>
               <li>45% increase in content output volume</li>
               <li>32% improvement in engagement metrics across generated content</li>
@@ -235,7 +239,7 @@ export default function ProjectPage() {
           <div className="mb-16">
             <h2 className="text-2xl font-bold text-white mb-6">Client Testimonials</h2>
             <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl border border-gray-700/50">
-              <p className="text-gray-300 italic mb-4">
+              <p className="text-gray-100 italic mb-4">
                 "The AI Content Generator has revolutionized our content marketing strategy. We're now able to produce
                 three times the content with half the resources, while maintaining our brand voice and quality
                 standards. The platform's ability to learn from feedback and continuously improve has been particularly
@@ -264,7 +268,12 @@ export default function ProjectPage() {
               <Button asChild size="lg" className="bg-primary-500 hover:bg-primary-600 text-white">
                 <Link href="/#contact">Request a Demo</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white/50 text-white hover:bg-white/10">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-white/50 text-white hover:bg-white/10 bg-transparent"
+              >
                 <Link href="/services/ai-strategy-fusion">Learn About Our AI Services</Link>
               </Button>
             </div>

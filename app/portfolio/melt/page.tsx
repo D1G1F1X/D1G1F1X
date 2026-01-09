@@ -27,7 +27,7 @@ export default function MeltProjectPage() {
             Beta
           </Badge>
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold mb-2">{project.title}</h1>
+        <h1 className="text-4xl md:text-5xl font-bold mb-2 text-white">{project.title}</h1>
         <p className="text-xl text-primary-400 mb-6">
           <a
             href="https://icemelt.app"
@@ -38,7 +38,7 @@ export default function MeltProjectPage() {
             iceMELT.app <ExternalLink className="ml-1 h-4 w-4" />
           </a>
         </p>
-        <p className="text-xl text-gray-200 mb-8">{project.description}</p>
+        <p className="text-xl text-gray-100 mb-8">{project.description}</p>
         <div className="flex flex-wrap gap-2 mb-8">
           {project.tags.map((tag) => (
             <Badge key={tag} variant="secondary" className="bg-gray-800/50 text-gray-200">
@@ -66,17 +66,17 @@ export default function MeltProjectPage() {
             <h2 className="text-2xl font-bold mb-4 text-white">
               Project: M.E.L.T. (Monitor Enforcement Locate Threats)
             </h2>
-            <p className="text-gray-200 mb-4">
+            <p className="text-gray-100 mb-4">
               <strong>Domain:</strong> <code className="text-primary-400">iceMELT.app</code>
             </p>
-            <p className="text-gray-200 mb-6">
+            <p className="text-gray-100 mb-6">
               M.E.L.T. (Monitor Enforcement Locate Threats) is a web community-powered platform designed to provide
               real-time alerts, notifications, and insights into immigration & ICE sightings and threat levels in your
               area! 🚨 M.E.L.T. aims to empower communities with critical information.
             </p>
 
             <h3 className="text-xl font-bold mb-3 text-white">Key Features:</h3>
-            <ul className="list-disc pl-6 space-y-2 text-gray-200 mb-6">
+            <ul className="list-disc pl-6 space-y-2 text-gray-100 mb-6">
               <li>
                 <strong>Interactive Map:</strong> Visualize sightings and threat perimeters on a dynamic, real-time map.
                 This feature allows users to quickly understand the geographical context of reported incidents.
@@ -100,7 +100,7 @@ export default function MeltProjectPage() {
             </ul>
 
             <h3 className="text-xl font-bold mb-3 text-white">Technologies Used:</h3>
-            <ul className="list-disc pl-6 space-y-2 text-gray-200 mb-6">
+            <ul className="list-disc pl-6 space-y-2 text-gray-100 mb-6">
               <li>
                 <strong>Frontend:</strong> Next.js, React, Tailwind CSS, shadcn/ui
               </li>
@@ -116,14 +116,14 @@ export default function MeltProjectPage() {
             </ul>
 
             <h3 className="text-xl font-bold mb-3 text-white">Problem Solved:</h3>
-            <p className="text-gray-200 mb-6">
+            <p className="text-gray-100 mb-6">
               In an increasingly complex environment, M.E.L.T. provides a vital resource for collective awareness and
               response to immigration and ICE-related activities. It empowers communities by giving them access to
               critical, real-time information, enabling more informed decisions and proactive measures.
             </p>
 
             <h3 className="text-xl font-bold mb-3 text-white">Future Enhancements:</h3>
-            <ul className="list-disc pl-6 space-y-2 text-gray-200">
+            <ul className="list-disc pl-6 space-y-2 text-gray-100">
               <li>Advanced analytics and reporting for administrators.</li>
               <li>Push notifications for real-time alerts based on user-defined perimeters.</li>
               <li>Integration with additional data sources for enriched threat assessment.</li>

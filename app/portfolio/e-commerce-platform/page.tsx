@@ -96,37 +96,39 @@ export default function ProjectPage() {
 
           {/* Project details */}
           <div className="prose prose-lg max-w-none prose-invert mb-16">
-            <h2>Project Overview</h2>
-            <p>
+            <h2 className="text-white">Project Overview</h2>
+            <p className="text-gray-100">
               The E-Commerce Platform is a comprehensive online retail solution developed for Boutique Retail Group, a
               collective of specialty fashion and lifestyle brands. This platform was designed to unify their digital
               presence while maintaining each brand's unique identity, all while leveraging cutting-edge technology to
               deliver personalized shopping experiences that drive conversion and customer loyalty.
             </p>
 
-            <p>
+            <p className="text-gray-100">
               This project showcases our expertise in e-commerce development, AI implementation, and scalable
               architecture, delivering a solution that has significantly enhanced the client's digital retail
               capabilities.
             </p>
 
-            <h2>Key Features</h2>
+            <h2 className="text-white">Key Features</h2>
 
-            <h3>Multi-Brand Architecture</h3>
-            <p>
+            <h3 className="text-white">Multi-Brand Architecture</h3>
+            <p className="text-gray-100">
               The platform supports multiple brands under a single infrastructure while maintaining distinct brand
               experiences:
             </p>
-            <ul>
+            <ul className="text-gray-100">
               <li>Unified backend with brand-specific storefronts</li>
               <li>Centralized inventory and order management</li>
               <li>Brand-specific design systems with shared components</li>
               <li>Cross-brand account management for customers</li>
             </ul>
 
-            <h3>AI-Powered Personalization</h3>
-            <p>One of the platform's standout features is its sophisticated recommendation engine:</p>
-            <ul>
+            <h3 className="text-white">AI-Powered Personalization</h3>
+            <p className="text-gray-100">
+              One of the platform's standout features is its sophisticated recommendation engine:
+            </p>
+            <ul className="text-gray-100">
               <li>Machine learning algorithms for personalized product recommendations</li>
               <li>Visual similarity search for "shop the look" functionality</li>
               <li>Behavioral analysis for dynamic homepage personalization</li>
@@ -134,9 +136,11 @@ export default function ProjectPage() {
               <li>Contextual upsell and cross-sell suggestions</li>
             </ul>
 
-            <h3>Advanced Shopping Experience</h3>
-            <p>The platform offers a range of features designed to enhance the customer journey:</p>
-            <ul>
+            <h3 className="text-white">Advanced Shopping Experience</h3>
+            <p className="text-gray-100">
+              The platform offers a range of features designed to enhance the customer journey:
+            </p>
+            <ul className="text-gray-100">
               <li>Virtual try-on capabilities for select product categories</li>
               <li>AR-enabled product visualization</li>
               <li>Real-time inventory visibility</li>
@@ -144,9 +148,9 @@ export default function ProjectPage() {
               <li>One-click checkout with multiple payment options</li>
             </ul>
 
-            <h3>Omnichannel Integration</h3>
-            <p>The platform seamlessly connects online and offline retail experiences:</p>
-            <ul>
+            <h3 className="text-white">Omnichannel Integration</h3>
+            <p className="text-gray-100">The platform seamlessly connects online and offline retail experiences:</p>
+            <ul className="text-gray-100">
               <li>In-store inventory visibility</li>
               <li>Clienteling tools for store associates</li>
               <li>Unified loyalty program across channels</li>
@@ -154,12 +158,12 @@ export default function ProjectPage() {
               <li>Integrated returns processing across channels</li>
             </ul>
 
-            <h2>Technical Implementation</h2>
-            <p>
+            <h2 className="text-white">Technical Implementation</h2>
+            <p className="text-gray-100">
               The E-Commerce Platform was built using modern technologies to ensure performance, scalability, and
               flexibility:
             </p>
-            <ul>
+            <ul className="text-gray-100">
               <li>Next.js frontend with server-side rendering for SEO optimization</li>
               <li>Headless commerce architecture with API-first approach</li>
               <li>GraphQL API layer for efficient data fetching</li>
@@ -171,12 +175,12 @@ export default function ProjectPage() {
               <li>CI/CD pipeline for continuous deployment</li>
             </ul>
 
-            <h2>Results and Impact</h2>
-            <p>
+            <h2 className="text-white">Results and Impact</h2>
+            <p className="text-gray-100">
               Since its deployment, the E-Commerce Platform has delivered significant business value for Boutique Retail
               Group:
             </p>
-            <ul>
+            <ul className="text-gray-100">
               <li>42% increase in online revenue within the first six months</li>
               <li>28% improvement in conversion rate</li>
               <li>35% higher average order value with AI-powered recommendations</li>
@@ -243,7 +247,7 @@ export default function ProjectPage() {
           <div className="mb-16">
             <h2 className="text-2xl font-bold text-white mb-6">Client Testimonials</h2>
             <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl border border-gray-700/50">
-              <p className="text-gray-300 italic mb-4">
+              <p className="text-gray-100 italic mb-4">
                 "The e-commerce platform developed by Lumen Helix has transformed our digital retail strategy. Not only
                 has it unified our brands under a single, manageable system, but the AI-powered personalization has
                 exceeded our expectations in driving sales and customer engagement. The platform's flexibility has
@@ -274,7 +278,12 @@ export default function ProjectPage() {
               <Button asChild size="lg" className="bg-accent-500 hover:bg-accent-600 text-white">
                 <Link href="/#contact">Request a Consultation</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white/50 text-white hover:bg-white/10">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-white/50 text-white hover:bg-white/10 bg-transparent"
+              >
                 <Link href="/services/web-development">Learn About Our Web Development Services</Link>
               </Button>
             </div>

@@ -37,17 +37,17 @@ export default function NumOracleProjectPage() {
 
             <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl p-8 border border-gray-700/50 mb-8">
               <h2 className="text-2xl font-bold text-white mb-6">Project Overview</h2>
-              <p className="text-gray-300 mb-6 leading-relaxed">
+              <p className="text-gray-100 mb-6 leading-relaxed">
                 The NUMO Oracle Card Platform represents a unique fusion of ancient numerological wisdom and modern web
                 technology. This mystical platform provides users with personalized oracle card readings, numerology
                 calculations, and spiritual guidance tools through an intuitive and visually stunning interface.
               </p>
-              <p className="text-gray-300 mb-6 leading-relaxed">
+              <p className="text-gray-100 mb-6 leading-relaxed">
                 Built with a focus on user experience and spiritual authenticity, the platform features custom-designed
                 oracle cards, interactive reading sessions, and comprehensive numerology tools that help users discover
                 insights about their life path, relationships, and spiritual journey.
               </p>
-              <p className="text-gray-300 leading-relaxed">
+              <p className="text-gray-100 leading-relaxed">
                 The dark, mystical design aesthetic creates an immersive atmosphere that enhances the spiritual
                 experience while maintaining modern usability standards and responsive design principles.
               </p>
@@ -62,7 +62,7 @@ export default function NumOracleProjectPage() {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold mb-2">Custom Oracle Cards</h3>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-100 text-sm">
                       Beautifully designed oracle cards with mystical symbols and numerological significance.
                     </p>
                   </div>
@@ -73,7 +73,7 @@ export default function NumOracleProjectPage() {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold mb-2">Interactive Readings</h3>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-100 text-sm">
                       Dynamic card selection and reading experiences with personalized interpretations.
                     </p>
                   </div>
@@ -84,7 +84,7 @@ export default function NumOracleProjectPage() {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold mb-2">Numerology Tools</h3>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-100 text-sm">
                       Comprehensive calculation tools for life path numbers, compatibility, and more.
                     </p>
                   </div>
@@ -95,7 +95,7 @@ export default function NumOracleProjectPage() {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold mb-2">Responsive Design</h3>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-100 text-sm">
                       Optimized for all devices with smooth animations and intuitive navigation.
                     </p>
                   </div>
@@ -105,12 +105,12 @@ export default function NumOracleProjectPage() {
 
             <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl p-8 border border-gray-700/50">
               <h2 className="text-2xl font-bold text-white mb-6">Technical Implementation</h2>
-              <p className="text-gray-300 mb-4 leading-relaxed">
+              <p className="text-gray-100 mb-4 leading-relaxed">
                 The platform was built using modern web technologies with a focus on performance and user experience.
                 The mystical design elements were carefully crafted to create an authentic spiritual atmosphere while
                 maintaining accessibility and usability standards.
               </p>
-              <p className="text-gray-300 leading-relaxed">
+              <p className="text-gray-100 leading-relaxed">
                 Special attention was given to the card animation systems, random selection algorithms, and the
                 integration of numerological calculation engines to provide accurate and meaningful readings for users.
               </p>
@@ -173,7 +173,7 @@ export default function NumOracleProjectPage() {
 
             <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
               <h3 className="text-xl font-bold text-white mb-4">Live Project</h3>
-              <p className="text-gray-300 mb-4 text-sm">
+              <p className="text-gray-100 mb-4 text-sm">
                 Experience the mystical world of numerology and oracle card readings.
               </p>
               <Button asChild className="w-full bg-primary-500 hover:bg-primary-600">

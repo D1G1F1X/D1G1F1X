@@ -37,18 +37,18 @@ export default function LolitaWilsonPortfolioProjectPage() {
 
             <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl p-8 border border-gray-700/50 mb-8">
               <h2 className="text-2xl font-bold text-white mb-6">Project Overview</h2>
-              <p className="text-gray-300 mb-6 leading-relaxed">
+              <p className="text-gray-100 mb-6 leading-relaxed">
                 The Lolita Wilson Creative Portfolio represents a sophisticated digital showcase designed to highlight
                 the artistic vision and creative works of a talented professional. This project focuses on creating an
                 elegant, minimalist platform that allows the artwork to take center stage while providing an intuitive
                 user experience.
               </p>
-              <p className="text-gray-300 mb-6 leading-relaxed">
+              <p className="text-gray-100 mb-6 leading-relaxed">
                 Currently in development, this portfolio website will feature a carefully curated collection of creative
                 works, including digital art, photography, design projects, and multimedia presentations. The platform
                 is being built with a focus on visual storytelling and artistic presentation.
               </p>
-              <p className="text-gray-300 leading-relaxed">
+              <p className="text-gray-100 leading-relaxed">
                 The design philosophy emphasizes clean lines, thoughtful typography, and strategic use of white space to
                 create a gallery-like experience that honors the artistic content while maintaining professional
                 presentation standards.
@@ -64,7 +64,7 @@ export default function LolitaWilsonPortfolioProjectPage() {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold mb-2">Art Gallery</h3>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-100 text-sm">
                       Curated showcase of artistic works with high-resolution image support.
                     </p>
                   </div>
@@ -75,7 +75,7 @@ export default function LolitaWilsonPortfolioProjectPage() {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold mb-2">Photography Section</h3>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-100 text-sm">
                       Dedicated space for photographic works with lightbox viewing.
                     </p>
                   </div>
@@ -86,7 +86,7 @@ export default function LolitaWilsonPortfolioProjectPage() {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold mb-2">Creative Process</h3>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-100 text-sm">
                       Behind-the-scenes content showing artistic development and techniques.
                     </p>
                   </div>
@@ -97,7 +97,7 @@ export default function LolitaWilsonPortfolioProjectPage() {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold mb-2">Responsive Design</h3>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-100 text-sm">
                       Optimized viewing experience across all devices and screen sizes.
                     </p>
                   </div>
@@ -107,14 +107,14 @@ export default function LolitaWilsonPortfolioProjectPage() {
 
             <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl p-8 border border-gray-700/50 mb-8">
               <h2 className="text-2xl font-bold text-white mb-6">Development Status</h2>
-              <p className="text-gray-300 mb-4 leading-relaxed">
+              <p className="text-gray-100 mb-4 leading-relaxed">
                 The portfolio is currently in active development, with the core architecture and design system being
                 established. The project focuses on creating a platform that truly represents the artist's vision while
                 providing visitors with an engaging and memorable experience.
               </p>
               <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/30">
                 <h4 className="text-white font-semibold mb-2">Current Progress:</h4>
-                <ul className="text-gray-300 text-sm space-y-1">
+                <ul className="text-gray-100 text-sm space-y-1">
                   <li>• Design system and visual identity established</li>
                   <li>• Core navigation and layout structure implemented</li>
                   <li>• Image optimization and gallery systems in development</li>
@@ -125,12 +125,12 @@ export default function LolitaWilsonPortfolioProjectPage() {
 
             <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl p-8 border border-gray-700/50">
               <h2 className="text-2xl font-bold text-white mb-6">Technical Approach</h2>
-              <p className="text-gray-300 mb-4 leading-relaxed">
+              <p className="text-gray-100 mb-4 leading-relaxed">
                 The portfolio is being built with modern web technologies that prioritize performance, accessibility,
                 and visual quality. Special attention is being given to image optimization and loading strategies to
                 ensure fast load times without compromising visual fidelity.
               </p>
-              <p className="text-gray-300 leading-relaxed">
+              <p className="text-gray-100 leading-relaxed">
                 The platform will feature progressive image loading, smooth animations, and intuitive navigation that
                 enhances rather than distracts from the artistic content being showcased.
               </p>
@@ -193,7 +193,7 @@ export default function LolitaWilsonPortfolioProjectPage() {
 
             <div className="bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
               <h3 className="text-xl font-bold text-white mb-4">Coming Soon</h3>
-              <p className="text-gray-300 mb-4 text-sm">
+              <p className="text-gray-100 mb-4 text-sm">
                 This creative portfolio is currently under development and will be available soon.
               </p>
               <Button asChild className="w-full bg-gray-600 hover:bg-gray-700" disabled>

@@ -24,7 +24,7 @@ export default function OIQPortfolioPage() {
           <h2 className="text-2xl md:text-3xl text-purple-300 mb-8 font-light">
             Rewriting the Corporation with a Moral Core
           </h2>
-          <p className="text-lg text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-gray-100 mb-12 max-w-2xl mx-auto leading-relaxed">
             A conscious technology platform built for humanity. Combining quantum computing frameworks, ethical AI, and
             community coordination tools to reduce suffering and serve the common good.
           </p>
@@ -97,7 +97,7 @@ export default function OIQPortfolioPage() {
               >
                 <pillar.icon className="w-12 h-12 text-purple-400 mb-4 group-hover:text-purple-300 transition-colors" />
                 <h4 className="text-xl font-semibold text-white mb-3">{pillar.title}</h4>
-                <p className="text-gray-400 text-sm">{pillar.description}</p>
+                <p className="text-gray-100 text-sm">{pillar.description}</p>
               </div>
             ))}
           </div>
@@ -163,7 +163,7 @@ export default function OIQPortfolioPage() {
               >
                 <h4 className="text-xl font-semibold text-white mb-2">{project.title}</h4>
                 <p className="text-purple-300 text-sm mb-3">{project.subtitle}</p>
-                <p className="text-gray-400 text-sm mb-4">{project.description}</p>
+                <p className="text-gray-100 text-sm mb-4">{project.description}</p>
                 <div className="flex flex-wrap gap-2">
                   {project.tags.map((tag, tidx) => (
                     <span
@@ -197,7 +197,7 @@ export default function OIQPortfolioPage() {
                   "Deterministic State Management",
                   "Open-Source Aligned Stack",
                 ].map((tech, idx) => (
-                  <li key={idx} className="flex items-start gap-3 text-gray-300">
+                  <li key={idx} className="flex items-start gap-3 text-gray-100">
                     <span className="text-purple-400 font-bold mt-1">✓</span>
                     <span>{tech}</span>
                   </li>
@@ -216,7 +216,7 @@ export default function OIQPortfolioPage() {
                   "Measurement & observability",
                   "Accessibility & inclusivity",
                 ].map((phil, idx) => (
-                  <li key={idx} className="flex items-start gap-3 text-gray-300">
+                  <li key={idx} className="flex items-start gap-3 text-gray-100">
                     <span className="text-purple-400 font-bold mt-1">✓</span>
                     <span>{phil}</span>
                   </li>
@@ -267,7 +267,7 @@ export default function OIQPortfolioPage() {
                 className={`p-8 rounded-lg bg-gradient-to-br ${value.color} bg-opacity-10 border border-${value.label.toLowerCase()}-500/30 hover:border-${value.label.toLowerCase()}-500/60 transition-all duration-300`}
               >
                 <div className={`text-3xl font-bold ${value.accent} mb-3`}>{value.label}</div>
-                <p className="text-gray-300 text-sm">{value.description}</p>
+                <p className="text-gray-100 text-sm">{value.description}</p>
               </div>
             ))}
           </div>
@@ -278,7 +278,7 @@ export default function OIQPortfolioPage() {
       <section className="py-24 px-4 relative">
         <div className="max-w-4xl mx-auto text-center">
           <h3 className="text-4xl font-bold text-white mb-6">Ready to Explore?</h3>
-          <p className="text-xl text-gray-300 mb-12">
+          <p className="text-xl text-gray-100 mb-12">
             Join the movement to build conscious technology for humanity. Visit the lab, explore the research, or
             contribute on GitHub.
           </p>

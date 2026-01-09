@@ -14,19 +14,22 @@ const BrandIdentitySystemPage = () => {
     <div className="container relative overflow-hidden py-16 md:py-20 lg:py-24">
       <div className="mx-auto grid max-w-5xl items-start gap-8 md:grid-cols-2 md:gap-12 lg:gap-24">
         <div className="flex flex-col">
-          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">Brand Identity System</h1>
-          <p className="mt-4 text-gray-500 dark:text-gray-400">
+          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-white">
+            Brand Identity System
+          </h1>
+          <p className="mt-4 text-gray-100">
             A comprehensive brand identity system designed to create a cohesive and recognizable brand presence.
           </p>
-          <div className="mt-8 space-y-3">
+          <div className="mt-8 space-y-3 text-gray-100">
             <p>
-              <strong>Client:</strong> Acme Corp
+              <strong className="text-white">Client:</strong> Acme Corp
             </p>
             <p>
-              <strong>Services:</strong> Brand Strategy, Visual Identity, Logo Design, Brand Guidelines
+              <strong className="text-white">Services:</strong> Brand Strategy, Visual Identity, Logo Design, Brand
+              Guidelines
             </p>
             <p>
-              <strong>Year:</strong> 2023
+              <strong className="text-white">Year:</strong> 2023
             </p>
             <Link
               href="#"

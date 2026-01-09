@@ -16,7 +16,7 @@ export default function NowoRadioPage() {
         {/* Back Button */}
         <div className="mb-8">
           <Link href="/portfolio">
-            <Button variant="ghost" className="text-gray-300 hover:text-white">
+            <Button variant="ghost" className="text-gray-100 hover:text-white">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Portfolio
             </Button>
@@ -31,7 +31,7 @@ export default function NowoRadioPage() {
               <Badge className="bg-accent-500 text-white">Deployed</Badge>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">NOWO Radio Platform</h1>
-            <p className="text-xl text-gray-300 mb-8">
+            <p className="text-xl text-gray-100 mb-8">
               A retro-futuristic radio station website featuring cyberpunk aesthetics and interactive broadcasting
               elements. Combines newschool vibes with oldschool rhythms in a digital frontier experience.
             </p>
@@ -73,7 +73,7 @@ export default function NowoRadioPage() {
               <Radio className="h-6 w-6 text-primary-400 mr-3" />
               <h3 className="text-lg font-semibold text-white">Broadcasting Platform</h3>
             </div>
-            <p className="text-gray-300">
+            <p className="text-gray-100">
               Interactive radio platform with live streaming capabilities, artist interviews, and exclusive content
               delivery.
             </p>
@@ -84,7 +84,7 @@ export default function NowoRadioPage() {
               <Zap className="h-6 w-6 text-secondary-400 mr-3" />
               <h3 className="text-lg font-semibold text-white">Cyberpunk Aesthetic</h3>
             </div>
-            <p className="text-gray-300">
+            <p className="text-gray-100">
               Retro-futuristic design with neon accents, terminal-style interfaces, and immersive digital frontier
               experience.
             </p>
@@ -95,7 +95,7 @@ export default function NowoRadioPage() {
               <Users className="h-6 w-6 text-accent-400 mr-3" />
               <h3 className="text-lg font-semibold text-white">Community Features</h3>
             </div>
-            <p className="text-gray-300">
+            <p className="text-gray-100">
               Guestbook, announcements, and interactive elements that connect listeners with the NOWO Radio community.
             </p>
           </div>
@@ -107,7 +107,7 @@ export default function NowoRadioPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <h3 className="text-lg font-semibold text-primary-400 mb-4">Frontend Technologies</h3>
-              <ul className="space-y-2 text-gray-300">
+              <ul className="space-y-2 text-gray-100">
                 <li>• Next.js for server-side rendering and performance</li>
                 <li>• Custom CSS for cyberpunk visual effects</li>
                 <li>• Responsive design for all devices</li>
@@ -116,7 +116,7 @@ export default function NowoRadioPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-secondary-400 mb-4">Design Features</h3>
-              <ul className="space-y-2 text-gray-300">
+              <ul className="space-y-2 text-gray-100">
                 <li>• Retro terminal-style typography</li>
                 <li>• Neon color scheme with cyan and magenta accents</li>
                 <li>• Animated borders and visual effects</li>
@@ -134,7 +134,7 @@ export default function NowoRadioPage() {
               <div className="w-2 h-2 rounded-full bg-primary-400 mt-2 mr-4 flex-shrink-0" />
               <div>
                 <h4 className="font-semibold text-white mb-1">Immersive Brand Experience</h4>
-                <p className="text-gray-300">
+                <p className="text-gray-100">
                   Created a unique digital identity that perfectly captures the "NEWSCHOOL OLDSCHOOL WORLD ORDER"
                   concept through visual design and user interaction.
                 </p>
@@ -144,7 +144,7 @@ export default function NowoRadioPage() {
               <div className="w-2 h-2 rounded-full bg-secondary-400 mt-2 mr-4 flex-shrink-0" />
               <div>
                 <h4 className="font-semibold text-white mb-1">Multi-Section Navigation</h4>
-                <p className="text-gray-300">
+                <p className="text-gray-100">
                   Comprehensive site structure including About, Events, Talent, Announcements, Gear, Gallery, Guestbook,
                   and Contact/Booking sections.
                 </p>
@@ -154,7 +154,7 @@ export default function NowoRadioPage() {
               <div className="w-2 h-2 rounded-full bg-accent-400 mt-2 mr-4 flex-shrink-0" />
               <div>
                 <h4 className="font-semibold text-white mb-1">Performance Optimized</h4>
-                <p className="text-gray-300">
+                <p className="text-gray-100">
                   Built with modern web technologies ensuring fast loading times and smooth user experience across all
                   devices.
                 </p>
