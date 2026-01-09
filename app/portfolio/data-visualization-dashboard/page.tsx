@@ -96,6 +96,24 @@ export default function ProjectPage() {
 
           {/* Project details */}
           <div className="prose prose-lg max-w-none prose-invert mb-16">
+            <style>{`
+              .prose-invert h2 {
+                @apply text-white font-bold text-2xl md:text-3xl;
+              }
+              .prose-invert h3 {
+                @apply text-white font-semibold text-xl md:text-2xl;
+              }
+              .prose-invert p {
+                @apply text-gray-100 text-base md:text-lg leading-relaxed;
+              }
+              .prose-invert ul li {
+                @apply text-gray-100 text-base md:text-lg;
+              }
+              .prose-invert ol li {
+                @apply text-gray-100 text-base md:text-lg;
+              }
+            `}</style>
+
             <h2>Project Overview</h2>
             <p>
               The Data Visualization Dashboard is a sophisticated analytics platform designed for Global Financial
@@ -183,7 +201,7 @@ export default function ProjectPage() {
 
           {/* Key technologies */}
           <div className="mb-16">
-            <h2 className="text-2xl font-bold text-white mb-6">Technologies Used</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">Technologies Used</h2>
             <div className="flex flex-wrap gap-3">
               {[
                 "React",
@@ -200,7 +218,7 @@ export default function ProjectPage() {
                 <Badge
                   key={index}
                   variant="outline"
-                  className="text-gray-300 border-gray-700 bg-gray-800/50 hover:border-secondary-600/30 transition-colors px-3 py-1"
+                  className="text-gray-100 border-gray-700 bg-gray-800/50 hover:border-secondary-600/30 transition-colors px-3 py-1"
                 >
                   {tech}
                 </Badge>
@@ -210,7 +228,7 @@ export default function ProjectPage() {
 
           {/* Project gallery */}
           <div className="mb-16">
-            <h2 className="text-2xl font-bold text-white mb-6">Project Gallery</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">Project Gallery</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
                 "Executive Dashboard",
@@ -235,9 +253,9 @@ export default function ProjectPage() {
 
           {/* Testimonials */}
           <div className="mb-16">
-            <h2 className="text-2xl font-bold text-white mb-6">Client Testimonials</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">Client Testimonials</h2>
             <div className="bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl border border-gray-700/50">
-              <p className="text-gray-300 italic mb-4">
+              <p className="text-gray-100 italic mb-4">
                 "The Data Visualization Dashboard developed by Lumen Helix has transformed how we interact with our
                 financial data. Even in its beta stage, it's providing insights that were previously impossible to
                 obtain without days of manual analysis. The intuitive interface makes complex data accessible to
@@ -245,13 +263,13 @@ export default function ProjectPage() {
                 gets exactly the view they need. We're already seeing significant improvements in our decision-making
                 processes."
               </p>
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-secondary-600/20 rounded-full flex items-center justify-center border border-secondary-600/30 mr-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center">
+                <div className="w-12 h-12 bg-secondary-600/20 rounded-full flex items-center justify-center border border-secondary-600/30 mr-4 flex-shrink-0">
                   <span className="text-secondary-400 font-bold">RJ</span>
                 </div>
                 <div>
                   <p className="font-semibold text-white">Robert Johnson</p>
-                  <p className="text-gray-400">Chief Data Officer, Global Financial Services Corp</p>
+                  <p className="text-gray-100">Chief Data Officer, Global Financial Services Corp</p>
                 </div>
               </div>
             </div>
@@ -259,15 +277,22 @@ export default function ProjectPage() {
 
           {/* CTA section */}
           <div className="bg-gradient-to-r from-secondary-900/70 to-primary-900/70 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 text-center">
-            <h2 className="text-2xl font-bold text-white mb-4">Need a Custom Data Visualization Solution?</h2>
-            <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+              Need a Custom Data Visualization Solution?
+            </h2>
+            <p className="text-lg md:text-xl text-gray-100 mb-8 max-w-3xl mx-auto">
               Discover how our data visualization expertise can transform your complex data into actionable insights.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="bg-secondary-600 hover:bg-secondary-700 text-white">
                 <Link href="/#contact">Request a Consultation</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white/50 text-white hover:bg-white/10">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-white/50 text-white hover:bg-white/10 bg-transparent"
+              >
                 <Link href="/services/web-development">Learn About Our Web Development Services</Link>
               </Button>
             </div>
@@ -275,7 +300,7 @@ export default function ProjectPage() {
 
           {/* Related projects */}
           <div className="mt-16">
-            <h2 className="text-2xl font-bold text-white mb-6">Related Projects</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">Related Projects</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-sm overflow-hidden border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300 group">
                 <div className="h-48 bg-gray-900/80 relative">
