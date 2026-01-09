@@ -28,7 +28,7 @@ export default function OyahLovePage() {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <Badge className="bg-accent-600 text-white">Client Project</Badge>
-              <Badge className="bg-primary-500 text-white">Building</Badge>
+              <Badge className="bg-green-600 text-white">Completed</Badge>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">Oyah Love Spiritual Platform</h1>
             <p className="text-xl text-gray-100 mb-8">
@@ -45,24 +45,25 @@ export default function OyahLovePage() {
             </div>
             <div className="flex gap-4">
               <Button asChild className="bg-primary-500 hover:bg-primary-600">
-                <Link href="https://oyah.vercel.app" target="_blank" rel="noopener noreferrer">
+                <Link href="https://oyah.love" target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="mr-2 h-4 w-4" />
-                  View Build Progress
+                  Visit Oyah.Love
                 </Link>
               </Button>
             </div>
           </div>
 
           <div className="relative">
-            <div className="relative overflow-hidden rounded-xl shadow-2xl border border-gray-700/50">
+            <div className="relative overflow-hidden rounded-xl shadow-2xl border border-purple-500/30">
               <ImageWithFallback
-                src="/images/projects/oyah-love.jpg"
-                alt="Oyah Love Spiritual Platform"
-                width={600}
-                height={400}
-                className="w-full h-auto"
+                src="/images/projects/oyah-love-hero.png"
+                alt="Oyah Love - Embrace the Winds of Change, Find Your Inner Storm"
+                width={1200}
+                height={800}
+                className="w-full h-auto object-cover"
+                priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-purple-900/30 to-transparent" />
             </div>
           </div>
         </div>
