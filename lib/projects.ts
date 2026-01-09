@@ -157,7 +157,7 @@ export const projects: Project[] = [
     id: "nowo-radio",
     title: "NOWO Radio",
     description: "Interactive cyber-inspired radio platform with live streams, podcasts and community schedule.",
-    image: "/images/projects/nowo-radio.jpg",
+    image: "/images/projects/nowo-radio-hero.png",
     category: "client",
     status: "completed",
     stage: toStage("completed"),
