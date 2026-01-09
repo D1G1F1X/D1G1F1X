@@ -4,6 +4,10 @@ export async function POST(request: Request) {
   try {
     const { message } = await request.json()
 
+    if (!message || typeof message !== "string" || message.trim().length === 0) {
+      return Response.json({ error: "Message is required" }, { status: 400 })
+    }
+
     const systemPrompt = `You are a helpful customer service AI assistant for Lumen Helix Solutions, a company specializing in:
 - Quantum computing research and development
 - AI ethics and implementation
@@ -29,7 +33,14 @@ You should:
 
     return Response.json({ message: text })
   } catch (error) {
-    console.error("Chat API error:", error)
-    return Response.json({ error: "Failed to process your message" }, { status: 500 })
+    console.error("[v0] Chat API error:", error)
+    const errorMessage = error instanceof Error ? error.message : "Failed to process your message"
+    return Response.json(
+      {
+        error: "Our AI assistant is temporarily unavailable. Please try again or contact us directly.",
+        details: errorMessage,
+      },
+      { status: 500 },
+    )
   }
 }
