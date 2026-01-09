@@ -8,6 +8,7 @@ import Footer from "@/components/footer"
 import AnimatedBackground from "@/components/animated-background"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
+import FloatingContactButton from "@/components/floating-contact-button"
 
 // Load Inter font for body text
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -40,6 +41,7 @@ export default function RootLayout({
             <Navbar />
             <main>{children}</main>
             <Footer />
+            <FloatingContactButton />
           </ThemeProvider>
         </Suspense>
         <Analytics />
