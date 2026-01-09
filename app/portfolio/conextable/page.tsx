@@ -56,7 +56,12 @@ export default function ConextablePage() {
               </div>
             </div>
             <div className="relative h-80 rounded-lg overflow-hidden border border-blue-500/30">
-              <Image src="/images/projects/conextable.jpg" alt="DiverseCity.me" fill className="object-cover" />
+              <Image
+                src="/images/projects/diversitycity-hero.jpg"
+                alt="DiverseCity.me - Connect. Share. Grow. Together."
+                fill
+                className="object-cover"
+              />
             </div>
           </div>
         </div>
