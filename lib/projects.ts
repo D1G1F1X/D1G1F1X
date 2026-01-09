@@ -58,7 +58,7 @@ export const projects: Project[] = [
     title: "DiverseCity.me",
     description:
       "A supportive community platform for neurodivergent individuals featuring Connect, Share, Grow pillars. Users can find meaningful connections, exchange skills, collaborate on micro-projects, and trade domestic skills in a safe, accessible environment.",
-    image: "/images/projects/conextable.jpg",
+    image: "/images/projects/diversitycity-hero.jpg",
     category: "in-house",
     status: "in-progress",
     stage: toStage("in-progress"),
