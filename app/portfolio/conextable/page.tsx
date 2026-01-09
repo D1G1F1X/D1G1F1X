@@ -27,10 +27,10 @@ export default function ConextablePage() {
         <div className="max-w-6xl mx-auto px-4 py-16 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
-              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">ConnectABLE</h1>
+              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">DiverseCity.me</h1>
               <p className="text-xl text-gray-100 mb-6">
-                Connect. Share. Grow. Together. A supportive community platform designed for neurodivergent individuals
-                to connect with others, exchange skills, collaborate on projects, and build meaningful relationships.
+                Connect. Share. Grow. Together. A community platform designed for neurodivergent individuals to connect,
+                share skills, collaborate on projects, and build a supportive community.
               </p>
               <div className="flex flex-wrap gap-2 mb-8">
                 <span className="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full text-sm border border-cyan-500/30">
@@ -56,7 +56,7 @@ export default function ConextablePage() {
               </div>
             </div>
             <div className="relative h-80 rounded-lg overflow-hidden border border-blue-500/30">
-              <Image src="/images/projects/conextable.jpg" alt="ConnectABLE" fill className="object-cover" />
+              <Image src="/images/projects/conextable.jpg" alt="DiverseCity.me" fill className="object-cover" />
             </div>
           </div>
         </div>
@@ -70,17 +70,17 @@ export default function ConextablePage() {
             {/* Overview */}
             <Card className="bg-slate-800/50 border-blue-500/30">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">About ConnectABLE</h2>
+                <h2 className="text-2xl font-bold text-white mb-4">About DiverseCity.me</h2>
                 <div className="space-y-4 text-gray-100">
                   <p>
-                    ConnectABLE is a revolutionary community platform built specifically for neurodivergent individuals.
-                    It creates a safe, supportive space where users can connect with others who share similar interests,
-                    exchange practical skills, collaborate on meaningful projects, and build lasting relationships.
+                    DiverseCity.me is a vibrant community platform built specifically for neurodivergent individuals. It
+                    creates a welcoming space where users can connect with like-minded people, exchange valuable skills,
+                    collaborate on meaningful projects, and build lasting relationships within a supportive community.
                   </p>
                   <p>
-                    The platform recognizes that neurodivergent individuals often have diverse learning styles and
-                    communication needs. ConnectABLE is designed from the ground up to accommodate these differences,
-                    making community engagement accessible, intuitive, and meaningful for everyone.
+                    The platform operates on three core pillars—Connect, Share, and Grow—each designed to address
+                    different aspects of community engagement. Whether you're looking to find your people, teach what
+                    you know, or develop new skills, DiverseCity.me provides the tools and community to make it happen.
                   </p>
                 </div>
               </CardContent>
@@ -89,34 +89,27 @@ export default function ConextablePage() {
             {/* Core Features */}
             <Card className="bg-slate-800/50 border-blue-500/30">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">Core Features</h2>
+                <h2 className="text-2xl font-bold text-white mb-4">The Three Pillars</h2>
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-cyan-300 font-semibold mb-2">Connect</h3>
+                    <h3 className="text-cyan-300 font-semibold mb-2">🤝 Connect</h3>
                     <p className="text-gray-100 text-sm">
-                      Find and connect with others who share your interests or have complementary skills, building
-                      genuine friendships and professional relationships.
+                      Find and connect with others who share your interests or have complementary skills. Build genuine
+                      friendships and professional relationships in a safe, judgment-free environment.
                     </p>
                   </div>
                   <div>
-                    <h3 className="text-cyan-300 font-semibold mb-2">Skill Exchange</h3>
+                    <h3 className="text-cyan-300 font-semibold mb-2">📚 Share</h3>
                     <p className="text-gray-100 text-sm">
-                      Exchange skills and knowledge in a supportive environment designed for diverse learning styles.
-                      Categories include Tech, Creative, Organizational, Social, and Domestic skills.
+                      Exchange skills and knowledge with community members. Categories include Tech Skills, Creative
+                      Arts, Organizational Help, Social Support, and Domestic Skills Trading.
                     </p>
                   </div>
                   <div>
-                    <h3 className="text-cyan-300 font-semibold mb-2">Micro-Projects</h3>
+                    <h3 className="text-cyan-300 font-semibold mb-2">🚀 Grow</h3>
                     <p className="text-gray-100 text-sm">
-                      Join or start small collaborative projects that make a difference in your community while building
-                      valuable connections and experience.
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="text-cyan-300 font-semibold mb-2">Domestic Skills Trading</h3>
-                    <p className="text-gray-100 text-sm">
-                      Share practical household skills like meal prep, home organization, basic repairs, sustainable
-                      cleaning, and plant care with other community members.
+                      Develop new skills, build confidence, and create meaningful connections through collaboration.
+                      Join or start micro-projects that make a real difference in the community.
                     </p>
                   </div>
                 </div>
@@ -126,23 +119,23 @@ export default function ConextablePage() {
             {/* Skill Categories */}
             <Card className="bg-slate-800/50 border-blue-500/30">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">Featured Opportunities</h2>
+                <h2 className="text-2xl font-bold text-white mb-4">Platform Features</h2>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-slate-700/30 p-4 rounded border border-cyan-500/20">
-                    <p className="text-cyan-300 font-semibold text-sm mb-1">Web Development</p>
-                    <p className="text-gray-100 text-xs">Learn HTML, CSS, JavaScript fundamentals</p>
+                    <p className="text-cyan-300 font-semibold text-sm mb-1">Skill Exchange</p>
+                    <p className="text-gray-100 text-xs">Trade skills and knowledge with community members</p>
                   </div>
                   <div className="bg-slate-700/30 p-4 rounded border border-purple-500/20">
-                    <p className="text-purple-300 font-semibold text-sm mb-1">Digital Art</p>
-                    <p className="text-gray-100 text-xs">Master digital brushes and techniques</p>
+                    <p className="text-purple-300 font-semibold text-sm mb-1">Micro-Projects</p>
+                    <p className="text-gray-100 text-xs">Collaborate on small meaningful projects</p>
                   </div>
                   <div className="bg-slate-700/30 p-4 rounded border border-green-500/20">
-                    <p className="text-green-300 font-semibold text-sm mb-1">Financial Planning</p>
-                    <p className="text-gray-100 text-xs">Learn budgeting and saving strategies</p>
+                    <p className="text-green-300 font-semibold text-sm mb-1">Connections</p>
+                    <p className="text-gray-100 text-xs">Build meaningful relationships with others</p>
                   </div>
                   <div className="bg-slate-700/30 p-4 rounded border border-blue-500/20">
-                    <p className="text-blue-300 font-semibold text-sm mb-1">Communication</p>
-                    <p className="text-gray-100 text-xs">Develop better communication skills</p>
+                    <p className="text-blue-300 font-semibold text-sm mb-1">Resources</p>
+                    <p className="text-gray-100 text-xs">Access community guides and support materials</p>
                   </div>
                 </div>
               </CardContent>

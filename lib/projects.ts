@@ -55,14 +55,14 @@ export const projects: Project[] = [
   },
   {
     id: "conextable",
-    title: "ConnectABLE",
+    title: "DiverseCity.me",
     description:
-      "A supportive community platform designed specifically for neurodivergent individuals to connect, share skills, collaborate on meaningful projects, and build lasting relationships. Features skill-exchange opportunities, micro-projects, and domestic skills trading.",
+      "A supportive community platform for neurodivergent individuals featuring Connect, Share, Grow pillars. Users can find meaningful connections, exchange skills, collaborate on micro-projects, and trade domestic skills in a safe, accessible environment.",
     image: "/images/projects/conextable.jpg",
     category: "in-house",
     status: "in-progress",
     stage: toStage("in-progress"),
-    tags: ["Community", "Neurodivergent", "Skill-Sharing", "Collaboration", "React", "Next.js"],
+    tags: ["Community", "Neurodivergent", "Skill-Sharing", "Micro-Projects", "React", "Next.js"],
     domain: "conextable.vercel.app",
     liveSiteUrl: "https://conextable.vercel.app",
     deploymentDate: "2025-01-09",
