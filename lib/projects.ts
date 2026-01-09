@@ -173,7 +173,7 @@ export const projects: Project[] = [
     id: "oyah-love",
     title: "Oyah Love",
     description: "E-commerce boutique for handcrafted jewellery with a focus on sustainable sourcing.",
-    image: "/images/projects/oyah-love.jpg",
+    image: "/images/projects/oyah-love-hero.png",
     category: "client",
     status: "completed",
     stage: toStage("completed"),
