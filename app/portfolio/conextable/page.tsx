@@ -61,6 +61,7 @@ export default function ConextablePage() {
                 alt="DiverseCity.me - Connect. Share. Grow. Together."
                 fill
                 className="object-cover"
+                priority
               />
             </div>
           </div>
