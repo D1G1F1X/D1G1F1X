@@ -1,4 +1,6 @@
-import { generateText } from "ai"
+import { streamText } from "ai"
+
+export const runtime = "edge"
 
 export async function POST(request: Request) {
   try {
@@ -23,7 +25,7 @@ You should:
 - Suggest scheduling a consultation if appropriate
 - Never make up information about services or capabilities`
 
-    const { text } = await generateText({
+    const result = streamText({
       model: "openai/gpt-4o-mini",
       system: systemPrompt,
       prompt: message,
@@ -31,7 +33,7 @@ You should:
       maxTokens: 200,
     })
 
-    return Response.json({ message: text })
+    return result.toUIMessageStreamResponse()
   } catch (error) {
     console.error("[v0] Chat API error:", error)
     const errorMessage = error instanceof Error ? error.message : "Failed to process your message"
