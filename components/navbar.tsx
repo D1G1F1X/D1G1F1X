@@ -217,12 +217,7 @@ export default function Navbar() {
               </Link>
             ))}
             <DayNightToggle />
-            <Button
-              className={cn("text-white", isScrolled ? "bg-primary-500 hover:bg-primary-600" : buttonColorClass)}
-              style={isScrolled ? {} : buttonColorStyle}
-            >
-              Get Started
-            </Button>
+            
           </nav>
 
           {/* Mobile Menu Button */}
