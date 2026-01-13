@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import ImageWithFallback from "@/components/image-with-fallback"
+import Breadcrumb from "@/components/breadcrumb"
+import ReadingTime from "@/components/reading-time"
 
 interface BlogPostPageProps {
   params: {
@@ -19,6 +21,8 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const placeholderImage = `/placeholder.svg?height=400&width=800&text=${encodeURIComponent(post.title)}`
+
+  const articleContent = `${post.excerpt} The Evolution of AI in Business Artificial Intelligence has transformed...` // In production, this would be the actual article content
 
   return (
     <div className="min-h-screen bg-gray-900 pt-24 relative overflow-hidden">
@@ -73,6 +77,8 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
       <div className="container px-4 mx-auto py-12 relative z-10">
         <div className="max-w-4xl mx-auto">
+          <Breadcrumb items={[{ label: "Blog", href: "/blog" }, { label: post.title }]} />
+
           <Link
             href="/blog"
             className="inline-flex items-center text-primary-400 font-medium mb-8 hover:text-primary-300 transition-colors"
@@ -99,8 +105,8 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             <div className="p-8">
               <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{post.title}</h1>
 
-              <div className="flex items-center text-gray-400 mb-8">
-                <div className="flex items-center mr-6">
+              <div className="flex items-center text-gray-400 mb-8 flex-wrap gap-4">
+                <div className="flex items-center">
                   <Calendar className="h-5 w-5 mr-2 text-primary-400" />
                   <span>{post.date}</span>
                 </div>
@@ -108,6 +114,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                   <User className="h-5 w-5 mr-2 text-primary-400" />
                   <span>{post.author}</span>
                 </div>
+                <ReadingTime content={articleContent} />
               </div>
 
               <div className="prose prose-lg max-w-none prose-invert">
@@ -191,7 +198,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                         <ImageWithFallback
                           src={
                             relatedPost.image ||
-                            `/placeholder.svg?height=160&width=240&text=${encodeURIComponent(relatedPost.category)}`
+                            `/placeholder.svg?height=160&width=240&text=${encodeURIComponent(relatedPost.category) || "/placeholder.svg"}`
                           }
                           alt={relatedPost.title}
                           fallbackSrc={`/placeholder.svg?height=160&width=240&text=${encodeURIComponent(relatedPost.category)}`}

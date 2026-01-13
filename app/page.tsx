@@ -137,8 +137,12 @@ export default function Home() {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight" style={heroTextStyle}>
               Strategic Vision, Flawless Execution
             </h1>
-            <p className="text-xl md:text-2xl mb-10 leading-relaxed max-w-3xl mx-auto" style={subTextStyle}>
+            <p className="text-xl md:text-2xl mb-4 leading-relaxed max-w-3xl mx-auto" style={subTextStyle}>
               Elevating businesses through integrated technology solutions and expert project management
+            </p>
+            <p className="text-lg mb-10 leading-relaxed max-w-2xl mx-auto opacity-90" style={subTextStyle}>
+              We architect transformation by fusing AI strategy, web development, captivating design, and data-driven
+              marketing
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="hover:opacity-90" style={buttonPrimaryStyle}>
@@ -265,7 +269,7 @@ export default function Home() {
             <Button
               asChild
               variant="outline"
-              className="border-primary-500/50 text-primary-400 hover:bg-primary-500/10 hover:border-primary-400 group transition-all duration-300 shadow-lg hover:shadow-primary-500/10"
+              className="border-primary-500/50 text-primary-400 hover:bg-primary-500/10 hover:border-primary-400 group transition-all duration-300 shadow-lg hover:shadow-primary-500/10 bg-transparent"
             >
               <Link href="/portfolio" className="flex items-center gap-2">
                 View All Projects
@@ -296,7 +300,7 @@ export default function Home() {
             <Button
               asChild
               variant="outline"
-              className="border-primary-500/50 text-primary-400 hover:bg-primary-500/10 hover:border-primary-400 group transition-all duration-300 shadow-lg hover:shadow-primary-500/10"
+              className="border-primary-500/50 text-primary-400 hover:bg-primary-500/10 hover:border-primary-400 group transition-all duration-300 shadow-lg hover:shadow-primary-500/10 bg-transparent"
             >
               <Link href="/blog" className="flex items-center gap-2">
                 View All Articles
@@ -366,7 +370,24 @@ export default function Home() {
         </div>
 
         <div className="container px-4 mx-auto relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">50+</div>
+              <div className="text-gray-400">Projects Delivered</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">98%</div>
+              <div className="text-gray-400">Client Satisfaction</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">10+</div>
+              <div className="text-gray-400">Years Experience</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">24/7</div>
+              <div className="text-gray-400">Support Available</div>
+            </div>
+          </div>
         </div>
       </section>
     </div>
