@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Lexend } from "next/font/google"
 import DayNightToggle from "@/components/day-night-toggle"
+import SearchDialog from "@/components/search-dialog"
 
 // Initialize Lexend font
 const lexend = Lexend({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] })
@@ -216,16 +217,16 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
+            <SearchDialog />
             <DayNightToggle />
-            
           </nav>
 
           {/* Mobile Menu Button */}
           <button
             className={cn("md:hidden focus:outline-none", isScrolled ? "text-white" : textColorClass)}
             onClick={toggleMenu}
-            aria-label="Toggle menu"
-            style={isScrolled ? {} : textColorStyle}
+            aria-label="Toggle navigation menu"
+            aria-expanded={isOpen}
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>

@@ -116,6 +116,37 @@
   }
 }
 
+/* Add support for reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Add support for high contrast mode */
+@media (prefers-contrast: more) {
+  :root {
+    --primary: 210 100% 40%;
+    --border: 0 0% 20%;
+    --muted-foreground: 0 0% 30%;
+  }
+
+  .dark {
+    --primary: 210 100% 70%;
+    --border: 0 0% 80%;
+    --muted-foreground: 0 0% 70%;
+  }
+
+  button,
+  a {
+    border: 2px solid currentColor;
+  }
+}
+
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
@@ -126,4 +157,86 @@
 
 .delay-500 {
   animation-delay: 0.5s;
+}
+
+/* Add sr-only class for screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Add fluid typography support for responsive scaling */
+@supports (font-size: clamp(1rem, 2.5vw, 2rem)) {
+  h1 {
+    font-size: clamp(1.875rem, 5vw, 3.75rem);
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
+  }
+
+  h3 {
+    font-size: clamp(1.25rem, 3vw, 1.875rem);
+  }
+
+  body {
+    font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+  }
+}
+
+/* Ensure proper touch target sizes on mobile (minimum 44x44px) */
+@media (max-width: 768px) {
+  button,
+  a[role="button"],
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+}
+
+/* Optimize container padding for mobile */
+@media (max-width: 640px) {
+  .container {
+    @apply px-3;
+  }
+
+  h1 {
+    @apply text-2xl;
+  }
+
+  h2 {
+    @apply text-xl;
+  }
+
+  h3 {
+    @apply text-lg;
+  }
+}
+
+/* Improve spacing on mobile devices */
+@media (max-width: 768px) {
+  .gap-8 {
+    @apply gap-4;
+  }
+
+  .py-12 {
+    @apply py-6;
+  }
+
+  .mb-8 {
+    @apply mb-4;
+  }
 }

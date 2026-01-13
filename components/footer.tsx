@@ -76,19 +76,43 @@ export default function Footer() {
             </Link>
             <p className="text-gray-400 mb-6">Enlightened growth, intelligent evolution, and clarity in complexity.</p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors">
+              <a
+                href="https://facebook.com/lumenhelix"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit Lumen Helix on Facebook (opens in new window)"
+                className="text-gray-400 hover:text-primary-400 transition-colors"
+              >
                 <Facebook size={20} />
                 <span className="sr-only">Facebook</span>
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors">
+              <a
+                href="https://twitter.com/lumenhelix"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit Lumen Helix on Twitter (opens in new window)"
+                className="text-gray-400 hover:text-primary-400 transition-colors"
+              >
                 <Twitter size={20} />
                 <span className="sr-only">Twitter</span>
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors">
+              <a
+                href="https://linkedin.com/company/lumen-helix"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit Lumen Helix on LinkedIn (opens in new window)"
+                className="text-gray-400 hover:text-primary-400 transition-colors"
+              >
                 <Linkedin size={20} />
                 <span className="sr-only">LinkedIn</span>
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors">
+              <a
+                href="https://instagram.com/lumenhelix"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit Lumen Helix on Instagram (opens in new window)"
+                className="text-gray-400 hover:text-primary-400 transition-colors"
+              >
                 <Instagram size={20} />
                 <span className="sr-only">Instagram</span>
               </a>
@@ -168,7 +192,9 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                
+                <Link href="/careers" className="text-gray-400 hover:text-primary-400 transition-colors">
+                  Careers
+                </Link>
               </li>
               <li>
                 <Link href="/contact" className="text-gray-400 hover:text-primary-400 transition-colors">

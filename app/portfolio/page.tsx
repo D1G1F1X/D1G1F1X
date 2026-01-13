@@ -3,6 +3,7 @@ import { projects, getRecentlyDeployedProjects, getInHouseProjects, getClientPro
 import PageHero from "@/components/page-hero"
 import ProjectCard from "@/components/project-card"
 import { Badge } from "@/components/ui/badge"
+import Breadcrumbs from "@/components/breadcrumbs"
 
 export default function PortfolioPage() {
   const stageColors: Record<string, string> = {
@@ -25,6 +26,10 @@ export default function PortfolioPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 relative overflow-hidden">
+      <div className="container px-4 mx-auto py-8 relative z-10">
+        <Breadcrumbs />
+      </div>
+
       <PageHero
         badge="Our Work"
         badgeVariant="accent"

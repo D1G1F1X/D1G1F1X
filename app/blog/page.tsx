@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { posts } from "@/lib/blog"
 import PageHero from "@/components/page-hero"
 import BlogCard from "@/components/blog-card"
+import Breadcrumbs from "@/components/breadcrumbs"
 
 export default function BlogPage() {
   // Get unique categories
@@ -9,6 +10,10 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 relative overflow-hidden">
+      <div className="container px-4 mx-auto py-8 relative z-10">
+        <Breadcrumbs />
+      </div>
+
       <PageHero
         badge="Knowledge Hub"
         badgeVariant="primary"
