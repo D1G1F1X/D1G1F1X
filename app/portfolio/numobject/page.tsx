@@ -9,7 +9,7 @@ export default function NumObjectProjectPage() {
     <div className="min-h-screen bg-gray-900 relative overflow-hidden">
       <PageHero
         badge="In-House Project"
-        badgeVariant="default"
+        badgeVariant="accent"
         title="NumObject"
         subtitle="Advanced numerology platform leveraging the NUMO Field framework for object-mapping and number correlation"
       />
