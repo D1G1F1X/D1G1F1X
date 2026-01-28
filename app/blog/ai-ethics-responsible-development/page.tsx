@@ -63,35 +63,35 @@ export default function AIEthicsBlogPost() {
               </div>
 
               <BlogPostContent>
-                <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
+                <p>{post.excerpt}</p>
 
-                <h2 className="text-2xl font-bold text-white mt-8 mb-4">The Ethics Imperative</h2>
-                <p className="text-gray-100 mb-6 text-base leading-relaxed">
+                <h2>The Ethics Imperative</h2>
+                <p>
                   As AI systems influence critical decisions in healthcare, finance, and justice, ethical considerations
                   must move from afterthought to core design principle. Organizations building AI responsibly gain
                   competitive advantage and trust.
                 </p>
 
-                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Key Ethical Frameworks</h2>
-                <p className="text-gray-100 mb-6 text-base leading-relaxed">
+                <h2>Key Ethical Frameworks</h2>
+                <p>
                   Transparency, fairness, accountability, and privacy form the foundation of responsible AI. Each must
                   be intentionally designed into systems from inception.
                 </p>
 
-                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Bias Detection and Mitigation</h2>
-                <p className="text-gray-100">
+                <h2>Bias Detection and Mitigation</h2>
+                <p>
                   Identifying and eliminating bias requires diverse teams, rigorous testing, and continuous monitoring.
                   This is not a one-time task but an ongoing commitment.
                 </p>
 
-                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Governance and Oversight</h2>
-                <p className="text-gray-100">
+                <h2>Governance and Oversight</h2>
+                <p>
                   Effective AI governance includes clear accountability structures, human oversight mechanisms, and
                   regular audits to ensure systems perform as intended and ethically.
                 </p>
 
-                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Building Trust</h2>
-                <p className="text-gray-100">
+                <h2>Building Trust</h2>
+                <p>
                   Organizations that prioritize ethics gain stakeholder trust and build competitive moats. The future
                   belongs to companies that innovate responsibly.
                 </p>

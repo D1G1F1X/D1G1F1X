@@ -78,20 +78,20 @@ export default function LumenHelixHighlightsBlogPost() {
                   These contributions have influenced academic research and industry practices worldwide.
                 </p>
 
-                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Project Milestones</h2>
-                <p className="text-gray-100 mb-6 text-base leading-relaxed">
+                <h2>Project Milestones</h2>
+                <p>
                   Key projects including M.E.L.T., OIQ, and the NUMO Oracle Cards platform achieved major functionality
                   milestones. Client feedback has been overwhelmingly positive, with retention rates exceeding 98%.
                 </p>
 
-                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Team Growth</h2>
-                <p className="text-gray-100 mb-6 text-base leading-relaxed">
+                <h2>Team Growth</h2>
+                <p>
                   We expanded our team with top talent in quantum computing, AI ethics, and reversible architecture
                   design. Our growing team reflects our commitment to advancing the field.
                 </p>
 
-                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Looking Forward to 2026</h2>
-                <p className="text-gray-100 mb-6 text-base leading-relaxed">
+                <h2>Looking Forward to 2026</h2>
+                <p>
                   2026 promises even greater innovations. We're launching new research initiatives, expanding into new
                   markets, and pushing toward quantum advantage in practical applications. Join us on this exciting
                   journey.
