@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ArrowLeft, Calendar, User } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import ImageWithFallback from "@/components/image-with-fallback"
+import BlogPostContent from "@/components/blog-post-content"
 
 export default function AIEthicsBlogPost() {
   const post = {
@@ -28,7 +29,7 @@ export default function AIEthicsBlogPost() {
         <div className="max-w-4xl mx-auto">
           <Link
             href="/blog"
-            className="inline-flex items-center text-amber-400 font-medium mb-8 hover:text-amber-300 transition-colors"
+            className="inline-flex items-center text-primary-400 font-medium mb-8 hover:text-primary-300 transition-colors"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to all articles
@@ -44,24 +45,24 @@ export default function AIEthicsBlogPost() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-60"></div>
               <div className="absolute top-4 left-4">
-                <Badge className="bg-amber-600 text-white">{post.category}</Badge>
+                <Badge className="bg-primary-500 text-white">{post.category}</Badge>
               </div>
             </div>
 
             <div className="p-8">
               <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{post.title}</h1>
-              <div className="flex items-center text-gray-400 mb-8">
-                <div className="flex items-center mr-6">
-                  <Calendar className="h-5 w-5 mr-2 text-amber-400" />
+              <div className="flex items-center text-gray-400 mb-8 flex-wrap gap-4">
+                <div className="flex items-center">
+                  <Calendar className="h-5 w-5 mr-2 text-primary-400" />
                   <span>{post.date}</span>
                 </div>
                 <div className="flex items-center">
-                  <User className="h-5 w-5 mr-2 text-amber-400" />
+                  <User className="h-5 w-5 mr-2 text-primary-400" />
                   <span>{post.author}</span>
                 </div>
               </div>
 
-              <div className="prose prose-lg max-w-none prose-invert">
+              <BlogPostContent>
                 <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
 
                 <h2 className="text-2xl font-bold text-white mt-8 mb-4">The Ethics Imperative</h2>
@@ -83,18 +84,18 @@ export default function AIEthicsBlogPost() {
                   This is not a one-time task but an ongoing commitment.
                 </p>
 
-                <h2 className="text-white">Governance and Oversight</h2>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Governance and Oversight</h2>
                 <p className="text-gray-100">
                   Effective AI governance includes clear accountability structures, human oversight mechanisms, and
                   regular audits to ensure systems perform as intended and ethically.
                 </p>
 
-                <h2 className="text-white">Building Trust</h2>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Building Trust</h2>
                 <p className="text-gray-100">
                   Organizations that prioritize ethics gain stakeholder trust and build competitive moats. The future
                   belongs to companies that innovate responsibly.
                 </p>
-              </div>
+              </BlogPostContent>
             </div>
           </div>
         </div>

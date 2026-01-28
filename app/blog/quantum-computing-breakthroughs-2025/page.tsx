@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ArrowLeft, Calendar, User } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import ImageWithFallback from "@/components/image-with-fallback"
+import BlogPostContent from "@/components/blog-post-content"
 
 export default function QuantumBreakthroughsBlogPost() {
   const post = {
@@ -74,8 +75,8 @@ export default function QuantumBreakthroughsBlogPost() {
 
             <div className="p-8">
               <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{post.title}</h1>
-              <div className="flex items-center text-gray-400 mb-8">
-                <div className="flex items-center mr-6">
+              <div className="flex items-center text-gray-400 mb-8 flex-wrap gap-4">
+                <div className="flex items-center">
                   <Calendar className="h-5 w-5 mr-2 text-blue-400" />
                   <span>{post.date}</span>
                 </div>

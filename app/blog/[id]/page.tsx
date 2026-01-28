@@ -6,6 +6,7 @@ import { notFound } from "next/navigation"
 import ImageWithFallback from "@/components/image-with-fallback"
 import Breadcrumb from "@/components/breadcrumb"
 import ReadingTime from "@/components/reading-time"
+import BlogPostContent from "@/components/blog-post-content"
 
 interface BlogPostPageProps {
   params: {
@@ -117,25 +118,25 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 <ReadingTime content={articleContent} />
               </div>
 
-              <div className="prose prose-lg max-w-none">
-                <p className="text-gray-100 mb-6 text-base leading-relaxed">{post.excerpt}</p>
+              <BlogPostContent>
+                <p>{post.excerpt}</p>
 
-                <h2 className="text-2xl font-bold text-white mt-8 mb-4">The Evolution of AI in Business</h2>
-                <p className="text-gray-100 mb-6 text-base leading-relaxed">
+                <h2>The Evolution of AI in Business</h2>
+                <p>
                   Artificial Intelligence has transformed from a futuristic concept to an essential business tool.
                   Organizations across industries are leveraging AI to automate processes, gain insights from data, and
                   create personalized customer experiences.
                 </p>
 
-                <p className="text-gray-100 mb-6 text-base leading-relaxed">
+                <p>
                   At Lumen Helix Solutions, we've observed that businesses that embrace AI strategically gain
                   significant competitive advantages. However, implementation requires careful planning and expertise.
                 </p>
 
-                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Key Considerations for Implementation</h2>
-                <p className="text-gray-100 mb-3 text-base leading-relaxed">When implementing AI solutions, businesses should consider:</p>
+                <h2>Key Considerations for Implementation</h2>
+                <p>When implementing AI solutions, businesses should consider:</p>
 
-                <ul className="list-disc list-inside text-gray-100 space-y-2 mb-6 text-base leading-relaxed">
+                <ul>
                   <li>Clear definition of business objectives and success metrics</li>
                   <li>Quality and accessibility of data</li>
                   <li>Integration with existing systems and workflows</li>
@@ -143,25 +144,25 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                   <li>Staff training and change management</li>
                 </ul>
 
-                <h2 className="text-2xl font-bold text-white mt-8 mb-4">The Future Landscape</h2>
-                <p className="text-gray-100 mb-6 text-base leading-relaxed">
+                <h2>The Future Landscape</h2>
+                <p>
                   As AI technologies continue to evolve, we anticipate even greater integration into core business
                   functions. Organizations that establish strong AI foundations now will be better positioned to
                   leverage future advancements.
                 </p>
 
-                <p className="text-gray-100 mb-6 text-base leading-relaxed">
+                <p>
                   The key to success lies in viewing AI not as a standalone technology but as part of a holistic digital
                   transformation strategy that encompasses people, processes, and technology.
                 </p>
 
-                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Conclusion</h2>
-                <p className="text-gray-100 mb-6 text-base leading-relaxed">
+                <h2>Conclusion</h2>
+                <p>
                   AI adoption is no longer optional for businesses seeking to remain competitive. By taking a strategic
                   approach to implementation and partnering with experienced specialists, organizations can navigate the
                   complexities of AI integration and realize significant business value.
                 </p>
-              </div>
+              </BlogPostContent>
 
               <div className="mt-8 pt-8 border-t border-gray-700">
                 <div className="flex items-center">
