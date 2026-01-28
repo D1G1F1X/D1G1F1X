@@ -1,10 +1,11 @@
+import { Breadcrumb } from "@/components/ui/breadcrumb"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft, ExternalLink } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { projects } from "@/lib/projects"
-import Breadcrumb from "@/components/breadcrumb"
+import Breadcrumbs from "@/components/breadcrumbs"
 import ProjectMetrics from "@/components/project-metrics"
 
 export default function MeltProjectPage() {
@@ -23,7 +24,7 @@ export default function MeltProjectPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <Breadcrumb items={[{ label: "Portfolio", href: "/portfolio" }, { label: project.title }]} />
+      <Breadcrumbs />
 
       <div className="mb-8">
         <Link href="/portfolio" className="flex items-center text-primary-400 hover:text-primary-300 mb-4">
