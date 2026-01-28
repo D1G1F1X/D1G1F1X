@@ -62,22 +62,22 @@ export default function NumerologyAIBlogPost() {
               </div>
 
               <div className="prose prose-lg max-w-none prose-invert">
-                <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">{post.excerpt}</p>
 
-                <h2 className="text-white">Ancient Wisdom Meets Modern Computation</h2>
-                <p className="text-gray-100">
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Ancient Wisdom Meets Modern Computation</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Numerological principles have fascinated humanity for millennia. Now, AI systems are revealing that
                   these ancient patterns contain mathematical structures recognizable to modern algorithms.
                 </p>
 
-                <h2 className="text-white">The NUMO Field Revolution</h2>
-                <p className="text-gray-100">
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">The NUMO Field Revolution</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   The NUMO Field framework integrates numerological principles with AI to create a novel approach to
                   pattern recognition. This hybrid methodology uncovers relationships invisible to conventional
                   analysis.
                 </p>
 
-                <h2 className="text-white">Pattern Recognition at Scale</h2>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Pattern Recognition at Scale</h2>
                 <p className="text-gray-100">
                   By combining ancient numerical wisdom with neural networks, NUMO enables AI systems to recognize
                   patterns in complex data with unprecedented accuracy. Applications span from financial forecasting to

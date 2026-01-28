@@ -62,30 +62,30 @@ export default function ReversibleComputingBlogPost() {
               </div>
 
               <div className="prose prose-lg max-w-none prose-invert">
-                <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">{post.excerpt}</p>
 
-                <h2 className="text-white">Computing's Energy Crisis</h2>
-                <p className="text-gray-100">
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Computing's Energy Crisis</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Data centers consume approximately 1% of global electricity. As computational demands grow, this
                   figure threatens to explode. Reversible computing offers a fundamental solution by operating without
                   generating heat waste.
                 </p>
 
-                <h2 className="text-white">How Reversible Computing Works</h2>
-                <p className="text-gray-100">
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">How Reversible Computing Works</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Unlike traditional computing, which requires energy dissipation at each step, reversible computing
                   performs operations that theoretically can be reversed—like rewinding a movie. This eliminates the
                   thermodynamic losses that plague conventional systems.
                 </p>
 
-                <h2 className="text-white">Real-World Implementation</h2>
-                <p className="text-gray-100">
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Real-World Implementation</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Companies are now building prototype reversible processors. Early results show 70% energy reduction
                   compared to traditional architectures with equivalent computational power.
                 </p>
 
-                <h2 className="text-white">The Path Forward</h2>
-                <p className="text-gray-100">
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">The Path Forward</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   While still in early stages, reversible computing represents the future of sustainable computing
                   infrastructure. Organizations investing now will lead the next generation of green computing.
                 </p>

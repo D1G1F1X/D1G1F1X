@@ -62,21 +62,21 @@ export default function CloudInfrastructureBlogPost() {
               </div>
 
               <div className="prose prose-lg max-w-none prose-invert">
-                <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">{post.excerpt}</p>
 
-                <h2 className="text-white">Scalability as a Strategic Asset</h2>
-                <p className="text-gray-100">
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Scalability as a Strategic Asset</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Modern businesses must handle unpredictable growth. Cloud infrastructure enables organizations to
                   scale seamlessly, paying only for resources used while maintaining performance.
                 </p>
 
-                <h2 className="text-white">Architecture Patterns for Scale</h2>
-                <p className="text-gray-100">
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Architecture Patterns for Scale</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Microservices, containerization, and serverless computing have revolutionized how we build scalable
                   systems. Each pattern offers unique advantages for different workloads.
                 </p>
 
-                <h2 className="text-white">Distributed Database Strategies</h2>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Distributed Database Strategies</h2>
                 <p className="text-gray-100">
                   Scaling databases requires careful planning. Techniques like sharding, replication, and distributed
                   transactions enable databases to handle massive scale while maintaining consistency.

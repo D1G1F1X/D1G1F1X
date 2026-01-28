@@ -109,26 +109,26 @@ export default function PromptEngineeringBlogPost() {
               </div>
 
               <div className="prose prose-lg max-w-none prose-invert">
-                <p className="text-gray-300 mb-6 text-lg">{post.excerpt}</p>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">{post.excerpt}</p>
 
-                <h2>The Art and Science of Prompt Engineering</h2>
-                <p>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">The Art and Science of Prompt Engineering</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Prompt engineering has emerged as a critical skill in the age of generative AI. As models like GPT-4,
                   Claude, and Midjourney become increasingly sophisticated, the quality of outputs depends significantly
                   on how effectively we communicate with these systems. At Lumen Helix, we've developed advanced prompt
                   engineering techniques that consistently produce exceptional results across various use cases.
                 </p>
 
-                <p>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Effective prompt engineering sits at the intersection of linguistics, psychology, and computer
                   science. It requires understanding both the capabilities and limitations of AI models while crafting
                   inputs that guide them toward desired outputs.
                 </p>
 
-                <h2>Core Principles of Effective Prompt Engineering</h2>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Core Principles of Effective Prompt Engineering</h2>
 
-                <h3>1. Clarity and Specificity</h3>
-                <p>
+                <h3 className="text-xl font-bold text-white mt-6 mb-3">1. Clarity and Specificity</h3>
+                <p className="text-gray-100 mb-3 text-base leading-relaxed">
                   The most common mistake in prompt engineering is being too vague. Generative AI models require clear,
                   specific instructions to produce optimal results. Consider these contrasting examples:
                 </p>

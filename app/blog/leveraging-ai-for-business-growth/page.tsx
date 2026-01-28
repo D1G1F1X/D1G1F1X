@@ -109,22 +109,22 @@ export default function AIBusinessGrowthBlogPost() {
               </div>
 
               <div className="prose prose-lg max-w-none prose-invert">
-                <p className="text-gray-300 mb-6 text-lg">{post.excerpt}</p>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">{post.excerpt}</p>
 
-                <h2>The Evolution of AI in Business</h2>
-                <p>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">The Evolution of AI in Business</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Artificial Intelligence has transformed from a futuristic concept to an essential business tool.
                   Organizations across industries are leveraging AI to automate processes, gain insights from data, and
                   create personalized customer experiences.
                 </p>
 
-                <p>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   At Lumen Helix Solutions, we've observed that businesses that embrace AI strategically gain
                   significant competitive advantages. However, implementation requires careful planning and expertise.
                 </p>
 
-                <h2>Key Considerations for Implementation</h2>
-                <p>When implementing AI solutions, businesses should consider:</p>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Key Considerations for Implementation</h2>
+                <p className="text-gray-100 mb-3 text-base leading-relaxed">When implementing AI solutions, businesses should consider:</p>
 
                 <ul>
                   <li>Clear definition of business objectives and success metrics</li>

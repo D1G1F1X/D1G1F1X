@@ -109,31 +109,31 @@ export default function DataDrivenMarketingBlogPost() {
               </div>
 
               <div className="prose prose-lg max-w-none prose-invert">
-                <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">{post.excerpt}</p>
 
-                <h2>The Data Revolution in Marketing</h2>
-                <p>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">The Data Revolution in Marketing</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   The marketing landscape has undergone a profound transformation in recent years. Gone are the days
                   when marketing decisions were primarily driven by intuition and creative instinct. Today, data has
                   become the cornerstone of effective marketing strategy, enabling organizations to make informed
                   decisions, personalize customer experiences, and measure results with unprecedented precision.
                 </p>
 
-                <p>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   At Lumen Helix Solutions, we've helped numerous clients harness the power of data to revolutionize
                   their marketing approaches. This article explores key strategies for implementing data-driven
                   marketing in your organization, with practical insights drawn from our experience working with
                   businesses across various industries.
                 </p>
 
-                <h2>Building a Solid Data Foundation</h2>
-                <p>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Building a Solid Data Foundation</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Before diving into advanced analytics and AI-powered marketing tactics, organizations need to
                   establish a robust data foundation. This involves several critical components:
                 </p>
 
-                <h3>1. Data Collection and Integration</h3>
-                <p>
+                <h3 className="text-xl font-bold text-white mt-6 mb-3">1. Data Collection and Integration</h3>
+                <p className="text-gray-100 mb-3 text-base leading-relaxed">
                   Effective data-driven marketing begins with comprehensive data collection across all customer
                   touchpoints. This includes:
                 </p>

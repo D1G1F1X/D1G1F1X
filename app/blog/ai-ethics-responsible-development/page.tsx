@@ -64,20 +64,20 @@ export default function AIEthicsBlogPost() {
               <div className="prose prose-lg max-w-none prose-invert">
                 <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
 
-                <h2 className="text-white">The Ethics Imperative</h2>
-                <p className="text-gray-100">
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">The Ethics Imperative</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   As AI systems influence critical decisions in healthcare, finance, and justice, ethical considerations
                   must move from afterthought to core design principle. Organizations building AI responsibly gain
                   competitive advantage and trust.
                 </p>
 
-                <h2 className="text-white">Key Ethical Frameworks</h2>
-                <p className="text-gray-100">
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Key Ethical Frameworks</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Transparency, fairness, accountability, and privacy form the foundation of responsible AI. Each must
                   be intentionally designed into systems from inception.
                 </p>
 
-                <h2 className="text-white">Bias Detection and Mitigation</h2>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Bias Detection and Mitigation</h2>
                 <p className="text-gray-100">
                   Identifying and eliminating bias requires diverse teams, rigorous testing, and continuous monitoring.
                   This is not a one-time task but an ongoing commitment.

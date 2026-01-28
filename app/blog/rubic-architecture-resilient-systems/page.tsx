@@ -62,22 +62,22 @@ export default function RUBICArcitectureBlogPost() {
               </div>
 
               <div className="prose prose-lg max-w-none prose-invert">
-                <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">{post.excerpt}</p>
 
-                <h2 className="text-white">Rethinking System Architecture</h2>
-                <p className="text-gray-100">
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Rethinking System Architecture</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Traditional systems often fail at boundaries—where different components interact. RUBIC (Reversible
                   Unified Boundary Integration Computing) prioritizes these boundaries, creating inherently more
                   resilient architectures.
                 </p>
 
-                <h2 className="text-white">Boundary-First Philosophy</h2>
-                <p className="text-gray-100">
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Boundary-First Philosophy</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Instead of designing components first and connecting them later, RUBIC starts with boundary design.
                   This approach ensures clean interfaces, predictable interactions, and graceful degradation.
                 </p>
 
-                <h2 className="text-white">Reversibility as a Feature</h2>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Reversibility as a Feature</h2>
                 <p className="text-gray-100">
                   RUBIC systems are reversible by design. Operations can be undone, states can be replayed, and errors
                   can be corrected without cascading failures. This fundamentally changes how we think about resilience.

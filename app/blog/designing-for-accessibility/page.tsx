@@ -109,144 +109,62 @@ export default function AccessibilityBlogPost() {
               </div>
 
               <div className="prose prose-lg max-w-none prose-invert">
-                <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">{post.excerpt}</p>
 
-                <h2>Why Accessibility Matters</h2>
-                <p>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Why Accessibility Matters</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Web accessibility is no longer optional—it's essential. At Lumen Helix Solutions, we believe that
                   digital experiences should be accessible to everyone, regardless of their abilities or disabilities.
                   Beyond being the right thing to do, designing for accessibility offers significant business benefits:
                 </p>
 
-                <ul>
-                  <li>
-                    <strong>Expanded audience reach:</strong> Approximately 15% of the global population lives with some
-                    form of disability. Accessible websites ensure you're not excluding potential customers.
-                  </li>
-                  <li>
-                    <strong>Legal compliance:</strong> Many jurisdictions now require digital accessibility compliance,
-                    with an increasing number of lawsuits targeting non-compliant websites.
-                  </li>
-                  <li>
-                    <strong>Improved user experience for everyone:</strong> Accessibility improvements often enhance
-                    usability for all users, not just those with disabilities.
-                  </li>
-                  <li>
-                    <strong>SEO benefits:</strong> Many accessibility best practices align with search engine
-                    optimization techniques, improving your site's visibility.
-                  </li>
-                </ul>
-
-                <p>
-                  Our approach to accessibility is holistic, considering the diverse needs of users with visual,
-                  auditory, motor, and cognitive disabilities. Let's explore the key principles and practical techniques
-                  for creating truly inclusive web experiences.
-                </p>
-
-                <h2>Understanding the WCAG Guidelines</h2>
-                <p>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Understanding the WCAG Guidelines</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   The Web Content Accessibility Guidelines (WCAG) provide the foundation for digital accessibility
                   standards worldwide. Currently at version 2.1, with 2.2 recently released, these guidelines are
                   organized around four key principles:
                 </p>
 
-                <h3>1. Perceivable</h3>
-                <p>
+                <h3 className="text-xl font-bold text-white mt-6 mb-3">1. Perceivable</h3>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Information and user interface components must be presentable to users in ways they can perceive. This
                   means providing alternatives for non-text content and creating content that can be presented in
                   different ways without losing meaning.
                 </p>
 
-                <h3>2. Operable</h3>
-                <p>
+                <h3 className="text-xl font-bold text-white mt-6 mb-3">2. Operable</h3>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   User interface components and navigation must be operable. This includes making all functionality
                   available from a keyboard and giving users enough time to read and use content.
                 </p>
 
-                <h3>3. Understandable</h3>
-                <p>
+                <h3 className="text-xl font-bold text-white mt-6 mb-3">3. Understandable</h3>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Information and the operation of the user interface must be understandable. This means making text
                   readable and predictable, and helping users avoid and correct mistakes.
                 </p>
 
-                <h3>4. Robust</h3>
-                <p>
+                <h3 className="text-xl font-bold text-white mt-6 mb-3">4. Robust</h3>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Content must be robust enough to be interpreted reliably by a wide variety of user agents, including
                   assistive technologies. This requires compatibility with current and future tools.
                 </p>
 
-                <p>
-                  WCAG defines three levels of conformance: A (minimum), AA (standard), and AAA (enhanced). Most
-                  organizations aim for AA compliance, which balances comprehensive accessibility with practical
-                  implementation.
-                </p>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Practical Implementation Strategies</h2>
 
-                <h2>Practical Implementation Strategies</h2>
-
-                <h3>Semantic HTML: The Foundation of Accessibility</h3>
-                <p>
+                <h3 className="text-xl font-bold text-white mt-6 mb-3">Semantic HTML: The Foundation of Accessibility</h3>
+                <p className="text-gray-100 mb-3 text-base leading-relaxed">
                   Using proper HTML elements for their intended purpose provides a strong foundation for accessibility:
                 </p>
 
-                <ul>
-                  <li>
-                    Use heading elements (<code>&lt;h1&gt;</code> through <code>&lt;h6&gt;</code>) to create a logical
-                    document structure
-                  </li>
-                  <li>
-                    Implement <code>&lt;button&gt;</code> for interactive controls and <code>&lt;a&gt;</code> for
-                    navigation
-                  </li>
-                  <li>
-                    Utilize <code>&lt;table&gt;</code> for tabular data with appropriate headers
-                  </li>
-                  <li>
-                    Apply <code>&lt;form&gt;</code>, <code>&lt;label&gt;</code>, and <code>&lt;fieldset&gt;</code>{" "}
-                    elements for form controls
-                  </li>
-                  <li>
-                    Employ ARIA landmarks (<code>role="navigation"</code>, <code>role="main"</code>, etc.) to define
-                    page regions
-                  </li>
-                </ul>
+                <h3 className="text-xl font-bold text-white mt-6 mb-3">Color and Contrast</h3>
+                <p className="text-gray-100 mb-3 text-base leading-relaxed">Color choices significantly impact accessibility for users with visual impairments:</p>
 
-                <div className="bg-gray-900 p-4 rounded-md mb-4">
-                  <p className="text-red-400 font-mono">// Poor accessibility</p>
-                  <p className="text-red-400 font-mono">
-                    &lt;div class="button" onclick="submitForm()"&gt;Submit&lt;/div&gt;
-                  </p>
-                  <p className="text-green-400 font-mono mt-2">// Better accessibility</p>
-                  <p className="text-green-400 font-mono">&lt;button type="submit"&gt;Submit&lt;/button&gt;</p>
-                </div>
+                <h3 className="text-xl font-bold text-white mt-6 mb-3">Keyboard Accessibility</h3>
+                <p className="text-gray-100 mb-3 text-base leading-relaxed">Many users with motor disabilities rely on keyboard navigation rather than a mouse:</p>
 
-                <h3>Color and Contrast</h3>
-                <p>Color choices significantly impact accessibility for users with visual impairments:</p>
-
-                <ul>
-                  <li>Maintain a minimum contrast ratio of 4.5:1 for normal text and 3:1 for large text (WCAG AA)</li>
-                  <li>Never rely on color alone to convey information—always include additional indicators</li>
-                  <li>
-                    Consider color blindness when designing interfaces (approximately 8% of men have some form of color
-                    vision deficiency)
-                  </li>
-                  <li>Test designs with tools like the WebAIM Contrast Checker or Stark plugin</li>
-                </ul>
-
-                <h3>Keyboard Accessibility</h3>
-                <p>Many users with motor disabilities rely on keyboard navigation rather than a mouse:</p>
-
-                <ul>
-                  <li>Ensure all interactive elements are keyboard accessible</li>
-                  <li>Maintain a logical tab order that follows the visual flow of the page</li>
-                  <li>
-                    Provide visible focus indicators (never use <code>outline: none</code> without an alternative)
-                  </li>
-                  <li>Implement keyboard shortcuts for frequently used actions</li>
-                  <li>Test your interface by navigating using only the keyboard</li>
-                </ul>
-
-                <h3>Images and Media</h3>
-                <p>Visual and audio content requires alternatives for users who cannot see or hear:</p>
+                <h3 className="text-xl font-bold text-white mt-6 mb-3">Images and Media</h3>
+                <p className="text-gray-100 mb-3 text-base leading-relaxed">Visual and audio content requires alternatives for users who cannot see or hear:</p>
 
                 <ul>
                   <li>Add descriptive alt text to all informative images</li>

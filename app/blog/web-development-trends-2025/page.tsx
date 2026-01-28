@@ -109,54 +109,33 @@ export default function WebDevTrendsBlogPost() {
               </div>
 
               <div className="prose prose-lg max-w-none prose-invert">
-                <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">{post.excerpt}</p>
 
-                <h2>The Evolving Landscape of Web Development</h2>
-                <p>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">The Evolving Landscape of Web Development</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Web development continues to evolve at a breathtaking pace. As we move through 2025, several key
                   trends are reshaping how we build, deploy, and interact with web applications. At Lumen Helix
                   Solutions, we're not just observing these trends—we're actively implementing them to deliver
                   cutting-edge solutions for our clients.
                 </p>
 
-                <h2>1. AI-Augmented Development</h2>
-                <p>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">1. AI-Augmented Development</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Artificial intelligence has transcended its role as a feature in web applications to become an
                   integral part of the development process itself. AI-powered development tools are revolutionizing how
                   we write code, design interfaces, and test applications.
                 </p>
 
-                <h3>Key Developments:</h3>
-                <ul>
-                  <li>
-                    <strong>AI Pair Programming:</strong> Advanced code assistants now function as collaborative
-                    partners, suggesting optimizations, identifying potential bugs, and even generating entire
-                    components based on natural language descriptions.
-                  </li>
-                  <li>
-                    <strong>Automated Testing Evolution:</strong> AI-driven testing tools can now autonomously generate
-                    comprehensive test suites, identify edge cases, and adapt tests as applications evolve.
-                  </li>
-                  <li>
-                    <strong>Design-to-Code Maturity:</strong> The gap between design and implementation continues to
-                    narrow, with AI tools that can transform design mockups into production-ready code with remarkable
-                    accuracy.
-                  </li>
-                </ul>
+                <h3 className="text-xl font-bold text-white mt-6 mb-3">Key Developments:</h3>
 
-                <p>
-                  Our development teams have integrated these AI tools into their workflows, resulting in a 35% increase
-                  in productivity and a significant reduction in time-to-market for client projects.
-                </p>
-
-                <h2>2. The Rise of Edge Computing in Web Development</h2>
-                <p>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">2. The Rise of Edge Computing in Web Development</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Edge computing has moved from an emerging technology to a mainstream approach for delivering
                   high-performance web experiences. By processing data closer to end users, edge computing minimizes
                   latency and enhances user experience.
                 </p>
 
-                <h3>Key Implementations:</h3>
+                <h3 className="text-xl font-bold text-white mt-6 mb-3">Key Implementations:</h3>
                 <ul>
                   <li>
                     <strong>Edge Functions:</strong> Serverless functions running at edge locations are becoming the

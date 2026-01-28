@@ -109,26 +109,26 @@ export default function ProjectManagementBlogPost() {
               </div>
 
               <div className="prose prose-lg max-w-none prose-invert">
-                <p className="text-gray-100 mb-6 text-lg">{post.excerpt}</p>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">{post.excerpt}</p>
 
-                <h2>The Evolution of Project Management in Digital Transformation</h2>
-                <p>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">The Evolution of Project Management in Digital Transformation</h2>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   Digital transformation initiatives are inherently complex, involving multiple stakeholders,
                   technologies, and business processes. Traditional project management approaches often struggle to
                   accommodate the rapid pace of change and uncertainty that characterizes these initiatives.
                 </p>
 
-                <p>
+                <p className="text-gray-100 mb-6 text-base leading-relaxed">
                   At Lumen Helix Solutions, we've developed a hybrid approach that combines the structure and
                   predictability of traditional methodologies with the flexibility and adaptability of modern
                   frameworks. This approach enables us to deliver digital transformation projects that meet both
                   immediate business needs and long-term strategic objectives.
                 </p>
 
-                <h2>Key Methodologies for Digital Transformation</h2>
+                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Key Methodologies for Digital Transformation</h2>
 
-                <h3>Agile Project Management</h3>
-                <p>
+                <h3 className="text-xl font-bold text-white mt-6 mb-3">Agile Project Management</h3>
+                <p className="text-gray-100 mb-3 text-base leading-relaxed">
                   Agile methodologies have become the cornerstone of successful digital transformation initiatives. By
                   breaking projects into small, manageable increments, Agile enables:
                 </p>

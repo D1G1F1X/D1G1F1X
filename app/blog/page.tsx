@@ -1,8 +1,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { posts } from "@/lib/blog"
-import PageHero from "@/components/page-hero"
 import BlogCard from "@/components/blog-card"
 import Breadcrumbs from "@/components/breadcrumbs"
+import { Badge } from "@/components/ui/badge"
+import Image from "next/image"
 
 export default function BlogPage() {
   // Get unique categories
@@ -10,17 +11,45 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 relative overflow-hidden">
-      <div className="container px-4 mx-auto py-8 relative z-10">
-        <Breadcrumbs />
+      {/* Hero Section */}
+      <div className="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden">
+        {/* Background orbs */}
+        <div className="absolute top-20 left-20 w-96 h-96 bg-primary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-secondary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
+
+        <div className="container px-4 mx-auto relative z-10">
+          <Breadcrumbs />
+        </div>
+
+        <div className="container px-4 mx-auto py-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            {/* Left: Text Content */}
+            <div className="max-w-2xl">
+              <Badge className="mb-4 px-4 py-1 text-sm bg-primary-500/20 text-primary-300 border border-primary-500/30">
+                Knowledge Hub
+              </Badge>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight text-balance">
+                Our Blog
+              </h1>
+              <p className="text-xl md:text-2xl text-gray-300 leading-relaxed max-w-3xl">
+                Expert insights and thought leadership from our team of specialists
+              </p>
+            </div>
+
+            {/* Right: Hero Illustration */}
+            <div className="hidden lg:block relative h-96">
+              <Image
+                src="/images/blog/blog-hero-illustration.jpg"
+                alt="Blog Knowledge and Insights"
+                fill
+                className="object-cover rounded-lg shadow-2xl border border-gray-700/50"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
-      <PageHero
-        badge="Knowledge Hub"
-        badgeVariant="primary"
-        title="Our Blog"
-        subtitle="Expert insights and thought leadership from our team of specialists"
-      />
-
+      {/* Blog Content Section */}
       <div className="container px-4 mx-auto py-12 relative z-10">
         <Tabs defaultValue="all" className="w-full">
           <div className="flex justify-center mb-8 overflow-x-auto pb-2">
