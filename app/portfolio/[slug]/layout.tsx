@@ -3,14 +3,15 @@ import type { Metadata } from "next"
 import { projects } from "@/lib/projects"
 
 interface ProjectLayoutProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
   children: React.ReactNode
 }
 
 export async function generateMetadata({ params }: ProjectLayoutProps): Promise<Metadata> {
-  const project = projects.find((p) => p.id === params.slug)
+  const { slug } = await params
+  const project = projects.find((p) => p.id === slug)
 
   if (!project) {
     return {
