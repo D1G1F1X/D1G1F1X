@@ -42,26 +42,6 @@ export default function Breadcrumbs() {
   const breadcrumbs = generateBreadcrumbs(pathname)
 
   return (
-    <nav className="bg-gray-50 dark:bg-gray-800 px-4 py-3 rounded-lg mb-6" aria-label="Breadcrumb">
-      <ol className="flex flex-wrap items-center gap-2">
-        {breadcrumbs.map((crumb, index) => (
-          <li key={crumb.href} className="flex items-center gap-2">
-            {index > 0 && <ChevronRight className="w-4 h-4 text-gray-400" aria-hidden="true" />}
-            {index === breadcrumbs.length - 1 ? (
-              <span className="text-gray-600 dark:text-gray-300 font-medium" aria-current="page">
-                {crumb.label}
-              </span>
-            ) : (
-              <Link
-                href={crumb.href}
-                className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-              >
-                {crumb.label}
-              </Link>
-            )}
-          </li>
-        ))}
-      </ol>
-    </nav>
+    null
   )
 }
