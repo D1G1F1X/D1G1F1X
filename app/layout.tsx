@@ -1,29 +1,89 @@
 import type React from "react"
-import Script from "next/script"
-import { Roboto } from "next/font/google"
-import { cn } from "@/lib/utils"
 import "./globals.css"
+import type { Metadata } from "next"
+import { Inter, Lexend } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
-import { AuthProvider } from "@/contexts/auth-context"
-import { ErrorBoundary } from "@/components/error-boundary"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import { ManualCartProvider } from "@/contexts/manual-cart-context"
-import BugReport from "@/components/bug-report"
-import SiteAssistant from "@/components/site-assistant"
-import DeepOceanWaves from "@/components/deep-ocean-waves"
-import StarfieldBackground from "@/components/starfield-background"
-import ConstellationBackground from "@/components/constellation-background"
-import GeometricOverlay from "@/components/geometric-overlay"
-import { Toaster } from "@/components/ui/toaster"
+import AnimatedBackground from "@/components/animated-background"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
+import FloatingContactButton from "@/components/floating-contact-button"
+import SkipToContent from "@/components/skip-to-content"
+import ErrorBoundary from "@/components/error-boundary"
 
-const roboto = Roboto({
+// Load Inter font for body text
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
+
+// Load Lexend font for headings and logo
+const lexend = Lexend({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
-  variable: "--font-roboto",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-lexend",
 })
+
+export const metadata: Metadata = {
+  title: "Lumen Helix Solutions | AI & Tech Consulting",
+  description:
+    "Lumen Helix Solutions merges strategic insight with practical implementation. We offer AI strategy, web development, graphic design, marketing strategy, and comprehensive tech consulting services.",
+  generator: "Next.js",
+  keywords: [
+    "tech consulting",
+    "AI strategy",
+    "web development",
+    "graphic design",
+    "marketing strategy",
+    "digital transformation",
+  ],
+  authors: [{ name: "Lumen Helix Solutions" }],
+  creator: "Lumen Helix Solutions",
+  publisher: "Lumen Helix Solutions",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://lumenhelix.com",
+    siteName: "Lumen Helix Solutions",
+    title: "Lumen Helix Solutions | AI & Tech Consulting",
+    description:
+      "Strategic tech consulting firm specializing in AI strategy, web development, and digital transformation.",
+    images: [
+      {
+        url: "https://lumenhelix.com/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Lumen Helix Solutions",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@lumenhelix",
+    creator: "@lumenhelix",
+    title: "Lumen Helix Solutions | AI & Tech Consulting",
+    description:
+      "Strategic tech consulting firm specializing in AI strategy, web development, and digital transformation.",
+    images: ["https://lumenhelix.com/og-image.jpg"],
+  },
+  alternates: {
+    canonical: "https://lumenhelix.com",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+  },
+}
 
 export default function RootLayout({
   children,
@@ -32,63 +92,56 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("min-h-screen bg-background font-sans antialiased", roboto.variable)}>
-        <Script id="suppress-resizeobserver-error" strategy="beforeInteractive">
-          {`
-            (function(){
-              var re = /ResizeObserver loop (limit exceeded|completed with undelivered notifications)/i;
-              function shouldIgnore(ev){
-                try {
-                  var msg = (ev && (ev.message || (ev.error && ev.error.message))) || '';
-                  return re.test(msg);
-                } catch(_) { return false; }
-              }
-              window.addEventListener('error', function(ev){
-                if (shouldIgnore(ev)) {
-                  ev.preventDefault && ev.preventDefault();
-                  return true;
-                }
-              }, true);
-              window.addEventListener('unhandledrejection', function(ev){
-                var reason = ev && ev.reason;
-                var msg = typeof reason === 'string' ? reason : (reason && reason.message) || '';
-                if (re.test(msg)) {
-                  ev.preventDefault && ev.preventDefault();
-                  return true;
-                }
-              });
-            })();
-          `}
-        </Script>
-        <ErrorBoundary>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-            <AuthProvider>
-              <ManualCartProvider>
-                {/* Animated Backgrounds */}
-                <Suspense fallback={null}>
-                  <DeepOceanWaves />
-                  <StarfieldBackground />
-                  <ConstellationBackground />
-                  <GeometricOverlay />
-                  <div className="relative flex min-h-screen flex-col">
-                    <Navbar />
-                    <main className="flex-1">{children}</main>
-                    <Footer />
-                    <BugReport />
-                    <SiteAssistant />
-                  </div>
-                  <Toaster />
-                </Suspense>
-              </ManualCartProvider>
-            </AuthProvider>
-          </ThemeProvider>
-        </ErrorBoundary>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Lumen Helix Solutions",
+              url: "https://lumenhelix.com",
+              logo: "https://lumenhelix.com/images/logo-bulb.png",
+              description:
+                "Strategic tech consulting firm specializing in AI strategy, web development, graphic design, and digital transformation.",
+              sameAs: [
+                "https://twitter.com/lumenhelix",
+                "https://linkedin.com/company/lumen-helix",
+                "https://facebook.com/lumenhelix",
+              ],
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Akron",
+                addressRegion: "Ohio",
+                addressCountry: "US",
+              },
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "Customer Service",
+                telephone: "+1-484-202-0272",
+                email: "info@lumenhelix.com",
+              },
+            }),
+          }}
+        />
+      </head>
+      <body className={`${inter.variable} ${lexend.variable} font-sans`}>
+        <SkipToContent />
+        <AnimatedBackground />
+        <Suspense fallback={null}>
+          <ErrorBoundary>
+            <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+              <Navbar />
+              <main id="main-content" className="focus:outline-none">
+                {children}
+              </main>
+              <Footer />
+              <FloatingContactButton />
+            </ThemeProvider>
+          </ErrorBoundary>
+        </Suspense>
         <Analytics />
       </body>
     </html>
   )
 }
-
-export const metadata = {
-      generator: 'v0.dev'
-    };

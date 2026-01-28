@@ -1,0 +1,12 @@
+# Lumen Helix Solutions - robots.txt
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /.git/
+
+# Crawl delay
+Crawl-delay: 1
+
+# Sitemaps
+Sitemap: https://lumenhelix.com/sitemap.xml
