@@ -57,14 +57,15 @@ export default function TeamPage() {
                 <div className='text-gray-300 space-y-3 mb-6 text-sm'>
                   <p>
                     Eric brings 13+ years of experience in enterprise information systems and financial management to his dual role 
-                    as CIO and CFO. He oversees all information technology infrastructure, data systems, and digital operations while 
-                    managing the company's financial strategy, budgeting, and fiscal health.
+                    as CIO and CFO. Working remotely, he oversees all information technology infrastructure, data systems, and digital 
+                    operations while managing the company's financial strategy, budgeting, and fiscal health with precision and efficiency.
                   </p>
                   <p>
                     As CIO, Eric ensures our technology infrastructure remains secure, scalable, and aligned with business objectives. 
                     He directs data management initiatives, system integrations, and IT governance frameworks that support our 
                     quantum-inspired computing and AI implementations. In his CFO capacity, Eric manages financial planning, resource 
-                    allocation, and investment strategies that fuel our growth while maintaining fiscal responsibility.
+                    allocation, and investment strategies that fuel our growth while maintaining fiscal responsibility. His remote work 
+                    model leverages cloud-based systems and secure collaboration tools to maintain seamless oversight of operations.
                   </p>
                 </div>
                 <div className='text-sm text-gray-400'>
@@ -108,14 +109,15 @@ export default function TeamPage() {
                 <div className='text-gray-300 space-y-3 mb-6 text-sm'>
                   <p>
                     Christopher brings 30+ years of technology consulting expertise and military service to his role as Founder, CEO, and CTO. 
-                    His disciplined, strategic approach to organizational leadership ensures operational excellence across all departments. He oversees 
-                    technical innovation, UI/UX strategy, regulatory compliance frameworks, team training programs, and 24/7 customer support operations 
-                    while driving overall company vision and providing critical sales support.
+                    Working remotely, his disciplined, strategic approach to organizational leadership ensures operational excellence across all departments. 
+                    He oversees technical innovation, UI/UX strategy, regulatory compliance frameworks, team training programs, and 24/7 customer support 
+                    operations while driving overall company vision and providing critical sales support.
                   </p>
                   <p>
                     As author of 7 research papers on quantum-inspired computing, reversible architectures, and AI systems (not peer-reviewed or published), 
                     Christopher combines deep technical knowledge with practical business acumen. His Navy background instilled a culture of 
-                    precision, accountability, and unwavering support—values that define the Lumen Helix experience.
+                    precision, accountability, and unwavering support—values that define the Lumen Helix experience. His remote leadership model 
+                    enables agile, responsive coordination across our distributed team.
                   </p>
                 </div>
                 <div className='text-sm text-gray-400'>

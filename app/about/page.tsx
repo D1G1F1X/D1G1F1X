@@ -98,8 +98,8 @@ export default function AboutPage() {
                   <div className="text-gray-300 space-y-4 leading-relaxed">
                     <p>
                       Christopher brings over 30 years of technology consulting and project management expertise to his role as 
-                      Founder, CEO, and CTO of Lumen Helix Solutions. His disciplined, strategic approach—honed through military 
-                      service in the US Navy—ensures operational excellence across all aspects of the organization.
+                      Founder, CEO, and CTO of Lumen Helix Solutions. Working remotely, his disciplined, strategic approach—honed 
+                      through military service in the US Navy—ensures operational excellence across all aspects of the organization.
                     </p>
                     <p>
                       As a researcher and innovator, Christopher has authored 7 research papers exploring quantum-inspired computing, 
@@ -108,8 +108,9 @@ export default function AboutPage() {
                     </p>
                     <p>
                       Christopher oversees technical innovation, UI/UX strategy, compliance frameworks, training programs, and customer 
-                      support operations while driving the company's overall vision and providing critical sales support. His leadership 
-                      embodies the values of precision, accountability, and unwavering commitment that define the Lumen Helix experience.
+                      support operations while driving the company's overall vision and providing critical sales support. His remote 
+                      leadership model enables agile, responsive coordination across our distributed team, embodying the values of 
+                      precision, accountability, and unwavering commitment that define the Lumen Helix experience.
                     </p>
                   </div>
                 </div>
@@ -142,13 +143,14 @@ export default function AboutPage() {
                   <div className="text-gray-300 space-y-4 leading-relaxed">
                     <p>
                       Eric brings 13+ years of experience in enterprise information systems and financial management to his dual role 
-                      as CIO and CFO. He oversees all information technology infrastructure, data systems, and digital operations while 
-                      managing the company's financial strategy, budgeting, and fiscal health.
+                      as CIO and CFO. Working remotely, he oversees all information technology infrastructure, data systems, and digital 
+                      operations while managing the company's financial strategy, budgeting, and fiscal health with precision and efficiency.
                     </p>
                     <p>
                       As CIO, Eric ensures our technology infrastructure remains secure, scalable, and aligned with business objectives. 
                       He directs data management initiatives, system integrations, and IT governance frameworks that support our 
-                      quantum-inspired computing and AI implementations.
+                      quantum-inspired computing and AI implementations. His remote work model leverages cloud-based systems and secure 
+                      collaboration tools to maintain seamless oversight of operations.
                     </p>
                     <p>
                       In his CFO capacity, Eric manages financial planning, resource allocation, and investment strategies that fuel 
