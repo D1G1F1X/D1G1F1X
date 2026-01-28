@@ -31,13 +31,13 @@ export default function TeamPage() {
             </p>
           </div>
 
-          {/* Eric J. Buck - Co-Founder, CTO and Sales Lead */}
+          {/* Eric J. Buck - CIO and CFO */}
           <div className='bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-primary-500/30 rounded-xl overflow-hidden mb-12'>
             <div className='grid grid-cols-1 md:grid-cols-3 gap-0'>
               <div className='md:col-span-1 relative h-80 md:h-full'>
                 <Image
                   src='/images/team/eric-buck-cto-sales.jpg'
-                  alt='Eric J. Buck - Co-Founder, CTO and Sales Lead'
+                  alt='Eric J. Buck - CIO and CFO'
                   fill
                   className='object-cover'
                 />
@@ -45,33 +45,35 @@ export default function TeamPage() {
               <div className='md:col-span-2 p-8 flex flex-col justify-center'>
                 <div className='mb-6'>
                   <h3 className='text-3xl font-bold text-white mb-2'>Eric J. Buck</h3>
-                  <p className='text-primary-400 text-lg font-semibold mb-4'>Co-Founder, CTO and Sales Lead</p>
+                  <p className='text-primary-400 text-lg font-semibold mb-4'>Chief Information Officer and Chief Financial Officer</p>
                   <div className='flex flex-wrap gap-2 mb-6'>
-                    <Badge className='bg-primary-900/80 text-primary-200'>Technical Strategy</Badge>
-                    <Badge className='bg-blue-900/80 text-blue-200'>Sales Leadership</Badge>
-                    <Badge className='bg-cyan-900/80 text-cyan-200'>AI Systems</Badge>
-                    <Badge className='bg-purple-900/80 text-purple-200'>Enterprise Architecture</Badge>
+                    <Badge className='bg-primary-900/80 text-primary-200'>Information Systems</Badge>
+                    <Badge className='bg-emerald-900/80 text-emerald-200'>Financial Strategy</Badge>
+                    <Badge className='bg-blue-900/80 text-blue-200'>Business Operations</Badge>
+                    <Badge className='bg-cyan-900/80 text-cyan-200'>Data Management</Badge>
+                    <Badge className='bg-purple-900/80 text-purple-200'>Enterprise Systems</Badge>
                   </div>
                 </div>
                 <div className='text-gray-300 space-y-3 mb-6 text-sm'>
                   <p>
-                    Eric brings 13+ years of experience architecting AI systems and leading technical strategies for enterprise organizations. 
-                    As Co-Founder and CTO, he directs the technical vision for Lumen Helix Solutions, ensuring cutting-edge 
-                    implementation of quantum-inspired computing, clinical AI, and scalable enterprise systems.
+                    Eric brings 13+ years of experience in enterprise information systems and financial management to his dual role 
+                    as CIO and CFO. He oversees all information technology infrastructure, data systems, and digital operations while 
+                    managing the company's financial strategy, budgeting, and fiscal health.
                   </p>
                   <p>
-                    Beyond technical excellence, Eric drives our sales strategy and client acquisition efforts. His unique ability to translate 
-                    complex technical concepts into compelling business value propositions makes him instrumental in securing enterprise partnerships and 
-                    understanding client needs at the deepest level.
+                    As CIO, Eric ensures our technology infrastructure remains secure, scalable, and aligned with business objectives. 
+                    He directs data management initiatives, system integrations, and IT governance frameworks that support our 
+                    quantum-inspired computing and AI implementations. In his CFO capacity, Eric manages financial planning, resource 
+                    allocation, and investment strategies that fuel our growth while maintaining fiscal responsibility.
                   </p>
                 </div>
                 <div className='text-sm text-gray-400'>
                   <p className='font-semibold text-gray-300 mb-2'>Leadership Focus:</p>
                   <ul className='list-disc list-inside space-y-1'>
-                    <li>Technical architecture and AI system design</li>
-                    <li>Enterprise client relationships and sales strategy</li>
-                    <li>Technology stack evaluation and optimization</li>
-                    <li>Strategic growth initiatives</li>
+                    <li>IT infrastructure and information systems management</li>
+                    <li>Financial planning, budgeting, and fiscal oversight</li>
+                    <li>Data management and system integration</li>
+                    <li>Resource allocation and investment strategy</li>
                   </ul>
                 </div>
               </div>

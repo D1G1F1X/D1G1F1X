@@ -116,13 +116,13 @@ export default function AboutPage() {
               </div>
             </div>
 
-            {/* Eric J. Buck - Co-Founder, CTO and Sales Lead */}
+            {/* Eric J. Buck - CIO and CFO */}
             <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-primary-500/30 rounded-xl overflow-hidden mb-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
                 <div className="md:col-span-1 relative h-80 md:h-full order-2 md:order-1">
                   <Image
                     src="/images/team/eric-buck-cto-sales.jpg"
-                    alt="Eric J. Buck - Co-Founder, CTO and Sales Lead"
+                    alt="Eric J. Buck - CIO and CFO"
                     fill
                     className="object-cover"
                   />
@@ -130,29 +130,30 @@ export default function AboutPage() {
                 <div className="md:col-span-2 p-8 flex flex-col justify-center order-1 md:order-2">
                   <div className="mb-4">
                     <h3 className="text-3xl font-bold text-white mb-2">Eric J. Buck</h3>
-                    <p className="text-primary-400 text-xl font-semibold mb-4">Co-Founder, CTO and Sales Lead</p>
+                    <p className="text-primary-400 text-xl font-semibold mb-4">Chief Information Officer and Chief Financial Officer</p>
                     <div className="flex flex-wrap gap-2 mb-6">
-                      <Badge className="bg-primary-900/80 text-primary-200">Technical Strategy</Badge>
-                      <Badge className="bg-blue-900/80 text-blue-200">Sales Leadership</Badge>
-                      <Badge className="bg-cyan-900/80 text-cyan-200">AI Systems</Badge>
-                      <Badge className="bg-purple-900/80 text-purple-200">Enterprise Architecture</Badge>
+                      <Badge className="bg-primary-900/80 text-primary-200">Information Systems</Badge>
+                      <Badge className="bg-emerald-900/80 text-emerald-200">Financial Strategy</Badge>
+                      <Badge className="bg-blue-900/80 text-blue-200">Business Operations</Badge>
+                      <Badge className="bg-cyan-900/80 text-cyan-200">Data Management</Badge>
+                      <Badge className="bg-purple-900/80 text-purple-200">Enterprise Systems</Badge>
                     </div>
                   </div>
                   <div className="text-gray-300 space-y-4 leading-relaxed">
                     <p>
-                      Eric brings 13+ years of experience architecting AI systems and leading technical strategies for enterprise 
-                      organizations. As Co-Founder and CTO, he directs the technical vision for Lumen Helix Solutions, ensuring 
-                      cutting-edge implementation of quantum-inspired computing, clinical AI, and scalable enterprise systems.
+                      Eric brings 13+ years of experience in enterprise information systems and financial management to his dual role 
+                      as CIO and CFO. He oversees all information technology infrastructure, data systems, and digital operations while 
+                      managing the company's financial strategy, budgeting, and fiscal health.
                     </p>
                     <p>
-                      Beyond technical excellence, Eric drives our sales strategy and client acquisition efforts. His unique ability 
-                      to translate complex technical concepts into compelling business value propositions makes him instrumental in 
-                      securing enterprise partnerships and understanding client needs at the deepest level.
+                      As CIO, Eric ensures our technology infrastructure remains secure, scalable, and aligned with business objectives. 
+                      He directs data management initiatives, system integrations, and IT governance frameworks that support our 
+                      quantum-inspired computing and AI implementations.
                     </p>
                     <p>
-                      Eric's leadership spans technical architecture, client relationships, and strategic growth initiatives. His 
-                      expertise ensures that every solution we deliver combines innovation with practical business impact, helping 
-                      organizations transform their operations and achieve sustainable competitive advantages.
+                      In his CFO capacity, Eric manages financial planning, resource allocation, and investment strategies that fuel 
+                      our growth. His unique ability to bridge technical operations with financial acumen ensures sustainable business 
+                      practices while maintaining our commitment to innovation and research excellence.
                     </p>
                   </div>
                 </div>
