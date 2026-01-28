@@ -1,39 +1,30 @@
-import { Suspense } from "react"
-import type { Metadata } from "next"
-import ContactForm from "@/components/contact-form"
-import StandardizedHero from "@/components/standardized-hero"
+import PageHero from "@/components/page-hero"
+import ContactTabsContainer from "./_components/ContactTabsContainer"
 
-export const metadata: Metadata = {
-  title: "Contact Us | NUMO Oracle",
-  description: "Get in touch with the NUMO Oracle team for support, inquiries, or feedback.",
+export const metadata = {
+  title: "Contact Us | Lumen Helix Solutions",
+  description:
+    "Get in touch with Lumen Helix Solutions. Choose your preferred contact method: email form, live AI chat, direct contact, or phone.",
 }
 
 export default function ContactPage() {
   return (
-    <div className="relative min-h-screen bg-black">
-      <StandardizedHero
-        title="Contact"
-        subtitle="Us"
-        description="We're here to help! Reach out to us for any questions or support"
-        backgroundImage="/images/hero/ethereal-connection-contact.png"
-        badge={{
-          text: "💬 Get in Touch",
-          icon: "",
-        }}
-        features={[
-          { icon: "📧", text: "Email Support", color: "cyan" },
-          { icon: "💬", text: "Live Chat", color: "blue" },
-          { icon: "📞", text: "Phone Support", color: "purple" },
-        ]}
-        gradient="from-cyan-900/20 via-blue-900/20 to-black"
+    <div className="min-h-screen bg-gray-900 text-white relative overflow-hidden">
+      <PageHero
+        badge="Get In Touch"
+        badgeVariant="primary"
+        title="Multiple Ways to Connect"
+        subtitle="Choose your preferred method to reach us. Whether you prefer email, live chat, or direct contact, we're here to help."
       />
-      <div className="container mx-auto py-8">
-        <Suspense fallback={<div className="text-center py-20 text-white">Loading contact form...</div>}>
-          <div className="max-w-2xl mx-auto">
-            <ContactForm />
-          </div>
-        </Suspense>
+
+      <div className="container px-4 mx-auto py-12 sm:py-16 md:py-20 relative z-10">
+        <div className="max-w-5xl mx-auto">
+          <ContactTabsContainer />
+        </div>
       </div>
+
+      <div className="absolute top-1/4 left-1/4 w-72 h-72 sm:w-96 sm:h-96 bg-primary-500/10 rounded-full filter blur-[100px] sm:blur-[150px] opacity-30 animate-pulse-slow"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 sm:w-96 sm:h-96 bg-secondary-500/10 rounded-full filter blur-[100px] sm:blur-[150px] opacity-30 animate-pulse-slow delay-300"></div>
     </div>
   )
 }
