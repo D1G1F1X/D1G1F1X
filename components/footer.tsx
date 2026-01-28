@@ -206,22 +206,34 @@ export default function Footer() {
 
           <div>
             <h3 className="text-lg font-semibold mb-4 text-primary-400">Contact</h3>
-            <ul className="space-y-3">
+            <ul className="space-y-4">
               <li className="flex items-start">
                 <span className="text-primary-400 mr-2">Email:</span>
                 <a href="mailto:info@lumenhelix.com" className="text-gray-400 hover:text-primary-400 transition-colors">
                   info@lumenhelix.com
                 </a>
               </li>
-              <li className="flex items-start">
-                <span className="text-primary-400 mr-2">Phone:</span>
-                <a href="tel:+14842020272" className="text-gray-400 hover:text-primary-400 transition-colors">
-                  484.202.0272
-                </a>
+              <li>
+                <p className="text-gray-300 text-sm font-semibold mb-2">Cincinnati Office</p>
+                <div className="flex items-start text-gray-400">
+                  <span className="text-primary-400 mr-2 flex-shrink-0">Address:</span>
+                  <span>Cincinnati, Ohio</span>
+                </div>
+                <div className="flex items-start text-gray-400 mt-1">
+                  <span className="text-primary-400 mr-2 flex-shrink-0">Phone:</span>
+                  <a href="tel:+12164401313" className="hover:text-primary-400 transition-colors">
+                    (216) 440-1313
+                  </a>
+                </div>
               </li>
-              <li className="flex items-start">
-                <span className="text-primary-400 mr-2">Address:</span>
-                <span className="text-gray-400">Akron, Ohio</span>
+              <li>
+                <p className="text-gray-300 text-sm font-semibold mb-2">New York Office</p>
+                <div className="flex items-start text-gray-400">
+                  <span className="text-primary-400 mr-2 flex-shrink-0">Phone:</span>
+                  <a href="tel:+18126555857" className="hover:text-primary-400 transition-colors">
+                    (812) 655-5857
+                  </a>
+                </div>
               </li>
             </ul>
           </div>
