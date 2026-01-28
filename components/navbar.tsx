@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Lexend } from "next/font/google"
 import DayNightToggle from "@/components/day-night-toggle"
-import SearchDialog from "@/components/search-dialog"
+import SearchDialog from "@/components/search-dialog" // Declare the SearchDialog variable here
 
 // Initialize Lexend font
 const lexend = Lexend({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] })
@@ -217,7 +217,6 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
-            <SearchDialog />
             <DayNightToggle />
           </nav>
 

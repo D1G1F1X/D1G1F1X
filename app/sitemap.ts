@@ -3,12 +3,12 @@ import { projects } from "@/lib/projects"
 import { posts } from "@/lib/blog"
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://lumenhelix.com"
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://lumenhelix.com"
 
   // Static pages
   const staticPages = [
     {
-      url: baseUrl,
+      url: `${baseUrl}`,
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 1,

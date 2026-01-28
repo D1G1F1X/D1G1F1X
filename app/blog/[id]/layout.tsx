@@ -3,15 +3,14 @@ import type { Metadata } from "next"
 import { posts } from "@/lib/blog"
 
 interface BlogLayoutProps {
-  params: Promise<{
+  params: {
     id: string
-  }>
+  }
   children: React.ReactNode
 }
 
 export async function generateMetadata({ params }: BlogLayoutProps): Promise<Metadata> {
-  const { id } = await params
-  const post = posts.find((p) => p.id === id)
+  const post = posts.find((p) => p.id === params.id)
 
   if (!post) {
     return {
