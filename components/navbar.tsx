@@ -165,7 +165,7 @@ export default function Navbar() {
     { name: "Portfolio", href: "/portfolio" },
     { name: "R&D", href: "/research-development" },
     { name: "Blog", href: "/blog" },
-    { name: "About", href: "/about" },
+    { name: "About", href: "/about", submenu: [{ name: "Our Story", href: "/about" }, { name: "Team", href: "/team" }] },
     { name: "Contact", href: "/contact" },
   ]
 

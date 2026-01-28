@@ -36,6 +36,11 @@ export default function AboutPage() {
               implementation. Today, I lead a team of specialists who share my vision of illuminating the path to
               digital excellence for organizations ready to embrace the future.
             </p>
+            <p className="mt-6">
+              <Link href="/team" className="inline-flex items-center text-primary-400 hover:text-primary-300 font-semibold transition-colors">
+                Meet our full team →
+              </Link>
+            </p>
           </div>
 
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-12">

@@ -1,4 +1,4 @@
-import { BrainCircuit, Code, Palette, LineChart, Server, ClipboardCheck, Microscope, Zap, Cable as Cube, Target } from "lucide-react"
+import { BrainCircuit, Code, Palette, LineChart, Server, ClipboardCheck, Microscope, Zap, Cable as Cube, Target, Shield, Clock } from "lucide-react"
 
 export const services = [
   {
@@ -38,12 +38,20 @@ export const services = [
     link: "/services/marketing-strategy",
   },
   {
-    icon: <Server className="h-6 w-6 text-accent-300" />,
-    title: "Tech Consulting & Hosting",
+    icon: <Shield className="h-6 w-6 text-indigo-400" />,
+    title: "Tech Consulting & Software Compliance",
     description:
-      "Providing expert technological guidance, infrastructure recommendations, and reliable hosting services.",
-    color: "bg-accent-800/30",
-    link: "/services/tech-consulting",
+      "Expert technological guidance, infrastructure recommendations, software versioning strategy, and compliance certification ensuring enterprise-grade reliability.",
+    color: "bg-indigo-900/30",
+    link: "/services/tech-consulting-compliance",
+  },
+  {
+    icon: <Clock className="h-6 w-6 text-emerald-400" />,
+    title: "Scalable Enterprise Hosting & Email",
+    description:
+      "24/7 live support, scalable cloud infrastructure, enterprise email systems, and dedicated infrastructure management for mission-critical operations.",
+    color: "bg-emerald-900/30",
+    link: "/services/enterprise-hosting",
   },
   {
     icon: <Microscope className="h-6 w-6 text-red-400" />,
@@ -52,14 +60,6 @@ export const services = [
       "Quantum-inspired diagnostic systems for healthcare optimization, biomarker analysis, and precision oncology using C.O.R.E. and R.U.B.I.C. frameworks.",
     color: "bg-red-900/30",
     link: "/services/clinical-ai",
-  },
-  {
-    icon: <Zap className="h-6 w-6 text-cyan-400" />,
-    title: "Quantum-Inspired Optimization",
-    description:
-      "QUBO-based consulting for complex optimization challenges, feature selection, and system design across finance, biotech, and operations.",
-    color: "bg-cyan-900/30",
-    link: "/services/quantum-optimization",
   },
   {
     icon: <Target className="h-6 w-6 text-cyan-400" />,
