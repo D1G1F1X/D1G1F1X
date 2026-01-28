@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ArrowLeft, Calendar, User } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import ImageWithFallback from "@/components/image-with-fallback"
+import BlogPostContent from "@/components/blog-post-content"
 
 export default function CloudInfrastructureBlogPost() {
   const post = {
@@ -28,7 +29,7 @@ export default function CloudInfrastructureBlogPost() {
         <div className="max-w-4xl mx-auto">
           <Link
             href="/blog"
-            className="inline-flex items-center text-cyan-400 font-medium mb-8 hover:text-cyan-300 transition-colors"
+            className="inline-flex items-center text-primary-400 font-medium mb-8 hover:text-primary-300 transition-colors"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to all articles
@@ -61,11 +62,11 @@ export default function CloudInfrastructureBlogPost() {
                 </div>
               </div>
 
-              <div className="prose prose-lg max-w-none prose-invert">
-                <p className="text-gray-100 mb-6 text-base leading-relaxed">{post.excerpt}</p>
+              <BlogPostContent>
+                <p>{post.excerpt}</p>
 
-                <h2 className="text-2xl font-bold text-white mt-8 mb-4">Scalability as a Strategic Asset</h2>
-                <p className="text-gray-100 mb-6 text-base leading-relaxed">
+                <h2>Scalability as a Strategic Asset</h2>
+                <p>
                   Modern businesses must handle unpredictable growth. Cloud infrastructure enables organizations to
                   scale seamlessly, paying only for resources used while maintaining performance.
                 </p>
@@ -93,7 +94,7 @@ export default function CloudInfrastructureBlogPost() {
                   The best scalable systems are built with flexibility in mind. Organizations should design
                   infrastructure that adapts to future needs without complete overhauls.
                 </p>
-              </div>
+              </BlogPostContent>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Calendar, User, Tag, ArrowLeft } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import ImageWithFallback from "@/components/image-with-fallback"
+import BlogPostContent from "@/components/blog-post-content"
 
 export default function AIBusinessGrowthBlogPost() {
   const post = {
