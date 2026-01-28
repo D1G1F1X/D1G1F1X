@@ -49,18 +49,22 @@ export default function TeamPage() {
                     <Badge className="bg-cyan-900/80 text-cyan-200">Quantum Computing</Badge>
                     <Badge className="bg-purple-900/80 text-purple-200">Mathematics</Badge>
                     <Badge className="bg-red-900/80 text-red-200">Clinical AI</Badge>
+                    <Badge className="bg-indigo-900/80 text-indigo-200">UI/Compliance</Badge>
+                    <Badge className="bg-emerald-900/80 text-emerald-200">Training</Badge>
+                    <Badge className="bg-orange-900/80 text-orange-200">Support</Badge>
                   </div>
                 </div>
 
                 <div className="text-gray-300 space-y-3 mb-6 text-sm">
                   <p>
                     Christopher brings 30+ years of experience as a seasoned technology consultant and project manager across enterprise development companies. 
-                    His journey spans from early enterprise computing through modern AI and quantum-inspired systems.
+                    His journey spans from early enterprise computing through modern AI and quantum-inspired systems. Beyond technical innovation, he oversees 
+                    UI/UX strategy, regulatory compliance frameworks, team training programs, and 24/7 customer support operations.
                   </p>
                   <p>
                     Post-pandemic, Christopher recognized the AI revolution's transformative potential and founded Lumen Helix Solutions to help organizations 
                     navigate this frontier. His expertise combines strategic consulting with cutting-edge research in reversible computing, quantum optimization, 
-                    and clinical AI applications.
+                    clinical AI applications, and comprehensive support infrastructure.
                   </p>
                 </div>
 
@@ -77,7 +81,7 @@ export default function TeamPage() {
                 <div className="flex flex-wrap gap-4">
                   <Button variant="outline" className="border-primary-500/50 text-primary-400 hover:bg-primary-950 bg-transparent">
                     <Mail className="w-4 h-4 mr-2" />
-                    Contact
+                    Chris@oiq.to
                   </Button>
                   <Button variant="outline" className="border-gray-600 text-gray-300 bg-transparent">
                     <Linkedin className="w-4 h-4 mr-2" />
@@ -144,6 +148,211 @@ export default function TeamPage() {
                     <Phone className="w-4 h-4 mr-2" />
                     812-655-5857
                   </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Core Team Section */}
+        <div className="max-w-6xl mx-auto mb-20">
+          <div className="mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">Core Technical Team</h2>
+            <p className="text-gray-300 text-lg">
+              Expert specialists driving innovation across development, security, design, and strategic optimization.
+            </p>
+          </div>
+
+          {/* Sarah Chen - Senior Full-Stack Developer */}
+          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+              <div className="md:col-span-1 relative h-80 md:h-full">
+                <Image
+                  src="/images/team/sarah-chen-profile.jpg"
+                  alt="Sarah Chen - Senior Full-Stack Developer"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="md:col-span-2 p-8 flex flex-col justify-center">
+                <div className="mb-4">
+                  <h3 className="text-2xl font-bold text-white mb-1">Sarah Chen</h3>
+                  <p className="text-cyan-400 text-base font-semibold mb-3">Senior Full-Stack Developer & Architecture Lead</p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <Badge className="bg-cyan-900/80 text-cyan-200">React/Next.js</Badge>
+                    <Badge className="bg-blue-900/80 text-blue-200">Node.js</Badge>
+                    <Badge className="bg-purple-900/80 text-purple-200">Cloud Architecture</Badge>
+                    <Badge className="bg-green-900/80 text-green-200">Microservices</Badge>
+                  </div>
+                </div>
+                <p className="text-gray-300 text-sm mb-3">
+                  Sarah leads the technical architecture for all web and cloud-based systems. With 8+ years of full-stack development experience, 
+                  she specializes in scalable microservices, cloud infrastructure optimization, and enterprise-grade system design. Her technical 
+                  leadership ensures all solutions meet the highest standards of performance, security, and maintainability.
+                </p>
+                <div className="text-sm text-gray-400">
+                  <p className="font-semibold text-gray-300 mb-2">Specialization:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Scalable distributed system architecture</li>
+                    <li>Cloud infrastructure and deployment optimization</li>
+                    <li>Performance monitoring and optimization</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Alex Torres - Full-Stack Developer & AI Integration Specialist */}
+          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+              <div className="md:col-span-1 relative h-80 md:h-full order-2 md:order-1">
+                <Image
+                  src="/images/team/alex-torres-profile.jpg"
+                  alt="Alex Torres - Full-Stack Developer & AI Integration"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="md:col-span-2 p-8 flex flex-col justify-center order-1 md:order-2">
+                <div className="mb-4">
+                  <h3 className="text-2xl font-bold text-white mb-1">Alex Torres</h3>
+                  <p className="text-blue-400 text-base font-semibold mb-3">Full-Stack Developer & AI Integration Specialist</p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <Badge className="bg-blue-900/80 text-blue-200">Python/TypeScript</Badge>
+                    <Badge className="bg-indigo-900/80 text-indigo-200">ML Integration</Badge>
+                    <Badge className="bg-cyan-900/80 text-cyan-200">API Development</Badge>
+                    <Badge className="bg-purple-900/80 text-purple-200">Data Pipelines</Badge>
+                  </div>
+                </div>
+                <p className="text-gray-300 text-sm mb-3">
+                  Alex specializes in integrating AI and machine learning systems into production environments. With 6+ years of development experience, 
+                  he bridges backend systems with AI inference engines, managing complex data pipelines and ensuring seamless integration between 
+                  traditional software and cutting-edge machine learning models.
+                </p>
+                <div className="text-sm text-gray-400">
+                  <p className="font-semibold text-gray-300 mb-2">Specialization:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>AI/ML system integration and deployment</li>
+                    <li>Real-time data processing pipelines</li>
+                    <li>API design for machine learning services</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Jordan Blake - Cryptography & Security Specialist */}
+          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+              <div className="md:col-span-1 relative h-80 md:h-full">
+                <Image
+                  src="/images/team/jordan-blake-profile.jpg"
+                  alt="Jordan Blake - Cryptography Specialist"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="md:col-span-2 p-8 flex flex-col justify-center">
+                <div className="mb-4">
+                  <h3 className="text-2xl font-bold text-white mb-1">Jordan Blake</h3>
+                  <p className="text-red-400 text-base font-semibold mb-3">Cryptography & Security Specialist</p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <Badge className="bg-red-900/80 text-red-200">Cryptography</Badge>
+                    <Badge className="bg-rose-900/80 text-rose-200">Security Architecture</Badge>
+                    <Badge className="bg-orange-900/80 text-orange-200">Quantum-Safe</Badge>
+                    <Badge className="bg-pink-900/80 text-pink-200">Compliance</Badge>
+                  </div>
+                </div>
+                <p className="text-gray-300 text-sm mb-3">
+                  Jordan is our security backbone, specializing in cryptographic systems and quantum-resistant encryption. With 9+ years in information 
+                  security, Jordan designs and implements enterprise-grade security architectures, ensures quantum-safe protocols, and manages security 
+                  compliance across all systems and deployments.
+                </p>
+                <div className="text-sm text-gray-400">
+                  <p className="font-semibold text-gray-300 mb-2">Specialization:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Post-quantum cryptography and encryption schemes</li>
+                    <li>Enterprise security architecture and threat modeling</li>
+                    <li>Compliance certification and security auditing</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Maya Patel - Game Theory & Optimization Specialist */}
+          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+              <div className="md:col-span-1 relative h-80 md:h-full order-2 md:order-1">
+                <Image
+                  src="/images/team/maya-patel-profile.jpg"
+                  alt="Maya Patel - Game Theory Specialist"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="md:col-span-2 p-8 flex flex-col justify-center order-1 md:order-2">
+                <div className="mb-4">
+                  <h3 className="text-2xl font-bold text-white mb-1">Maya Patel</h3>
+                  <p className="text-purple-400 text-base font-semibold mb-3">Game Theory & Strategic Optimization Specialist</p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <Badge className="bg-purple-900/80 text-purple-200">Game Theory</Badge>
+                    <Badge className="bg-violet-900/80 text-violet-200">Strategic Analysis</Badge>
+                    <Badge className="bg-indigo-900/80 text-indigo-200">QUBO Optimization</Badge>
+                    <Badge className="bg-fuchsia-900/80 text-fuchsia-200">Simulation</Badge>
+                  </div>
+                </div>
+                <p className="text-gray-300 text-sm mb-3">
+                  Maya applies game theory and strategic optimization to solve complex business and technical problems. With a PhD in applied mathematics 
+                  and 7+ years in optimization research, she designs algorithms for competitive market analysis, resource allocation optimization, and 
+                  strategic decision-making systems.
+                </p>
+                <div className="text-sm text-gray-400">
+                  <p className="font-semibold text-gray-300 mb-2">Specialization:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Game theory applications to business strategy</li>
+                    <li>Strategic optimization and equilibrium analysis</li>
+                    <li>QUBO problem formulation and solving</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Liam Moore - UI/UX Designer & Product Specialist */}
+          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+              <div className="md:col-span-1 relative h-80 md:h-full">
+                <Image
+                  src="/images/team/liam-moore-profile.jpg"
+                  alt="Liam Moore - UI/UX Designer"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="md:col-span-2 p-8 flex flex-col justify-center">
+                <div className="mb-4">
+                  <h3 className="text-2xl font-bold text-white mb-1">Liam Moore</h3>
+                  <p className="text-emerald-400 text-base font-semibold mb-3">UI/UX Designer & Product Strategist</p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <Badge className="bg-emerald-900/80 text-emerald-200">UI/UX Design</Badge>
+                    <Badge className="bg-teal-900/80 text-teal-200">Design Systems</Badge>
+                    <Badge className="bg-cyan-900/80 text-cyan-200">Accessibility</Badge>
+                    <Badge className="bg-green-900/80 text-green-200">Product Strategy</Badge>
+                  </div>
+                </div>
+                <p className="text-gray-300 text-sm mb-3">
+                  Liam crafts intuitive, accessible user experiences for complex technical systems. With 8+ years in UX design and a passion for 
+                  accessibility, he designs beautiful interfaces that make quantum-inspired systems and enterprise software approachable for all users. 
+                  His design systems ensure consistency and scalability across all client-facing products.
+                </p>
+                <div className="text-sm text-gray-400">
+                  <p className="font-semibold text-gray-300 mb-2">Specialization:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Enterprise UI/UX design and usability research</li>
+                    <li>Accessible design systems and component libraries</li>
+                    <li>Product strategy and user-centered innovation</li>
+                  </ul>
                 </div>
               </div>
             </div>
