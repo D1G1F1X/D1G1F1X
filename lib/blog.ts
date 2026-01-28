@@ -1,5 +1,38 @@
 export const posts = [
   {
+    id: "quantum-inspired-breast-cancer-diagnostics",
+    title: "Quantum-Inspired Diagnostics: Revolutionizing Breast Cancer Detection with C.O.R.E. and R.U.B.I.C.",
+    excerpt:
+      "Discover how quantum-inspired computing frameworks achieve 30x performance improvements in cancer biomarker optimization, transforming precision medicine.",
+    date: "January 15, 2026",
+    author: "Chris Phillips",
+    image: "/images/blog/quantum-inspired-breast-cancer-diagnostics.jpg",
+    category: "Clinical AI",
+    tags: ["Clinical AI", "Quantum Computing", "Precision Medicine", "Diagnostics", "QUBO Optimization"],
+  },
+  {
+    id: "computational-irreducibility-rule-30",
+    title: "Observer-Relative Causality: Proving Computational Irreducibility in Wolfram Rule 30",
+    excerpt:
+      "Breaking through cellular automata mysteries: How coupled-observer frameworks reveal hidden nonlocal correlations and computational limits.",
+    date: "January 10, 2026",
+    author: "Chris Phillips",
+    image: "/images/blog/wolfram-rule-30-observer-theory.jpg",
+    category: "Research & Development",
+    tags: ["Rule 30", "Computational Irreducibility", "Cellular Automata", "Observer Theory", "Causality"],
+  },
+  {
+    id: "reversible-computing-energy-efficient-future",
+    title: "The R.U.B.I.C. Framework: Energy-Efficient Computing Through Reversible Architecture",
+    excerpt:
+      "How reversible computation minimizes thermal dissipation and preserves information, pointing to a sustainable future for data centers worldwide.",
+    date: "January 5, 2026",
+    author: "Chris Phillips",
+    image: "/images/research/core-rubic-architecture-diagram.jpg",
+    category: "Research & Development",
+    tags: ["Reversible Computing", "Energy Efficiency", "R.U.B.I.C.", "Sustainable Technology", "Architecture"],
+  },
+  {
     id: "quantum-computing-breakthroughs-2025",
     title: "Quantum Computing Breakthroughs: Practical Applications in 2025",
     excerpt:

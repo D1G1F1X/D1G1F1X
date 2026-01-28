@@ -1,4 +1,4 @@
-import { BrainCircuit, Code, Palette, LineChart, Server, ClipboardCheck } from "lucide-react"
+import { BrainCircuit, Code, Palette, LineChart, Server, ClipboardCheck, Microscope, Zap, Cable as Cube } from "lucide-react"
 
 export const services = [
   {
@@ -44,5 +44,29 @@ export const services = [
       "Providing expert technological guidance, infrastructure recommendations, and reliable hosting services.",
     color: "bg-accent-800/30",
     link: "/services/tech-consulting",
+  },
+  {
+    icon: <Microscope className="h-6 w-6 text-red-400" />,
+    title: "Clinical AI & Precision Medicine",
+    description:
+      "Quantum-inspired diagnostic systems for healthcare optimization, biomarker analysis, and precision oncology using C.O.R.E. and R.U.B.I.C. frameworks.",
+    color: "bg-red-900/30",
+    link: "/services/clinical-ai",
+  },
+  {
+    icon: <Zap className="h-6 w-6 text-cyan-400" />,
+    title: "Quantum-Inspired Optimization",
+    description:
+      "QUBO-based consulting for complex optimization challenges, feature selection, and system design across finance, biotech, and operations.",
+    color: "bg-cyan-900/30",
+    link: "/services/quantum-optimization",
+  },
+  {
+    icon: <Cube className="h-6 w-6 text-purple-400" />,
+    title: "Reversible Computing Architecture",
+    description:
+      "Energy-efficient system design leveraging R.U.B.I.C. principles for sustainable, reversible computation with minimal thermal footprint.",
+    color: "bg-purple-900/30",
+    link: "/services/reversible-architecture",
   },
 ]

@@ -233,6 +233,46 @@ export default function ResearchDevelopmentClient() {
                 </ul>
               </CardContent>
             </Card>
+
+            {/* Clinical AI Applications */}
+            <Card className="bg-gray-900/80 backdrop-blur-sm border-red-500/30 hover:border-red-500 transition-all group overflow-hidden md:col-span-2">
+              <div className="relative h-48 overflow-hidden">
+                <Image
+                  src="/images/research/core-rubic-architecture-diagram.jpg"
+                  alt="Clinical AI Diagnostics"
+                  width={800}
+                  height={400}
+                  className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
+              </div>
+              <CardHeader>
+                <div className="w-12 h-12 bg-red-500/10 rounded-lg flex items-center justify-center mb-4">
+                  <FileText className="w-6 h-6 text-red-400" />
+                </div>
+                <CardTitle className="text-2xl text-white">Clinical AI & Precision Medicine</CardTitle>
+                <CardDescription className="text-gray-300">Quantum-inspired diagnostic systems for healthcare</CardDescription>
+              </CardHeader>
+              <CardContent className="text-gray-300">
+                <p className="mb-4">
+                  The C.O.R.E. and R.U.B.I.C. systems applied to clinical oncology provide interpretable, mathematically-grounded diagnostic algorithms for precision medicine. By mapping patient profiles to quantum-inspired energy landscapes, we achieve 30x performance improvements over classical approaches on large-scale biomarker datasets.
+                </p>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start">
+                    <Sparkles className="w-4 h-4 mr-2 mt-0.5 text-red-400 flex-shrink-0" />
+                    <span>LogQ Encoding: logarithmic qubit scaling for high-dimensional patient data</span>
+                  </li>
+                  <li className="flex items-start">
+                    <Sparkles className="w-4 h-4 mr-2 mt-0.5 text-red-400 flex-shrink-0" />
+                    <span>QUBO Formulation: binary optimization for feature selection and pathology classification</span>
+                  </li>
+                  <li className="flex items-start">
+                    <Sparkles className="w-4 h-4 mr-2 mt-0.5 text-red-400 flex-shrink-0" />
+                    <span>Tensor Network Solvers: DMRG approximation for entanglement-aware diagnostics</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -310,6 +350,44 @@ export default function ResearchDevelopmentClient() {
           </div>
 
           <div className="space-y-6">
+            <Card className="bg-gray-900/80 backdrop-blur-sm border-red-500/30 hover:border-red-500 transition-all">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-6">
+                  <div className="w-16 h-16 bg-red-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-8 h-8 text-red-400" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between gap-4 mb-2">
+                      <h3 className="text-xl font-semibold text-white mb-2">
+                        A Quantum-Inspired Framework for Breast Cancer Diagnosis: The C.O.R.E. and R.U.B.I.C. Systems
+                      </h3>
+                      <Badge variant="outline" className="text-xs whitespace-nowrap border-red-400/50 text-red-300">
+                        Jan 2026
+                      </Badge>
+                    </div>
+                    <p className="text-gray-400 text-sm mb-2">Christopher Gordon Phillips, Lumen Helix Solutions</p>
+                    <p className="text-gray-100 mb-4">
+                      Introduces the Compressed Optimization for Robust Encoding (C.O.R.E.) and Reversible Unified Boundary-Integrated Constraints (R.U.B.I.C.) systems for precision oncology diagnostics. Demonstrates how QUBO formulation maps patient biomarkers to energy landscapes, achieving 30x performance improvements over classical approaches. Includes LogQ encoding for logarithmic qubit scaling, tensor network solvers with 0.96-0.99 approximation ratios, and clinical constraint enforcement through penalty functions and logical gates.
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Badge variant="secondary" className="text-xs bg-red-950/50 text-red-300">
+                        Clinical AI
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs bg-red-950/50 text-red-300">
+                        QUBO Optimization
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs bg-red-950/50 text-red-300">
+                        Precision Medicine
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs bg-red-950/50 text-red-300">
+                        Quantum-Inspired Computing
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="bg-gray-900/80 backdrop-blur-sm border-blue-500/30 hover:border-blue-500 transition-all">
               <CardContent className="p-6">
                 <div className="flex items-start gap-6">

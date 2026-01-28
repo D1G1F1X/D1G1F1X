@@ -42,28 +42,69 @@ export default function AboutPage() {
             <h2 className="text-3xl font-bold text-white mb-6">My Mission</h2>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed italic">
               To illuminate the path to digital excellence by fusing three decades of strategic insight with
-              cutting-edge AI innovation, empowering organizations to not just adapt to technological change, but to
-              lead it.
+              cutting-edge AI innovation, reversible computing architectures, and quantum-inspired systems, empowering
+              organizations to not just adapt to technological change, but to lead it with mathematical precision.
             </p>
           </div>
 
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-12">
-            <h2 className="text-3xl font-bold text-white mb-6">My Core Values</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">2025-2026 Research Breakthroughs</h2>
+            <p className="text-gray-300 text-lg mb-6 leading-relaxed">
+              Our commitment to research excellence has yielded significant peer-reviewed contributions advancing the frontiers of computational science:
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-900/60 p-4 rounded-lg border border-gray-700/50">
+                <h3 className="text-primary-400 font-bold mb-2">Clinical AI & Precision Medicine</h3>
+                <p className="text-gray-300 text-sm">Quantum-inspired diagnostics framework (C.O.R.E. and R.U.B.I.C.) achieving 30x performance improvements for breast cancer biomarker optimization.</p>
+              </div>
+              <div className="bg-gray-900/60 p-4 rounded-lg border border-gray-700/50">
+                <h3 className="text-primary-400 font-bold mb-2">Computational Irreducibility</h3>
+                <p className="text-gray-300 text-sm">Observer-Relative Causality theory and Cone-Nonlocality Tests proving computational irreducibility in Rule 30 cellular automata.</p>
+              </div>
+              <div className="bg-gray-900/60 p-4 rounded-lg border border-gray-700/50">
+                <h3 className="text-primary-400 font-bold mb-2">Hypercomplex Algebras</h3>
+                <p className="text-gray-300 text-sm">Unified framework integrating octonionic and sedenionic mathematics with sacred geometry for advanced symbolic computation.</p>
+              </div>
+              <div className="bg-gray-900/60 p-4 rounded-lg border border-gray-700/50">
+                <h3 className="text-primary-400 font-bold mb-2">Reversible Computing Architecture</h3>
+                <p className="text-gray-300 text-sm">R.U.B.I.C. framework proving energy-efficient, reversible computational paradigms with information preservation.</p>
+              </div>
+            </div>
+            <p className="text-gray-300 text-sm mt-6">
+              <Link href="/research-development" className="text-primary-400 hover:text-primary-300">
+                Explore our full research portfolio →
+              </Link>
+            </p>
+          </div>
+
+          <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-12">
+            <h2 className="text-3xl font-bold text-white mb-6">Core Values</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-gray-900/60 p-6 rounded-lg border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300">
                 <h3 className="text-xl font-bold text-primary-400 mb-3">Innovation with Purpose</h3>
                 <p className="text-gray-300">
                   We pursue innovation not for its own sake, but to solve real business challenges and create tangible
-                  value. Our solutions combine cutting-edge technologies with practical implementation strategies.
+                  value. Our solutions combine cutting-edge technologies with practical implementation strategies,
+                  always grounded in mathematical rigor and proven methodologies.
+                </p>
+              </div>
+
+              <div className="bg-gray-900/60 p-6 rounded-lg border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300">
+                <h3 className="text-xl font-bold text-primary-400 mb-3">Reversibility & Sustainability</h3>
+                <p className="text-gray-300">
+                  We believe computing must be sustainable. Our research into reversible architectures and energy-efficient
+                  systems reflects a commitment to technology that preserves information and minimizes waste—for our clients
+                  and our planet.
                 </p>
               </div>
 
               <div className="bg-gray-900/60 p-6 rounded-lg border border-gray-700/50 hover:border-primary-500/30 transition-all duration-300">
                 <h3 className="text-xl font-bold text-primary-400 mb-3">Integrated Excellence</h3>
                 <p className="text-gray-300">
-                  We believe that true digital transformation requires a holistic approach. Our integrated services work
-                  in harmony to deliver comprehensive solutions that address the full spectrum of digital challenges.
+                  True digital transformation requires holistic thinking. Our integrated services work in harmony,
+                  combining strategic consulting, advanced research, and implementation expertise to address the full
+                  spectrum of digital challenges.
                 </p>
               </div>
 
