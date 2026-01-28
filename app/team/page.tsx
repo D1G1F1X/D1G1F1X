@@ -31,13 +31,13 @@ export default function TeamPage() {
             </p>
           </div>
 
-          {/* Eric J. Buck - CTO & Sales Lead */}
+          {/* Eric J. Buck - CTO/CFO & Sales Lead */}
           <div className='bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-primary-500/30 rounded-xl overflow-hidden mb-12'>
             <div className='grid grid-cols-1 md:grid-cols-3 gap-0'>
               <div className='md:col-span-1 relative h-80 md:h-full'>
                 <Image
                   src='/images/team/eric-buck-cto-sales.jpg'
-                  alt='Eric J. Buck - CTO & Sales Lead'
+                  alt='Eric J. Buck - CTO/CFO & Sales Lead'
                   fill
                   className='object-cover'
                 />
@@ -45,10 +45,11 @@ export default function TeamPage() {
               <div className='md:col-span-2 p-8 flex flex-col justify-center'>
                 <div className='mb-6'>
                   <h3 className='text-3xl font-bold text-white mb-2'>Eric J. Buck</h3>
-                  <p className='text-primary-400 text-lg font-semibold mb-4'>Chief Technology Officer & Sales Lead</p>
+                  <p className='text-primary-400 text-lg font-semibold mb-4'>Chief Technology Officer / Chief Financial Officer & Sales Lead</p>
                   <div className='flex flex-wrap gap-2 mb-6'>
                     <Badge className='bg-primary-900/80 text-primary-200'>Technical Strategy</Badge>
                     <Badge className='bg-blue-900/80 text-blue-200'>Sales Leadership</Badge>
+                    <Badge className='bg-emerald-900/80 text-emerald-200'>Financial Operations</Badge>
                     <Badge className='bg-cyan-900/80 text-cyan-200'>AI Systems</Badge>
                     <Badge className='bg-purple-900/80 text-purple-200'>Enterprise Architecture</Badge>
                   </div>
@@ -56,12 +57,12 @@ export default function TeamPage() {
                 <div className='text-gray-300 space-y-3 mb-6 text-sm'>
                   <p>
                     Eric brings 13+ years of experience architecting AI systems and leading technical strategies for enterprise organizations. 
-                    As CTO, he directs the technical vision for all Lumen Helix Solutions, ensuring cutting-edge implementation of quantum-inspired 
-                    computing, clinical AI, and scalable systems.
+                    As CTO/CFO, he directs both the technical vision and financial operations for all Lumen Helix Solutions, ensuring cutting-edge 
+                    implementation of quantum-inspired computing, clinical AI, and scalable systems while maintaining fiscal responsibility and growth.
                   </p>
                   <p>
-                    Beyond technical excellence, Eric drives our sales strategy and client acquisition. His unique ability to translate complex 
-                    technical concepts into compelling business value propositions makes him instrumental in securing enterprise partnerships and 
+                    Beyond technical and financial excellence, Eric drives our sales strategy and client acquisition. His unique ability to translate 
+                    complex technical concepts into compelling business value propositions makes him instrumental in securing enterprise partnerships and 
                     understanding client needs at the deepest level.
                   </p>
                 </div>
@@ -69,6 +70,7 @@ export default function TeamPage() {
                   <p className='font-semibold text-gray-300 mb-2'>Leadership Focus:</p>
                   <ul className='list-disc list-inside space-y-1'>
                     <li>Technical architecture and AI system design</li>
+                    <li>Financial planning, budgeting, and fiscal oversight</li>
                     <li>Enterprise client relationships and sales strategy</li>
                     <li>Technology stack evaluation and optimization</li>
                   </ul>
@@ -77,23 +79,24 @@ export default function TeamPage() {
             </div>
           </div>
 
-          {/* Christopher Phillips - CIO, Navy Veteran */}
+          {/* Christopher G. Phillips - CTO/CEO & Sales Support, Navy Veteran */}
           <div className='bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-secondary-500/30 rounded-xl overflow-hidden mb-12'>
             <div className='grid grid-cols-1 md:grid-cols-3 gap-0'>
               <div className='md:col-span-1 relative h-80 md:h-full order-2 md:order-1'>
                 <Image
                   src='/images/team/chris-phillips-cio-navy.jpg'
-                  alt='Christopher Phillips - CIO & Administrative Lead'
+                  alt='Christopher G. Phillips - CTO/CEO & Sales Support'
                   fill
                   className='object-cover'
                 />
               </div>
               <div className='md:col-span-2 p-8 flex flex-col justify-center order-1 md:order-2'>
                 <div className='mb-6'>
-                  <h3 className='text-3xl font-bold text-white mb-2'>Christopher Phillips</h3>
-                  <p className='text-secondary-400 text-lg font-semibold mb-4'>Chief Information Officer & Administrative Lead, US Navy Veteran</p>
+                  <h3 className='text-3xl font-bold text-white mb-2'>Christopher G. Phillips</h3>
+                  <p className='text-secondary-400 text-lg font-semibold mb-4'>Chief Technology Officer / Chief Executive Officer & Sales Support, US Navy Veteran</p>
                   <div className='flex flex-wrap gap-2 mb-6'>
                     <Badge className='bg-secondary-900/80 text-secondary-200'>Strategic Leadership</Badge>
+                    <Badge className='bg-blue-900/80 text-blue-200'>Sales Support</Badge>
                     <Badge className='bg-indigo-900/80 text-indigo-200'>UI/UX Strategy</Badge>
                     <Badge className='bg-red-900/80 text-red-200'>Compliance & Governance</Badge>
                     <Badge className='bg-orange-900/80 text-orange-200'>Training & Development</Badge>
@@ -103,23 +106,24 @@ export default function TeamPage() {
                 </div>
                 <div className='text-gray-300 space-y-3 mb-6 text-sm'>
                   <p>
-                    Christopher brings 30+ years of technology consulting expertise and military service to his role as CIO. His disciplined, 
-                    strategic approach to organizational leadership ensures operational excellence across all departments. He oversees UI/UX 
-                    strategy, regulatory compliance frameworks, team training programs, and 24/7 customer support operations.
+                    Christopher brings 30+ years of technology consulting expertise and military service to his dual role as CTO/CEO. His disciplined, 
+                    strategic approach to organizational leadership ensures operational excellence across all departments. He oversees technical innovation, 
+                    UI/UX strategy, regulatory compliance frameworks, team training programs, and 24/7 customer support operations while driving overall 
+                    company vision and providing critical sales support.
                   </p>
                   <p>
-                    As a published researcher with 7 peer-reviewed papers on quantum-inspired computing, reversible architectures, and AI systems, 
+                    As author of 7 research papers on quantum-inspired computing, reversible architectures, and AI systems (not peer-reviewed or published), 
                     Christopher combines deep technical knowledge with practical business acumen. His Navy background instilled a culture of 
                     precision, accountability, and unwavering support—values that define the Lumen Helix experience.
                   </p>
                 </div>
                 <div className='text-sm text-gray-400'>
-                  <p className='font-semibold text-gray-300 mb-2'>Published Research:</p>
+                  <p className='font-semibold text-gray-300 mb-2'>Research Papers (Not Peer-Reviewed or Published):</p>
                   <ul className='list-disc list-inside space-y-1'>
                     <li>Quantum-Inspired Optimization in Clinical Diagnostics</li>
                     <li>Reversible Computing Architecture: Energy-Efficient Systems</li>
                     <li>Observer-Relative Causality in Computational Irreducibility</li>
-                    <li>And four additional peer-reviewed contributions to quantum computing and AI safety</li>
+                    <li>And four additional contributions to quantum computing and AI safety research</li>
                   </ul>
                   <p className='font-semibold text-gray-300 mb-2 mt-3'>Contact:</p>
                   <p className='text-cyan-400'>Chris@oiq.to</p>
