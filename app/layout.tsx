@@ -7,10 +7,8 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import AnimatedBackground from "@/components/animated-background"
 import { Analytics } from "@vercel/analytics/next"
-import { Suspense } from "react"
 import FloatingContactButton from "@/components/floating-contact-button"
 import SkipToContent from "@/components/skip-to-content"
-import ErrorBoundary from "@/components/error-boundary"
 
 // Load Inter font for body text
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -128,18 +126,14 @@ export default function RootLayout({
       <body className={`${inter.variable} ${lexend.variable} font-sans`}>
         <SkipToContent />
         <AnimatedBackground />
-        <Suspense fallback={null}>
-          <ErrorBoundary>
-            <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-              <Navbar />
-              <main id="main-content" className="focus:outline-none">
-                {children}
-              </main>
-              <Footer />
-              <FloatingContactButton />
-            </ThemeProvider>
-          </ErrorBoundary>
-        </Suspense>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+          <Navbar />
+          <main id="main-content" className="focus:outline-none">
+            {children}
+          </main>
+          <Footer />
+          <FloatingContactButton />
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>
