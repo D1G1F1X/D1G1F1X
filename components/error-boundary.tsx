@@ -1,86 +1,75 @@
 "use client"
 
-import type React from "react"
+import React, { type ReactNode } from "react"
+import { AlertCircle, Home, RefreshCw } from "lucide-react"
+import Link from "next/link"
 
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircle, RefreshCw } from "lucide-react"
-
-interface ErrorBoundaryProps {
-  children: React.ReactNode
-  fallback?: React.ReactNode
+interface Props {
+  children: ReactNode
 }
 
-export function ErrorBoundary({ children, fallback }: ErrorBoundaryProps) {
-  const [hasError, setHasError] = useState(false)
-  const [error, setError] = useState<Error | null>(null)
+interface State {
+  hasError: boolean
+  error?: Error
+}
 
-  useEffect(() => {
-    const isIgnorableErrorEvent = (ev: ErrorEvent) => {
-      const message = ev?.message || ev?.error?.message || ""
-      // Common Chromium benign errors that shouldn't crash the app UI
-      if (/ResizeObserver loop (limit exceeded|completed with undelivered notifications)/i.test(message)) {
-        return true
-      }
-      return false
-    }
-
-    const errorHandler = (ev: ErrorEvent) => {
-      if (isIgnorableErrorEvent(ev)) {
-        // Prevent noisy, non-fatal errors from tripping the UI fallback
-        ev.preventDefault?.()
-        return
-      }
-      console.error("Caught in error boundary:", ev)
-      const nextError = ev.error instanceof Error ? ev.error : new Error(ev.message || "Unknown error")
-      setError(nextError)
-      setHasError(true)
-    }
-
-    const rejectionHandler = (ev: PromiseRejectionEvent) => {
-      console.error("Unhandled promise rejection:", ev.reason)
-      const nextError = ev.reason instanceof Error ? ev.reason : new Error(String(ev.reason))
-      setError(nextError)
-      setHasError(true)
-    }
-
-    // Add global error handler
-    window.addEventListener("error", errorHandler, { capture: true })
-    window.addEventListener("unhandledrejection", rejectionHandler)
-
-    // Clean up
-    return () => {
-      window.removeEventListener("error", errorHandler, { capture: true } as any)
-      window.removeEventListener("unhandledrejection", rejectionHandler)
-    }
-  }, [])
-
-  if (hasError) {
-    if (fallback) {
-      return <>{fallback}</>
-    }
-
-    return (
-      <div className="p-4 flex flex-col items-center justify-center min-h-[200px]">
-        <Alert variant="destructive" className="mb-4">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Something went wrong</AlertTitle>
-          <AlertDescription>{error?.message || "An unexpected error occurred"}</AlertDescription>
-        </Alert>
-        <Button
-          onClick={() => {
-            setHasError(false)
-            setError(null)
-          }}
-          className="mt-4"
-        >
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Try Again
-        </Button>
-      </div>
-    )
+export default class ErrorBoundary extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
+    this.state = { hasError: false }
   }
 
-  return <>{children}</>
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("Error caught by boundary:", error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
+          <div className="max-w-md w-full text-center">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-white mb-2">Oops! Something went wrong</h1>
+            <p className="text-gray-400 mb-6">
+              We encountered an unexpected error. Please try refreshing the page or return home.
+            </p>
+
+            {this.state.error && (
+              <details className="mb-6 text-left bg-gray-800 p-4 rounded border border-gray-700">
+                <summary className="cursor-pointer text-gray-300 font-medium mb-2">Error details</summary>
+                <pre className="text-xs text-red-400 overflow-auto max-h-40">
+                  {this.state.error.message}
+                  {"\n"}
+                  {this.state.error.stack}
+                </pre>
+              </details>
+            )}
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center">
+              <button
+                onClick={() => window.location.reload()}
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+              >
+                <RefreshCw className="w-5 h-5" />
+                Refresh Page
+              </button>
+              <Link
+                href="/"
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+              >
+                <Home className="w-5 h-5" />
+                Go Home
+              </Link>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    return this.props.children
+  }
 }

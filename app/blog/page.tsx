@@ -1,59 +1,69 @@
-import { Suspense } from "react"
-import EnhancedBlogPosts from "@/components/enhanced-blog-posts"
-import StandardizedHero from "@/components/standardized-hero"
-import type { Metadata } from "next"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { posts } from "@/lib/blog"
+import PageHero from "@/components/page-hero"
+import BlogCard from "@/components/blog-card"
+import Breadcrumbs from "@/components/breadcrumbs"
 
-export const metadata: Metadata = {
-  title: "NUMO Oracle Blog | Insights & Wisdom",
-  description: "Explore articles on numerology, oracle readings, spiritual tools, and ancient wisdom.",
-  keywords: "numerology blog, oracle cards, spiritual guidance, Danu gifts, Celtic mythology, divination",
-  openGraph: {
-    title: "NUMO Oracle Blog | Insights & Wisdom",
-    description: "Explore articles on numerology, oracle readings, spiritual tools, and ancient wisdom.",
-    type: "website",
-    url: "/blog",
-  },
-}
+export default function BlogPage() {
+  // Get unique categories
+  const categories = Array.from(new Set(posts.map((post) => post.category)))
 
-export default async function BlogPage() {
-  try {
-    return (
-      <div className="relative min-h-screen bg-black">
-        <StandardizedHero
-          title="NUMO Oracle"
-          subtitle="Blog"
-          description="Explore articles on numerology, oracle readings, spiritual tools, and ancient wisdom"
-          backgroundImage="/images/hero/mystical-blog-background-v2.png"
-          badge={{
-            text: "Wisdom & Insights",
-            icon: "📚",
-          }}
-          gradient="from-indigo-900/30 via-purple-900/30 to-pink-900/30"
-        />
+  return (
+    <div className="min-h-screen bg-gray-900 relative overflow-hidden">
+      <div className="container px-4 mx-auto py-8 relative z-10">
+        <Breadcrumbs />
+      </div>
 
-        <div className="container mx-auto py-8 px-4">
-          <Suspense
-            fallback={
-              <div className="text-center py-20">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div>
-                <p className="text-white/80 mt-4">Loading blog posts...</p>
+      <PageHero
+        badge="Knowledge Hub"
+        badgeVariant="primary"
+        title="Our Blog"
+        subtitle="Expert insights and thought leadership from our team of specialists"
+      />
+
+      <div className="container px-4 mx-auto py-12 relative z-10">
+        <Tabs defaultValue="all" className="w-full">
+          <div className="flex justify-center mb-8 overflow-x-auto pb-2">
+            <TabsList className="bg-gray-800/80 backdrop-blur-sm border border-gray-700/50">
+              <TabsTrigger
+                value="all"
+                className="data-[state=active]:bg-primary-500/20 data-[state=active]:text-primary-400"
+              >
+                All Posts
+              </TabsTrigger>
+              {categories.map((category) => (
+                <TabsTrigger
+                  key={category}
+                  value={category}
+                  className="data-[state=active]:bg-primary-500/20 data-[state=active]:text-primary-400"
+                >
+                  {category}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+
+          <TabsContent value="all">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {posts.map((post) => (
+                <BlogCard key={post.id} post={post} />
+              ))}
+            </div>
+          </TabsContent>
+
+          {categories.map((category) => (
+            <TabsContent key={category} value={category}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {posts
+                  .filter((post) => post.category === category)
+                  .map((post) => (
+                    <BlogCard key={post.id} post={post} />
+                  ))}
               </div>
-            }
-          >
-            <EnhancedBlogPosts />
-          </Suspense>
-        </div>
+            </TabsContent>
+          ))}
+        </Tabs>
       </div>
-    )
-  } catch (error) {
-    console.error("Error in BlogPage:", error)
-    return (
-      <div className="relative min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Error loading blog</h1>
-          <p className="text-white/80">Something went wrong. Please try again later.</p>
-        </div>
-      </div>
-    )
-  }
+    </div>
+  )
 }
