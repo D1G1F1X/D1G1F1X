@@ -1,6 +1,8 @@
 import PageHero from "@/components/page-hero"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function AboutPage() {
   return (
@@ -8,7 +10,7 @@ export default function AboutPage() {
       <PageHero
         badge="About Us"
         title="Our Story & Mission"
-        subtitle="Pioneering digital transformation through innovative solutions and strategic partnerships"
+        subtitle="A collaborative team pioneering digital transformation through innovation, research, and strategic partnerships"
       />
 
       {/* Glowing orbs for visual effect */}
@@ -17,45 +19,161 @@ export default function AboutPage() {
 
       <div className="container px-4 mx-auto py-16 relative z-10">
         <div className="max-w-4xl mx-auto">
+          {/* Our Story - Collaborative Approach */}
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-12">
-            <h2 className="text-3xl font-bold text-white mb-6">My Story</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">Who We Are</h2>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-              With over 30 years of experience as a seasoned technology consultant and project manager, I've been an
-              integral part of multiple development companies throughout my career. My journey has taken me through the
-              evolution of technology from its early enterprise days to the sophisticated digital landscape we navigate
-              today.
+              We are Lumen Helix Solutions—a team of visionaries, strategists, and technical specialists united by a common purpose: 
+              to illuminate the path to digital excellence. Our collective brings together decades of experience spanning enterprise 
+              technology consulting, quantum-inspired computing research, AI system architecture, and scalable business operations.
             </p>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-              After a brief hiatus following the COVID pandemic, I recognized the dawning of the AI revolution and its
-              transformative potential for businesses across all industries. This realization reignited my passion for
-              technology consulting, and I began freelancing again, helping organizations navigate this new frontier.
+              Founded on the principle that true innovation emerges from collaboration, we combine complementary expertise to deliver 
+              comprehensive digital transformation solutions. Our leadership team merges deep technical knowledge with strategic business 
+              acumen, ensuring every solution we create drives measurable value while pushing the boundaries of what's possible.
             </p>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-              The natural evolution of this journey led to the launch of Lumen Helix Solutions—a comprehensive digital
-              transformation consultancy that combines decades of proven expertise with cutting-edge AI strategy and
-              implementation. Today, I lead a team of specialists who share my vision of illuminating the path to
-              digital excellence for organizations ready to embrace the future.
-            </p>
-            <p className="mt-6">
-              <Link href="/team" className="inline-flex items-center text-primary-400 hover:text-primary-300 font-semibold transition-colors">
-                Meet our full team →
-              </Link>
+              From the AI revolution to quantum-inspired diagnostics, we've positioned ourselves at the forefront of technological 
+              advancement. But we never lose sight of the fundamental truth: technology serves people and organizations. That's why we 
+              approach every engagement as a partnership, investing in understanding your unique challenges and crafting solutions that 
+              align with your vision.
             </p>
           </div>
 
+          {/* Our Mission - Collective Purpose */}
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-12">
-            <h2 className="text-3xl font-bold text-white mb-6">My Mission</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">Our Mission</h2>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed italic">
-              To illuminate the path to digital excellence by fusing three decades of strategic insight with
-              cutting-edge AI innovation, reversible computing architectures, and quantum-inspired systems, empowering
-              organizations to not just adapt to technological change, but to lead it with mathematical precision.
+              We illuminate the path to digital excellence by fusing decades of strategic insight with cutting-edge AI innovation, 
+              reversible computing architectures, and quantum-inspired systems. We empower organizations to not just adapt to 
+              technological change, but to lead it with mathematical precision, sustainable practices, and measurable impact.
             </p>
           </div>
 
+          {/* Our Vision */}
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-12">
-            <h2 className="text-3xl font-bold text-white mb-6">2025-2026 Research Breakthroughs</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">Our Vision</h2>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-              Our commitment to research excellence has yielded significant peer-reviewed contributions advancing the frontiers of computational science:
+              We envision a future where advanced computing serves humanity with sustainability, precision, and accessibility at its core. 
+              Through our research into reversible architectures, quantum-inspired systems, and ethical AI, we're building the foundation 
+              for a new generation of technology that preserves information, minimizes waste, and creates lasting value.
+            </p>
+            <p className="text-gray-300 text-lg leading-relaxed">
+              Our work bridges theoretical research and practical implementation, ensuring breakthrough discoveries translate into real-world 
+              solutions that transform industries and improve lives.
+            </p>
+          </div>
+
+          {/* Leadership Team Section */}
+          <div className="mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4 text-center">Our Leadership Team</h2>
+            <p className="text-gray-300 text-lg text-center mb-12">
+              Meet the visionary leaders driving our mission forward with decades of combined expertise in technology, 
+              business strategy, and innovation.
+            </p>
+
+            {/* Christopher G. Phillips - CEO and CTO */}
+            <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-secondary-500/30 rounded-xl overflow-hidden mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+                <div className="md:col-span-1 relative h-80 md:h-full">
+                  <Image
+                    src="/images/team/chris-phillips-cio-navy.jpg"
+                    alt="Christopher G. Phillips - CEO and CTO"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="md:col-span-2 p-8 flex flex-col justify-center">
+                  <div className="mb-4">
+                    <h3 className="text-3xl font-bold text-white mb-2">Christopher G. Phillips</h3>
+                    <p className="text-secondary-400 text-xl font-semibold mb-4">Founder, CEO and CTO</p>
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      <Badge className="bg-secondary-900/80 text-secondary-200">Strategic Leadership</Badge>
+                      <Badge className="bg-indigo-900/80 text-indigo-200">US Navy Veteran</Badge>
+                      <Badge className="bg-purple-900/80 text-purple-200">Research & Innovation</Badge>
+                      <Badge className="bg-cyan-900/80 text-cyan-200">Technical Architecture</Badge>
+                      <Badge className="bg-amber-900/80 text-amber-200">UI/UX Strategy</Badge>
+                    </div>
+                  </div>
+                  <div className="text-gray-300 space-y-4 leading-relaxed">
+                    <p>
+                      Christopher brings over 30 years of technology consulting and project management expertise to his role as 
+                      Founder, CEO, and CTO of Lumen Helix Solutions. His disciplined, strategic approach—honed through military 
+                      service in the US Navy—ensures operational excellence across all aspects of the organization.
+                    </p>
+                    <p>
+                      As a researcher and innovator, Christopher has authored 7 research papers exploring quantum-inspired computing, 
+                      reversible architectures, and AI systems. His work bridges theoretical breakthroughs with practical implementation, 
+                      creating solutions that deliver measurable impact while advancing the field.
+                    </p>
+                    <p>
+                      Christopher oversees technical innovation, UI/UX strategy, compliance frameworks, training programs, and customer 
+                      support operations while driving the company's overall vision and providing critical sales support. His leadership 
+                      embodies the values of precision, accountability, and unwavering commitment that define the Lumen Helix experience.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Eric J. Buck - Co-Founder, CTO and Sales Lead */}
+            <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-primary-500/30 rounded-xl overflow-hidden mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+                <div className="md:col-span-1 relative h-80 md:h-full order-2 md:order-1">
+                  <Image
+                    src="/images/team/eric-buck-cto-sales.jpg"
+                    alt="Eric J. Buck - Co-Founder, CTO and Sales Lead"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="md:col-span-2 p-8 flex flex-col justify-center order-1 md:order-2">
+                  <div className="mb-4">
+                    <h3 className="text-3xl font-bold text-white mb-2">Eric J. Buck</h3>
+                    <p className="text-primary-400 text-xl font-semibold mb-4">Co-Founder, CTO and Sales Lead</p>
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      <Badge className="bg-primary-900/80 text-primary-200">Technical Strategy</Badge>
+                      <Badge className="bg-blue-900/80 text-blue-200">Sales Leadership</Badge>
+                      <Badge className="bg-cyan-900/80 text-cyan-200">AI Systems</Badge>
+                      <Badge className="bg-purple-900/80 text-purple-200">Enterprise Architecture</Badge>
+                    </div>
+                  </div>
+                  <div className="text-gray-300 space-y-4 leading-relaxed">
+                    <p>
+                      Eric brings 13+ years of experience architecting AI systems and leading technical strategies for enterprise 
+                      organizations. As Co-Founder and CTO, he directs the technical vision for Lumen Helix Solutions, ensuring 
+                      cutting-edge implementation of quantum-inspired computing, clinical AI, and scalable enterprise systems.
+                    </p>
+                    <p>
+                      Beyond technical excellence, Eric drives our sales strategy and client acquisition efforts. His unique ability 
+                      to translate complex technical concepts into compelling business value propositions makes him instrumental in 
+                      securing enterprise partnerships and understanding client needs at the deepest level.
+                    </p>
+                    <p>
+                      Eric's leadership spans technical architecture, client relationships, and strategic growth initiatives. His 
+                      expertise ensures that every solution we deliver combines innovation with practical business impact, helping 
+                      organizations transform their operations and achieve sustainable competitive advantages.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center mt-8">
+              <Link 
+                href="/team" 
+                className="inline-flex items-center text-primary-400 hover:text-primary-300 font-semibold text-lg transition-colors"
+              >
+                Meet our full team of specialists →
+              </Link>
+            </div>
+          </div>
+
+          <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-12">
+            <h2 className="text-3xl font-bold text-white mb-6">Research & Innovation</h2>
+            <p className="text-gray-300 text-lg mb-6 leading-relaxed">
+              Our commitment to research excellence drives us to explore the frontiers of computational science. We're actively 
+              advancing breakthroughs in quantum-inspired systems, reversible computing, and AI applications:
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-gray-900/60 p-4 rounded-lg border border-gray-700/50">
@@ -142,22 +260,19 @@ export default function AboutPage() {
           </div>
 
           <div className="bg-gray-800/80 backdrop-blur-sm p-8 rounded-xl border border-gray-700/50 mb-12">
-            <h2 className="text-3xl font-bold text-white mb-6">Leadership & Expertise</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">Partner With Us</h2>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-              Drawing from over three decades of hands-on experience in technology consulting and project management, I
-              bring a unique perspective that bridges traditional enterprise solutions with emerging AI technologies. My
-              extensive background includes leadership roles across multiple development companies, giving me deep
-              insights into what works—and what doesn't—in digital transformation initiatives.
+              We believe in collaborative partnerships that drive meaningful transformation. Whether you're exploring AI integration, 
+              seeking quantum-inspired optimization, or planning comprehensive digital transformation, we're here to illuminate the path forward.
             </p>
             <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-              At Lumen Helix Solutions, I've assembled a carefully curated team of specialists who complement my
-              experience with fresh perspectives and cutting-edge expertise. Together, we combine the wisdom of proven
-              methodologies with the innovation required to harness AI's transformative potential.
+              Our team combines decades of proven expertise with cutting-edge innovation to deliver solutions that create lasting value. 
+              Let's explore how we can work together to achieve your strategic objectives.
             </p>
 
             <div className="mt-8 text-center">
               <Button asChild className="bg-primary-500 hover:bg-primary-600 text-white">
-                <Link href="/contact">Let's Discuss Your Project</Link>
+                <Link href="/contact">Start a Conversation</Link>
               </Button>
             </div>
           </div>

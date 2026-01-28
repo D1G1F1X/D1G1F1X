@@ -31,13 +31,13 @@ export default function TeamPage() {
             </p>
           </div>
 
-          {/* Eric J. Buck - CTO/CFO & Sales Lead */}
+          {/* Eric J. Buck - Co-Founder, CTO and Sales Lead */}
           <div className='bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-primary-500/30 rounded-xl overflow-hidden mb-12'>
             <div className='grid grid-cols-1 md:grid-cols-3 gap-0'>
               <div className='md:col-span-1 relative h-80 md:h-full'>
                 <Image
                   src='/images/team/eric-buck-cto-sales.jpg'
-                  alt='Eric J. Buck - CTO/CFO & Sales Lead'
+                  alt='Eric J. Buck - Co-Founder, CTO and Sales Lead'
                   fill
                   className='object-cover'
                 />
@@ -45,11 +45,10 @@ export default function TeamPage() {
               <div className='md:col-span-2 p-8 flex flex-col justify-center'>
                 <div className='mb-6'>
                   <h3 className='text-3xl font-bold text-white mb-2'>Eric J. Buck</h3>
-                  <p className='text-primary-400 text-lg font-semibold mb-4'>Chief Technology Officer / Chief Financial Officer & Sales Lead</p>
+                  <p className='text-primary-400 text-lg font-semibold mb-4'>Co-Founder, CTO and Sales Lead</p>
                   <div className='flex flex-wrap gap-2 mb-6'>
                     <Badge className='bg-primary-900/80 text-primary-200'>Technical Strategy</Badge>
                     <Badge className='bg-blue-900/80 text-blue-200'>Sales Leadership</Badge>
-                    <Badge className='bg-emerald-900/80 text-emerald-200'>Financial Operations</Badge>
                     <Badge className='bg-cyan-900/80 text-cyan-200'>AI Systems</Badge>
                     <Badge className='bg-purple-900/80 text-purple-200'>Enterprise Architecture</Badge>
                   </div>
@@ -57,11 +56,11 @@ export default function TeamPage() {
                 <div className='text-gray-300 space-y-3 mb-6 text-sm'>
                   <p>
                     Eric brings 13+ years of experience architecting AI systems and leading technical strategies for enterprise organizations. 
-                    As CTO/CFO, he directs both the technical vision and financial operations for all Lumen Helix Solutions, ensuring cutting-edge 
-                    implementation of quantum-inspired computing, clinical AI, and scalable systems while maintaining fiscal responsibility and growth.
+                    As Co-Founder and CTO, he directs the technical vision for Lumen Helix Solutions, ensuring cutting-edge 
+                    implementation of quantum-inspired computing, clinical AI, and scalable enterprise systems.
                   </p>
                   <p>
-                    Beyond technical and financial excellence, Eric drives our sales strategy and client acquisition. His unique ability to translate 
+                    Beyond technical excellence, Eric drives our sales strategy and client acquisition efforts. His unique ability to translate 
                     complex technical concepts into compelling business value propositions makes him instrumental in securing enterprise partnerships and 
                     understanding client needs at the deepest level.
                   </p>
@@ -70,22 +69,22 @@ export default function TeamPage() {
                   <p className='font-semibold text-gray-300 mb-2'>Leadership Focus:</p>
                   <ul className='list-disc list-inside space-y-1'>
                     <li>Technical architecture and AI system design</li>
-                    <li>Financial planning, budgeting, and fiscal oversight</li>
                     <li>Enterprise client relationships and sales strategy</li>
                     <li>Technology stack evaluation and optimization</li>
+                    <li>Strategic growth initiatives</li>
                   </ul>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Christopher G. Phillips - CTO/CEO & Sales Support, Navy Veteran */}
+          {/* Christopher G. Phillips - Founder, CEO and CTO, Navy Veteran */}
           <div className='bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-secondary-500/30 rounded-xl overflow-hidden mb-12'>
             <div className='grid grid-cols-1 md:grid-cols-3 gap-0'>
               <div className='md:col-span-1 relative h-80 md:h-full order-2 md:order-1'>
                 <Image
                   src='/images/team/chris-phillips-cio-navy.jpg'
-                  alt='Christopher G. Phillips - CTO/CEO & Sales Support'
+                  alt='Christopher G. Phillips - Founder, CEO and CTO'
                   fill
                   className='object-cover'
                 />
@@ -93,7 +92,7 @@ export default function TeamPage() {
               <div className='md:col-span-2 p-8 flex flex-col justify-center order-1 md:order-2'>
                 <div className='mb-6'>
                   <h3 className='text-3xl font-bold text-white mb-2'>Christopher G. Phillips</h3>
-                  <p className='text-secondary-400 text-lg font-semibold mb-4'>Chief Technology Officer / Chief Executive Officer & Sales Support, US Navy Veteran</p>
+                  <p className='text-secondary-400 text-lg font-semibold mb-4'>Founder, CEO and CTO, US Navy Veteran</p>
                   <div className='flex flex-wrap gap-2 mb-6'>
                     <Badge className='bg-secondary-900/80 text-secondary-200'>Strategic Leadership</Badge>
                     <Badge className='bg-blue-900/80 text-blue-200'>Sales Support</Badge>
@@ -106,10 +105,10 @@ export default function TeamPage() {
                 </div>
                 <div className='text-gray-300 space-y-3 mb-6 text-sm'>
                   <p>
-                    Christopher brings 30+ years of technology consulting expertise and military service to his dual role as CTO/CEO. His disciplined, 
-                    strategic approach to organizational leadership ensures operational excellence across all departments. He oversees technical innovation, 
-                    UI/UX strategy, regulatory compliance frameworks, team training programs, and 24/7 customer support operations while driving overall 
-                    company vision and providing critical sales support.
+                    Christopher brings 30+ years of technology consulting expertise and military service to his role as Founder, CEO, and CTO. 
+                    His disciplined, strategic approach to organizational leadership ensures operational excellence across all departments. He oversees 
+                    technical innovation, UI/UX strategy, regulatory compliance frameworks, team training programs, and 24/7 customer support operations 
+                    while driving overall company vision and providing critical sales support.
                   </p>
                   <p>
                     As author of 7 research papers on quantum-inspired computing, reversible architectures, and AI systems (not peer-reviewed or published), 
