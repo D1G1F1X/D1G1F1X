@@ -1,4 +1,4 @@
-import { BrainCircuit, Code, Palette, LineChart, Server, ClipboardCheck, Microscope, Zap, Cable as Cube } from "lucide-react"
+import { BrainCircuit, Code, Palette, LineChart, Server, ClipboardCheck, Microscope, Zap, Cable as Cube, Target } from "lucide-react"
 
 export const services = [
   {
@@ -62,11 +62,11 @@ export const services = [
     link: "/services/quantum-optimization",
   },
   {
-    icon: <Cube className="h-6 w-6 text-purple-400" />,
-    title: "Reversible Computing Architecture",
+    icon: <Target className="h-6 w-6 text-cyan-400" />,
+    title: "Quantum Optimized Services",
     description:
-      "Energy-efficient system design leveraging R.U.B.I.C. principles for sustainable, reversible computation with minimal thermal footprint.",
-    color: "bg-purple-900/30",
-    link: "/services/reversible-architecture",
+      "QUBO-based optimization for complex problems achieving 30x performance improvements in healthcare, finance, and operations.",
+    color: "bg-cyan-900/30",
+    link: "/services/quantum-optimized",
   },
 ]

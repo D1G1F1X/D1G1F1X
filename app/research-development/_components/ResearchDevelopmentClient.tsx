@@ -271,6 +271,12 @@ export default function ResearchDevelopmentClient() {
                     <span>Tensor Network Solvers: DMRG approximation for entanglement-aware diagnostics</span>
                   </li>
                 </ul>
+                <div className="mt-6 pt-6 border-t border-red-500/20">
+                  <p className="text-sm text-gray-400 mb-4">Ready to implement quantum-optimized solutions for your organization?</p>
+                  <Link href="/services/quantum-optimized" className="inline-flex items-center text-red-400 hover:text-red-300 font-semibold transition-colors">
+                    Explore Quantum Optimized Services <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           </div>
