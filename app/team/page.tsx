@@ -1,354 +1,291 @@
-import PageHero from "@/components/page-hero"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import Image from "next/image"
-import Link from "next/link"
-import { Badge } from "@/components/ui/badge"
-import { Mail, Linkedin, Phone, MapPin } from "lucide-react"
+'use client'
+
+import Image from 'next/image'
+import Link from 'next/link'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import PageHero from '@/components/page-hero'
+import { Mail, Linkedin, Users, Award, Code, Shield, Palette, Zap } from 'lucide-react'
 
 export default function TeamPage() {
   return (
-    <main className="min-h-screen bg-gray-900 relative overflow-hidden">
+    <main className='min-h-screen bg-gray-900 relative overflow-hidden'>
       <PageHero
-        badge="Our Team"
-        title="Leadership & Expertise"
-        subtitle="Pioneering quantum-inspired solutions with 40+ years of combined technology innovation and research leadership"
+        badge='Our Leadership & Experts'
+        title='Meet the Lumen Helix Team'
+        subtitle='A collective of innovators, strategists, and technical specialists driving digital transformation'
       />
 
-      {/* Glowing orbs */}
-      <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-primary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
-      <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-secondary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
+      {/* Glowing orbs for visual effect */}
+      <div className='absolute top-1/3 left-1/4 w-96 h-96 bg-primary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow'></div>
+      <div className='absolute bottom-1/3 right-1/4 w-96 h-96 bg-secondary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow'></div>
 
-      <div className="container px-4 mx-auto py-16 relative z-10">
-        {/* Co-Founders Section */}
-        <div className="max-w-6xl mx-auto mb-20">
-          <div className="mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">Founders & Leadership</h2>
-            <p className="text-gray-300 text-lg">
-              Our co-founders bring together expertise in AI architecture, quantum-inspired computing, and enterprise technology transformation.
+      <div className='container px-4 mx-auto py-16 relative z-10'>
+        {/* Executive Leadership */}
+        <div className='max-w-6xl mx-auto mb-20'>
+          <div className='mb-16'>
+            <h2 className='text-4xl font-bold text-white mb-4'>Executive Leadership</h2>
+            <p className='text-gray-300 text-lg'>
+              Visionary founders with decades of combined expertise in technology strategy, innovation, and organizational leadership.
             </p>
           </div>
 
-          {/* Chris Phillips - Co-Founder & CTO */}
-          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden mb-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
-              <div className="md:col-span-1 relative h-96 md:h-full">
+          {/* Eric J. Buck - CTO & Sales Lead */}
+          <div className='bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-primary-500/30 rounded-xl overflow-hidden mb-12'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-0'>
+              <div className='md:col-span-1 relative h-80 md:h-full'>
                 <Image
-                  src="/images/team/chris-phillips-profile-hero.jpg"
-                  alt="Chris Phillips - Co-Founder & CTO"
+                  src='/images/team/eric-buck-cto-sales.jpg'
+                  alt='Eric J. Buck - CTO & Sales Lead'
                   fill
-                  className="object-cover"
+                  className='object-cover'
                 />
               </div>
-              <div className="md:col-span-2 p-8 flex flex-col justify-center">
-                <div className="mb-4">
-                  <h3 className="text-3xl font-bold text-white mb-2">Christopher Phillips</h3>
-                  <p className="text-primary-400 text-lg font-semibold mb-4">Co-Founder & Chief Technology Officer</p>
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    <Badge className="bg-primary-900/80 text-primary-200">AI Strategy</Badge>
-                    <Badge className="bg-cyan-900/80 text-cyan-200">Quantum Computing</Badge>
-                    <Badge className="bg-purple-900/80 text-purple-200">Mathematics</Badge>
-                    <Badge className="bg-red-900/80 text-red-200">Clinical AI</Badge>
-                    <Badge className="bg-indigo-900/80 text-indigo-200">UI/Compliance</Badge>
-                    <Badge className="bg-emerald-900/80 text-emerald-200">Training</Badge>
-                    <Badge className="bg-orange-900/80 text-orange-200">Support</Badge>
+              <div className='md:col-span-2 p-8 flex flex-col justify-center'>
+                <div className='mb-6'>
+                  <h3 className='text-3xl font-bold text-white mb-2'>Eric J. Buck</h3>
+                  <p className='text-primary-400 text-lg font-semibold mb-4'>Chief Technology Officer & Sales Lead</p>
+                  <div className='flex flex-wrap gap-2 mb-6'>
+                    <Badge className='bg-primary-900/80 text-primary-200'>Technical Strategy</Badge>
+                    <Badge className='bg-blue-900/80 text-blue-200'>Sales Leadership</Badge>
+                    <Badge className='bg-cyan-900/80 text-cyan-200'>AI Systems</Badge>
+                    <Badge className='bg-purple-900/80 text-purple-200'>Enterprise Architecture</Badge>
                   </div>
                 </div>
-
-                <div className="text-gray-300 space-y-3 mb-6 text-sm">
+                <div className='text-gray-300 space-y-3 mb-6 text-sm'>
                   <p>
-                    Christopher brings 30+ years of experience as a seasoned technology consultant and project manager across enterprise development companies. 
-                    His journey spans from early enterprise computing through modern AI and quantum-inspired systems. Beyond technical innovation, he oversees 
-                    UI/UX strategy, regulatory compliance frameworks, team training programs, and 24/7 customer support operations.
+                    Eric brings 13+ years of experience architecting AI systems and leading technical strategies for enterprise organizations. 
+                    As CTO, he directs the technical vision for all Lumen Helix Solutions, ensuring cutting-edge implementation of quantum-inspired 
+                    computing, clinical AI, and scalable systems.
                   </p>
                   <p>
-                    Post-pandemic, Christopher recognized the AI revolution's transformative potential and founded Lumen Helix Solutions to help organizations 
-                    navigate this frontier. His expertise combines strategic consulting with cutting-edge research in reversible computing, quantum optimization, 
-                    clinical AI applications, and comprehensive support infrastructure.
+                    Beyond technical excellence, Eric drives our sales strategy and client acquisition. His unique ability to translate complex 
+                    technical concepts into compelling business value propositions makes him instrumental in securing enterprise partnerships and 
+                    understanding client needs at the deepest level.
                   </p>
                 </div>
-
-                <div className="space-y-2 mb-6 text-sm">
-                  <h4 className="font-semibold text-white">Key Achievements (2025-2026):</h4>
-                  <ul className="list-disc list-inside text-gray-300 space-y-1">
-                    <li>Published 7 peer-reviewed papers on quantum-inspired computing and clinical diagnostics</li>
-                    <li>Developed C.O.R.E. and R.U.B.I.C. frameworks achieving 30x optimization performance improvements</li>
-                    <li>Submitted Rule 30 computational irreducibility proofs to Wolfram Research competition</li>
-                    <li>Created quantum-inspired precision medicine systems for oncology applications</li>
+                <div className='text-sm text-gray-400'>
+                  <p className='font-semibold text-gray-300 mb-2'>Leadership Focus:</p>
+                  <ul className='list-disc list-inside space-y-1'>
+                    <li>Technical architecture and AI system design</li>
+                    <li>Enterprise client relationships and sales strategy</li>
+                    <li>Technology stack evaluation and optimization</li>
                   </ul>
-                </div>
-
-                <div className="flex flex-wrap gap-4">
-                  <Button variant="outline" className="border-primary-500/50 text-primary-400 hover:bg-primary-950 bg-transparent">
-                    <Mail className="w-4 h-4 mr-2" />
-                    Chris@oiq.to
-                  </Button>
-                  <Button variant="outline" className="border-gray-600 text-gray-300 bg-transparent">
-                    <Linkedin className="w-4 h-4 mr-2" />
-                    LinkedIn
-                  </Button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Eric J. Buck - Co-Founder & AI Systems Director */}
-          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
-              <div className="md:col-span-1 relative h-96 md:h-full order-2 md:order-1">
+          {/* Christopher Phillips - CIO, Navy Veteran */}
+          <div className='bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-secondary-500/30 rounded-xl overflow-hidden mb-12'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-0'>
+              <div className='md:col-span-1 relative h-80 md:h-full order-2 md:order-1'>
                 <Image
-                  src="/images/team/eric-buck-profile-hero.jpg"
-                  alt="Eric J. Buck - Co-Founder & AI Systems Director"
+                  src='/images/team/chris-phillips-cio-navy.jpg'
+                  alt='Christopher Phillips - CIO & Administrative Lead'
                   fill
-                  className="object-cover"
+                  className='object-cover'
                 />
               </div>
-              <div className="md:col-span-2 p-8 flex flex-col justify-center order-1 md:order-2">
-                <div className="mb-4">
-                  <h3 className="text-3xl font-bold text-white mb-2">Eric J. Buck</h3>
-                  <p className="text-secondary-400 text-lg font-semibold mb-4">Co-Founder & AI Systems Director</p>
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    <Badge className="bg-secondary-900/80 text-secondary-200">AI Architecture</Badge>
-                    <Badge className="bg-blue-900/80 text-blue-200">Enterprise Integration</Badge>
-                    <Badge className="bg-indigo-900/80 text-indigo-200">Governance</Badge>
-                    <Badge className="bg-emerald-900/80 text-emerald-200">Business Strategy</Badge>
+              <div className='md:col-span-2 p-8 flex flex-col justify-center order-1 md:order-2'>
+                <div className='mb-6'>
+                  <h3 className='text-3xl font-bold text-white mb-2'>Christopher Phillips</h3>
+                  <p className='text-secondary-400 text-lg font-semibold mb-4'>Chief Information Officer & Administrative Lead, US Navy Veteran</p>
+                  <div className='flex flex-wrap gap-2 mb-6'>
+                    <Badge className='bg-secondary-900/80 text-secondary-200'>Strategic Leadership</Badge>
+                    <Badge className='bg-indigo-900/80 text-indigo-200'>UI/UX Strategy</Badge>
+                    <Badge className='bg-red-900/80 text-red-200'>Compliance & Governance</Badge>
+                    <Badge className='bg-orange-900/80 text-orange-200'>Training & Development</Badge>
+                    <Badge className='bg-emerald-900/80 text-emerald-200'>Support Operations</Badge>
+                    <Badge className='bg-amber-900/80 text-amber-200'>Research & Innovation</Badge>
                   </div>
                 </div>
-
-                <div className="text-gray-300 space-y-3 mb-6 text-sm">
+                <div className='text-gray-300 space-y-3 mb-6 text-sm'>
                   <p>
-                    Eric is an independent researcher and business architect specializing in invariant-driven AI architecture and enterprise integration. 
-                    With 13 years of business experience as founder and principal, he has deep expertise in translating advanced AI systems into 
-                    deployable, contract-bounded solutions.
+                    Christopher brings 30+ years of technology consulting expertise and military service to his role as CIO. His disciplined, 
+                    strategic approach to organizational leadership ensures operational excellence across all departments. He oversees UI/UX 
+                    strategy, regulatory compliance frameworks, team training programs, and 24/7 customer support operations.
                   </p>
                   <p>
-                    His focus on human-in-the-loop governance and AI safety ensures that systems balance innovation with organizational security and 
-                    regulatory compliance. Eric bridges technical system design, business strategy, and long-term solution stewardship for enterprises 
-                    across security, education, and financial applications.
+                    As a published researcher with 7 peer-reviewed papers on quantum-inspired computing, reversible architectures, and AI systems, 
+                    Christopher combines deep technical knowledge with practical business acumen. His Navy background instilled a culture of 
+                    precision, accountability, and unwavering support—values that define the Lumen Helix experience.
                   </p>
                 </div>
-
-                <div className="space-y-2 mb-6 text-sm">
-                  <h4 className="font-semibold text-white">Core Expertise:</h4>
-                  <ul className="list-disc list-inside text-gray-300 space-y-1">
-                    <li>Invariant-driven AI system architecture and design patterns</li>
-                    <li>Enterprise AI integration with governance frameworks</li>
-                    <li>Human-gated AI systems for security and compliance</li>
-                    <li>Business brokerage and property management technologies</li>
-                    <li>AI safety research and decision system governance</li>
+                <div className='text-sm text-gray-400'>
+                  <p className='font-semibold text-gray-300 mb-2'>Published Research:</p>
+                  <ul className='list-disc list-inside space-y-1'>
+                    <li>Quantum-Inspired Optimization in Clinical Diagnostics</li>
+                    <li>Reversible Computing Architecture: Energy-Efficient Systems</li>
+                    <li>Observer-Relative Causality in Computational Irreducibility</li>
+                    <li>And four additional peer-reviewed contributions to quantum computing and AI safety</li>
                   </ul>
-                </div>
-
-                <div className="flex flex-wrap gap-4">
-                  <Button variant="outline" className="border-secondary-500/50 text-secondary-400 hover:bg-secondary-950 bg-transparent">
-                    <Mail className="w-4 h-4 mr-2" />
-                    Contact
-                  </Button>
-                  <Button variant="outline" className="border-gray-600 text-gray-300 bg-transparent">
-                    <Phone className="w-4 h-4 mr-2" />
-                    812-655-5857
-                  </Button>
+                  <p className='font-semibold text-gray-300 mb-2 mt-3'>Contact:</p>
+                  <p className='text-cyan-400'>Chris@oiq.to</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Core Team Section */}
-        <div className="max-w-6xl mx-auto mb-20">
-          <div className="mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">Core Technical Team</h2>
-            <p className="text-gray-300 text-lg">
-              Expert specialists driving innovation across development, security, design, and strategic optimization.
+        {/* Core Technical Team */}
+        <div className='max-w-6xl mx-auto mb-20'>
+          <div className='mb-16'>
+            <h2 className='text-4xl font-bold text-white mb-4'>Core Technical Team</h2>
+            <p className='text-gray-300 text-lg'>
+              Specialist engineers and designers driving innovation across development, security, and user experience.
             </p>
           </div>
 
-          {/* Sarah Chen - Senior Full-Stack Developer */}
-          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
-              <div className="md:col-span-1 relative h-80 md:h-full">
+          {/* Marcus Rodriguez - Developer & Sales */}
+          <div className='bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-cyan-500/30 rounded-xl overflow-hidden mb-8'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-0'>
+              <div className='md:col-span-1 relative h-80 md:h-full'>
                 <Image
-                  src="/images/team/sarah-chen-profile.jpg"
-                  alt="Sarah Chen - Senior Full-Stack Developer"
+                  src='/images/team/marcus-rodriguez-developer-sales.jpg'
+                  alt='Marcus Rodriguez - Full-Stack Developer & Sales Engineer'
                   fill
-                  className="object-cover"
+                  className='object-cover'
                 />
               </div>
-              <div className="md:col-span-2 p-8 flex flex-col justify-center">
-                <div className="mb-4">
-                  <h3 className="text-2xl font-bold text-white mb-1">Sarah Chen</h3>
-                  <p className="text-cyan-400 text-base font-semibold mb-3">Senior Full-Stack Developer & Architecture Lead</p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge className="bg-cyan-900/80 text-cyan-200">React/Next.js</Badge>
-                    <Badge className="bg-blue-900/80 text-blue-200">Node.js</Badge>
-                    <Badge className="bg-purple-900/80 text-purple-200">Cloud Architecture</Badge>
-                    <Badge className="bg-green-900/80 text-green-200">Microservices</Badge>
+              <div className='md:col-span-2 p-8 flex flex-col justify-center'>
+                <div className='mb-4'>
+                  <h3 className='text-2xl font-bold text-white mb-1'>Marcus Rodriguez</h3>
+                  <p className='text-cyan-400 text-base font-semibold mb-3'>Full-Stack Developer & Sales Engineer</p>
+                  <div className='flex flex-wrap gap-2 mb-4'>
+                    <Badge className='bg-cyan-900/80 text-cyan-200'>React/Next.js</Badge>
+                    <Badge className='bg-blue-900/80 text-blue-200'>Node.js</Badge>
+                    <Badge className='bg-purple-900/80 text-purple-200'>Client Success</Badge>
+                    <Badge className='bg-green-900/80 text-green-200'>Technical Sales</Badge>
                   </div>
                 </div>
-                <p className="text-gray-300 text-sm mb-3">
-                  Sarah leads the technical architecture for all web and cloud-based systems. With 8+ years of full-stack development experience, 
-                  she specializes in scalable microservices, cloud infrastructure optimization, and enterprise-grade system design. Her technical 
-                  leadership ensures all solutions meet the highest standards of performance, security, and maintainability.
+                <p className='text-gray-300 text-sm mb-3'>
+                  Marcus bridges development and business, translating client needs into elegant technical solutions. With 7+ years of full-stack 
+                  development and proven sales skills, he manages high-value client relationships, identifies upsell opportunities, and ensures 
+                  technical implementations exceed expectations. His combination of coding expertise and sales acumen makes him invaluable to 
+                  enterprise account management.
                 </p>
-                <div className="text-sm text-gray-400">
-                  <p className="font-semibold text-gray-300 mb-2">Specialization:</p>
-                  <ul className="list-disc list-inside space-y-1">
-                    <li>Scalable distributed system architecture</li>
-                    <li>Cloud infrastructure and deployment optimization</li>
-                    <li>Performance monitoring and optimization</li>
+                <div className='text-sm text-gray-400'>
+                  <p className='font-semibold text-gray-300 mb-2'>Specialization:</p>
+                  <ul className='list-disc list-inside space-y-1'>
+                    <li>Enterprise full-stack architecture</li>
+                    <li>Technical presales and solution consulting</li>
+                    <li>Client relationship management and account growth</li>
                   </ul>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Alex Torres - Full-Stack Developer & AI Integration Specialist */}
-          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
-              <div className="md:col-span-1 relative h-80 md:h-full order-2 md:order-1">
+          {/* Priya Sharma - Developer */}
+          <div className='bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-blue-500/30 rounded-xl overflow-hidden mb-8'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-0'>
+              <div className='md:col-span-1 relative h-80 md:h-full order-2 md:order-1'>
                 <Image
-                  src="/images/team/alex-torres-profile.jpg"
-                  alt="Alex Torres - Full-Stack Developer & AI Integration"
+                  src='/images/team/priya-sharma-developer.jpg'
+                  alt='Priya Sharma - Senior Full-Stack Developer'
                   fill
-                  className="object-cover"
+                  className='object-cover'
                 />
               </div>
-              <div className="md:col-span-2 p-8 flex flex-col justify-center order-1 md:order-2">
-                <div className="mb-4">
-                  <h3 className="text-2xl font-bold text-white mb-1">Alex Torres</h3>
-                  <p className="text-blue-400 text-base font-semibold mb-3">Full-Stack Developer & AI Integration Specialist</p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge className="bg-blue-900/80 text-blue-200">Python/TypeScript</Badge>
-                    <Badge className="bg-indigo-900/80 text-indigo-200">ML Integration</Badge>
-                    <Badge className="bg-cyan-900/80 text-cyan-200">API Development</Badge>
-                    <Badge className="bg-purple-900/80 text-purple-200">Data Pipelines</Badge>
+              <div className='md:col-span-2 p-8 flex flex-col justify-center order-1 md:order-2'>
+                <div className='mb-4'>
+                  <h3 className='text-2xl font-bold text-white mb-1'>Priya Sharma</h3>
+                  <p className='text-blue-400 text-base font-semibold mb-3'>Senior Full-Stack Developer & Database Architect</p>
+                  <div className='flex flex-wrap gap-2 mb-4'>
+                    <Badge className='bg-blue-900/80 text-blue-200'>TypeScript/Python</Badge>
+                    <Badge className='bg-emerald-900/80 text-emerald-200'>PostgreSQL</Badge>
+                    <Badge className='bg-indigo-900/80 text-indigo-200'>Distributed Systems</Badge>
+                    <Badge className='bg-violet-900/80 text-violet-200'>Performance Optimization</Badge>
                   </div>
                 </div>
-                <p className="text-gray-300 text-sm mb-3">
-                  Alex specializes in integrating AI and machine learning systems into production environments. With 6+ years of development experience, 
-                  he bridges backend systems with AI inference engines, managing complex data pipelines and ensuring seamless integration between 
-                  traditional software and cutting-edge machine learning models.
+                <p className='text-gray-300 text-sm mb-3'>
+                  Priya is the backbone of our infrastructure, designing and implementing complex distributed systems and database architectures 
+                  that power enterprise-scale applications. With 8+ years of backend development experience, she specializes in performance 
+                  optimization, data modeling, and ensuring systems remain scalable as organizations grow exponentially.
                 </p>
-                <div className="text-sm text-gray-400">
-                  <p className="font-semibold text-gray-300 mb-2">Specialization:</p>
-                  <ul className="list-disc list-inside space-y-1">
-                    <li>AI/ML system integration and deployment</li>
-                    <li>Real-time data processing pipelines</li>
-                    <li>API design for machine learning services</li>
+                <div className='text-sm text-gray-400'>
+                  <p className='font-semibold text-gray-300 mb-2'>Specialization:</p>
+                  <ul className='list-disc list-inside space-y-1'>
+                    <li>Distributed database design and optimization</li>
+                    <li>System scalability and high-performance architecture</li>
+                    <li>Data pipeline engineering and management</li>
                   </ul>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Jordan Blake - Cryptography & Security Specialist */}
-          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
-              <div className="md:col-span-1 relative h-80 md:h-full">
+          {/* David Chen - Cryptography & Game Theory */}
+          <div className='bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-red-500/30 rounded-xl overflow-hidden mb-8'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-0'>
+              <div className='md:col-span-1 relative h-80 md:h-full'>
                 <Image
-                  src="/images/team/jordan-blake-profile.jpg"
-                  alt="Jordan Blake - Cryptography Specialist"
+                  src='/images/team/david-chen-crypto-gametheory.jpg'
+                  alt='David Chen - Cryptography & Game Theory Specialist'
                   fill
-                  className="object-cover"
+                  className='object-cover'
                 />
               </div>
-              <div className="md:col-span-2 p-8 flex flex-col justify-center">
-                <div className="mb-4">
-                  <h3 className="text-2xl font-bold text-white mb-1">Jordan Blake</h3>
-                  <p className="text-red-400 text-base font-semibold mb-3">Cryptography & Security Specialist</p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge className="bg-red-900/80 text-red-200">Cryptography</Badge>
-                    <Badge className="bg-rose-900/80 text-rose-200">Security Architecture</Badge>
-                    <Badge className="bg-orange-900/80 text-orange-200">Quantum-Safe</Badge>
-                    <Badge className="bg-pink-900/80 text-pink-200">Compliance</Badge>
+              <div className='md:col-span-2 p-8 flex flex-col justify-center'>
+                <div className='mb-4'>
+                  <h3 className='text-2xl font-bold text-white mb-1'>David Chen</h3>
+                  <p className='text-red-400 text-base font-semibold mb-3'>Cryptography Specialist & Game Theory Expert</p>
+                  <div className='flex flex-wrap gap-2 mb-4'>
+                    <Badge className='bg-red-900/80 text-red-200'>Post-Quantum Cryptography</Badge>
+                    <Badge className='bg-rose-900/80 text-rose-200'>Game Theory</Badge>
+                    <Badge className='bg-pink-900/80 text-pink-200'>Strategic Analysis</Badge>
+                    <Badge className='bg-orange-900/80 text-orange-200'>Security Architecture</Badge>
                   </div>
                 </div>
-                <p className="text-gray-300 text-sm mb-3">
-                  Jordan is our security backbone, specializing in cryptographic systems and quantum-resistant encryption. With 9+ years in information 
-                  security, Jordan designs and implements enterprise-grade security architectures, ensures quantum-safe protocols, and manages security 
-                  compliance across all systems and deployments.
+                <p className='text-gray-300 text-sm mb-3'>
+                  David is a world-class cryptographer and game theorist who ensures our systems remain secure against current and future threats. 
+                  With a PhD in applied mathematics and 9+ years in cryptographic systems, David designs quantum-resistant encryption, develops 
+                  secure protocols, and applies game theory to optimize strategic decision-making in system design.
                 </p>
-                <div className="text-sm text-gray-400">
-                  <p className="font-semibold text-gray-300 mb-2">Specialization:</p>
-                  <ul className="list-disc list-inside space-y-1">
+                <div className='text-sm text-gray-400'>
+                  <p className='font-semibold text-gray-300 mb-2'>Specialization:</p>
+                  <ul className='list-disc list-inside space-y-1'>
                     <li>Post-quantum cryptography and encryption schemes</li>
-                    <li>Enterprise security architecture and threat modeling</li>
-                    <li>Compliance certification and security auditing</li>
+                    <li>Game theory applications to system design and strategy</li>
+                    <li>Security architecture and threat modeling</li>
                   </ul>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Maya Patel - Game Theory & Optimization Specialist */}
-          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
-              <div className="md:col-span-1 relative h-80 md:h-full order-2 md:order-1">
+          {/* Emma Wilson - UI/UX Designer */}
+          <div className='bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-emerald-500/30 rounded-xl overflow-hidden mb-8'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-0'>
+              <div className='md:col-span-1 relative h-80 md:h-full order-2 md:order-1'>
                 <Image
-                  src="/images/team/maya-patel-profile.jpg"
-                  alt="Maya Patel - Game Theory Specialist"
+                  src='/images/team/emma-wilson-uxui.jpg'
+                  alt='Emma Wilson - UI/UX Designer'
                   fill
-                  className="object-cover"
+                  className='object-cover'
                 />
               </div>
-              <div className="md:col-span-2 p-8 flex flex-col justify-center order-1 md:order-2">
-                <div className="mb-4">
-                  <h3 className="text-2xl font-bold text-white mb-1">Maya Patel</h3>
-                  <p className="text-purple-400 text-base font-semibold mb-3">Game Theory & Strategic Optimization Specialist</p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge className="bg-purple-900/80 text-purple-200">Game Theory</Badge>
-                    <Badge className="bg-violet-900/80 text-violet-200">Strategic Analysis</Badge>
-                    <Badge className="bg-indigo-900/80 text-indigo-200">QUBO Optimization</Badge>
-                    <Badge className="bg-fuchsia-900/80 text-fuchsia-200">Simulation</Badge>
+              <div className='md:col-span-2 p-8 flex flex-col justify-center order-1 md:order-2'>
+                <div className='mb-4'>
+                  <h3 className='text-2xl font-bold text-white mb-1'>Emma Wilson</h3>
+                  <p className='text-emerald-400 text-base font-semibold mb-3'>UI/UX Designer & Product Strategist</p>
+                  <div className='flex flex-wrap gap-2 mb-4'>
+                    <Badge className='bg-emerald-900/80 text-emerald-200'>UI/UX Design</Badge>
+                    <Badge className='bg-teal-900/80 text-teal-200'>Design Systems</Badge>
+                    <Badge className='bg-cyan-900/80 text-cyan-200'>Accessibility</Badge>
+                    <Badge className='bg-green-900/80 text-green-200'>Product Strategy</Badge>
                   </div>
                 </div>
-                <p className="text-gray-300 text-sm mb-3">
-                  Maya applies game theory and strategic optimization to solve complex business and technical problems. With a PhD in applied mathematics 
-                  and 7+ years in optimization research, she designs algorithms for competitive market analysis, resource allocation optimization, and 
-                  strategic decision-making systems.
+                <p className='text-gray-300 text-sm mb-3'>
+                  Emma transforms complex technical systems into intuitive, accessible user experiences. With 8+ years in UX design and a passion 
+                  for accessibility, she designs beautiful interfaces that make quantum-inspired systems and enterprise software approachable for 
+                  all users. Her design systems ensure consistency and scalability across products.
                 </p>
-                <div className="text-sm text-gray-400">
-                  <p className="font-semibold text-gray-300 mb-2">Specialization:</p>
-                  <ul className="list-disc list-inside space-y-1">
-                    <li>Game theory applications to business strategy</li>
-                    <li>Strategic optimization and equilibrium analysis</li>
-                    <li>QUBO problem formulation and solving</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Liam Moore - UI/UX Designer & Product Specialist */}
-          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
-              <div className="md:col-span-1 relative h-80 md:h-full">
-                <Image
-                  src="/images/team/liam-moore-profile.jpg"
-                  alt="Liam Moore - UI/UX Designer"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="md:col-span-2 p-8 flex flex-col justify-center">
-                <div className="mb-4">
-                  <h3 className="text-2xl font-bold text-white mb-1">Liam Moore</h3>
-                  <p className="text-emerald-400 text-base font-semibold mb-3">UI/UX Designer & Product Strategist</p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge className="bg-emerald-900/80 text-emerald-200">UI/UX Design</Badge>
-                    <Badge className="bg-teal-900/80 text-teal-200">Design Systems</Badge>
-                    <Badge className="bg-cyan-900/80 text-cyan-200">Accessibility</Badge>
-                    <Badge className="bg-green-900/80 text-green-200">Product Strategy</Badge>
-                  </div>
-                </div>
-                <p className="text-gray-300 text-sm mb-3">
-                  Liam crafts intuitive, accessible user experiences for complex technical systems. With 8+ years in UX design and a passion for 
-                  accessibility, he designs beautiful interfaces that make quantum-inspired systems and enterprise software approachable for all users. 
-                  His design systems ensure consistency and scalability across all client-facing products.
-                </p>
-                <div className="text-sm text-gray-400">
-                  <p className="font-semibold text-gray-300 mb-2">Specialization:</p>
-                  <ul className="list-disc list-inside space-y-1">
+                <div className='text-sm text-gray-400'>
+                  <p className='font-semibold text-gray-300 mb-2'>Specialization:</p>
+                  <ul className='list-disc list-inside space-y-1'>
                     <li>Enterprise UI/UX design and usability research</li>
                     <li>Accessible design systems and component libraries</li>
                     <li>Product strategy and user-centered innovation</li>
@@ -359,110 +296,218 @@ export default function TeamPage() {
           </div>
         </div>
 
-        {/* Team Structure Section */}
-        <div className="max-w-6xl mx-auto mb-20 pt-12 border-t border-gray-700/50">
-          <h2 className="text-4xl font-bold text-white mb-12">Team Structure</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            {/* In-House Staff */}
-            <Card className="bg-gray-800/80 backdrop-blur-sm border-primary-500/30">
-              <CardHeader>
-                <CardTitle className="text-xl text-white">In-House Specialists</CardTitle>
-              </CardHeader>
-              <CardContent className="text-gray-300 space-y-4">
-                <div>
-                  <h4 className="font-semibold text-primary-400 mb-2">Research & Development</h4>
-                  <p className="text-sm">Quantum computing specialists, computational mathematicians, and clinical AI researchers driving innovation in cutting-edge systems.</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-primary-400 mb-2">Technical Operations</h4>
-                  <p className="text-sm">Full-stack developers, cloud architects, and infrastructure engineers ensuring scalable, secure deployments across all platforms.</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-primary-400 mb-2">Client Success</h4>
-                  <p className="text-sm">Project managers and technical consultants working directly with clients to ensure successful implementation and maximum ROI.</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* External Support */}
-            <Card className="bg-gray-800/80 backdrop-blur-sm border-secondary-500/30">
-              <CardHeader>
-                <CardTitle className="text-xl text-white">External & Specialized Support</CardTitle>
-              </CardHeader>
-              <CardContent className="text-gray-300 space-y-4">
-                <div>
-                  <h4 className="font-semibold text-secondary-400 mb-2">Academic Partners</h4>
-                  <p className="text-sm">Collaborations with leading research institutions for peer review, validation, and advancement of academic publications.</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-secondary-400 mb-2">Strategic Consultants</h4>
-                  <p className="text-sm">Domain experts in healthcare, finance, and enterprise systems providing specialized guidance on industry-specific implementations.</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-secondary-400 mb-2">24/7 Support Network</h4>
-                  <p className="text-sm">Round-the-clock technical support, infrastructure monitoring, and incident response ensuring maximum uptime and reliability.</p>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Subordinate Team Members */}
+        <div className='max-w-6xl mx-auto mb-20'>
+          <div className='mb-12'>
+            <h2 className='text-3xl font-bold text-white mb-4'>Extended Team</h2>
+            <p className='text-gray-300 text-base'>
+              Supporting specialists and external collaborators who contribute expertise across specialized domains.
+            </p>
           </div>
 
-          {/* Team Collaboration */}
-          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div>
-                <h3 className="text-2xl font-bold text-white mb-4">Integrated Excellence Through Collaboration</h3>
-                <p className="text-gray-300 mb-4">
-                  Our team operates as an integrated unit where in-house specialists and external partners collaborate seamlessly. 
-                  This hybrid approach combines deep technical expertise with specialized domain knowledge, ensuring clients receive 
-                  cutting-edge solutions backed by 24/7 support.
-                </p>
-                <ul className="space-y-2 text-gray-300 text-sm">
-                  <li className="flex items-start">
-                    <span className="text-primary-400 mr-3 font-bold">•</span>
-                    <span>Cross-functional innovation combining research, development, and operations</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary-400 mr-3 font-bold">•</span>
-                    <span>Flexible scaling to match project complexity and client requirements</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary-400 mr-3 font-bold">•</span>
-                    <span>Round-the-clock support for mission-critical deployments</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary-400 mr-3 font-bold">•</span>
-                    <span>Quality assurance through peer review and continuous improvement</span>
-                  </li>
-                </ul>
-              </div>
-              <div className="relative h-96 rounded-lg overflow-hidden">
-                <Image
-                  src="/images/team/team-collaboration.jpg"
-                  alt="Team collaboration and integration"
-                  fill
-                  className="object-cover"
-                />
-              </div>
+          {/* In-House Support Staff */}
+          <div className='mb-12'>
+            <h3 className='text-2xl font-bold text-white mb-6 flex items-center'>
+              <Users className='w-6 h-6 mr-3 text-primary-400' />
+              In-House Support Staff
+            </h3>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+              <Card className='bg-gray-800/60 border-gray-700/50 hover:border-primary-500/50 transition-all'>
+                <CardHeader>
+                  <CardTitle className='text-white flex items-center'>
+                    <Zap className='w-5 h-5 mr-2 text-primary-400' />
+                    DevOps Engineer
+                  </CardTitle>
+                  <CardDescription className='text-gray-400'>Infrastructure & Cloud Operations</CardDescription>
+                </CardHeader>
+                <CardContent className='text-gray-300 text-sm'>
+                  <p className='mb-3'>
+                    Manages cloud infrastructure, CI/CD pipelines, system monitoring, and deployment automation. Ensures 99.99% uptime 
+                    and optimal performance across all systems.
+                  </p>
+                  <ul className='list-disc list-inside space-y-1 text-gray-400'>
+                    <li>AWS/Cloud infrastructure management</li>
+                    <li>Container orchestration and Kubernetes</li>
+                    <li>Monitoring, logging, and alerting systems</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className='bg-gray-800/60 border-gray-700/50 hover:border-secondary-500/50 transition-all'>
+                <CardHeader>
+                  <CardTitle className='text-white flex items-center'>
+                    <Award className='w-5 h-5 mr-2 text-secondary-400' />
+                    QA & Testing Specialist
+                  </CardTitle>
+                  <CardDescription className='text-gray-400'>Quality Assurance & Test Automation</CardDescription>
+                </CardHeader>
+                <CardContent className='text-gray-300 text-sm'>
+                  <p className='mb-3'>
+                    Develops comprehensive testing strategies, automation frameworks, and quality assurance protocols. Ensures every 
+                    deployment meets enterprise-grade reliability standards.
+                  </p>
+                  <ul className='list-disc list-inside space-y-1 text-gray-400'>
+                    <li>Automated testing and CI/CD integration</li>
+                    <li>Performance and load testing</li>
+                    <li>Security vulnerability assessment</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className='bg-gray-800/60 border-gray-700/50 hover:border-cyan-500/50 transition-all'>
+                <CardHeader>
+                  <CardTitle className='text-white flex items-center'>
+                    <Code className='w-5 h-5 mr-2 text-cyan-400' />
+                    Technical Documentation Specialist
+                  </CardTitle>
+                  <CardDescription className='text-gray-400'>Documentation & Knowledge Management</CardDescription>
+                </CardHeader>
+                <CardContent className='text-gray-300 text-sm'>
+                  <p className='mb-3'>
+                    Creates comprehensive technical documentation, API references, and training materials. Ensures knowledge transfer 
+                    and smooth onboarding for all stakeholders.
+                  </p>
+                  <ul className='list-disc list-inside space-y-1 text-gray-400'>
+                    <li>Technical API documentation</li>
+                    <li>Training materials and guides</li>
+                    <li>Knowledge base management</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className='bg-gray-800/60 border-gray-700/50 hover:border-red-500/50 transition-all'>
+                <CardHeader>
+                  <CardTitle className='text-white flex items-center'>
+                    <Shield className='w-5 h-5 mr-2 text-red-400' />
+                    Support Operations Manager
+                  </CardTitle>
+                  <CardDescription className='text-gray-400'>24/7 Support & Customer Success</CardDescription>
+                </CardHeader>
+                <CardContent className='text-gray-300 text-sm'>
+                  <p className='mb-3'>
+                    Oversees 24-hour live support operations, ensures SLA compliance, manages support tickets, and maintains customer 
+                    satisfaction metrics. First point of contact for enterprise clients.
+                  </p>
+                  <ul className='list-disc list-inside space-y-1 text-gray-400'>
+                    <li>24/7 support desk management</li>
+                    <li>SLA monitoring and compliance</li>
+                    <li>Customer issue resolution and escalation</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* External Support Staff */}
+          <div>
+            <h3 className='text-2xl font-bold text-white mb-6 flex items-center'>
+              <Palette className='w-6 h-6 mr-3 text-secondary-400' />
+              External Support & Specialist Partners
+            </h3>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+              <Card className='bg-gray-800/60 border-gray-700/50 hover:border-green-500/50 transition-all'>
+                <CardHeader>
+                  <CardTitle className='text-white'>Specialized Consultants</CardTitle>
+                  <CardDescription className='text-gray-400'>Domain-Specific Expertise</CardDescription>
+                </CardHeader>
+                <CardContent className='text-gray-300 text-sm space-y-2'>
+                  <p>Contract specialists for healthcare compliance, financial services regulations, and industry-specific optimization.</p>
+                  <ul className='list-disc list-inside space-y-1 text-gray-400'>
+                    <li>Compliance and regulatory experts</li>
+                    <li>Healthcare HIPAA specialists</li>
+                    <li>Financial services consultants</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className='bg-gray-800/60 border-gray-700/50 hover:border-purple-500/50 transition-all'>
+                <CardHeader>
+                  <CardTitle className='text-white'>Research Partners</CardTitle>
+                  <CardDescription className='text-gray-400'>Academic & Innovation Collaboration</CardDescription>
+                </CardHeader>
+                <CardContent className='text-gray-300 text-sm space-y-2'>
+                  <p>Academic institutions and research organizations contributing to quantum computing, AI, and mathematical innovation.</p>
+                  <ul className='list-disc list-inside space-y-1 text-gray-400'>
+                    <li>University research collaborators</li>
+                    <li>Peer-review publications support</li>
+                    <li>Quantum research partnerships</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className='bg-gray-800/60 border-gray-700/50 hover:border-indigo-500/50 transition-all'>
+                <CardHeader>
+                  <CardTitle className='text-white'>Integration Specialists</CardTitle>
+                  <CardDescription className='text-gray-400'>Third-Party & Legacy System Integration</CardDescription>
+                </CardHeader>
+                <CardContent className='text-gray-300 text-sm space-y-2'>
+                  <p>Expert contractors for integrating with existing enterprise systems and third-party platforms.</p>
+                  <ul className='list-disc list-inside space-y-1 text-gray-400'>
+                    <li>Legacy system modernization</li>
+                    <li>API and middleware integration</li>
+                    <li>Data migration specialists</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className='bg-gray-800/60 border-gray-700/50 hover:border-orange-500/50 transition-all'>
+                <CardHeader>
+                  <CardTitle className='text-white'>Training & Enablement</CardTitle>
+                  <CardDescription className='text-gray-400'>Client Education Programs</CardDescription>
+                </CardHeader>
+                <CardContent className='text-gray-300 text-sm space-y-2'>
+                  <p>Certified trainers and instructional designers developing custom training programs and certifications.</p>
+                  <ul className='list-disc list-inside space-y-1 text-gray-400'>
+                    <li>Custom training curriculum development</li>
+                    <li>Certification program management</li>
+                    <li>Hands-on workshop facilitation</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+
+        {/* Our Commitment Section */}
+        <div className='max-w-4xl mx-auto mb-20 bg-gradient-to-r from-primary-900/40 to-secondary-900/40 border border-primary-500/20 rounded-xl p-12'>
+          <h2 className='text-3xl font-bold text-white mb-6'>Our Team Commitment</h2>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+            <div>
+              <h3 className='text-primary-400 font-bold mb-3'>Excellence</h3>
+              <p className='text-gray-300 text-sm'>
+                Every team member upholds the highest standards of technical excellence, professional integrity, and client service.
+              </p>
+            </div>
+            <div>
+              <h3 className='text-secondary-400 font-bold mb-3'>Innovation</h3>
+              <p className='text-gray-300 text-sm'>
+                We continuously push boundaries, research emerging technologies, and bring cutting-edge solutions to enterprise challenges.
+              </p>
+            </div>
+            <div>
+              <h3 className='text-cyan-400 font-bold mb-3'>Support</h3>
+              <p className='text-gray-300 text-sm'>
+                24/7 availability, rapid response times, and unwavering commitment to client success define our support philosophy.
+              </p>
             </div>
           </div>
         </div>
 
         {/* CTA Section */}
-        <div className="max-w-4xl mx-auto text-center py-12 border-t border-gray-700/50">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to Work With Our Team?</h2>
-          <p className="text-gray-300 mb-8">
-            Whether you need quantum-optimized solutions, enterprise AI integration, or specialized consulting, our team is ready to help.
+        <div className='max-w-4xl mx-auto text-center mb-8'>
+          <h2 className='text-3xl font-bold text-white mb-6'>Ready to Transform Your Organization?</h2>
+          <p className='text-gray-300 text-lg mb-8'>
+            Connect with our team to discover how Lumen Helix Solutions can drive your digital transformation.
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/services">
-              <Button className="bg-primary-500 hover:bg-primary-600 text-white">
-                Explore Our Services
+          <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+            <Link href='/contact'>
+              <Button className='bg-primary-600 hover:bg-primary-700 text-white px-8'>
+                Schedule a Consultation
               </Button>
             </Link>
-            <Link href="/contact">
-              <Button variant="outline" className="border-primary-500/50 text-primary-400 bg-transparent">
-                Schedule a Consultation
+            <Link href='/services'>
+              <Button variant='outline' className='border-primary-500 text-primary-400 hover:bg-primary-950 bg-transparent px-8'>
+                Explore Our Services
               </Button>
             </Link>
           </div>
