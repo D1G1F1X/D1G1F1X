@@ -209,7 +209,7 @@ export async function logoutUser(token: string): Promise<boolean> {
 export async function getUserById(userId: string): Promise<User | null> {
   try {
     const result = await query(
-      `SELECT id, email, name, role, is_active, last_login, created_at, updated_at 
+      `SELECT id, email, full_name, role, is_active, last_login, created_at, updated_at 
        FROM users WHERE id = $1`,
       [userId]
     )
