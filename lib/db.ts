@@ -1,24 +1,15 @@
 import { Pool, QueryResult, PoolClient } from '@neondatabase/serverless'
 
-let poolInstance: Pool | null = null
-
-export function getPool(): Pool {
-  if (!poolInstance) {
-    const connectionString = process.env.DATABASE_URL
-    if (!connectionString) {
-      throw new Error('DATABASE_URL environment variable is not set')
-    }
-    poolInstance = new Pool({ connectionString })
-  }
-  return poolInstance
+const connectionString = process.env.DATABASE_URL
+if (!connectionString) {
+  throw new Error('DATABASE_URL environment variable is not set')
 }
 
-// Export pool as the Pool instance
-export const pool = new Proxy({} as Pool, {
-  get(_target, prop) {
-    return getPool()[prop as keyof Pool]
-  }
-})
+export const pool = new Pool({ connectionString })
+
+export function getPool(): Pool {
+  return pool
+}
 
 export async function query<T = Record<string, unknown>>(
   text: string,
