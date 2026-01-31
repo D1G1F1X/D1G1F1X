@@ -1,6 +1,5 @@
 // CRM Data Access Layer - Query utilities for database operations
-import { pool } from '@/lib/db'
-import sql from 'sql-template-tag'
+import { sql } from '@neondatabase/serverless'
 import type {
   Contact,
   Account,
@@ -96,6 +95,7 @@ export async function updateContact(id: string, data: Partial<Contact>): Promise
     `
     return result.rows[0] as Contact
   } catch (error) {
+
     throw error
   }
 }
@@ -109,6 +109,7 @@ export async function getContactsForAccount(accountId: string): Promise<Contact[
     `
     return result.rows as Contact[]
   } catch (error) {
+
     throw error
   }
 }
