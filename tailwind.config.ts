@@ -163,6 +163,9 @@ const config = {
     },
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  safelist: [
+    // Add any dynamic class names here to prevent purging
+  ],
 } satisfies Config
 
 export default config
