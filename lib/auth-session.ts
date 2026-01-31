@@ -23,6 +23,11 @@ export async function getSessionFromCookies(): Promise<{
   return { user: session.user, token }
 }
 
+export async function getSession(): Promise<{ user: User | null; token: string | null } | null> {
+  const session = await getSessionFromCookies()
+  return session.user ? session : null
+}
+
 export async function setSessionCookie(token: string): Promise<void> {
   const cookieStore = await cookies()
   cookieStore.set(SESSION_COOKIE_NAME, token, {
