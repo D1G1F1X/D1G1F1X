@@ -29,8 +29,7 @@ export async function POST(request: NextRequest) {
     )
 
     return NextResponse.json(assignment, { status: 201 })
-  } catch (error) {
-    console.error('Error assigning guest access:', error)
+  } catch (error: unknown) {
     return NextResponse.json(
       { error: 'Failed to assign access' },
       { status: 500 }
@@ -57,8 +56,7 @@ export async function DELETE(request: NextRequest) {
     )
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error revoking guest access:', error)
+  } catch (error: unknown) {
     return NextResponse.json(
       { error: 'Failed to revoke access' },
       { status: 500 }

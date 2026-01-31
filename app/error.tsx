@@ -6,7 +6,7 @@ import Link from "next/link"
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
-    console.error(error)
+    // Error is logged automatically by Next.js error boundary
   }, [error])
 
   return (

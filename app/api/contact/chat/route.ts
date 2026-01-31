@@ -34,8 +34,7 @@ You should:
     })
 
     return Response.json({ message: result.text })
-  } catch (error) {
-    console.error("[v0] Chat API error:", error)
+  } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Failed to process your message"
     return Response.json(
       {
