@@ -27,9 +27,10 @@ export default function Home() {
   useEffect(() => {
     const updateTextStyles = () => {
       const cycleDuration = 240000
-      const startTime = (window as unknown as { animationStartTime?: number }).animationStartTime || Date.now()
-      if (!(window as unknown as { animationStartTime?: number }).animationStartTime) {
-        ;(window as unknown as { animationStartTime?: number }).animationStartTime = startTime
+      const windowAny = window as unknown as Record<string, unknown>
+      const startTime = (windowAny.animationStartTime as number) || Date.now()
+      if (!windowAny.animationStartTime) {
+        windowAny.animationStartTime = startTime
       }
       const elapsed = (Date.now() - startTime) % cycleDuration
       const timeOfDayCalc = (elapsed / cycleDuration) * 24

@@ -27,7 +27,8 @@ export default function DayNightToggle() {
   const toggleDayNight = () => {
     // This will effectively jump to a different time in the day/night cycle
     const newStartTime = Date.now() - (isDark ? 60000 : 180000) // Jump to day or night
-    ;(window as unknown as { animationStartTime?: number }).animationStartTime = newStartTime
+    const windowAny = window as unknown as Record<string, unknown>
+    windowAny.animationStartTime = newStartTime
   }
 
   return (
