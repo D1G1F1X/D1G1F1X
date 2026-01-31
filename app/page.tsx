@@ -159,6 +159,8 @@ export default function Home() {
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-secondary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
       </section>
 
+      <SalesFunnelTabs showHeader={true} />
+
       <section id="services" className="py-24 bg-gray-900 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5 pointer-events-none">{/* SVG background pattern */}</div>
         <div className="absolute top-20 left-20 w-96 h-96 bg-primary-500 rounded-full filter blur-[150px] opacity-10 animate-pulse-slow"></div>
@@ -193,8 +195,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <SalesFunnelTabs showHeader={true} />
 
       <section
         id="portfolio"
