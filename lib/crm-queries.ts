@@ -23,7 +23,6 @@ export async function getContactByEmail(email: string): Promise<Contact | null> 
     `
     return result.rows[0] as Contact | undefined
   } catch (error) {
-    console.error('[v0] getContactByEmail error:', error)
     throw error
   }
 }
@@ -77,7 +76,6 @@ export async function createContact(data: {
     }
     return result.rows[0] as Contact
   } catch (error) {
-    console.error('[v0] createContact error:', error)
     throw error
   }
 }
@@ -97,7 +95,7 @@ export async function updateContact(id: string, data: Partial<Contact>): Promise
     `
     return result.rows[0] as Contact
   } catch (error) {
-    console.error('[v0] updateContact error:', error)
+
     throw error
   }
 }
@@ -111,7 +109,7 @@ export async function getContactsForAccount(accountId: string): Promise<Contact[
     `
     return result.rows as Contact[]
   } catch (error) {
-    console.error('[v0] getContactsForAccount error:', error)
+
     throw error
   }
 }
@@ -144,7 +142,6 @@ export async function createAccount(data: {
     `
     return result.rows[0] as Account
   } catch (error) {
-    console.error('[v0] createAccount error:', error)
     throw error
   }
 }
@@ -156,7 +153,6 @@ export async function getAccountByDomain(domain: string): Promise<Account | null
     `
     return result.rows[0] as Account | undefined
   } catch (error) {
-    console.error('[v0] getAccountByDomain error:', error)
     return null
   }
 }
@@ -194,7 +190,7 @@ export async function createDeal(data: {
     `
     return result.rows[0] as Deal
   } catch (error) {
-    console.error('[v0] createDeal error:', error)
+    console.error('createDeal error:', error)
     throw error
   }
 }
@@ -208,7 +204,7 @@ export async function getDealsForContact(contactId: string): Promise<Deal[]> {
     `
     return result.rows as Deal[]
   } catch (error) {
-    console.error('[v0] getDealsForContact error:', error)
+    console.error('getDealsForContact error:', error)
     throw error
   }
 }
@@ -234,7 +230,7 @@ export async function getDealsInPipeline(
       return result.rows as Deal[]
     }
   } catch (error) {
-    console.error('[v0] getDealsInPipeline error:', error)
+    console.error('getDealsInPipeline error:', error)
     throw error
   }
 }
@@ -253,7 +249,7 @@ export async function updateDealStage(
     `
     return result.rows[0] as Deal
   } catch (error) {
-    console.error('[v0] updateDealStage error:', error)
+    console.error('updateDealStage error:', error)
     throw error
   }
 }
@@ -290,7 +286,7 @@ export async function createActivity(data: {
     `
     return result.rows[0] as Activity
   } catch (error) {
-    console.error('[v0] createActivity error:', error)
+    console.error('createActivity error:', error)
     throw error
   }
 }
@@ -305,7 +301,7 @@ export async function getActivitiesForContact(contactId: string, limit = 50): Pr
     `
     return result.rows as Activity[]
   } catch (error) {
-    console.error('[v0] getActivitiesForContact error:', error)
+    console.error('getActivitiesForContact error:', error)
     throw error
   }
 }
@@ -344,7 +340,7 @@ export async function createTask(data: {
     `
     return result.rows[0] as Task
   } catch (error) {
-    console.error('[v0] createTask error:', error)
+    console.error('createTask error:', error)
     throw error
   }
 }
@@ -358,7 +354,7 @@ export async function getTasksForOwner(ownerId: string): Promise<Task[]> {
     `
     return result.rows as Task[]
   } catch (error) {
-    console.error('[v0] getTasksForOwner error:', error)
+    console.error('getTasksForOwner error:', error)
     throw error
   }
 }
@@ -377,7 +373,7 @@ export async function updateTaskStatus(
     `
     return result.rows[0] as Task
   } catch (error) {
-    console.error('[v0] updateTaskStatus error:', error)
+    console.error('updateTaskStatus error:', error)
     throw error
   }
 }
@@ -392,7 +388,7 @@ export async function checkIdempotencyKey(key: string): Promise<any | null> {
     `
     return result.rows[0]?.result || null
   } catch (error) {
-    console.error('[v0] checkIdempotencyKey error:', error)
+    console.error('checkIdempotencyKey error:', error)
     return null
   }
 }
@@ -410,6 +406,6 @@ export async function storeIdempotencyKey(
       SET result = ${JSON.stringify(result)}, created_at = NOW()
     `
   } catch (error) {
-    console.error('[v0] storeIdempotencyKey error:', error)
+    console.error('storeIdempotencyKey error:', error)
   }
 }

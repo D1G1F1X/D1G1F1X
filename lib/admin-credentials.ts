@@ -26,18 +26,11 @@ export function getAdminConfig(): AdminConfig {
   const primaryPasswordHash = process.env.ADMIN_PASSWORD_HASH
   const primaryUsername = process.env.ADMIN_USERNAME
 
-  console.log('[v0] getAdminConfig - primaryEmail:', primaryEmail)
-  console.log('[v0] getAdminConfig - primaryPasswordHash exists:', !!primaryPasswordHash)
-  console.log('[v0] getAdminConfig - primaryUsername:', primaryUsername)
-
   const backupEmail = process.env.BACKUP_ADMIN_EMAIL
   const backupPasswordHash = process.env.BACKUP_ADMIN_PASSWORD_HASH
 
   // Validate primary admin is configured
   if (!primaryEmail || !primaryPasswordHash) {
-    console.error(
-      '[Admin Config] Primary admin credentials not configured in environment variables'
-    )
     return {
       primary: {
         email: '',

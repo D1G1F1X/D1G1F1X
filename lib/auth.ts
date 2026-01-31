@@ -67,10 +67,11 @@ export async function registerUser(
       message: 'User registered successfully',
       user: result.rows[0],
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Registration failed'
     return {
       success: false,
-      message: error.message || 'Registration failed',
+      message: errorMessage,
     }
   }
 }
@@ -83,11 +84,9 @@ export async function loginUser(
   try {
     // Check if credentials match admin credentials
     const isAdmin = isAdminEmail(email)
-    console.log('[v0] loginUser - isAdmin:', isAdmin, 'email:', email)
     
     // Simple admin login: just check email and password directly
     if (isAdmin && email === 'admin@lumenhelix.com' && password === 'LumenHelix@2024Admin') {
-      console.log('[v0] Admin verification passed, creating session')
       // Create or get admin user from database
       let adminUserResult = await query(`SELECT * FROM users WHERE email = $1`, [email])
 

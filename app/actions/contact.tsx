@@ -52,7 +52,6 @@ export async function submitContactForm(prevState: unknown, formData: FormData) 
     })
 
     if (error) {
-      console.error("Resend API Error:", error)
       // Check for specific Resend error related to domain verification
       if (error.message && error.message.includes("domain is not verified")) {
         return {
@@ -71,7 +70,6 @@ export async function submitContactForm(prevState: unknown, formData: FormData) 
       message: "Message sent successfully! We'll get back to you soon.",
     }
   } catch (e) {
-    console.error("Unexpected Error:", e)
     return {
       success: false,
       message: "An unexpected error occurred. Please try again later.",
