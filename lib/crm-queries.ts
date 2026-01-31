@@ -386,7 +386,7 @@ export async function checkIdempotencyKey(key: string): Promise<Record<string, u
 export async function storeIdempotencyKey(
   key: string,
   endpoint: string,
-  result: any
+  result: Record<string, unknown>
 ): Promise<void> {
   try {
     await sql`
@@ -395,7 +395,7 @@ export async function storeIdempotencyKey(
       ON CONFLICT (idempotency_key) DO UPDATE
       SET result = ${JSON.stringify(result)}, created_at = NOW()
     `
-  } catch (error) {
-    console.error('storeIdempotencyKey error:', error)
+  } catch {
+    // Silently handle idempotency key storage errors
   }
 }

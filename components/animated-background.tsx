@@ -990,8 +990,8 @@ export default function AnimatedBackground() {
             data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise))
           }
           ctx.putImageData(imageData, 0, 0)
-        } catch (error) {
-          console.warn("Could not apply noise texture:", error)
+        } catch {
+          // Silently handle noise texture application failures
         }
       }
 
@@ -1001,8 +1001,7 @@ export default function AnimatedBackground() {
     draw(lastTime)
 
     const handleError = (error: Event, fallbackCanvas: HTMLCanvasElement, fallbackCtx: CanvasRenderingContext2D) => {
-      console.error("Error loading logo:", error)
-      // Draw a simple circle with gradient as fallback
+      // Silently handle logo loading failures and use fallback
       const gradient = fallbackCtx.createRadialGradient(50, 50, 10, 50, 50, 40)
       gradient.addColorStop(0, "#FFFFFF")
       gradient.addColorStop(1, "#CCDDFF")

@@ -170,8 +170,6 @@ export async function triggerAutomation(event: {
   task?: Task
 }): Promise<void> {
   try {
-    console.log('[v0] triggerAutomation event:', event.type)
-
     switch (event.type) {
       case 'contact_created':
         if (event.contact) {
@@ -209,15 +207,14 @@ export async function triggerAutomation(event: {
 
       case 'task_due_soon':
         if (event.task) {
-          console.log('[v0] Task due soon:', event.task.title)
-          // Could send reminder notification here
+          // Task due soon - could send reminder notification
         }
         break
 
       default:
-        console.log('[v0] Unknown automation event type:', event.type)
+        // Unknown automation event type handled silently
     }
-  } catch (error) {
-    console.error('[v0] triggerAutomation error:', error)
+  } catch {
+    // Silently handle automation trigger errors
   }
 }
