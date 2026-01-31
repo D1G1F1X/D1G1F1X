@@ -139,41 +139,18 @@ export function getBackupAdminEmail(): string | null {
 }
 
 /**
- * Validate that admin credentials are properly configured
- * This should be called during app startup
+ * Get default registration role from environment configuration
+ * Allows admin to set what role new users receive on registration
  */
-export function validateAdminConfiguration(): {
-  isValid: boolean
-  errors: string[]
-} {
-  const errors: string[] = []
-
-  const adminEmail = process.env.ADMIN_EMAIL
-  const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH
-
-  if (!adminEmail) {
-    errors.push('ADMIN_EMAIL is not configured')
+export function getDefaultRegistrationRole(): 'admin' | 'editor' | 'user' | 'guest' {
+  const defaultRole = process.env.DEFAULT_REGISTRATION_ROLE
+  
+  // Validate the role is one of the allowed types
+  if (defaultRole && ['admin', 'editor', 'user', 'guest'].includes(defaultRole)) {
+    return defaultRole as 'admin' | 'editor' | 'user' | 'guest'
   }
 
-  if (!adminPasswordHash) {
-    errors.push('ADMIN_PASSWORD_HASH is not configured')
-  }
-
-  // Validate password hash format (should be salt:hash format)
-  if (adminPasswordHash && !adminPasswordHash.includes(':')) {
-    errors.push('ADMIN_PASSWORD_HASH has invalid format. Expected salt:hash format.')
-  }
-
-  // Warn if backup admin is partially configured
-  const backupAdminEmail = process.env.BACKUP_ADMIN_EMAIL
-  const backupAdminPasswordHash = process.env.BACKUP_ADMIN_PASSWORD_HASH
-
-  if ((backupAdminEmail && !backupAdminPasswordHash) || (!backupAdminEmail && backupAdminPasswordHash)) {
-    errors.push('Backup admin credentials are partially configured. Either provide both or neither.')
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors,
-  }
+  // Default to 'user' if not configured or invalid
+  console.log('[v0] Using default registration role: user')
+  return 'user'
 }

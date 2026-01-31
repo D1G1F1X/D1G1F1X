@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { registerUser } from '@/lib/auth'
+import { getDefaultRegistrationRole } from '@/lib/admin-credentials'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, name, password, password_confirm, role } = await request.json()
+    const { email, name, password, password_confirm } = await request.json()
 
     if (!email || !name || !password) {
       return NextResponse.json(
@@ -26,7 +27,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const result = await registerUser(email, name, password, role || 'user')
+    // Get default role from admin configuration
+    const defaultRole = getDefaultRegistrationRole()
+    console.log('[v0] Registering user with default role:', defaultRole)
+
+    const result = await registerUser(email, name, password, defaultRole)
 
     if (!result.success) {
       return NextResponse.json(result, { status: 400 })

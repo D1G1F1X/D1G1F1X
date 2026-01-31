@@ -22,7 +22,6 @@ export default function RegisterForm() {
     email: '',
     password: '',
     password_confirm: '',
-    role: 'user',
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
