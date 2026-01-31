@@ -54,7 +54,7 @@ export async function updateStaffAccessPermissions(
   }>
 ) {
   const updates: string[] = []
-  const values: any[] = [staffId]
+  const values: (string | boolean)[] = [staffId]
   let paramIndex = 2
 
   if (permissions.can_manage_guests !== undefined) {

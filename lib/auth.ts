@@ -271,7 +271,7 @@ export async function logActivity(
   userId: string,
   action: string,
   resource: string,
-  details?: Record<string, any>
+  details?: Record<string, unknown>
 ): Promise<void> {
   try {
     await query(

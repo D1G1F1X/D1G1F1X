@@ -88,7 +88,7 @@ export interface Activity {
   account_id: string | null
   title: string | null
   description: string | null
-  metadata: Record<string, any> | null
+  metadata: Record<string, unknown> | null
   actor_id: string | null
   actor_email: string | null
   created_at: Date
@@ -184,7 +184,7 @@ export interface IdempotencyKey {
   id: string
   idempotency_key: string
   endpoint: string | null
-  result: Record<string, any> | null
+  result: Record<string, unknown> | null
   created_at: Date
   expires_at: Date
 }
