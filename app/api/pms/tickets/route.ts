@@ -19,7 +19,6 @@ export async function GET(request: NextRequest) {
     const tickets = await getTickets(projectId)
     return NextResponse.json(tickets)
   } catch (error) {
-    console.error('[v0] Error fetching tickets:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -36,7 +35,6 @@ export async function POST(request: NextRequest) {
     const ticket = await createTicket(projectId, title, description, priority, assignedTo)
     return NextResponse.json(ticket, { status: 201 })
   } catch (error) {
-    console.error('[v0] Error creating ticket:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -53,7 +51,6 @@ export async function PUT(request: NextRequest) {
     const ticket = await updateTicket(id, updates)
     return NextResponse.json(ticket)
   } catch (error) {
-    console.error('[v0] Error updating ticket:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -70,7 +67,6 @@ export async function DELETE(request: NextRequest) {
     await deleteTicket(id)
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('[v0] Error deleting ticket:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

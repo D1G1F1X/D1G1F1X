@@ -19,7 +19,6 @@ export async function GET(request: NextRequest) {
     const workspaces = await getWorkspaces(ownerId)
     return NextResponse.json(workspaces)
   } catch (error) {
-    console.error('[v0] Error fetching workspaces:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -36,7 +35,6 @@ export async function POST(request: NextRequest) {
     const workspace = await createWorkspace(ownerId, name, description)
     return NextResponse.json(workspace, { status: 201 })
   } catch (error) {
-    console.error('[v0] Error creating workspace:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -53,7 +51,6 @@ export async function PUT(request: NextRequest) {
     const workspace = await updateWorkspace(id, updates)
     return NextResponse.json(workspace)
   } catch (error) {
-    console.error('[v0] Error updating workspace:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -70,7 +67,6 @@ export async function DELETE(request: NextRequest) {
     await deleteWorkspace(id)
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('[v0] Error deleting workspace:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

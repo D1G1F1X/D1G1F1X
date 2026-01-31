@@ -19,7 +19,6 @@ export async function GET(request: NextRequest) {
     const projects = await getProjects(workspaceId)
     return NextResponse.json(projects)
   } catch (error) {
-    console.error('[v0] Error fetching projects:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -36,7 +35,6 @@ export async function POST(request: NextRequest) {
     const project = await createProject(workspaceId, name, description)
     return NextResponse.json(project, { status: 201 })
   } catch (error) {
-    console.error('[v0] Error creating project:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -53,7 +51,6 @@ export async function PUT(request: NextRequest) {
     const project = await updateProject(id, updates)
     return NextResponse.json(project)
   } catch (error) {
-    console.error('[v0] Error updating project:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -70,7 +67,6 @@ export async function DELETE(request: NextRequest) {
     await deleteProject(id)
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('[v0] Error deleting project:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
