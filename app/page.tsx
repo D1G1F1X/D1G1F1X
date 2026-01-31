@@ -1,6 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
+
+import { useState } from "react"
+
+import { Suspense } from 'react'
 import Link from "next/link"
 import { ArrowRight, ChevronDown, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -194,7 +198,9 @@ export default function Home() {
         </div>
       </section>
 
-      <SalesFunnelSection />
+      <Suspense fallback={<div className="py-24 text-center text-gray-400">Loading...</div>}>
+        <SalesFunnelSection />
+      </Suspense>
 
       <section
         id="portfolio"
