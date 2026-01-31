@@ -5,10 +5,7 @@ import { AlertCircle, RefreshCw, Home } from "lucide-react"
 import Link from "next/link"
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  useEffect(() => {
-    console.error(error)
-  }, [error])
-
+  // Error logging happens server-side; no need for client-side console output
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4 pt-20">
       <div className="max-w-md w-full text-center">

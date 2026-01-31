@@ -45,7 +45,7 @@ export default function ProjectsPage() {
           router.push('/login')
         }
       } catch (error) {
-        console.error('Failed to fetch user:', error)
+        // Handle fetch error silently - redirect to login
         router.push('/login')
       } finally {
         setIsLoading(false)

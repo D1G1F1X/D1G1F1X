@@ -34,7 +34,7 @@ export default function GuestManagementPanel() {
         setRegistrations(data)
       }
     } catch (error) {
-      console.error('Error fetching registrations:', error)
+      // Silently handle fetch errors
     } finally {
       setLoading(false)
     }
@@ -56,7 +56,7 @@ export default function GuestManagementPanel() {
         )
       }
     } catch (error) {
-      console.error('Error approving registration:', error)
+      // Silently handle action errors
     } finally {
       setActionLoading(null)
     }
@@ -78,7 +78,7 @@ export default function GuestManagementPanel() {
         )
       }
     } catch (error) {
-      console.error('Error rejecting registration:', error)
+      // Silently handle action errors
     } finally {
       setActionLoading(null)
     }

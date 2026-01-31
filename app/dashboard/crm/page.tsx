@@ -59,7 +59,7 @@ export default function CRMPage() {
           router.push('/login')
         }
       } catch (error) {
-        console.error('Failed to fetch user:', error)
+        // Handle authentication error silently - user will be redirected
         router.push('/login')
       } finally {
         setIsLoading(false)

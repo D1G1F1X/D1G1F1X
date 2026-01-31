@@ -278,7 +278,7 @@ export async function logActivity(
        VALUES ($1, $2, $3, $4)`,
       [userId, action, resource, JSON.stringify(details || {})]
     )
-  } catch (error) {
-    console.error('[v0] Failed to log activity:', error)
+  } catch {
+    // Silently fail activity logging to not block main operations
   }
 }

@@ -29,7 +29,7 @@ export default function Dashboard() {
           router.push('/login')
         }
       } catch (error) {
-        console.error('Failed to fetch user:', error)
+        // Handle authentication error silently - user will be redirected
         router.push('/login')
       } finally {
         setIsLoading(false)
@@ -46,7 +46,7 @@ export default function Dashboard() {
       })
       router.push('/login')
     } catch (error) {
-      console.error('Logout failed:', error)
+      // Handle logout error silently
     }
   }
 

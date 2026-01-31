@@ -61,7 +61,6 @@ export async function automateTaskCreation(data: {
     })
     return task
   } catch (error) {
-    console.error('[v0] automateTaskCreation error:', error)
     return null
   }
 }
@@ -74,8 +73,6 @@ export async function automateDealEscalation(data: {
   contact_id?: string
 }): Promise<void> {
   try {
-    console.log('[v0] automateDealEscalation:', data)
-    
     // Create escalation task
     const dueDate = new Date()
     dueDate.setDate(dueDate.getDate() + 1)
@@ -101,7 +98,7 @@ export async function automateDealEscalation(data: {
       })
     }
   } catch (error) {
-    console.error('[v0] automateDealEscalation error:', error)
+    // Handle automation error silently
   }
 }
 
@@ -109,7 +106,6 @@ export async function automateDealEscalation(data: {
 export async function automateContactQualification(contact: Contact): Promise<boolean> {
   try {
     const qualificationScore = calculateQualificationScore(contact)
-    console.log('[v0] automateContactQualification score:', qualificationScore)
 
     // Auto-qualify if score > 70
     if (qualificationScore > 70) {
@@ -125,7 +121,6 @@ export async function automateContactQualification(contact: Contact): Promise<bo
 
     return false
   } catch (error) {
-    console.error('[v0] automateContactQualification error:', error)
     return false
   }
 }

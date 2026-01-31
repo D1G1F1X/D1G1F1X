@@ -41,7 +41,6 @@ export async function GET() {
       count: resources.length,
     })
   } catch (error) {
-    console.error('[v0] GET /api/crm/public/resources error:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
       { status: 'error', message: 'Failed to fetch resources', details: errorMessage },
