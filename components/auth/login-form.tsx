@@ -65,8 +65,9 @@ export default function LoginForm({
           router.push('/dashboard')
         }
       }, 1500)
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during login')
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred during login'
+      setError(errorMessage)
       setIsLoading(false)
     }
   }

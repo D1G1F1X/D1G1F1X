@@ -60,8 +60,8 @@ export async function getUserFromRequest(request: NextRequest) {
     // In production: verify JWT
     // For now, return null (actual verification should happen here)
     return null
-  } catch (error) {
-    console.error('[v0] getUserFromRequest error:', error)
+  } catch {
+    // Silently handle authentication errors
     return null
   }
 }

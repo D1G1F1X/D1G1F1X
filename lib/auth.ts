@@ -166,8 +166,9 @@ export async function loginUser(
       session: sessionResult.rows[0],
       token,
     }
-  } catch (error: any) {
-    return { success: false, message: error.message || 'Login failed' }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Login failed'
+    return { success: false, message: errorMessage }
   }
 }
 

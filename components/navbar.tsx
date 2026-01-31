@@ -146,8 +146,7 @@ export default function Navbar() {
   }
 
   const handleLogoError = () => {
-    console.warn("Logo image failed to load, using placeholder")
-    // Create a simple SVG placeholder
+    // Silently handle logo loading failure
     const svgLogo = `
       <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
         <circle cx="20" cy="20" r="15" fill="#3B82F6" />

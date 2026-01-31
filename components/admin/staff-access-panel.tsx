@@ -40,7 +40,7 @@ export default function StaffAccessPanel() {
         setStaff(data)
       }
     } catch (error) {
-      console.error('Error fetching staff:', error)
+      // Silently handle fetch errors
     } finally {
       setLoading(false)
     }
@@ -87,7 +87,7 @@ export default function StaffAccessPanel() {
         setPermissions({})
       }
     } catch (error) {
-      console.error('Error saving permissions:', error)
+      // Silently handle save errors
     }
   }
 

@@ -1,5 +1,7 @@
 "use client"
 
+import React from "react"
+
 import { useEffect, useRef, useState } from "react"
 
 // Enhanced cloud interface for realistic cumulus clouds
@@ -880,8 +882,8 @@ export default function AnimatedBackground() {
 
             ctx.drawImage(sunLogoRef.current, x - drawWidth / 2, sunY - drawHeight / 2, drawWidth, drawHeight)
             ctx.globalAlpha = 1.0
-          } catch (error) {
-            console.warn("Could not draw sun logo:", error)
+          } catch {
+            // Silently handle logo drawing errors
           }
         }
       }
@@ -970,8 +972,8 @@ export default function AnimatedBackground() {
 
             ctx.globalCompositeOperation = "source-over"
             ctx.globalAlpha = 1.0
-          } catch (error) {
-            console.warn("Could not draw moon logo:", error)
+          } catch {
+            // Silently handle logo drawing errors
           }
         }
       }

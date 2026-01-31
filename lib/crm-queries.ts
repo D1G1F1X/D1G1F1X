@@ -189,9 +189,8 @@ export async function createDeal(data: {
       RETURNING *
     `
     return result.rows[0] as Deal
-  } catch (error) {
-    console.error('createDeal error:', error)
-    throw error
+  } catch {
+    throw new Error('Failed to create deal')
   }
 }
 
@@ -203,9 +202,8 @@ export async function getDealsForContact(contactId: string): Promise<Deal[]> {
       ORDER BY updated_at DESC
     `
     return result.rows as Deal[]
-  } catch (error) {
-    console.error('getDealsForContact error:', error)
-    throw error
+  } catch {
+    throw new Error('Failed to fetch deals for contact')
   }
 }
 
@@ -229,9 +227,8 @@ export async function getDealsInPipeline(
       `
       return result.rows as Deal[]
     }
-  } catch (error) {
-    console.error('getDealsInPipeline error:', error)
-    throw error
+  } catch {
+    throw new Error('Failed to fetch deals in pipeline')
   }
 }
 
@@ -248,9 +245,8 @@ export async function updateDealStage(
       RETURNING *
     `
     return result.rows[0] as Deal
-  } catch (error) {
-    console.error('updateDealStage error:', error)
-    throw error
+  } catch {
+    throw new Error('Failed to update deal stage')
   }
 }
 
@@ -262,7 +258,7 @@ export async function createActivity(data: {
   account_id?: string
   title?: string
   description?: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   actor_id?: string
   actor_email?: string
 }): Promise<Activity> {
@@ -285,9 +281,8 @@ export async function createActivity(data: {
       RETURNING *
     `
     return result.rows[0] as Activity
-  } catch (error) {
-    console.error('createActivity error:', error)
-    throw error
+  } catch {
+    throw new Error('Failed to create activity')
   }
 }
 
@@ -300,9 +295,8 @@ export async function getActivitiesForContact(contactId: string, limit = 50): Pr
       LIMIT ${limit}
     `
     return result.rows as Activity[]
-  } catch (error) {
-    console.error('getActivitiesForContact error:', error)
-    throw error
+  } catch {
+    throw new Error('Failed to fetch activities')
   }
 }
 
@@ -339,9 +333,8 @@ export async function createTask(data: {
       RETURNING *
     `
     return result.rows[0] as Task
-  } catch (error) {
-    console.error('createTask error:', error)
-    throw error
+  } catch {
+    throw new Error('Failed to create task')
   }
 }
 
@@ -353,9 +346,8 @@ export async function getTasksForOwner(ownerId: string): Promise<Task[]> {
       ORDER BY priority DESC, due_date ASC
     `
     return result.rows as Task[]
-  } catch (error) {
-    console.error('getTasksForOwner error:', error)
-    throw error
+  } catch {
+    throw new Error('Failed to fetch tasks')
   }
 }
 
@@ -372,14 +364,13 @@ export async function updateTaskStatus(
       RETURNING *
     `
     return result.rows[0] as Task
-  } catch (error) {
-    console.error('updateTaskStatus error:', error)
-    throw error
+  } catch {
+    throw new Error('Failed to update task status')
   }
 }
 
 // IDEMPOTENCY
-export async function checkIdempotencyKey(key: string): Promise<any | null> {
+export async function checkIdempotencyKey(key: string): Promise<Record<string, unknown> | null> {
   try {
     const result = await sql`
       SELECT result FROM crm_idempotency_keys
@@ -387,8 +378,7 @@ export async function checkIdempotencyKey(key: string): Promise<any | null> {
       LIMIT 1
     `
     return result.rows[0]?.result || null
-  } catch (error) {
-    console.error('checkIdempotencyKey error:', error)
+  } catch {
     return null
   }
 }
