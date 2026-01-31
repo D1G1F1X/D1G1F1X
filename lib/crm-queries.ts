@@ -72,6 +72,9 @@ export async function createContact(data: {
       )
       RETURNING *
     `
+    if (!result.rows[0]) {
+      throw new Error('Failed to create contact - no rows returned')
+    }
     return result.rows[0] as Contact
   } catch (error) {
     console.error('[v0] createContact error:', error)

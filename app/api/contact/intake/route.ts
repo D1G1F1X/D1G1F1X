@@ -24,9 +24,10 @@ export async function POST(request: Request) {
     //   html: `<p>Hi ${name}, we'll get back to you soon!</p>`,
     // })
 
-    return Response.json({ success: true })
+    return Response.json({ success: true, message: "Thank you for your submission" })
   } catch (error) {
     console.error("Intake API error:", error)
-    return Response.json({ error: "Failed to submit your information" }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
+    return Response.json({ error: "Failed to submit your information", details: errorMessage }, { status: 500 })
   }
 }
