@@ -201,6 +201,11 @@ export default function Footer() {
                   Contact
                 </Link>
               </li>
+              <li>
+                <Link href="/login" className="text-gray-400 hover:text-primary-400 transition-colors">
+                  Login
+                </Link>
+              </li>
             </ul>
           </div>
 

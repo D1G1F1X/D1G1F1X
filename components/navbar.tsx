@@ -217,6 +217,16 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
+            <Link
+              href="/login"
+              className={cn(
+                "hover:text-primary-300 transition-all font-medium",
+                isScrolled ? "text-white" : textColorClass,
+              )}
+              style={isScrolled ? {} : textColorStyle}
+            >
+              Login
+            </Link>
             <DayNightToggle />
           </nav>
 
@@ -266,6 +276,13 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
+            <Link
+              href="/login"
+              className="text-white text-2xl font-medium"
+              onClick={() => setIsOpen(false)}
+            >
+              Login
+            </Link>
             <Button
               className="bg-primary-500 hover:bg-primary-600 text-white w-full mt-4"
               onClick={() => setIsOpen(false)}
