@@ -6,6 +6,22 @@ import {
 } from '@/lib/auth'
 import { notifyAllAdmins } from '@/lib/admin-notifications'
 
+async function createUser(
+  email: string,
+  hashedPassword: string,
+  role: string
+) {
+  // This function creates a user in the database
+  const { pool } = await import('@/lib/db')
+  const result = await pool.query(
+    `INSERT INTO users (email, password_hash, role)
+     VALUES ($1, $2, $3)
+     RETURNING *`,
+    [email, hashedPassword, role]
+  )
+  return result.rows[0]
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { email, password, company, phone, reason } = await request.json()
@@ -28,10 +44,7 @@ export async function POST(request: NextRequest) {
 
     // Create user with guest role
     const hashedPassword = await hashPassword(password)
-    const user = await createUser(email, hashedPassword, 'guest', {
-      email,
-      name: email.split('@')[0],
-    })
+    const user = await createUser(email, hashedPassword, 'guest')
 
     // Create guest registration
     const registration = await createGuestRegistration(user.id, {
@@ -63,21 +76,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
-
-async function createUser(
-  email: string,
-  hashedPassword: string,
-  role: string,
-  profile?: { email?: string; name?: string }
-) {
-  // This function should be added to your auth.ts
-  const { pool } = await import('@/lib/db')
-  const result = await pool.query(
-    `INSERT INTO users (email, password_hash, role)
-     VALUES ($1, $2, $3)
-     RETURNING *`,
-    [email, hashedPassword, role]
-  )
-  return result.rows[0]
 }
