@@ -72,7 +72,6 @@ export async function POST(request: NextRequest) {
       ],
     })
   } catch (error) {
-    console.error('Hash generation error:', error)
     return NextResponse.json(
       { success: false, error: 'Failed to generate hash' },
       { status: 500 }

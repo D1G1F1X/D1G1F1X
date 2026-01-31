@@ -37,7 +37,7 @@ export async function updateWorkspace(
   updates: Partial<Workspace>
 ): Promise<Workspace> {
   const fields: string[] = []
-  const values: any[] = []
+  const values: (string | number | boolean | null | undefined)[] = []
   let paramCount = 1
 
   Object.entries(updates).forEach(([key, value]) => {

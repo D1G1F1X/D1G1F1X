@@ -7,7 +7,7 @@ export interface AutomationRule {
   id: string
   name: string
   trigger: 'contact_created' | 'deal_stage_changed' | 'task_overdue' | 'qualification_triggered'
-  condition: Record<string, any>
+  condition: Record<string, unknown>
   action: 'create_task' | 'escalate' | 'send_notification' | 'update_deal'
   enabled: boolean
 }
@@ -50,7 +50,6 @@ export async function automateTaskCreation(data: {
   sla_hours: number
 }): Promise<Task | null> {
   try {
-    console.log('[v0] automateTaskCreation:', data)
     const task = await createTask({
       title: data.title,
       task_type: data.task_type,

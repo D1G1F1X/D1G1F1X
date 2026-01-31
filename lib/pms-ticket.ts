@@ -39,7 +39,7 @@ export async function updateTicket(
   updates: Partial<Ticket>
 ): Promise<Ticket> {
   const fields: string[] = []
-  const values: any[] = []
+  const values: (string | number | boolean | null | undefined)[] = []
   let paramCount = 1
 
   Object.entries(updates).forEach(([key, value]) => {

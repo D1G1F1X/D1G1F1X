@@ -166,9 +166,8 @@ export async function loginUser(
       session: sessionResult.rows[0],
       token,
     }
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Login failed'
-    return { success: false, message: errorMessage }
+  } catch (error: any) {
+    return { success: false, message: error.message || 'Login failed' }
   }
 }
 
@@ -279,7 +278,7 @@ export async function logActivity(
        VALUES ($1, $2, $3, $4)`,
       [userId, action, resource, JSON.stringify(details || {})]
     )
-  } catch (error: unknown) {
-    // Activity logging is non-critical
+  } catch (error) {
+    console.error('[v0] Failed to log activity:', error)
   }
 }

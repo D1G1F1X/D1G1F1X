@@ -39,7 +39,6 @@ export async function withCRMAuth(
     // Call handler
     return await handler(request)
   } catch (error) {
-    console.error('[v0] withCRMAuth error:', error)
     return NextResponse.json(
       { status: 'error', message: 'Internal server error' },
       { status: 500 }

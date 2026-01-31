@@ -13,7 +13,10 @@ export function getPool(): Pool {
   return pool
 }
 
-export async function query<T = any>(text: string, params?: any[]): Promise<QueryResult<T>> {
+export async function query<T = Record<string, unknown>>(
+  text: string,
+  params?: (string | number | boolean | null | undefined)[]
+): Promise<QueryResult<T>> {
   const client = getPool()
   return client.query(text, params)
 }

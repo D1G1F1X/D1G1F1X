@@ -69,30 +69,21 @@ export function getAdminConfig(): AdminConfig {
 export function verifyAdminCredentials(email: string, password: string): boolean {
   const adminConfig = getAdminConfig()
 
-  console.log('[v0] verifyAdminCredentials - email:', email)
-  console.log('[v0] adminConfig.isConfigured:', adminConfig.isConfigured)
-  console.log('[v0] adminConfig.primary.email:', adminConfig.primary.email)
-
   if (!adminConfig.isConfigured) {
-    console.log('[v0] Admin config not configured')
     return false
   }
 
   // Check primary admin
   if (email === adminConfig.primary.email) {
-    console.log('[v0] Email matches primary admin, verifying password')
     const isValid = verifyPassword(password, adminConfig.primary.passwordHash)
-    console.log('[v0] Password verification result:', isValid)
     return isValid
   }
 
   // Check backup admin
   if (adminConfig.backup && email === adminConfig.backup.email) {
-    console.log('[v0] Email matches backup admin, verifying password')
     return verifyPassword(password, adminConfig.backup.passwordHash)
   }
 
-  console.log('[v0] Email does not match any admin email')
   return false
 }
 
@@ -144,6 +135,5 @@ export function getDefaultRegistrationRole(): 'admin' | 'editor' | 'user' | 'gue
   }
 
   // Default to 'user' if not configured or invalid
-  console.log('[v0] Using default registration role: user')
   return 'user'
 }

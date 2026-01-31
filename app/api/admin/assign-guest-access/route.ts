@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     )
 
     return NextResponse.json(assignment, { status: 201 })
-  } catch (error: unknown) {
+  } catch (error) {
     return NextResponse.json(
       { error: 'Failed to assign access' },
       { status: 500 }
@@ -56,7 +56,7 @@ export async function DELETE(request: NextRequest) {
     )
 
     return NextResponse.json({ success: true })
-  } catch (error: unknown) {
+  } catch (error) {
     return NextResponse.json(
       { error: 'Failed to revoke access' },
       { status: 500 }

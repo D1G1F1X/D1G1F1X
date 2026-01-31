@@ -732,24 +732,20 @@ export default function AnimatedBackground() {
     }
 
     // Animation variables
-    let animationFrameId: number
+    let animationFrameId: number | null = null
     let lastTime = 0
     const cycleDuration = 240000 // 4 minutes for a full day cycle (slower)
     const startTime = Date.now()
     // Set animation start time if not already set
-    if (!(window as any).animationStartTime) {
-      ;(window as any).animationStartTime = startTime
+    if (!(window as unknown as { animationStartTime?: number }).animationStartTime) {
+      ;(window as unknown as { animationStartTime?: number }).animationStartTime = startTime
     }
+    const elapsed = (Date.now() - (((window as unknown as { animationStartTime?: number }).animationStartTime) || startTime)) % cycleDuration
+    const timeOfDay = (elapsed / cycleDuration) * 24
 
-    // Draw function
-    const draw = (timestamp: number) => {
-      if (!ctx || !canvas) return
-
-      const deltaTime = timestamp - lastTime
-      lastTime = timestamp
-
-      const elapsed = (Date.now() - ((window as any).animationStartTime || startTime)) % cycleDuration
-      const timeOfDay = (elapsed / cycleDuration) * 24
+    const draw = (currentTime: number) => {
+      const deltaTime = currentTime - lastTime
+      lastTime = currentTime
 
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -998,9 +994,9 @@ export default function AnimatedBackground() {
       animationFrameId = requestAnimationFrame(draw)
     }
 
-    animationFrameId = requestAnimationFrame(draw)
+    draw(lastTime)
 
-    sunLogo.onerror = (error) => {
+    sunLogoRef.current?.onerror = (error) => {
       console.error("Error loading sun logo:", error)
       // Create a simple sun circle as fallback
       const fallbackCanvas = document.createElement("canvas")
@@ -1028,11 +1024,11 @@ export default function AnimatedBackground() {
           fallbackCtx.stroke()
         }
 
-        sunLogo.src = fallbackCanvas.toDataURL()
+        sunLogoRef.current.src = fallbackCanvas.toDataURL()
       }
     }
 
-    moonLogo.onerror = (error) => {
+    moonLogoRef.current?.onerror = (error) => {
       console.error("Error loading moon logo:", error)
       // Create a simple moon circle as fallback
       const fallbackCanvas = document.createElement("canvas")
@@ -1058,7 +1054,7 @@ export default function AnimatedBackground() {
         fallbackCtx.arc(35, 60, 8, 0, Math.PI * 2)
         fallbackCtx.fill()
 
-        moonLogo.src = fallbackCanvas.toDataURL()
+        moonLogoRef.current.src = fallbackCanvas.toDataURL()
       }
     }
 
