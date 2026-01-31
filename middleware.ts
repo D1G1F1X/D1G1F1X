@@ -4,9 +4,30 @@ import type { NextMiddleware } from 'next/server'
 export const middleware: NextMiddleware = async (request: NextRequest) => {
   const pathname = request.nextUrl.pathname
 
-  // Public routes that don't require auth
-  const publicRoutes = ['/', '/login', '/register', '/contact', '/blog', '/team', '/about']
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+  // Public routes and assets that don't require auth
+  const publicRoutes = [
+    '/',
+    '/login',
+    '/register',
+    '/contact',
+    '/blog',
+    '/team',
+    '/about',
+    '/api/public',
+    '/api/health',
+    '/sitemap.xml',
+    '/robots.txt',
+  ]
+
+  // Asset routes that should be public
+  const isAssetRoute =
+    pathname.startsWith('/static/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot)$/)
+
+  // Check if route is public
+  const isPublicRoute =
+    isAssetRoute || publicRoutes.some(route => pathname === route || pathname.startsWith(route + '/'))
 
   if (isPublicRoute) {
     return NextResponse.next()
@@ -38,8 +59,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public (public files)
+     * - .well-known (well-known files)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!_next/static|_next/image|favicon.ico|apple-icon|.well-known).*)',
   ],
 }
