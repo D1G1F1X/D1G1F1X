@@ -5,7 +5,6 @@ import { Check, AlertCircle, Info, ArrowRight, CheckCircle2, MessageCircle } fro
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/card'
 
 const CATEGORIES = {
   A: {
