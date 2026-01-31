@@ -9,6 +9,7 @@ import AnimatedBackground from "@/components/animated-background"
 import { Analytics } from "@vercel/analytics/next"
 import FloatingContactButton from "@/components/floating-contact-button"
 import SkipToContent from "@/components/skip-to-content"
+import { Toaster } from "@/components/ui/sonner"
 
 // Load Inter font for body text
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -133,6 +134,7 @@ export default function RootLayout({
           </main>
           <Footer />
           <FloatingContactButton />
+          <Toaster />
         </ThemeProvider>
         <Analytics />
       </body>
