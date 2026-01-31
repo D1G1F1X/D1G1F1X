@@ -736,11 +736,13 @@ export default function AnimatedBackground() {
     let lastTime = 0
     const cycleDuration = 240000 // 4 minutes for a full day cycle (slower)
     const startTime = Date.now()
+    
     // Set animation start time if not already set
-    if (!(window as unknown as { animationStartTime?: number }).animationStartTime) {
-      ;(window as unknown as { animationStartTime?: number }).animationStartTime = startTime
+    const windowAny = window as unknown as Record<string, unknown>
+    if (!windowAny.animationStartTime) {
+      windowAny.animationStartTime = startTime
     }
-    const elapsed = (Date.now() - (((window as unknown as { animationStartTime?: number }).animationStartTime) || startTime)) % cycleDuration
+    const elapsed = (Date.now() - ((windowAny.animationStartTime as number) || startTime)) % cycleDuration
     const timeOfDay = (elapsed / cycleDuration) * 24
 
     const draw = (currentTime: number) => {
@@ -996,67 +998,96 @@ export default function AnimatedBackground() {
 
     draw(lastTime)
 
-    sunLogoRef.current?.onerror = (error) => {
-      console.error("Error loading sun logo:", error)
-      // Create a simple sun circle as fallback
+    const handleError = (error: Event, fallbackCanvas: HTMLCanvasElement, fallbackCtx: CanvasRenderingContext2D) => {
+      console.error("Error loading logo:", error)
+      // Draw a simple circle with gradient as fallback
+      const gradient = fallbackCtx.createRadialGradient(50, 50, 10, 50, 50, 40)
+      gradient.addColorStop(0, "#FFFFFF")
+      gradient.addColorStop(1, "#CCDDFF")
+      fallbackCtx.fillStyle = gradient
+      fallbackCtx.beginPath()
+      fallbackCtx.arc(50, 50, 40, 0, Math.PI * 2)
+      fallbackCtx.fill()
+
+      // Add a crater or two
+      fallbackCtx.fillStyle = "rgba(180, 200, 220, 0.5)"
+      fallbackCtx.beginPath()
+      fallbackCtx.arc(65, 35, 10, 0, Math.PI * 2)
+      fallbackCtx.fill()
+      fallbackCtx.beginPath()
+      fallbackCtx.arc(35, 60, 8, 0, Math.PI * 2)
+      fallbackCtx.fill()
+
+      const logoRef = error.target === sunLogoRef.current ? sunLogoRef : moonLogoRef
+      logoRef.current!.src = fallbackCanvas.toDataURL()
+    }
+
+    const createFallbackCanvas = (logoRef: React.MutableRefObject<HTMLImageElement | null>) => {
       const fallbackCanvas = document.createElement("canvas")
       fallbackCanvas.width = 100
       fallbackCanvas.height = 100
       const fallbackCtx = fallbackCanvas.getContext("2d")
       if (fallbackCtx) {
-        // Draw a yellow circle with gradient
-        const gradient = fallbackCtx.createRadialGradient(50, 50, 10, 50, 50, 40)
-        gradient.addColorStop(0, "#FFFF80")
-        gradient.addColorStop(1, "#FFCC00")
-        fallbackCtx.fillStyle = gradient
-        fallbackCtx.beginPath()
-        fallbackCtx.arc(50, 50, 40, 0, Math.PI * 2)
-        fallbackCtx.fill()
-
-        // Add some rays
-        fallbackCtx.strokeStyle = "#FFCC00"
-        fallbackCtx.lineWidth = 2
-        for (let i = 0; i < 12; i++) {
-          const angle = (i / 12) * Math.PI * 2
+        if (logoRef === sunLogoRef) {
+          // Draw a yellow circle with gradient for sun
+          const gradient = fallbackCtx.createRadialGradient(50, 50, 10, 50, 50, 40)
+          gradient.addColorStop(0, "#FFFF80")
+          gradient.addColorStop(1, "#FFCC00")
+          fallbackCtx.fillStyle = gradient
           fallbackCtx.beginPath()
-          fallbackCtx.moveTo(50 + Math.cos(angle) * 40, 50 + Math.sin(angle) * 40)
-          fallbackCtx.lineTo(50 + Math.cos(angle) * 48, 50 + Math.sin(angle) * 48)
-          fallbackCtx.stroke()
+          fallbackCtx.arc(50, 50, 40, 0, Math.PI * 2)
+          fallbackCtx.fill()
+
+          // Add some rays
+          fallbackCtx.strokeStyle = "#FFCC00"
+          fallbackCtx.lineWidth = 2
+          for (let i = 0; i < 12; i++) {
+            const angle = (i / 12) * Math.PI * 2
+            fallbackCtx.beginPath()
+            fallbackCtx.moveTo(50 + Math.cos(angle) * 40, 50 + Math.sin(angle) * 40)
+            fallbackCtx.lineTo(50 + Math.cos(angle) * 48, 50 + Math.sin(angle) * 48)
+            fallbackCtx.stroke()
+          }
+        } else {
+          // Draw a blue-white circle with gradient for moon
+          const gradient = fallbackCtx.createRadialGradient(50, 50, 10, 50, 50, 40)
+          gradient.addColorStop(0, "#FFFFFF")
+          gradient.addColorStop(1, "#CCDDFF")
+          fallbackCtx.fillStyle = gradient
+          fallbackCtx.beginPath()
+          fallbackCtx.arc(50, 50, 40, 0, Math.PI * 2)
+          fallbackCtx.fill()
+
+          // Add a crater or two
+          fallbackCtx.fillStyle = "rgba(180, 200, 220, 0.5)"
+          fallbackCtx.beginPath()
+          fallbackCtx.arc(65, 35, 10, 0, Math.PI * 2)
+          fallbackCtx.fill()
+          fallbackCtx.beginPath()
+          fallbackCtx.arc(35, 60, 8, 0, Math.PI * 2)
+          fallbackCtx.fill()
         }
+        return fallbackCanvas
+      }
+      return null
+    }
 
-        sunLogoRef.current.src = fallbackCanvas.toDataURL()
+    const handleSunLogoError = (error: Event) => {
+      const fallbackCanvas = createFallbackCanvas(sunLogoRef)
+      if (fallbackCanvas && sunLogoRef.current) {
+        handleError(error, fallbackCanvas, fallbackCanvas.getContext("2d")!)
       }
     }
 
-    moonLogoRef.current?.onerror = (error) => {
-      console.error("Error loading moon logo:", error)
-      // Create a simple moon circle as fallback
-      const fallbackCanvas = document.createElement("canvas")
-      fallbackCanvas.width = 100
-      fallbackCanvas.height = 100
-      const fallbackCtx = fallbackCanvas.getContext("2d")
-      if (fallbackCtx) {
-        // Draw a blue-white circle with gradient
-        const gradient = fallbackCtx.createRadialGradient(50, 50, 10, 50, 50, 40)
-        gradient.addColorStop(0, "#FFFFFF")
-        gradient.addColorStop(1, "#CCDDFF")
-        fallbackCtx.fillStyle = gradient
-        fallbackCtx.beginPath()
-        fallbackCtx.arc(50, 50, 40, 0, Math.PI * 2)
-        fallbackCtx.fill()
-
-        // Add a crater or two
-        fallbackCtx.fillStyle = "rgba(180, 200, 220, 0.5)"
-        fallbackCtx.beginPath()
-        fallbackCtx.arc(65, 35, 10, 0, Math.PI * 2)
-        fallbackCtx.fill()
-        fallbackCtx.beginPath()
-        fallbackCtx.arc(35, 60, 8, 0, Math.PI * 2)
-        fallbackCtx.fill()
-
-        moonLogoRef.current.src = fallbackCanvas.toDataURL()
+    const handleMoonLogoError = (error: Event) => {
+      const fallbackCanvas = createFallbackCanvas(moonLogoRef)
+      if (fallbackCanvas && moonLogoRef.current) {
+        handleError(error, fallbackCanvas, fallbackCanvas.getContext("2d")!)
       }
     }
+
+    sunLogoRef.current?.addEventListener("error", handleSunLogoError)
+    moonLogoRef.current?.addEventListener("error", handleMoonLogoError)
 
     return () => {
       if (animationFrameId) {
@@ -1065,6 +1096,8 @@ export default function AnimatedBackground() {
       window.removeEventListener("resize", setCanvasDimensions)
       window.removeEventListener("resize", generateStars)
       window.removeEventListener("resize", generateClouds)
+      sunLogoRef.current?.removeEventListener("error", handleSunLogoError)
+      moonLogoRef.current?.removeEventListener("error", handleMoonLogoError)
     }
   }, [])
 
