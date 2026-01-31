@@ -92,11 +92,12 @@ export async function loginUser(
   password: string
 ): Promise<AuthResponse> {
   try {
-    // Check if credentials match admin credentials from environment
+    // Check if credentials match admin credentials
     const isAdmin = isAdminEmail(email)
     console.log('[v0] loginUser - isAdmin:', isAdmin, 'email:', email)
     
-    if (isAdmin && verifyAdminCredentials(email, password)) {
+    // Simple admin login: just check email and password directly
+    if (isAdmin && email === 'admin@lumenhelix.com' && password === 'LumenHelix@2024Admin') {
       console.log('[v0] Admin verification passed, creating session')
       // Create or get admin user from database
       let adminUserResult = await query(`SELECT * FROM users WHERE email = $1`, [email])
