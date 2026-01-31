@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import ServiceCard from "@/components/service-card"
 import ProjectPreview from "@/components/project-preview"
 import BlogPostCard from "@/components/blog-post-card"
+import SalesFunnelSection from "@/components/sales-funnel-section"
 import { services } from "@/lib/data"
 import { featuredProjects } from "@/lib/projects"
 import { featuredPosts } from "@/lib/blog"
@@ -193,55 +194,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="about" className="py-24 bg-gray-800 relative overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary-500 rounded-full filter blur-[120px] opacity-10 animate-pulse-slow"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-secondary-500 rounded-full filter blur-[120px] opacity-10 animate-pulse-slow"></div>
-        <div className="container px-4 mx-auto relative z-10">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <Badge className="mb-4 bg-secondary-500/20 text-secondary-300 border-secondary-500/30 px-4 py-1 text-sm">
-              Our Philosophy
-            </Badge>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">Clarity in Complexity</h2>
-            <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-              At Lumen Helix, we don't just implement technology—we architect transformation. We empower businesses by
-              fusing cutting-edge AI strategy with expert project management, innovative web development, captivating
-              design, and data-driven marketing strategies.
-            </p>
-            <Button
-              asChild
-              className="group bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white shadow-lg hover:shadow-primary-500/20 transition-all duration-300"
-            >
-              <Link href="/about" className="flex items-center gap-2">
-                Learn more about our philosophy
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-          </div>
-          <div className="flex flex-col lg:flex-row gap-16 items-center">
-            <div className="lg:w-1/2 order-2 lg:order-1">
-              <div className="relative">
-                <div className="absolute -top-8 -left-8 w-32 h-32 bg-primary-500 opacity-20 rounded-full animate-pulse-slow"></div>
-                <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-secondary-500 opacity-20 rounded-full animate-pulse-slow"></div>
-                <div className="relative bg-gray-900/90 backdrop-blur-sm p-8 rounded-xl shadow-2xl border border-gray-700/50 hover:border-primary-500/30 transition-all duration-500 group">
-                  <div className="flex items-center mb-6">
-                    <div className="w-12 h-12 flex items-center justify-center bg-primary-500/20 rounded-full mr-4 border border-primary-500/30">
-                      <Sparkles className="h-6 w-6 text-primary-400" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-white">Our Approach</h3>
-                  </div>
-                  <p className="text-gray-300 mb-8 text-lg leading-relaxed">
-                    At Lumen Helix Solutions, we believe in the power of integrated expertise. Our approach combines
-                    strategic insight with practical implementation, ensuring that every solution we deliver is both
-                    innovative and effective.
-                  </p>
-                  <div className="grid grid-cols-2 gap-4">{/* Approach items */}</div>
-                </div>
-              </div>
-            </div>
-            <div className="lg:w-1/2 order-1 lg:order-2">{/* About content - keeping for brevity */}</div>
-          </div>
-        </div>
-      </section>
+      <SalesFunnelSection />
 
       <section
         id="portfolio"
