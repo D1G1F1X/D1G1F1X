@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import type { NextMiddleware } from 'next/server'
 
-export const authMiddleware: NextMiddleware = async (request: NextRequest) => {
+export const middleware: NextMiddleware = async (request: NextRequest) => {
   const pathname = request.nextUrl.pathname
 
   // Public routes that don't require auth
