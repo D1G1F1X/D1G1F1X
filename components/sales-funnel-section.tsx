@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useMemo, Suspense } from 'react'
-import dynamic from 'next/dynamic'
+import { useState, useMemo } from 'react'
 import { Check, AlertCircle, Info, ArrowRight, CheckCircle2, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
