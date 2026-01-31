@@ -1,45 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
-import type { NextMiddleware } from 'next/server'
+import { getSession } from '@/lib/auth-session'
 
-export const authMiddleware: NextMiddleware = async (request: NextRequest) => {
-  const pathname = request.nextUrl.pathname
+export default async function middleware(request: NextRequest): Promise<NextResponse> {
+  const { pathname } = request.nextUrl
 
-  // Public routes that don't require auth
-  const publicRoutes = ['/', '/login', '/register', '/contact', '/blog', '/team', '/about']
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+  // Guest-only restricted paths
+  const guestRestrictedPaths = [
+    '/dashboard/admin',
+    '/analytics',
+    '/settings/staff',
+  ]
 
-  if (isPublicRoute) {
-    return NextResponse.next()
+  const session = await getSession(request)
+
+  // Check if guest is trying to access restricted paths
+  if (session && session.user.role === 'guest') {
+    for (const restrictedPath of guestRestrictedPaths) {
+      if (pathname.startsWith(restrictedPath)) {
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
+    }
   }
 
-  // Protected routes - check for session cookie
-  const sessionToken = request.cookies.get('lumen_session_token')?.value
-
-  if (!sessionToken) {
+  // Redirect unauthenticated users from protected pages
+  const protectedPaths = ['/dashboard', '/admin', '/analytics', '/projects']
+  if (!session && protectedPaths.some((path) => pathname.startsWith(path))) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Add user info to request headers for API routes
-  const requestHeaders = new Headers(request.headers)
-  requestHeaders.set('x-session-token', sessionToken)
-
-  return NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  })
+  return NextResponse.next()
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public (public files)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
   ],
 }
