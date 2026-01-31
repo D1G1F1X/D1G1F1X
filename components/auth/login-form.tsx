@@ -1,7 +1,6 @@
 'use client'
 
 import React from "react"
-
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -21,6 +20,10 @@ export default function LoginForm({
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -34,10 +37,9 @@ export default function LoginForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    setError(null)
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,11 +70,6 @@ export default function LoginForm({
       setIsLoading(false)
     }
   }
-
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  })
 
   return (
     <div className="w-full max-w-md">
