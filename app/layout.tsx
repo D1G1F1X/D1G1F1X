@@ -9,7 +9,7 @@ import AnimatedBackground from "@/components/animated-background"
 import { Analytics } from "@vercel/analytics/next"
 import FloatingContactButton from "@/components/floating-contact-button"
 import SkipToContent from "@/components/skip-to-content"
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/toaster"
 
 // Load Inter font for body text
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
