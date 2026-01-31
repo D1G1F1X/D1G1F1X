@@ -39,9 +39,9 @@ export async function registerUser(
   try {
     const password_hash = hashPassword(password)
     const result = await query(
-      `INSERT INTO users (email, name, password_hash, role, is_active) 
+      `INSERT INTO users (email, full_name, password_hash, role, is_active) 
        VALUES ($1, $2, $3, $4, $5) 
-       RETURNING id, email, name, role, is_active, created_at, updated_at`,
+       RETURNING id, email, full_name, role, is_active, created_at, updated_at`,
       [email, name, password_hash, role, true]
     )
 
@@ -72,20 +72,21 @@ export async function loginUser(
     const isAdmin = isAdminEmail(email)
     if (isAdmin && verifyAdminCredentials(email, password)) {
       // Create or get admin user from database
-      let adminUser = await getAdminConfig().primary.email === email ? await query(`SELECT * FROM users WHERE email = $1`, [email]) : await query(`SELECT * FROM users WHERE email = $1`, [email])
+      let adminUserResult = await query(`SELECT * FROM users WHERE email = $1`, [email])
 
-      if (adminUser.rows.length === 0) {
+      if (adminUserResult.rows.length === 0) {
         const adminConfig = getAdminConfig()
-        const name = email === adminConfig.primary.email ? 'Administrator' : 'Backup Administrator'
-        adminUser = await query(
-          `INSERT INTO users (email, name, password_hash, role, is_active) 
+        const fullName = email === adminConfig.primary.email ? 'Administrator' : 'Backup Administrator'
+        adminUserResult = await query(
+          `INSERT INTO users (email, full_name, password_hash, role, is_active) 
            VALUES ($1, $2, $3, $4, $5) 
-           RETURNING id, email, name, role, is_active, created_at, updated_at`,
-          [email, name, adminConfig.primary.passwordHash, 'admin', true]
+           RETURNING id, email, full_name, role, is_active, created_at, updated_at`,
+          [email, fullName, adminConfig.primary.passwordHash, 'admin', true]
         )
-      } else {
-        adminUser = adminUser.rows[0]
+        adminUserResult = { rows: [adminUserResult.rows[0]] }
       }
+
+      const adminUser = adminUserResult.rows[0]
 
       // Create session
       const token = generateSessionToken()
@@ -111,7 +112,7 @@ export async function loginUser(
 
     // Regular user login from database
     const userResult = await query(
-      `SELECT id, email, name, password_hash, role, is_active, last_login, created_at, updated_at 
+      `SELECT id, email, full_name, password_hash, role, is_active, last_login, created_at, updated_at 
        FROM users WHERE email = $1 AND is_active = true`,
       [email]
     )
