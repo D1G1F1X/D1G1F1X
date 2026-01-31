@@ -17,11 +17,35 @@ export function hashPassword(password: string): string {
 
 // Verify password
 export function verifyPassword(password: string, hash: string): boolean {
-  const [salt, stored_hash] = hash.split(':')
-  const hash_buffer = crypto
-    .pbkdf2Sync(password, salt, 100000, 64, 'sha512')
-    .toString('hex')
-  return hash_buffer === stored_hash
+  console.log('[v0] verifyPassword called')
+  console.log('[v0] hash provided:', hash.substring(0, 20) + '...')
+  console.log('[v0] password length:', password.length)
+  
+  try {
+    const parts = hash.split(':')
+    console.log('[v0] hash parts count:', parts.length)
+    
+    if (parts.length !== 2) {
+      console.log('[v0] Invalid hash format - expected salt:hash')
+      return false
+    }
+
+    const [salt, stored_hash] = parts
+    console.log('[v0] salt:', salt.substring(0, 10) + '...')
+    console.log('[v0] stored_hash:', stored_hash.substring(0, 20) + '...')
+
+    const hash_buffer = crypto
+      .pbkdf2Sync(password, salt, 100000, 64, 'sha512')
+      .toString('hex')
+    
+    console.log('[v0] computed_hash:', hash_buffer.substring(0, 20) + '...')
+    const result = hash_buffer === stored_hash
+    console.log('[v0] password match:', result)
+    return result
+  } catch (error: any) {
+    console.error('[v0] verifyPassword error:', error.message)
+    return false
+  }
 }
 
 // Generate session token
@@ -70,7 +94,10 @@ export async function loginUser(
   try {
     // Check if credentials match admin credentials from environment
     const isAdmin = isAdminEmail(email)
+    console.log('[v0] loginUser - isAdmin:', isAdmin, 'email:', email)
+    
     if (isAdmin && verifyAdminCredentials(email, password)) {
+      console.log('[v0] Admin verification passed, creating session')
       // Create or get admin user from database
       let adminUserResult = await query(`SELECT * FROM users WHERE email = $1`, [email])
 

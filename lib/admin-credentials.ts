@@ -26,6 +26,10 @@ export function getAdminConfig(): AdminConfig {
   const primaryPasswordHash = process.env.ADMIN_PASSWORD_HASH
   const primaryUsername = process.env.ADMIN_USERNAME
 
+  console.log('[v0] getAdminConfig - primaryEmail:', primaryEmail)
+  console.log('[v0] getAdminConfig - primaryPasswordHash exists:', !!primaryPasswordHash)
+  console.log('[v0] getAdminConfig - primaryUsername:', primaryUsername)
+
   const backupEmail = process.env.BACKUP_ADMIN_EMAIL
   const backupPasswordHash = process.env.BACKUP_ADMIN_PASSWORD_HASH
 
@@ -72,20 +76,30 @@ export function getAdminConfig(): AdminConfig {
 export function verifyAdminCredentials(email: string, password: string): boolean {
   const adminConfig = getAdminConfig()
 
+  console.log('[v0] verifyAdminCredentials - email:', email)
+  console.log('[v0] adminConfig.isConfigured:', adminConfig.isConfigured)
+  console.log('[v0] adminConfig.primary.email:', adminConfig.primary.email)
+
   if (!adminConfig.isConfigured) {
+    console.log('[v0] Admin config not configured')
     return false
   }
 
   // Check primary admin
   if (email === adminConfig.primary.email) {
-    return verifyPassword(password, adminConfig.primary.passwordHash)
+    console.log('[v0] Email matches primary admin, verifying password')
+    const isValid = verifyPassword(password, adminConfig.primary.passwordHash)
+    console.log('[v0] Password verification result:', isValid)
+    return isValid
   }
 
   // Check backup admin
   if (adminConfig.backup && email === adminConfig.backup.email) {
+    console.log('[v0] Email matches backup admin, verifying password')
     return verifyPassword(password, adminConfig.backup.passwordHash)
   }
 
+  console.log('[v0] Email does not match any admin email')
   return false
 }
 

@@ -13,7 +13,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    console.log('[v0] Login attempt for email:', email)
     const result = await loginUser(email, password)
+    console.log('[v0] Login result success:', result.success, 'message:', result.message)
 
     if (!result.success || !result.token) {
       return NextResponse.json(result, { status: 401 })
@@ -31,6 +33,7 @@ export async function POST(request: NextRequest) {
 
     return response
   } catch (error: any) {
+    console.error('[v0] Login error:', error)
     return NextResponse.json(
       { success: false, message: error.message || 'Login failed' },
       { status: 500 }
