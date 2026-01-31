@@ -1,33 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession } from '@/lib/auth-session'
 
 export default async function middleware(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl
 
-  // Guest-only restricted paths
-  const guestRestrictedPaths = [
-    '/dashboard/admin',
-    '/analytics',
-    '/settings/staff',
-  ]
+  // Public routes that don't require auth
+  const publicRoutes = ['/', '/login', '/register', '/contact', '/blog', '/team', '/about', '/services', '/portfolio', '/diagnostic', '/research-development', '/partners']
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route)) || pathname.startsWith('/_next') || pathname.startsWith('/public')
 
-  const session = await getSession(request)
-
-  // Check if guest is trying to access restricted paths
-  if (session && session.user.role === 'guest') {
-    for (const restrictedPath of guestRestrictedPaths) {
-      if (pathname.startsWith(restrictedPath)) {
-        return NextResponse.redirect(new URL('/dashboard', request.url))
-      }
-    }
+  if (isPublicRoute) {
+    return NextResponse.next()
   }
 
-  // Redirect unauthenticated users from protected pages
-  const protectedPaths = ['/dashboard', '/admin', '/analytics', '/projects']
-  if (!session && protectedPaths.some((path) => pathname.startsWith(path))) {
+  // Protected routes - check for session cookie
+  const sessionToken = request.cookies.get('lumen_session_token')?.value
+
+  if (!sessionToken) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
+  // Continue to the protected route
   return NextResponse.next()
 }
 
