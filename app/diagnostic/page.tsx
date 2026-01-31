@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import SupportPackagesCards from '@/components/support-packages-cards'
 
 export default function DiagnosticPage() {
   const [scrolled, setScrolled] = useState(false)
@@ -223,6 +224,9 @@ export default function DiagnosticPage() {
             </div>
           </div>
         </section>
+
+        {/* Support Packages Cards */}
+        <SupportPackagesCards />
 
         {/* FAQ */}
         <section className="py-20 px-6 bg-gray-900/50">
