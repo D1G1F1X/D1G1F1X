@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import SupportPackagesCards from '@/components/support-packages-cards'
+import SalesFunnelTabs from '@/components/sales-funnel-tabs'
 
 export default function DiagnosticPage() {
   const [scrolled, setScrolled] = useState(false)
@@ -381,6 +382,9 @@ export default function DiagnosticPage() {
             </div>
           </div>
         </section>
+
+        {/* Sales Funnel Tabs Section */}
+        <SalesFunnelTabs showHeader={false} />
       </div>
     </main>
   )

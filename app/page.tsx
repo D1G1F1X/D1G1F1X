@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import ServiceCard from "@/components/service-card"
 import ProjectPreview from "@/components/project-preview"
 import BlogPostCard from "@/components/blog-post-card"
+import SalesFunnelTabs from "@/components/sales-funnel-tabs"
 import SalesFunnelSection from "@/components/sales-funnel-section"
 import { services } from "@/lib/data"
 import { featuredProjects } from "@/lib/projects"
@@ -194,7 +195,7 @@ export default function Home() {
         </div>
       </section>
 
-      <SalesFunnelSection />
+      <SalesFunnelTabs showHeader={true} />
 
       <section
         id="portfolio"

@@ -32,9 +32,12 @@ export async function submitContactForm(prevState: any, formData: FormData) {
 
     const { name, email, subject, message } = validatedFields.data
 
+    // Use environment variable for receiving email, fallback to ADMIN_EMAIL if available
+    const receivingEmail = process.env.CONTACT_FORM_EMAIL || process.env.ADMIN_EMAIL || 'contact@lumenhelix.com'
+
     const { data, error } = await resend.emails.send({
-      from: "Lumen Helix Contact <noreply@lumenhelix.com>", // Ensure this domain is verified in Resend
-      to: ["YOUR_RECEIVING_EMAIL@example.com"], // REPLACE WITH YOUR ACTUAL EMAIL ADDRESS
+      from: "Lumen Helix Contact <noreply@lumenhelix.com>",
+      to: [receivingEmail],
       subject: `New Contact Form Submission: ${subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6;">
