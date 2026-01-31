@@ -1,16 +1,6 @@
 import { Pool, QueryResult, PoolClient } from '@neondatabase/serverless'
 
-let poolInstance: Pool
-
-export const pool = {
-  query: async <T = Record<string, unknown>>(
-    text: string,
-    params?: (string | number | boolean | null | undefined)[]
-  ): Promise<QueryResult<T>> => {
-    const client = getPool()
-    return client.query(text, params)
-  }
-}
+let poolInstance: Pool | null = null
 
 export function getPool(): Pool {
   if (!poolInstance) {
@@ -22,6 +12,13 @@ export function getPool(): Pool {
   }
   return poolInstance
 }
+
+// Export pool as the Pool instance
+export const pool = new Proxy({} as Pool, {
+  get(_target, prop) {
+    return getPool()[prop as keyof Pool]
+  }
+})
 
 export async function query<T = Record<string, unknown>>(
   text: string,
