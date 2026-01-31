@@ -163,9 +163,10 @@ export default function Navbar() {
     { name: "Home", href: "/" },
     { name: "Services", href: "/services" },
     { name: "Portfolio", href: "/portfolio" },
-    { name: "R&D", href: "/research-development" },
     { name: "Blog", href: "/blog" },
-    { name: "About", href: "/about", submenu: [{ name: "Our Story", href: "/about" }, { name: "Our Team", href: "/team" }] },
+    { name: "R&D", href: "/research-development" },
+    { name: "About", href: "/about" },
+    { name: "Partners", href: "/partners" },
     { name: "Contact", href: "/contact" },
   ]
 
@@ -209,7 +210,7 @@ export default function Navbar() {
                 key={link.name}
                 href={link.href}
                 className={cn(
-                  "hover:text-primary-300 transition-all font-medium",
+                  "hover:text-primary-300 transition-all font-medium text-sm",
                   isScrolled ? "text-white" : textColorClass,
                 )}
                 style={isScrolled ? {} : textColorStyle}
@@ -217,10 +218,17 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
+            <Button
+              asChild
+              size="sm"
+              className="bg-teal-600 hover:bg-teal-700 text-white font-semibold"
+            >
+              <Link href="/diagnostic">Start Diagnostic</Link>
+            </Button>
             <Link
               href="/login"
               className={cn(
-                "hover:text-primary-300 transition-all font-medium",
+                "hover:text-primary-300 transition-all font-medium text-sm",
                 isScrolled ? "text-white" : textColorClass,
               )}
               style={isScrolled ? {} : textColorStyle}

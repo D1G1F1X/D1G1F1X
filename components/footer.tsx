@@ -192,8 +192,18 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/careers" className="text-gray-400 hover:text-primary-400 transition-colors">
-                  Careers
+                <Link href="/diagnostic" className="text-gray-400 hover:text-primary-400 transition-colors">
+                  System Diagnostic
+                </Link>
+              </li>
+              <li>
+                <Link href="/resources" className="text-gray-400 hover:text-primary-400 transition-colors">
+                  Free Resources
+                </Link>
+              </li>
+              <li>
+                <Link href="/partners" className="text-gray-400 hover:text-primary-400 transition-colors">
+                  Partner Network
                 </Link>
               </li>
               <li>
@@ -245,9 +255,12 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            © {new Date().getFullYear()} Lumen Helix Solutions. All rights reserved.
-          </p>
+          <div className="text-center md:text-left mb-4 md:mb-0">
+            <p className="text-gray-400 text-sm">
+              © {new Date().getFullYear()} Lumen Helix Solutions. All rights reserved.
+            </p>
+            <p className="text-gray-500 text-xs mt-2 italic">Resolution over services.</p>
+          </div>
           <div className="flex space-x-6">
             <Link href="/privacy-policy" className="text-gray-400 hover:text-primary-400 transition-colors text-sm">
               Privacy Policy
