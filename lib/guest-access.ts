@@ -25,7 +25,7 @@ export interface GuestRegistration {
 }
 
 // Get pending guest registrations
-export async function getPendingGuestRegistrations() {
+export async function getPendingGuestRegistrations(): Promise<unknown[]> {
   const result = await pool.query(
     `SELECT * FROM guest_registrations WHERE status = 'pending' ORDER BY created_at DESC`
   )
@@ -33,7 +33,7 @@ export async function getPendingGuestRegistrations() {
 }
 
 // Get guest registration by ID
-export async function getGuestRegistration(id: string) {
+export async function getGuestRegistration(id: string): Promise<unknown> {
   const result = await pool.query(
     `SELECT * FROM guest_registrations WHERE id = $1`,
     [id]
@@ -91,7 +91,7 @@ export async function assignGuestToProject(
 }
 
 // Get guest project access
-export async function getGuestProjectAccess(guestId: string) {
+export async function getGuestProjectAccess(guestId: string): Promise<unknown[]> {
   const result = await pool.query(
     `SELECT * FROM guest_project_access WHERE guest_id = $1 AND (expires_at IS NULL OR expires_at > NOW())`,
     [guestId]
@@ -127,7 +127,7 @@ export async function revokeGuestProjectAccess(
 }
 
 // Link guest to ticket
-export async function linkGuestToTicket(guestId: string, ticketId: string) {
+export async function linkGuestToTicket(guestId: string, ticketId: string): Promise<unknown> {
   const result = await pool.query(
     `INSERT INTO guest_ticket_access (guest_id, ticket_id)
      VALUES ($1, $2)
@@ -139,7 +139,7 @@ export async function linkGuestToTicket(guestId: string, ticketId: string) {
 }
 
 // Get guest accessible tickets
-export async function getGuestAccessibleTickets(guestId: string) {
+export async function getGuestAccessibleTickets(guestId: string): Promise<unknown[]> {
   const result = await pool.query(
     `SELECT DISTINCT ticket_id FROM guest_ticket_access WHERE guest_id = $1`,
     [guestId]

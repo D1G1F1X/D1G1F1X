@@ -33,7 +33,7 @@ export async function createAdminNotification(
 }
 
 // Get admin notifications
-export async function getAdminNotifications(adminId: string, unreadOnly = false) {
+export async function getAdminNotifications(adminId: string, unreadOnly = false): Promise<unknown[]> {
   const query = unreadOnly
     ? `SELECT * FROM admin_notifications 
        WHERE admin_id = $1 AND is_read = false 
@@ -47,7 +47,7 @@ export async function getAdminNotifications(adminId: string, unreadOnly = false)
 }
 
 // Mark notification as read
-export async function markNotificationAsRead(notificationId: string) {
+export async function markNotificationAsRead(notificationId: string): Promise<unknown> {
   const result = await pool.query(
     `UPDATE admin_notifications 
      SET is_read = true, read_at = NOW()
@@ -59,7 +59,7 @@ export async function markNotificationAsRead(notificationId: string) {
 }
 
 // Mark all notifications as read
-export async function markAllNotificationsAsRead(adminId: string) {
+export async function markAllNotificationsAsRead(adminId: string): Promise<unknown[]> {
   const result = await pool.query(
     `UPDATE admin_notifications 
      SET is_read = true, read_at = NOW()
@@ -71,7 +71,7 @@ export async function markAllNotificationsAsRead(adminId: string) {
 }
 
 // Get unread notification count
-export async function getUnreadNotificationCount(adminId: string) {
+export async function getUnreadNotificationCount(adminId: string): Promise<number> {
   const result = await pool.query(
     `SELECT COUNT(*) as count FROM admin_notifications 
      WHERE admin_id = $1 AND is_read = false`,
@@ -87,7 +87,7 @@ export async function notifyAllAdmins(
   relatedUserId?: string,
   relatedResourceId?: string,
   actionUrl?: string
-) {
+): Promise<unknown[]> {
   const admins = await pool.query(
     `SELECT id FROM users WHERE role = 'admin'`
   )

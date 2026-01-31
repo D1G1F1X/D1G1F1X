@@ -47,7 +47,7 @@ export async function withCRMAuth(
 }
 
 // Helper to extract user from request
-export async function getUserFromRequest(request: NextRequest) {
+export async function getUserFromRequest(request: NextRequest): Promise<null> {
   try {
     // Get auth token from cookies or Authorization header
     const token = request.cookies.get('auth_token')?.value || 

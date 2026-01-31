@@ -21,7 +21,7 @@ export async function query<T = Record<string, unknown>>(
   return client.query(text, params)
 }
 
-export async function getClient() {
+export async function getClient(): Promise<ReturnType<Pool['connect']>> {
   const pool = getPool()
   return pool.connect()
 }

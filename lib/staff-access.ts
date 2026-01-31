@@ -17,7 +17,7 @@ export interface StaffAccessLevel {
 }
 
 // Get staff access level
-export async function getStaffAccessLevel(staffId: string) {
+export async function getStaffAccessLevel(staffId: string): Promise<StaffAccessLevel | undefined> {
   const result = await pool.query(
     `SELECT * FROM staff_access_levels WHERE staff_id = $1`,
     [staffId]
@@ -32,7 +32,7 @@ export async function createStaffAccessLevel(
   permissionLevel: string,
   department?: string,
   managedBy?: string
-) {
+): Promise<StaffAccessLevel> {
   const result = await pool.query(
     `INSERT INTO staff_access_levels 
      (staff_id, staff_type, permission_level, department, managed_by, approved_at)
@@ -52,7 +52,7 @@ export async function updateStaffAccessPermissions(
     can_manage_projects: boolean
     can_manage_tickets: boolean
   }>
-) {
+): Promise<StaffAccessLevel | null> {
   const updates: string[] = []
   const values: (string | boolean)[] = [staffId]
   let paramIndex = 2
@@ -94,7 +94,7 @@ export async function hasStaffPermission(
 }
 
 // Get staff by manager
-export async function getStaffByManager(managerId: string) {
+export async function getStaffByManager(managerId: string): Promise<StaffAccessLevel[]> {
   const result = await pool.query(
     `SELECT * FROM staff_access_levels WHERE managed_by = $1 ORDER BY created_at DESC`,
     [managerId]
@@ -103,7 +103,7 @@ export async function getStaffByManager(managerId: string) {
 }
 
 // Get all staff by type
-export async function getStaffByType(staffType: string) {
+export async function getStaffByType(staffType: string): Promise<unknown[]> {
   const result = await pool.query(
     `SELECT sal.*, u.email, u.name 
      FROM staff_access_levels sal
