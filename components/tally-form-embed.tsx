@@ -15,12 +15,9 @@ export default function TallyFormEmbed({ formId, className = "" }: TallyFormEmbe
         src={tallyEmbedUrl}
         width="100%"
         height={1100}
-        frameBorder={0}
-        marginHeight={0}
-        marginWidth={0}
         title="Tally Web Project Intake Questionnaire"
         className="rounded-lg shadow-lg min-h-[1050px] sm:min-h-[1100px]"
-        style={{ display: 'block' }}
+        style={{ display: 'block', border: 'none' }}
       ></iframe>
     </div>
   )
