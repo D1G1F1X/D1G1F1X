@@ -8,7 +8,12 @@ function initPool(): Pool {
     if (!connectionString) {
       throw new Error('DATABASE_URL environment variable is not set')
     }
-    poolInstance = new Pool({ connectionString })
+    try {
+      poolInstance = new Pool({ connectionString })
+    } catch (error) {
+      const err = error instanceof Error ? error.message : String(error)
+      throw new Error(`Failed to initialize database pool: ${err}`)
+    }
   }
   return poolInstance
 }
@@ -19,11 +24,21 @@ export const pool = {
     text: string,
     params?: (string | number | boolean | null | undefined)[]
   ): Promise<QueryResult<T>> {
-    return initPool().query(text, params)
+    try {
+      return await initPool().query<T>(text, params)
+    } catch (error) {
+      const err = error instanceof Error ? error.message : String(error)
+      throw new Error(`Database query failed: ${err}`)
+    }
   },
   async connect(): Promise<PoolClient> {
-    return initPool().connect()
-  }
+    try {
+      return await initPool().connect()
+    } catch (error) {
+      const err = error instanceof Error ? error.message : String(error)
+      throw new Error(`Failed to connect to database: ${err}`)
+    }
+  },
 }
 
 export function getPool(): Pool {

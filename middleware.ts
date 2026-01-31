@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import type { NextMiddleware } from 'next/server'
 
-export const middleware: NextMiddleware = async (request: NextRequest) => {
+export const middleware: NextMiddleware = (request: NextRequest) => {
   const pathname = request.nextUrl.pathname
 
   // Public routes and assets that don't require auth
@@ -23,7 +23,7 @@ export const middleware: NextMiddleware = async (request: NextRequest) => {
   const isAssetRoute =
     pathname.startsWith('/static/') ||
     pathname.startsWith('/_next/') ||
-    pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot)$/)
+    /\.(png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot)$/.test(pathname)
 
   // Check if route is public
   const isPublicRoute =
@@ -55,14 +55,12 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - apple-icon (apple touch icon)
      * - .well-known (well-known files)
-     * - public (public files)
+     * - Public API routes and health checks
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|apple-icon|.well-known|public).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.well-known|api/public|api/health).*)',
   ],
 }
