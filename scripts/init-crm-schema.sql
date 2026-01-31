@@ -1,7 +1,23 @@
 -- CRM Database Schema for LumenHelix
 -- Entities: Contact, Account, Deal, Activity, Task, DocumentLink, Partner, Referral, PayoutLedger
 
--- Contacts table
+-- Accounts table (companies) - CREATE FIRST (no FK dependencies)
+CREATE TABLE IF NOT EXISTS crm_accounts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  domain VARCHAR(255),
+  email_domain VARCHAR(255),
+  industry VARCHAR(255),
+  size VARCHAR(50), -- 'startup', 'smb', 'mid-market', 'enterprise'
+  website VARCHAR(255),
+  status VARCHAR(50) DEFAULT 'active',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  created_by UUID,
+  updated_by UUID
+);
+
+-- Contacts table (now references crm_accounts which exists)
 CREATE TABLE IF NOT EXISTS crm_contacts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email VARCHAR(255) NOT NULL UNIQUE,
@@ -22,22 +38,6 @@ CREATE TABLE IF NOT EXISTS crm_contacts (
   consent BOOLEAN DEFAULT FALSE,
   consent_at TIMESTAMP WITH TIME ZONE,
   status VARCHAR(50) DEFAULT 'active', -- 'active', 'archived', 'invalid'
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  created_by UUID,
-  updated_by UUID
-);
-
--- Accounts table (companies)
-CREATE TABLE IF NOT EXISTS crm_accounts (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(255) NOT NULL,
-  domain VARCHAR(255),
-  email_domain VARCHAR(255),
-  industry VARCHAR(255),
-  size VARCHAR(50), -- 'startup', 'smb', 'mid-market', 'enterprise'
-  website VARCHAR(255),
-  status VARCHAR(50) DEFAULT 'active',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   created_by UUID,
