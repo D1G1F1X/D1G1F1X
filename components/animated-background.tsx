@@ -63,7 +63,6 @@ export default function AnimatedBackground() {
     // Try Blob URL first, then fallback to local path
     sunLogo.src = "/images/logo-bulb.png"
     sunLogo.onload = () => {
-      console.log("Sun logo loaded successfully")
       logoOriginalWidth.current = sunLogo.naturalWidth
       logoOriginalHeight.current = sunLogo.naturalHeight
       setIsSunLogoLoaded(true)
@@ -75,7 +74,6 @@ export default function AnimatedBackground() {
     // Try Blob URL first, then fallback to local path
     moonLogo.src = "/images/logo-bulb.png"
     moonLogo.onload = () => {
-      console.log("Moon logo loaded successfully")
       logoOriginalWidth.current = moonLogo.naturalWidth
       logoOriginalHeight.current = moonLogo.naturalHeight
       setIsMoonLogoLoaded(true)

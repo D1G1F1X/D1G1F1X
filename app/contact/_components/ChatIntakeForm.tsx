@@ -63,7 +63,6 @@ export default function ChatIntakeForm() {
         setErrors({ submit: "Failed to submit form. Please try again." })
       }
     } catch (error) {
-      console.error("Form submission error:", error)
       setErrors({ submit: "An error occurred. Please try again." })
     } finally {
       setLoading(false)

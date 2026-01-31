@@ -21,9 +21,10 @@ export async function POST(request: NextRequest) {
 
     response.cookies.delete('lumen_session_token')
     return response
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Logout failed'
     return NextResponse.json(
-      { success: false, message: error.message || 'Logout failed' },
+      { success: false, message: errorMessage },
       { status: 500 }
     )
   }

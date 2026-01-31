@@ -11,7 +11,8 @@ export default function DayNightToggle() {
   useEffect(() => {
     const updateTimeOfDay = () => {
       const cycleDuration = 240000 // 4 minutes for a full day cycle
-      const elapsed = (Date.now() - ((window as any).animationStartTime || Date.now())) % cycleDuration
+      const startTime = (window as unknown as { animationStartTime?: number }).animationStartTime || Date.now()
+      const elapsed = (Date.now() - startTime) % cycleDuration
       const currentTimeOfDay = (elapsed / cycleDuration) * 24
       setTimeOfDay(currentTimeOfDay)
       setIsDark(currentTimeOfDay < 7 || currentTimeOfDay > 17)
@@ -26,7 +27,7 @@ export default function DayNightToggle() {
   const toggleDayNight = () => {
     // This will effectively jump to a different time in the day/night cycle
     const newStartTime = Date.now() - (isDark ? 60000 : 180000) // Jump to day or night
-    ;(window as any).animationStartTime = newStartTime
+    ;(window as unknown as { animationStartTime?: number }).animationStartTime = newStartTime
   }
 
   return (

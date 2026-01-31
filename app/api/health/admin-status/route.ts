@@ -13,9 +13,10 @@ export async function GET() {
       adminEmail: process.env.ADMIN_EMAIL || 'NOT SET',
       message: validation.isValid ? 'Admin credentials properly configured' : 'Admin credentials missing or invalid'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json({
-      error: error.message,
+      error: errorMessage,
       isValid: false
     }, { status: 500 })
   }

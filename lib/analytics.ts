@@ -2,14 +2,10 @@
 export const trackEvent = (eventName: string, eventData?: Record<string, unknown>) => {
   if (typeof window === "undefined") return
 
-  // Log to console in development
-  if (process.env.NODE_ENV === "development") {
-    console.log(`[Analytics] ${eventName}`, eventData)
-  }
-
   // Send to analytics service (example with Google Analytics)
-  if ((window as any).gtag) {
-    ;(window as any).gtag("event", eventName, eventData)
+  const gtag = (window as unknown as { gtag?: (event: string, name: string, data?: Record<string, unknown>) => void }).gtag
+  if (gtag) {
+    gtag("event", eventName, eventData)
   }
 }
 

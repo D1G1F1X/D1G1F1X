@@ -26,9 +26,10 @@ export async function GET(request: NextRequest) {
       authenticated: true,
       user: userWithoutPassword,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Server error'
     return NextResponse.json(
-      { authenticated: false, error: error.message },
+      { authenticated: false, error: errorMessage },
       { status: 500 }
     )
   }

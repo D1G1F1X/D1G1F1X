@@ -41,12 +41,13 @@ export async function GET(request: NextRequest) {
       },
       { status: 503 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
       {
         status: 'error',
         message: 'Failed to check admin configuration',
-        error: error.message,
+        error: errorMessage,
       },
       { status: 500 }
     )

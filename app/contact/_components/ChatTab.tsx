@@ -79,7 +79,6 @@ export default function ChatTab() {
         setShowIntakeForm(true)
       }
     } catch (err) {
-      console.error("Chat error:", err)
       const errorMessage = err instanceof Error ? err.message : "Unknown error occurred"
       setError("Failed to send message. Please try again.")
       const failureMessage: Message = {

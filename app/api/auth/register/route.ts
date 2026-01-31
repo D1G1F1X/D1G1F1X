@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
 
     // Get default role from admin configuration
     const defaultRole = getDefaultRegistrationRole()
-    console.log('[v0] Registering user with default role:', defaultRole)
 
     const result = await registerUser(email, name, password, defaultRole)
 
@@ -38,9 +37,10 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(result, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Registration failed'
     return NextResponse.json(
-      { success: false, message: error.message || 'Registration failed' },
+      { success: false, message: errorMessage },
       { status: 500 }
     )
   }

@@ -12,7 +12,7 @@ const contactFormSchema = z.object({
   message: z.string().min(1, "Message is required."),
 })
 
-export async function submitContactForm(prevState: any, formData: FormData) {
+export async function submitContactForm(prevState: unknown, formData: FormData) {
   try {
     const validatedFields = contactFormSchema.safeParse({
       name: formData.get("name"),
@@ -22,7 +22,6 @@ export async function submitContactForm(prevState: any, formData: FormData) {
     })
 
     if (!validatedFields.success) {
-      console.error("Validation Errors:", validatedFields.error.flatten().fieldErrors)
       return {
         success: false,
         message: "Validation failed. Please check your input.",
