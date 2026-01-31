@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import { query } from './db'
+import { verifyAdminCredentials, isAdminEmail, getAdminConfig } from './admin-credentials'
 import type { User, Session, AuthRequest, AuthResponse, UserRole } from './auth-types'
 
 const SALT_ROUNDS = 10
@@ -67,6 +68,48 @@ export async function loginUser(
   password: string
 ): Promise<AuthResponse> {
   try {
+    // Check if credentials match admin credentials from environment
+    const isAdmin = isAdminEmail(email)
+    if (isAdmin && verifyAdminCredentials(email, password)) {
+      // Create or get admin user from database
+      let adminUser = await getAdminConfig().primary.email === email ? await query(`SELECT * FROM users WHERE email = $1`, [email]) : await query(`SELECT * FROM users WHERE email = $1`, [email])
+
+      if (adminUser.rows.length === 0) {
+        const adminConfig = getAdminConfig()
+        const name = email === adminConfig.primary.email ? 'Administrator' : 'Backup Administrator'
+        adminUser = await query(
+          `INSERT INTO users (email, name, password_hash, role, is_active) 
+           VALUES ($1, $2, $3, $4, $5) 
+           RETURNING id, email, name, role, is_active, created_at, updated_at`,
+          [email, name, adminConfig.primary.passwordHash, 'admin', true]
+        )
+      } else {
+        adminUser = adminUser.rows[0]
+      }
+
+      // Create session
+      const token = generateSessionToken()
+      const expires_at = new Date(Date.now() + SESSION_DURATION)
+
+      const sessionResult = await query(
+        `INSERT INTO sessions (user_id, token, expires_at) 
+         VALUES ($1, $2, $3) 
+         RETURNING id, user_id, token, expires_at`,
+        [adminUser.id, token, expires_at]
+      )
+
+      // Update last login
+      await query(`UPDATE users SET last_login = NOW() WHERE id = $1`, [adminUser.id])
+
+      return {
+        success: true,
+        message: 'Admin login successful',
+        user: adminUser,
+        token: sessionResult.rows[0].token,
+      }
+    }
+
+    // Regular user login from database
     const userResult = await query(
       `SELECT id, email, name, password_hash, role, is_active, last_login, created_at, updated_at 
        FROM users WHERE email = $1 AND is_active = true`,
