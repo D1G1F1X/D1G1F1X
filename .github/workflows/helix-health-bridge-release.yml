@@ -40,6 +40,32 @@ jobs:
           mkdir -p /tmp/helix
           unzip -q /tmp/helix-src.zip -d /tmp/helix
 
+      - name: Apply Android health FGS permission fix
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path('/tmp/helix/helix-health-bridge')
+          manifest = root / 'app/src/main/AndroidManifest.xml'
+          s = manifest.read_text()
+          needle = '    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n'
+          assert 'android.permission.ACTIVITY_RECOGNITION' not in s
+          s = s.replace(needle, needle + '    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />\n')
+          manifest.write_text(s)
+
+          main = root / 'app/src/main/java/com/lumenhelix/healthbridge/MainActivity.kt'
+          s = main.read_text()
+          old = '''    private val notificationLauncher = registerForActivityResult(\n        ActivityResultContracts.RequestPermission()\n    ) { }\n'''
+          new = '''    private val notificationLauncher = registerForActivityResult(\n        ActivityResultContracts.RequestPermission()\n    ) { }\n\n    private val physicalActivityLauncher = registerForActivityResult(\n        ActivityResultContracts.RequestPermission()\n    ) { granted ->\n        if (granted) {\n            startLive()\n        } else {\n            binding.statusText.text = "Physical Activity permission is required for Android health live mode."\n        }\n    }\n'''
+          assert old in s
+          s = s.replace(old, new)
+          old2 = '''            if (Build.VERSION.SDK_INT >= 33 &&\n                ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED\n            ) {\n                notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)\n            }\n            val minutes = binding.liveCadenceSpinner.selectedItem.toString().substringBefore(" ").toLong()\n'''
+          new2 = '''            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&\n                ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED\n            ) {\n                physicalActivityLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)\n                return@launch\n            }\n            if (Build.VERSION.SDK_INT >= 33 &&\n                ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED\n            ) {\n                notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)\n            }\n            val minutes = binding.liveCadenceSpinner.selectedItem.toString().substringBefore(" ").toLong()\n'''
+          assert old2 in s
+          main.write_text(s.replace(old2, new2))
+          PY
+          echo "cc9e80d4070aa4685dcfe66a1225c9b56e6206be2ea916dd91d88ad3d505cc67  /tmp/helix/helix-health-bridge/app/src/main/AndroidManifest.xml" | sha256sum -c -
+          echo "50b03bf8ddeafeb36556e6e76bfd5548d6bc61860ad43a5cba9f971004e0fe45  /tmp/helix/helix-health-bridge/app/src/main/java/com/lumenhelix/healthbridge/MainActivity.kt" | sha256sum -c -
+
       - name: Generate complete Gradle wrapper
         working-directory: /tmp/helix/helix-health-bridge
         run: gradle wrapper --gradle-version 8.11.1 --distribution-type bin
