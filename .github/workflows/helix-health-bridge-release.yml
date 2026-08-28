@@ -1,0 +1,78 @@
+name: HELIX Health Bridge release build
+
+on:
+  push:
+    branches:
+      - build/helix-health-bridge-0.2.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK 36
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Set up Gradle 8.11.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Reconstruct and verify audited source
+        run: |
+          set -euxo pipefail
+          cat helix-health-build/src_* | base64 -d > /tmp/helix-src.zip
+          echo "dd9883de483de57fcfc323e985b695be8a0e9f0076d9e68fbe6ff4130f1b0d50  /tmp/helix-src.zip" | sha256sum -c -
+          mkdir -p /tmp/helix
+          unzip -q /tmp/helix-src.zip -d /tmp/helix
+
+      - name: Generate complete Gradle wrapper
+        working-directory: /tmp/helix/helix-health-bridge
+        run: gradle wrapper --gradle-version 8.11.1 --distribution-type bin
+
+      - name: Lint release
+        working-directory: /tmp/helix/helix-health-bridge
+        run: ./gradlew :app:lintRelease --no-daemon --stacktrace
+
+      - name: Assemble unsigned release
+        working-directory: /tmp/helix/helix-health-bridge
+        run: ./gradlew :app:assembleRelease --no-daemon --stacktrace
+
+      - name: Package and align outputs
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/artifact
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          UNSIGNED=/tmp/helix/helix-health-bridge/app/build/outputs/apk/release/app-release-unsigned.apk
+          ALIGNED=/tmp/artifact/HELIX-Health-Bridge-0.2.0-aligned-unsigned.apk
+          "$SDK/build-tools/36.0.0/zipalign" -p -f 4 "$UNSIGNED" "$ALIGNED"
+          "$SDK/build-tools/36.0.0/zipalign" -c -v 4 "$ALIGNED"
+          cp /tmp/helix/helix-health-bridge/app/build/outputs/apk/release/output-metadata.json /tmp/artifact/
+          if [ -f /tmp/helix/helix-health-bridge/app/build/reports/lint-results-release.html ]; then cp /tmp/helix/helix-health-bridge/app/build/reports/lint-results-release.html /tmp/artifact/; fi
+          if [ -f /tmp/helix/helix-health-bridge/app/build/reports/lint-results-release.txt ]; then cp /tmp/helix/helix-health-bridge/app/build/reports/lint-results-release.txt /tmp/artifact/; fi
+          cp "$SDK/build-tools/36.0.0/lib/apksigner.jar" /tmp/artifact/apksigner.jar
+          cd /tmp/helix
+          zip -qr /tmp/artifact/HELIX-Health-Bridge-0.2.0-source.zip helix-health-bridge
+          sha256sum "$ALIGNED" /tmp/artifact/HELIX-Health-Bridge-0.2.0-source.zip > /tmp/artifact/SHA256SUMS.txt
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: helix-health-bridge-build
+          path: /tmp/artifact
+          if-no-files-found: error
+          retention-days: 1
