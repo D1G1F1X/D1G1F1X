@@ -1,0 +1,19 @@
+name: HELIX Health 0.3 integrity
+
+on:
+  push:
+    branches:
+      - build/helix-health-0.3.0
+  workflow_dispatch:
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode staged source
+        run: |
+          set -euxo pipefail
+          base64 -d helix-health-0.3.0/source.b64 > /tmp/helix-health-03.zip
+          sha256sum /tmp/helix-health-03.zip
+          unzip -t /tmp/helix-health-03.zip
