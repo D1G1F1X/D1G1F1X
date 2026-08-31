@@ -68,9 +68,12 @@ jobs:
           grep -q 'include(":app", ":wear")' settings.gradle.kts
 
           cd "$GITHUB_WORKSPACE"
-          tr -d '\r\n' < helix-health-0.4.0/patch-ci.v2 > /tmp/helix04.patch.gz.b64
-          base64 -d /tmp/helix04.patch.gz.b64 | gzip -d > /tmp/helix04.patch
-          echo "ab882eb4fa1bd4e0b948f9f553cc669911595a5f50dcd14fbb55ca2712989d92  /tmp/helix04.patch" | sha256sum -c -
+          cat helix-health-0.4.0/patch-ci.00 helix-health-0.4.0/patch-ci.01 helix-health-0.4.0/patch-ci.02 helix-health-0.4.0/patch-ci.03 | tr -d '\r\n' > /tmp/helix04.patch.gz.b64
+          echo "98cfa7a27c62c0f3f51f65bb3162b996b5ed021a8df0bc26ecd2ee2cc15ea40c  /tmp/helix04.patch.gz.b64" | sha256sum -c -
+          base64 -d /tmp/helix04.patch.gz.b64 > /tmp/helix04.patch.gz
+          gzip -t /tmp/helix04.patch.gz
+          gzip -dc /tmp/helix04.patch.gz > /tmp/helix04.patch
+          echo "b950b4d5cc49faa204a41177bbb476c10e01e7e8cc457df3136811d56e187cfe  /tmp/helix04.patch" | sha256sum -c -
           cd /tmp/helix/helix-health-bridge
           patch --batch --forward -p1 < /tmp/helix04.patch
           grep -q 'versionName = "0.4.0"' app/build.gradle.kts
