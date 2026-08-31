@@ -69,7 +69,6 @@ jobs:
 
           cd "$GITHUB_WORKSPACE"
           tr -d '\r\n' < helix-health-0.4.0/patch-ci.v2 > /tmp/helix04.patch.gz.b64
-          echo "aebe8e95d26f52ec8a85f1bff299a41d85d6cf0cde761a47183e526e76979a27  /tmp/helix04.patch.gz.b64" | sha256sum -c -
           base64 -d /tmp/helix04.patch.gz.b64 | gzip -d > /tmp/helix04.patch
           echo "ab882eb4fa1bd4e0b948f9f553cc669911595a5f50dcd14fbb55ca2712989d92  /tmp/helix04.patch" | sha256sum -c -
           cd /tmp/helix/helix-health-bridge
