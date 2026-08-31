@@ -30,6 +30,8 @@ jobs:
           gradle-version: '8.11.1'
       - name: Reconstruct audited source
         run: python3 helix-health-0.4.0/compile_gate_hotfix.py
+      - name: Apply supported v1 release boundary
+        run: python3 helix-health-0.4.0/release_postfix.py
       - name: Generate Gradle wrapper
         working-directory: /tmp/helix/helix-health-bridge
         run: gradle wrapper --gradle-version 8.11.1 --distribution-type bin
