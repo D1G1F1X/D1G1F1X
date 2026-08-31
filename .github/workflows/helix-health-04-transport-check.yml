@@ -1,0 +1,65 @@
+name: HELIX Health 0.4 transport verifier
+
+on:
+  push:
+    branches: [build/helix-health-0.3.0]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-transport:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Reconstruct audited 0.3 state
+        run: |
+          set -euxo pipefail
+          git fetch origin build/helix-health-bridge-0.2.0 --depth=1
+          OLD=$(git rev-parse FETCH_HEAD)
+          mkdir -p /tmp/helix
+          for i in 00 01 02 03 04 05 06 07 08 09; do git show "$OLD:helix-health-build/src_$i"; done | base64 -d > /tmp/helix-src.zip
+          echo "dd9883de483de57fcfc323e985b695be8a0e9f0076d9e68fbe6ff4130f1b0d50  /tmp/helix-src.zip" | sha256sum -c -
+          unzip -q /tmp/helix-src.zip -d /tmp/helix
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('/tmp/helix/helix-health-bridge')
+          manifest=root/'app/src/main/AndroidManifest.xml'
+          s=manifest.read_text(); n='    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n'
+          assert 'android.permission.ACTIVITY_RECOGNITION' not in s
+          manifest.write_text(s.replace(n,n+'    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />\n'))
+          main=root/'app/src/main/java/com/lumenhelix/healthbridge/MainActivity.kt'
+          s=main.read_text()
+          old='''    private val notificationLauncher = registerForActivityResult(\n        ActivityResultContracts.RequestPermission()\n    ) { }\n'''
+          new='''    private val notificationLauncher = registerForActivityResult(\n        ActivityResultContracts.RequestPermission()\n    ) { }\n\n    private val physicalActivityLauncher = registerForActivityResult(\n        ActivityResultContracts.RequestPermission()\n    ) { granted ->\n        if (granted) {\n            startLive()\n        } else {\n            binding.statusText.text = "Physical Activity permission is required for Android health live mode."\n        }\n    }\n'''
+          assert old in s; s=s.replace(old,new)
+          old2='''            if (Build.VERSION.SDK_INT >= 33 &&\n                ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED\n            ) {\n                notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)\n            }\n            val minutes = binding.liveCadenceSpinner.selectedItem.toString().substringBefore(" ").toLong()\n'''
+          new2='''            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&\n                ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED\n            ) {\n                physicalActivityLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)\n                return@launch\n            }\n            if (Build.VERSION.SDK_INT >= 33 &&\n                ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED\n            ) {\n                notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)\n            }\n            val minutes = binding.liveCadenceSpinner.selectedItem.toString().substringBefore(" ").toLong()\n'''
+          assert old2 in s; main.write_text(s.replace(old2,new2))
+          PY
+          cat helix-health-0.3.0/patch-ci.0* | tr -d '\r\n' > /tmp/helix03.patch.gz.b64
+          echo "0159170cbee0bd39642085358990d80535a5f5c00df233783d1c3d4b80588a2b  /tmp/helix03.patch.gz.b64" | sha256sum -c -
+          base64 -d /tmp/helix03.patch.gz.b64 | gzip -d > /tmp/helix03.patch
+          echo "6aac662d905b8e460fb8004b5a19892218e36cd476a752b0c1e0f834bcb498d4  /tmp/helix03.patch" | sha256sum -c -
+          cd /tmp/helix/helix-health-bridge
+          patch --batch --forward -p4 < /tmp/helix03.patch
+
+      - name: Verify split 0.4 transport and dry-run patch
+        run: |
+          set -euxo pipefail
+          cat helix-health-0.4.0/patch-ci.00 helix-health-0.4.0/patch-ci.01 helix-health-0.4.0/patch-ci.02 helix-health-0.4.0/patch-ci.03 | tr -d '\r\n' > /tmp/helix04.split.b64
+          echo "SPLIT_B64_SHA256=$(sha256sum /tmp/helix04.split.b64 | awk '{print $1}')"
+          base64 -d /tmp/helix04.split.b64 > /tmp/helix04.split.gz
+          gzip -t /tmp/helix04.split.gz
+          gzip -dc /tmp/helix04.split.gz > /tmp/helix04.split.patch
+          echo "SPLIT_PATCH_SHA256=$(sha256sum /tmp/helix04.split.patch | awk '{print $1}')"
+          echo "SPLIT_PATCH_BYTES=$(stat -c%s /tmp/helix04.split.patch)"
+          cd /tmp/helix/helix-health-bridge
+          patch --dry-run --batch -p1 < /tmp/helix04.split.patch
+          grep -q 'gemini' /tmp/helix04.split.patch
+          grep -q 'signal_radar' /tmp/helix04.split.patch
+          echo 'HELIX04_SPLIT_TRANSPORT=PASS'
