@@ -68,10 +68,10 @@ jobs:
           grep -q 'include(":app", ":wear")' settings.gradle.kts
 
           cd "$GITHUB_WORKSPACE"
-          cat helix-health-0.4.0/patch-ci.0* | tr -d '\r\n' > /tmp/helix04.patch.gz.b64
-          echo "98cfa7a27c62c0f3f51f65bb3162b996b5ed021a8df0bc26ecd2ee2cc15ea40c  /tmp/helix04.patch.gz.b64" | sha256sum -c -
+          tr -d '\r\n' < helix-health-0.4.0/patch-ci.all > /tmp/helix04.patch.gz.b64
+          echo "17379d3a509af64b9ee95cafee1338797b3afd8898420c65a39cc4f7bb20a037  /tmp/helix04.patch.gz.b64" | sha256sum -c -
           base64 -d /tmp/helix04.patch.gz.b64 | gzip -d > /tmp/helix04.patch
-          echo "b950b4d5cc49faa204a41177bbb476c10e01e7e8cc457df3136811d56e187cfe  /tmp/helix04.patch" | sha256sum -c -
+          echo "fee88cc1420cd4bd3153e6a4dcb417865d5385fd4792ab8bec95bb9b1b3423e8  /tmp/helix04.patch" | sha256sum -c -
           cd /tmp/helix/helix-health-bridge
           patch --batch --forward -p1 < /tmp/helix04.patch
           grep -q 'versionName = "0.4.0"' app/build.gradle.kts
@@ -80,8 +80,15 @@ jobs:
           grep -q 'gemini-3.7-flash' app/src/main/java/com/lumenhelix/healthbridge/ai/GeminiClient.kt
           grep -q 'Credential-only validation' app/src/main/java/com/lumenhelix/healthbridge/ai/GeminiClient.kt
           grep -q 'saveValidatedKey' app/src/main/java/com/lumenhelix/healthbridge/ai/GeminiKeyStore.kt
-          grep -q 'Paste & Connect' app/src/main/res/layout/activity_ai_setup.xml
+          grep -q 'Paste &amp; Connect' app/src/main/res/layout/activity_ai_setup.xml
           grep -q 'signal_radar' app/src/main/java/com/lumenhelix/healthbridge/data/HealthSnapshotRepository.kt
+          grep -q 'androidx.health.services.client.getCapabilities' wear/src/main/java/com/lumenhelix/healthbridge/wear/WearMainActivity.kt
+          grep -q 'concurrent-futures-ktx:1.3.0' wear/build.gradle.kts
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          ET.parse('app/src/main/res/layout/activity_ai_setup.xml')
+          print('AI_SETUP_XML_PARSE=PASS')
+          PY
 
       - name: Generate Gradle wrapper
         working-directory: /tmp/helix/helix-health-bridge
