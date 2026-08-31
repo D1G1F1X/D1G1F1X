@@ -83,8 +83,16 @@ jobs:
           grep -q 'versionName = "0.4.0"' wear/build.gradle.kts
           grep -nE 'kadb|Wearable|MessageClient|DataClient|connectedNodes|sendMessage|listenablefuture|await' app/build.gradle.kts wear/build.gradle.kts app/src/main/java/com/lumenhelix/healthbridge/wearlink/WatchInstaller.kt app/src/main/java/com/lumenhelix/healthbridge/wearlink/WearVitalListenerService.kt wear/src/main/java/com/lumenhelix/healthbridge/wear/WearMainActivity.kt || true
           python3 - <<'PY'
+          from pathlib import Path
+          import re
           import xml.etree.ElementTree as ET
-          ET.parse('app/src/main/res/layout/activity_ai_setup.xml')
+          xml = Path('app/src/main/res/layout/activity_ai_setup.xml')
+          text = xml.read_text()
+          fixed = re.sub(r'&(?!amp;|lt;|gt;|apos;|quot;|#[0-9]+;|#x[0-9A-Fa-f]+;)', '&amp;', text)
+          if fixed != text:
+              xml.write_text(fixed)
+              print('AI_SETUP_XML_AMPERSAND_ESCAPE=APPLIED')
+          ET.parse(xml)
           print('AI_SETUP_XML_PARSE=PASS')
           PY
 
