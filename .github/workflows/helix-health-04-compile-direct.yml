@@ -81,11 +81,19 @@ jobs:
           patch --batch --forward -p1 < /tmp/helix04.patch
           grep -q 'versionName = "0.4.0"' app/build.gradle.kts
           grep -q 'versionName = "0.4.0"' wear/build.gradle.kts
-          grep -nE 'kadb|Wearable|MessageClient|DataClient|connectedNodes|sendMessage|listenablefuture|await' app/build.gradle.kts wear/build.gradle.kts app/src/main/java/com/lumenhelix/healthbridge/wearlink/WatchInstaller.kt app/src/main/java/com/lumenhelix/healthbridge/wearlink/WearVitalListenerService.kt wear/src/main/java/com/lumenhelix/healthbridge/wear/WearMainActivity.kt || true
           python3 - <<'PY'
           from pathlib import Path
           import re
           import xml.etree.ElementTree as ET
+
+          gradle = Path('app/build.gradle.kts')
+          g = gradle.read_text()
+          if 'com.flyfishxu:kadb:2.1.3' in g:
+              gradle.write_text(g.replace('com.flyfishxu:kadb:2.1.3', 'com.flyfishxu:kadb:2.1.1'))
+              print('KADB_VERSION_PIN=2.1.1')
+          else:
+              print('KADB_VERSION_PIN=unchanged')
+
           xml = Path('app/src/main/res/layout/activity_ai_setup.xml')
           text = xml.read_text()
           fixed = re.sub(r'&(?!amp;|lt;|gt;|apos;|quot;|#[0-9]+;|#x[0-9A-Fa-f]+;)', '&amp;', text)
@@ -95,6 +103,7 @@ jobs:
           ET.parse(xml)
           print('AI_SETUP_XML_PARSE=PASS')
           PY
+          grep -nE 'kadb|Wearable|MessageClient|DataClient|connectedNodes|sendMessage|listenablefuture|await' app/build.gradle.kts wear/build.gradle.kts app/src/main/java/com/lumenhelix/healthbridge/wearlink/WatchInstaller.kt app/src/main/java/com/lumenhelix/healthbridge/wearlink/WearVitalListenerService.kt wear/src/main/java/com/lumenhelix/healthbridge/wear/WearMainActivity.kt || true
 
       - name: Generate Gradle wrapper
         working-directory: /tmp/helix/helix-health-bridge
