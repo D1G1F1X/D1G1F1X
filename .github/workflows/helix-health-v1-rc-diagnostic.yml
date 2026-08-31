@@ -76,10 +76,16 @@ jobs:
         run: |
           set -euxo pipefail
           tr -d '\r\n' < "$GITHUB_WORKSPACE/helix-health-v1/rc1.patch.gz.b64" > /tmp/rc1.patch.gz.b64
-          sha256sum /tmp/rc1.patch.gz.b64
+          echo "a128c786790b55f4029d775e9281103555c13c1608f9b6dca5a72dc8a7b6cb0e  /tmp/rc1.patch.gz.b64" | sha256sum -c -
+          base64 -d /tmp/rc1.patch.gz.b64 | gzip -t
           base64 -d /tmp/rc1.patch.gz.b64 | gzip -d > /tmp/rc1.patch
-          sha256sum /tmp/rc1.patch
+          echo "09a5aba6aaa51837a43c630f7d05b2872192d3a56312e192c0e737a0c3172d5f  /tmp/rc1.patch" | sha256sum -c -
           echo '=== RC1 PATCH HEADER ==='
           sed -n '1,260p' /tmp/rc1.patch
           echo '=== RC1 DRY RUN ==='
-          patch --dry-run --batch -p1 < /tmp/rc1.patch
+          patch --dry-run --batch -p4 < /tmp/rc1.patch
+          grep -q 'versionName = "1.0.0-rc1"' /tmp/rc1.patch
+          grep -q 'FileProvider' /tmp/rc1.patch
+          grep -q 'com.flyfishxu:kadb' app/build.gradle.kts
+          grep -q 'com.flyfishxu:kadb' /tmp/rc1.patch
+          echo 'HELIX_V1_RC_PATCH_VERIFY=PASS'
