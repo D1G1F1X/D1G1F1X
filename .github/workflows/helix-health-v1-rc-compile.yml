@@ -1,0 +1,152 @@
+name: HELIX Health v1 RC compile gate
+
+on:
+  push:
+    branches: [build/helix-health-0.3.0]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile-lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK 36
+        run: |
+          set -euxo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Reconstruct audited baseline
+        run: |
+          set -euxo pipefail
+          git fetch origin build/helix-health-bridge-0.2.0 --depth=1
+          OLD=$(git rev-parse FETCH_HEAD)
+          mkdir -p /tmp/helix
+          for i in 00 01 02 03 04 05 06 07 08 09; do git show "$OLD:helix-health-build/src_$i"; done | base64 -d > /tmp/helix-src.zip
+          echo "dd9883de483de57fcfc323e985b695be8a0e9f0076d9e68fbe6ff4130f1b0d50  /tmp/helix-src.zip" | sha256sum -c -
+          unzip -q /tmp/helix-src.zip -d /tmp/helix
+
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path('/tmp/helix/helix-health-bridge')
+          manifest = root / 'app/src/main/AndroidManifest.xml'
+          s = manifest.read_text()
+          needle = '    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n'
+          assert 'android.permission.ACTIVITY_RECOGNITION' not in s
+          manifest.write_text(s.replace(needle, needle + '    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />\n'))
+          main = root / 'app/src/main/java/com/lumenhelix/healthbridge/MainActivity.kt'
+          s = main.read_text()
+          old = '''    private val notificationLauncher = registerForActivityResult(\n        ActivityResultContracts.RequestPermission()\n    ) { }\n'''
+          new = '''    private val notificationLauncher = registerForActivityResult(\n        ActivityResultContracts.RequestPermission()\n    ) { }\n\n    private val physicalActivityLauncher = registerForActivityResult(\n        ActivityResultContracts.RequestPermission()\n    ) { granted ->\n        if (granted) {\n            startLive()\n        } else {\n            binding.statusText.text = "Physical Activity permission is required for Android health live mode."\n        }\n    }\n'''
+          assert old in s
+          s = s.replace(old, new)
+          old2 = '''            if (Build.VERSION.SDK_INT >= 33 &&\n                ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED\n            ) {\n                notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)\n            }\n            val minutes = binding.liveCadenceSpinner.selectedItem.toString().substringBefore(" ").toLong()\n'''
+          new2 = '''            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&\n                ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED\n            ) {\n                physicalActivityLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)\n                return@launch\n            }\n            if (Build.VERSION.SDK_INT >= 33 &&\n                ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED\n            ) {\n                notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)\n            }\n            val minutes = binding.liveCadenceSpinner.selectedItem.toString().substringBefore(" ").toLong()\n'''
+          assert old2 in s
+          main.write_text(s.replace(old2, new2))
+          PY
+          echo "cc9e80d4070aa4685dcfe66a1225c9b56e6206be2ea916dd91d88ad3d505cc67  /tmp/helix/helix-health-bridge/app/src/main/AndroidManifest.xml" | sha256sum -c -
+          echo "50b03bf8ddeafeb36556e6e76bfd5548d6bc61860ad43a5cba9f971004e0fe45  /tmp/helix/helix-health-bridge/app/src/main/java/com/lumenhelix/healthbridge/MainActivity.kt" | sha256sum -c -
+
+      - name: Apply verified 0.3 and 0.4 deltas
+        run: |
+          set -euxo pipefail
+          cat helix-health-0.3.0/patch-ci.0* | tr -d '\r\n' > /tmp/helix03.patch.gz.b64
+          echo "0159170cbee0bd39642085358990d80535a5f5c00df233783d1c3d4b80588a2b  /tmp/helix03.patch.gz.b64" | sha256sum -c -
+          base64 -d /tmp/helix03.patch.gz.b64 | gzip -d > /tmp/helix03.patch
+          echo "6aac662d905b8e460fb8004b5a19892218e36cd476a752b0c1e0f834bcb498d4  /tmp/helix03.patch" | sha256sum -c -
+          cd /tmp/helix/helix-health-bridge
+          patch --batch --forward -p4 < /tmp/helix03.patch
+
+          cd "$GITHUB_WORKSPACE"
+          tr -d '\r\n' < helix-health-0.4.0/patch-ci.v2 > /tmp/helix04.patch.gz.b64
+          base64 -d /tmp/helix04.patch.gz.b64 | gzip -d > /tmp/helix04.patch
+          echo "ab882eb4fa1bd4e0b948f9f553cc669911595a5f50dcd14fbb55ca2712989d92  /tmp/helix04.patch" | sha256sum -c -
+          cd /tmp/helix/helix-health-bridge
+          patch --batch --forward -p1 < /tmp/helix04.patch
+          grep -q 'versionName = "0.4.0"' app/build.gradle.kts
+          grep -q 'gemini-3.7-flash' app/src/main/java/com/lumenhelix/healthbridge/ai/GeminiClient.kt
+          grep -q 'Credential-only validation' app/src/main/java/com/lumenhelix/healthbridge/ai/GeminiClient.kt
+          grep -q 'saveValidatedKey' app/src/main/java/com/lumenhelix/healthbridge/ai/GeminiKeyStore.kt
+          grep -q 'signal_radar' app/src/main/java/com/lumenhelix/healthbridge/data/HealthSnapshotRepository.kt
+
+      - name: Apply v1 RC license-safe installer boundary
+        run: |
+          set -euxo pipefail
+          tr -d '\r\n' < helix-health-v1/rc1.patch.gz.b64 > /tmp/rc1.patch.gz.b64
+          echo "a128c786790b55f4029d775e9281103555c13c1608f9b6dca5a72dc8a7b6cb0e  /tmp/rc1.patch.gz.b64" | sha256sum -c -
+          base64 -d /tmp/rc1.patch.gz.b64 | gzip -d > /tmp/rc1.patch
+          echo "09a5aba6aaa51837a43c630f7d05b2872192d3a56312e192c0e737a0c3172d5f  /tmp/rc1.patch" | sha256sum -c -
+          cd /tmp/helix/helix-health-bridge
+          patch --dry-run --batch -p4 < /tmp/rc1.patch
+          patch --batch --forward -p4 < /tmp/rc1.patch
+
+          grep -q 'versionName = "1.0.0-rc1"' app/build.gradle.kts
+          grep -q 'versionName = "1.0.0-rc1"' wear/build.gradle.kts
+          ! grep -q 'com.flyfishxu:kadb' app/build.gradle.kts
+          ! grep -Rqs 'com.flyfishxu.kadb' app/src/main/java
+          grep -q 'prepareEmbeddedWatchApk' app/src/main/java/com/lumenhelix/healthbridge/wearlink/WatchInstaller.kt
+          grep -q 'launchDedicatedInstaller' app/src/main/java/com/lumenhelix/healthbridge/wearlink/WatchInstaller.kt
+          grep -q 'Credential-only validation' app/src/main/java/com/lumenhelix/healthbridge/ai/GeminiClient.kt
+          grep -q 'signal_radar' app/src/main/java/com/lumenhelix/healthbridge/data/HealthSnapshotRepository.kt
+
+      - name: Generate Gradle wrapper
+        working-directory: /tmp/helix/helix-health-bridge
+        run: gradle wrapper --gradle-version 8.11.1 --distribution-type bin
+
+      - name: Lint phone and watch
+        working-directory: /tmp/helix/helix-health-bridge
+        run: ./gradlew :wear:lintRelease :app:lintRelease --no-daemon --stacktrace
+
+      - name: Assemble phone and watch
+        working-directory: /tmp/helix/helix-health-bridge
+        run: ./gradlew :wear:assembleRelease :app:assembleRelease --no-daemon --stacktrace
+
+      - name: Verify compile-gate artifacts
+        run: |
+          set -euxo pipefail
+          PHONE=/tmp/helix/helix-health-bridge/app/build/outputs/apk/release/app-release-unsigned.apk
+          WATCH=/tmp/helix/helix-health-bridge/wear/build/outputs/apk/release/wear-release-unsigned.apk
+          test -s "$PHONE"
+          test -s "$WATCH"
+          test "$(stat -c%s "$PHONE")" -gt 100000
+          test "$(stat -c%s "$WATCH")" -gt 100000
+          unzip -t "$PHONE" >/dev/null
+          unzip -t "$WATCH" >/dev/null
+          sha256sum "$PHONE" "$WATCH"
+
+      - name: Package compile-gate evidence
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/artifact/lint
+          PHONE=/tmp/helix/helix-health-bridge/app/build/outputs/apk/release/app-release-unsigned.apk
+          WATCH=/tmp/helix/helix-health-bridge/wear/build/outputs/apk/release/wear-release-unsigned.apk
+          cp "$PHONE" /tmp/artifact/HELIX-Health-1.0.0-rc1-phone-unsigned.apk
+          cp "$WATCH" /tmp/artifact/HELIX-Health-Watch-1.0.0-rc1-unsigned.apk
+          find /tmp/helix/helix-health-bridge -path '*/build/reports/lint-results-release.*' -type f -exec cp {} /tmp/artifact/lint/ \; || true
+          cd /tmp/helix
+          zip -qr /tmp/artifact/HELIX-Health-1.0.0-rc1-compile-source.zip helix-health-bridge
+          cd /tmp/artifact
+          sha256sum HELIX-Health-1.0.0-rc1-phone-unsigned.apk HELIX-Health-Watch-1.0.0-rc1-unsigned.apk HELIX-Health-1.0.0-rc1-compile-source.zip > SHA256SUMS.txt
+          printf 'baseline_commit=%s\nhead_commit=%s\nrc_patch_sha256=%s\n' '0f90dbd2dc0b4bbee67e596e8ccae525d5f8e01b' "$GITHUB_SHA" '09a5aba6aaa51837a43c630f7d05b2872192d3a56312e192c0e737a0c3172d5f' > PROVENANCE.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: helix-health-v1-rc1-compile-gate
+          path: /tmp/artifact
+          if-no-files-found: error
+          retention-days: 7
