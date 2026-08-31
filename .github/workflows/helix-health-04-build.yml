@@ -69,15 +69,18 @@ jobs:
 
           cd "$GITHUB_WORKSPACE"
           cat helix-health-0.4.0/patch-ci.0* | tr -d '\r\n' > /tmp/helix04.patch.gz.b64
-          echo "719ef22ee605cd1fee42ec87a1a4d0696236f0a81c5437cb20d7c8aea762700a  /tmp/helix04.patch.gz.b64" | sha256sum -c -
+          echo "98cfa7a27c62c0f3f51f65bb3162b996b5ed021a8df0bc26ecd2ee2cc15ea40c  /tmp/helix04.patch.gz.b64" | sha256sum -c -
           base64 -d /tmp/helix04.patch.gz.b64 | gzip -d > /tmp/helix04.patch
-          echo "17b1629f8db04725d8a62a204c66beefa21593b05619b4f6c5ae1cfa9d6fedc7  /tmp/helix04.patch" | sha256sum -c -
+          echo "b950b4d5cc49faa204a41177bbb476c10e01e7e8cc457df3136811d56e187cfe  /tmp/helix04.patch" | sha256sum -c -
           cd /tmp/helix/helix-health-bridge
           patch --batch --forward -p1 < /tmp/helix04.patch
           grep -q 'versionName = "0.4.0"' app/build.gradle.kts
           grep -q 'versionName = "0.4.0"' wear/build.gradle.kts
           grep -q 'includeGroup("com.github.Flyfish233")' settings.gradle.kts
           grep -q 'gemini-3.7-flash' app/src/main/java/com/lumenhelix/healthbridge/ai/GeminiClient.kt
+          grep -q 'Credential-only validation' app/src/main/java/com/lumenhelix/healthbridge/ai/GeminiClient.kt
+          grep -q 'saveValidatedKey' app/src/main/java/com/lumenhelix/healthbridge/ai/GeminiKeyStore.kt
+          grep -q 'Paste & Connect' app/src/main/res/layout/activity_ai_setup.xml
           grep -q 'signal_radar' app/src/main/java/com/lumenhelix/healthbridge/data/HealthSnapshotRepository.kt
 
       - name: Generate Gradle wrapper
