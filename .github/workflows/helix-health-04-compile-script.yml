@@ -1,4 +1,4 @@
-name: HELIX Health 0.4 script phone watch compile
+name: HELIX Health v1 phone watch compile
 
 on:
   push:
@@ -34,6 +34,15 @@ jobs:
         run: python3 helix-health-0.4.0/release_postfix.py
       - name: Apply required Wear packaging metadata
         run: python3 helix-health-0.4.0/wear_manifest_postfix.py
+      - name: Promote exact green source to v1.0.0
+        run: python3 helix-health-0.4.0/release_version_postfix.py
+      - name: Verify v1 version symmetry
+        run: |
+          set -euxo pipefail
+          grep -q 'versionCode = 100' /tmp/helix/helix-health-bridge/app/build.gradle.kts
+          grep -q 'versionName = "1.0.0"' /tmp/helix/helix-health-bridge/app/build.gradle.kts
+          grep -q 'versionCode = 100' /tmp/helix/helix-health-bridge/wear/build.gradle.kts
+          grep -q 'versionName = "1.0.0"' /tmp/helix/helix-health-bridge/wear/build.gradle.kts
       - name: Generate Gradle wrapper
         working-directory: /tmp/helix/helix-health-bridge
         run: gradle wrapper --gradle-version 8.11.1 --distribution-type bin
@@ -43,26 +52,26 @@ jobs:
       - name: Assemble phone and watch
         working-directory: /tmp/helix/helix-health-bridge
         run: ./gradlew :wear:assembleRelease :app:assembleRelease --no-daemon --stacktrace
-      - name: Align and package compile-gate outputs
+      - name: Align and package v1 compile-gate outputs
         run: |
           set -euxo pipefail
           mkdir -p /tmp/artifact/lint
           SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
           PHONE=/tmp/helix/helix-health-bridge/app/build/outputs/apk/release/app-release-unsigned.apk
           WATCH=/tmp/helix/helix-health-bridge/wear/build/outputs/apk/release/wear-release-unsigned.apk
-          PHONE_ALIGNED=/tmp/artifact/HELIX-Health-0.4.0-phone-compile-gate-unsigned.apk
-          WATCH_ALIGNED=/tmp/artifact/HELIX-Health-Watch-0.4.0-compile-gate-unsigned.apk
+          PHONE_ALIGNED=/tmp/artifact/HELIX-Health-v1.0.0-phone-aligned-unsigned.apk
+          WATCH_ALIGNED=/tmp/artifact/HELIX-Health-v1.0.0-watch-aligned-unsigned.apk
           "$SDK/build-tools/36.0.0/zipalign" -p -f 4 "$PHONE" "$PHONE_ALIGNED"
           "$SDK/build-tools/36.0.0/zipalign" -p -f 4 "$WATCH" "$WATCH_ALIGNED"
           "$SDK/build-tools/36.0.0/zipalign" -c -v 4 "$PHONE_ALIGNED"
           "$SDK/build-tools/36.0.0/zipalign" -c -v 4 "$WATCH_ALIGNED"
           find /tmp/helix/helix-health-bridge -path '*/build/reports/lint-results-release.*' -type f -exec cp {} /tmp/artifact/lint/ \; || true
           cd /tmp/helix
-          zip -qr /tmp/artifact/HELIX-Health-0.4.0-compile-gate-source.zip helix-health-bridge
-          sha256sum "$PHONE_ALIGNED" "$WATCH_ALIGNED" /tmp/artifact/HELIX-Health-0.4.0-compile-gate-source.zip > /tmp/artifact/SHA256SUMS.txt
+          zip -qr /tmp/artifact/HELIX-Health-v1.0.0-compile-gate-source.zip helix-health-bridge
+          sha256sum "$PHONE_ALIGNED" "$WATCH_ALIGNED" /tmp/artifact/HELIX-Health-v1.0.0-compile-gate-source.zip > /tmp/artifact/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: helix-health-0.4.0-script-compile-gate
+          name: helix-health-v1.0.0-compile-gate
           path: /tmp/artifact
           if-no-files-found: error
           retention-days: 7
