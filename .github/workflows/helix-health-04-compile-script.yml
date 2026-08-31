@@ -38,9 +38,11 @@ jobs:
         run: python3 helix-health-0.4.0/passive_monitoring_postfix.py
       - name: Polish Wear v1 release UX and packaging
         run: python3 helix-health-0.4.0/release_polish_postfix.py
+      - name: Eliminate remaining non-dependency lint warnings
+        run: python3 helix-health-0.4.0/release_warning_postfix.py
       - name: Promote exact green source to v1.0.0
         run: python3 helix-health-0.4.0/release_version_postfix.py
-      - name: Verify v1 version symmetry
+      - name: Verify v1 version symmetry and release wiring
         run: |
           set -euxo pipefail
           grep -q 'versionCode = 100' /tmp/helix/helix-health-bridge/app/build.gradle.kts
@@ -54,7 +56,11 @@ jobs:
           grep -q 'android:icon="@mipmap/ic_launcher"' /tmp/helix/helix-health-bridge/wear/src/main/AndroidManifest.xml
           grep -q 'android:taskAffinity=""' /tmp/helix/helix-health-bridge/wear/src/main/AndroidManifest.xml
           grep -q 'android:dataExtractionRules="@xml/data_extraction_rules"' /tmp/helix/helix-health-bridge/wear/src/main/AndroidManifest.xml
+          grep -q 'android:fullBackupContent="false"' /tmp/helix/helix-health-bridge/wear/src/main/AndroidManifest.xml
           grep -q 'getString(R.string.status_background_armed)' /tmp/helix/helix-health-bridge/wear/src/main/java/com/lumenhelix/healthbridge/wear/WearMainActivity.kt
+          grep -q 'monochrome android:drawable="@drawable/ic_launcher_monochrome"' /tmp/helix/helix-health-bridge/wear/src/main/res/mipmap-anydpi/ic_launcher.xml
+          grep -q 'monochrome android:drawable="@drawable/ic_launcher_monochrome"' /tmp/helix/helix-health-bridge/wear/src/main/res/mipmap-anydpi/ic_launcher_round.xml
+          test ! -d /tmp/helix/helix-health-bridge/wear/src/main/res/mipmap-anydpi-v26
       - name: Generate Gradle wrapper
         working-directory: /tmp/helix/helix-health-bridge
         run: gradle wrapper --gradle-version 8.11.1 --distribution-type bin
