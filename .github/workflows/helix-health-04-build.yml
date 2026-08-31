@@ -68,22 +68,22 @@ jobs:
           grep -q 'include(":app", ":wear")' settings.gradle.kts
 
           cd "$GITHUB_WORKSPACE"
-          tr -d '\r\n' < helix-health-0.4.0/patch-ci.all > /tmp/helix04.patch.gz.b64
-          echo "17379d3a509af64b9ee95cafee1338797b3afd8898420c65a39cc4f7bb20a037  /tmp/helix04.patch.gz.b64" | sha256sum -c -
+          tr -d '\r\n' < helix-health-0.4.0/patch-ci.v2 > /tmp/helix04.patch.gz.b64
+          echo "aebe8e95d26f52ec8a85f1bff299a41d85d6cf0cde761a47183e526e76979a27  /tmp/helix04.patch.gz.b64" | sha256sum -c -
           base64 -d /tmp/helix04.patch.gz.b64 | gzip -d > /tmp/helix04.patch
-          echo "fee88cc1420cd4bd3153e6a4dcb417865d5385fd4792ab8bec95bb9b1b3423e8  /tmp/helix04.patch" | sha256sum -c -
+          echo "ab882eb4fa1bd4e0b948f9f553cc669911595a5f50dcd14fbb55ca2712989d92  /tmp/helix04.patch" | sha256sum -c -
           cd /tmp/helix/helix-health-bridge
           patch --batch --forward -p1 < /tmp/helix04.patch
           grep -q 'versionName = "0.4.0"' app/build.gradle.kts
           grep -q 'versionName = "0.4.0"' wear/build.gradle.kts
-          grep -q 'includeGroup("com.github.Flyfish233")' settings.gradle.kts
+          grep -q 'com.flyfishxu:kadb:2.1.1' app/build.gradle.kts
+          grep -q 'com.google.guava:listenablefuture:1.0' wear/build.gradle.kts
+          grep -q 'getCapabilitiesAsync().await()' wear/src/main/java/com/lumenhelix/healthbridge/wear/WearMainActivity.kt
           grep -q 'gemini-3.7-flash' app/src/main/java/com/lumenhelix/healthbridge/ai/GeminiClient.kt
           grep -q 'Credential-only validation' app/src/main/java/com/lumenhelix/healthbridge/ai/GeminiClient.kt
           grep -q 'saveValidatedKey' app/src/main/java/com/lumenhelix/healthbridge/ai/GeminiKeyStore.kt
           grep -q 'Paste &amp; Connect' app/src/main/res/layout/activity_ai_setup.xml
           grep -q 'signal_radar' app/src/main/java/com/lumenhelix/healthbridge/data/HealthSnapshotRepository.kt
-          grep -q 'androidx.health.services.client.getCapabilities' wear/src/main/java/com/lumenhelix/healthbridge/wear/WearMainActivity.kt
-          grep -q 'concurrent-futures-ktx:1.3.0' wear/build.gradle.kts
           python3 - <<'PY'
           import xml.etree.ElementTree as ET
           ET.parse('app/src/main/res/layout/activity_ai_setup.xml')
