@@ -36,6 +36,8 @@ jobs:
         run: python3 helix-health-0.4.0/wear_manifest_postfix.py
       - name: Add passive Wear heart monitoring
         run: python3 helix-health-0.4.0/passive_monitoring_postfix.py
+      - name: Polish Wear v1 release UX and packaging
+        run: python3 helix-health-0.4.0/release_polish_postfix.py
       - name: Promote exact green source to v1.0.0
         run: python3 helix-health-0.4.0/release_version_postfix.py
       - name: Verify v1 version symmetry
@@ -49,6 +51,10 @@ jobs:
           grep -q 'PASSIVE_DATA_BINDING' /tmp/helix/helix-health-bridge/wear/src/main/AndroidManifest.xml
           grep -q 'setPassiveListenerService' /tmp/helix/helix-health-bridge/wear/src/main/java/com/lumenhelix/healthbridge/wear/WearMainActivity.kt
           grep -q 'onDataChanged' /tmp/helix/helix-health-bridge/app/src/main/java/com/lumenhelix/healthbridge/wearlink/WearVitalListenerService.kt
+          grep -q 'android:icon="@mipmap/ic_launcher"' /tmp/helix/helix-health-bridge/wear/src/main/AndroidManifest.xml
+          grep -q 'android:taskAffinity=""' /tmp/helix/helix-health-bridge/wear/src/main/AndroidManifest.xml
+          grep -q 'android:dataExtractionRules="@xml/data_extraction_rules"' /tmp/helix/helix-health-bridge/wear/src/main/AndroidManifest.xml
+          grep -q 'getString(R.string.status_background_armed)' /tmp/helix/helix-health-bridge/wear/src/main/java/com/lumenhelix/healthbridge/wear/WearMainActivity.kt
       - name: Generate Gradle wrapper
         working-directory: /tmp/helix/helix-health-bridge
         run: gradle wrapper --gradle-version 8.11.1 --distribution-type bin
